@@ -1,0 +1,31 @@
+/*
+  Localizable.strings
+  Prose
+
+  Created by Valerian Saliou on 11/15/21.
+*/
+
+"sidebar_section_spotlight" = "Spotlight";
+"sidebar_section_favorites" = "Favorites";
+"sidebar_section_team_members" = "Team members";
+"sidebar_section_other_contacts" = "Other contacts";
+"sidebar_section_groups" = "Groups";
+
+"sidebar_spotlight_unread_stack" = "Unread stack";
+"sidebar_spotlight_replies" = "Replies";
+"sidebar_spotlight_direct_messages" = "Direct messages";
+"sidebar_spotlight_people_and_groups" = "People & groups";
+
+"sidebar_groups_add" = "Add a group";
+
+"sidebar_team_members_add" = "Add a member";
+
+"sidebar_other_contacts_add" = "Add a contact";
+
+"content_message_details_information_title" = "Information";
+"content_message_details_security_title" = "Security";
+"content_message_details_actions_title" = "Actions";
+
+"content_message_bar_compose_typing" = "%@ is typing…";
+"content_message_bar_field_placeholder" = "Message %@";
+
