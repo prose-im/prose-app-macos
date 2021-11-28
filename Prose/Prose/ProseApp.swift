@@ -16,6 +16,8 @@ struct ProseApp: App {
         .windowStyle(DefaultWindowStyle())
         .windowToolbarStyle(UnifiedWindowToolbarStyle())
         .commands {
+            SidebarCommands()
+            
             CommandMenu("TODO Menu") {
                 Button("Say Hello") {
                     print("Hello!")

@@ -32,7 +32,7 @@ struct SidebarView: View {
     @State var selection: SidebarID? = .unreadStack
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             SidebarPartSectionsComponent(
                 selection: selection
             )

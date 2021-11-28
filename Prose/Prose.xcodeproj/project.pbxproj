@@ -21,6 +21,9 @@
 		520D8F002753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8EFF2753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift */; };
 		520D8F022753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F012753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift */; };
 		520D8F042753CF5100AE73D4 /* SidebarSectionGroupsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F032753CF5100AE73D4 /* SidebarSectionGroupsComponent.swift */; };
+		520D8F062754294D00AE73D4 /* SidebarContextAvatarComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */; };
+		520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */; };
+		520D8F0A2754296C00AE73D4 /* SidebarContextActionsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */; };
 		5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */; };
 		5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */; };
 		52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */; };
@@ -62,6 +65,9 @@
 		520D8EFF2753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSectionTeamMembersComponent.swift; sourceTree = "<group>"; };
 		520D8F012753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSectionOtherContactsComponent.swift; sourceTree = "<group>"; };
 		520D8F032753CF5100AE73D4 /* SidebarSectionGroupsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSectionGroupsComponent.swift; sourceTree = "<group>"; };
+		520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextAvatarComponent.swift; sourceTree = "<group>"; };
+		520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextCurrentComponent.swift; sourceTree = "<group>"; };
+		520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextActionsComponent.swift; sourceTree = "<group>"; };
 		5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMessengerView.swift; sourceTree = "<group>"; };
 		5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDetailsView.swift; sourceTree = "<group>"; };
 		52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsIdentityComponent.swift; sourceTree = "<group>"; };
@@ -259,6 +265,9 @@
 				520D8EFF2753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift */,
 				520D8F012753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift */,
 				520D8F032753CF5100AE73D4 /* SidebarSectionGroupsComponent.swift */,
+				520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */,
+				520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */,
+				520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */,
 			);
 			path = Sidebar;
 			sourceTree = "<group>";
@@ -365,9 +374,11 @@
 				52C8D195274D8256006C9360 /* ContentMessageDetailsSecurityComponent.swift in Sources */,
 				520D8EF62753C71F00AE73D4 /* ContentCommonToolbarAuthenticationComponent.swift in Sources */,
 				52EA1192274C24C9007DA1C5 /* SidebarNavigationComponent.swift in Sources */,
+				520D8F062754294D00AE73D4 /* SidebarContextAvatarComponent.swift in Sources */,
 				52C8D1A1274E45BD006C9360 /* ContentMessageBarFieldComponent.swift in Sources */,
 				52EA1197274C2550007DA1C5 /* SidebarView.swift in Sources */,
 				52C8D193274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift in Sources */,
+				520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */,
 				520D8EF42753C38700AE73D4 /* ContentCommonToolbarActionsComponent.swift in Sources */,
 				52EA1174274C23C2007DA1C5 /* ContentView.swift in Sources */,
 				52EA1199274C2558007DA1C5 /* MessageView.swift in Sources */,
@@ -388,6 +399,7 @@
 				52C8D19F274E458F006C9360 /* ContentMessageBarComposeComponent.swift in Sources */,
 				520D8EEA27539CAB00AE73D4 /* SidebarContactComponent.swift in Sources */,
 				52C8D19D274E3B36006C9360 /* CommonButtonActionComponent.swift in Sources */,
+				520D8F0A2754296C00AE73D4 /* SidebarContextActionsComponent.swift in Sources */,
 				52C8D19A274E338F006C9360 /* ContentCommonNameStatusComponent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

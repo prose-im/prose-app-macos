@@ -16,6 +16,10 @@ extension Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
     }
     
+    public static var borderPrimary: Color {
+        return Color(red: 131.0 / 255.0, green: 131.0 / 255.0, blue: 131.0 / 255.0)
+    }
+    
     public static var borderSecondary: Color {
         return Color(red: 189.0 / 255.0, green: 189.0 / 255.0, blue: 189.0 / 255.0)
     }

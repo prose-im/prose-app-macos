@@ -13,9 +13,10 @@ struct BaseView: View {
     var body: some View {
         NavigationView {
             SidebarView(selection: selection)
-                .frame(minWidth: 240.0)
+                .frame(minWidth: 280.0)
         }
-        .frame(minWidth: 1200, minHeight: 720)
+        .listStyle(SidebarListStyle())
+        .frame(minWidth: 1280, minHeight: 720)
     }
 }
 
