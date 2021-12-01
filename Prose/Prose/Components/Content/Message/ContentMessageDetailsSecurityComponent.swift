@@ -12,12 +12,14 @@ struct ContentMessageDetailsSecurityComponent: View {
         .init(
             value: "content_message_details_security_identity_verified".localized(),
             image: .system("checkmark.seal.fill"),
-            imageColor: .stateGreen
+            imageColor: .stateGreen,
+            informationAction: true
         ),
         .init(
             value: "content_message_details_security_encrypted".localized() + " (C648A)",
             image: .system("lock.fill"),
-            imageColor: .stateBlue
+            imageColor: .stateBlue,
+            informationAction: true
         ),
     ]
     

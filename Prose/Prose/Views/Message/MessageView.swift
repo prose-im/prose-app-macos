@@ -18,7 +18,7 @@ struct MessageView: View {
                 avatar: "avatar-valerian",
                 name: "Valerian Saliou"
             )
-                .frame(width: 200.0)
+                .frame(width: 220.0)
         }
     }
 }

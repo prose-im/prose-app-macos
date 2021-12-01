@@ -28,8 +28,9 @@ extension ContentMessageDetailsEntryImage: Hashable {
 struct ContentMessageDetailsEntryOption: Hashable {
     let value: String
     let image: ContentMessageDetailsEntryImage
-    var valueColor: Color? = nil
-    var imageColor: Color? = nil
+    var valueColor: Color = .textPrimaryLight
+    var imageColor: Color = .stateGrey
+    var informationAction: Bool = false
 }
 
 struct ContentMessageDetailsEntryComponent: View {
@@ -43,7 +44,7 @@ struct ContentMessageDetailsEntryComponent: View {
             case .system(let inner):
                 Image(systemName: inner)
                     .font(.system(size: 13))
-                    .foregroundColor(entry.imageColor ?? .stateGrey)
+                    .foregroundColor(entry.imageColor)
                     .frame(width: iconFrameMinWidth, alignment: .center)
             case .literal(let inner):
                 Text(verbatim: inner)
@@ -52,7 +53,18 @@ struct ContentMessageDetailsEntryComponent: View {
             
             Text(verbatim: entry.value)
                 .font(.system(size: 13))
-                .foregroundColor(entry.valueColor ?? .textPrimaryLight)
+                .foregroundColor(entry.valueColor)
+            
+            Spacer()
+            
+            if entry.informationAction {
+                Button(action: {}) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 13))
+                        .foregroundColor(.black.opacity(0.50))
+                }
+                    .buttonStyle(PlainButtonStyle())
+            }
         }
     }
 }
@@ -62,7 +74,8 @@ struct ContentMessageDetailsEntryComponent_Previews: PreviewProvider {
         ContentMessageDetailsEntryComponent(
             entry: .init(
                 value: "Lima, Peru",
-                image: .system("location.fill")
+                image: .system("location.fill"),
+                informationAction: true
             )
         )
     }
