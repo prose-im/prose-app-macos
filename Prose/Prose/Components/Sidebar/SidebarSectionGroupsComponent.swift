@@ -12,25 +12,25 @@ struct SidebarSectionGroupsComponent: View {
     
     let groupsOptions: [SidebarOption] = [
         .init(
-            id: .groupsAtom,
+            id: .groupsAtom("id-xx"),
             title: "bugs",
             image: "circle.grid.2x2",
             count: 0
         ),
         .init(
-            id: .groupsAtom,
+            id: .groupsAtom("id-xx"),
             title: "constellation",
             image: "circle.grid.2x2",
             count: 7
         ),
         .init(
-            id: .groupsAtom,
+            id: .groupsAtom("id-xx"),
             title: "general",
             image: "circle.grid.2x2",
             count: 0
         ),
         .init(
-            id: .groupsAtom,
+            id: .groupsAtom("id-xx"),
             title: "support",
             image: "circle.grid.2x2",
             count: 0

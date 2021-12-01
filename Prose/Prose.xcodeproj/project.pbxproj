@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5209CA06275623BA00CD9554 /* SidebarCounterComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */; };
 		520D8EEA27539CAB00AE73D4 /* SidebarContactComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8EE927539CAB00AE73D4 /* SidebarContactComponent.swift */; };
 		520D8EEC2753A51300AE73D4 /* CommonStatusComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8EEB2753A51300AE73D4 /* CommonStatusComponent.swift */; };
 		520D8EEE2753BEC500AE73D4 /* ContentCommonToolbarComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8EED2753BEC500AE73D4 /* ContentCommonToolbarComponent.swift */; };
@@ -36,6 +37,7 @@
 		52C8D19F274E458F006C9360 /* ContentMessageBarComposeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D19E274E458F006C9360 /* ContentMessageBarComposeComponent.swift */; };
 		52C8D1A1274E45BD006C9360 /* ContentMessageBarFieldComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D1A0274E45BD006C9360 /* ContentMessageBarFieldComponent.swift */; };
 		52C8D1A3274E528F006C9360 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D1A2274E528F006C9360 /* String+Extension.swift */; };
+		52D95F97275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D95F96275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift */; };
 		52EA1172274C23C2007DA1C5 /* ProseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1171274C23C2007DA1C5 /* ProseApp.swift */; };
 		52EA1174274C23C2007DA1C5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1173274C23C2007DA1C5 /* ContentView.swift */; };
 		52EA1176274C23C3007DA1C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 52EA1175274C23C3007DA1C5 /* Assets.xcassets */; };
@@ -51,6 +53,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCounterComponent.swift; sourceTree = "<group>"; };
 		520D8EE927539CAB00AE73D4 /* SidebarContactComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContactComponent.swift; sourceTree = "<group>"; };
 		520D8EEB2753A51300AE73D4 /* CommonStatusComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStatusComponent.swift; sourceTree = "<group>"; };
 		520D8EED2753BEC500AE73D4 /* ContentCommonToolbarComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCommonToolbarComponent.swift; sourceTree = "<group>"; };
@@ -80,6 +83,7 @@
 		52C8D19E274E458F006C9360 /* ContentMessageBarComposeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageBarComposeComponent.swift; sourceTree = "<group>"; };
 		52C8D1A0274E45BD006C9360 /* ContentMessageBarFieldComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageBarFieldComponent.swift; sourceTree = "<group>"; };
 		52C8D1A2274E528F006C9360 /* String+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		52D95F96275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsTitleComponent.swift; sourceTree = "<group>"; };
 		52EA116E274C23C2007DA1C5 /* Prose.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prose.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52EA1171274C23C2007DA1C5 /* ProseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProseApp.swift; sourceTree = "<group>"; };
 		52EA1173274C23C2007DA1C5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -249,6 +253,7 @@
 				52C8D196274D8260006C9360 /* ContentMessageDetailsActionsComponent.swift */,
 				52C8D19E274E458F006C9360 /* ContentMessageBarComposeComponent.swift */,
 				52C8D1A0274E45BD006C9360 /* ContentMessageBarFieldComponent.swift */,
+				52D95F96275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -268,6 +273,7 @@
 				520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */,
 				520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */,
 				520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */,
+				5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */,
 			);
 			path = Sidebar;
 			sourceTree = "<group>";
@@ -389,10 +395,12 @@
 				52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */,
 				52EA118C274C2483007DA1C5 /* ContentMessageBubbleComponent.swift in Sources */,
 				520D8EF22753C37E00AE73D4 /* ContentCommonToolbarTitleComponent.swift in Sources */,
+				5209CA06275623BA00CD9554 /* SidebarCounterComponent.swift in Sources */,
 				520D8EFE2753CF2B00AE73D4 /* SidebarSectionFavoritesComponent.swift in Sources */,
 				520D8EFA2753CD3300AE73D4 /* SidebarPartContextComponent.swift in Sources */,
 				5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */,
 				52EA1195274C2544007DA1C5 /* BaseView.swift in Sources */,
+				52D95F97275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift in Sources */,
 				520D8F002753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift in Sources */,
 				52EA118E274C249A007DA1C5 /* Color+Extension.swift in Sources */,
 				52EA1190274C24B4007DA1C5 /* ContentMessageBarComponent.swift in Sources */,

@@ -31,12 +31,13 @@ struct ContentMessageBarComponent: View {
                             firstName: firstName
                         )
                             .offset(x: 0, y: -32)
-                            .zIndex(1.0)
+                            .zIndex(2)
                         
                         ContentMessageBarFieldComponent(
                             firstName: firstName,
                             message: message
                         )
+                            .zIndex(1)
                     }
                     
                     Spacer()

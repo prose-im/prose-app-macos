@@ -12,13 +12,13 @@ struct SidebarSectionFavoritesComponent: View {
     
     let favoritesOptions: [SidebarOption] = [
         .init(
-            id: .favoritesAtom,
+            id: .favoritesAtom("id-xx"),
             title: "Valerian",
             image: "avatar-valerian",
             count: 0
         ),
         .init(
-            id: .favoritesAtom,
+            id: .favoritesAtom("id-xx"),
             title: "Julien",
             image: "avatar-valerian",
             count: 0

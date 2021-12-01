@@ -14,8 +14,6 @@ struct SidebarContactComponent: View {
     
     var body: some View {
         HStack {
-            let countOrDefault = count ?? 0
-            
             Image(avatar)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -34,10 +32,9 @@ struct SidebarContactComponent: View {
             
             Spacer()
             
-            if countOrDefault > 0 {
-                Text(String(countOrDefault))
-                    .foregroundColor(Color.gray)
-            }
+            SidebarCounterComponent(
+                count: count
+            )
         }
     }
 }

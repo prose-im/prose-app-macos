@@ -12,13 +12,46 @@ enum SidebarID {
     case replies
     case directMessages
     case peopleAndGroups
-    case favoritesAtom
-    case teamMembersAtom
+    case favoritesAtom(String)
+    case teamMembersAtom(String)
     case teamMembersAdd
-    case otherContactsAtom
+    case otherContactsAtom(String)
     case otherContactsAdd
-    case groupsAtom
+    case groupsAtom(String)
     case groupsAdd
+}
+
+extension SidebarID: Hashable {
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .unreadStack:
+            hasher.combine(0)
+        case .replies:
+            hasher.combine(1)
+        case .directMessages:
+            hasher.combine(2)
+        case .peopleAndGroups:
+            hasher.combine(3)
+        case .favoritesAtom(let inner):
+            hasher.combine(4)
+            hasher.combine(inner)
+        case .teamMembersAtom(let inner):
+            hasher.combine(5)
+            hasher.combine(inner)
+        case .teamMembersAdd:
+            hasher.combine(6)
+        case .otherContactsAtom(let inner):
+            hasher.combine(7)
+            hasher.combine(inner)
+        case .otherContactsAdd:
+            hasher.combine(8)
+        case .groupsAtom(let inner):
+            hasher.combine(9)
+            hasher.combine(inner)
+        case .groupsAdd:
+            hasher.combine(10)
+        }
+    }
 }
 
 struct SidebarOption: Hashable {

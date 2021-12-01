@@ -8,6 +8,7 @@
 import SwiftUI
 
 extension Color {
+    // States
     public static var stateGreen: Color {
         return Color(red: 0 / 255.0, green: 171.0 / 255.0, blue: 126.0 / 255.0)
     }
@@ -16,6 +17,7 @@ extension Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
     }
     
+    // Borders
     public static var borderPrimary: Color {
         return Color(red: 131.0 / 255.0, green: 131.0 / 255.0, blue: 131.0 / 255.0)
     }
@@ -28,6 +30,7 @@ extension Color {
         return Color(red: 230.0 / 255.0, green: 230.0 / 255.0, blue: 230.0 / 255.0)
     }
     
+    // Texts
     public static var textPrimary: Color {
         return Color(red: 35.0 / 255.0, green: 37.0 / 255.0, blue: 38.0 / 255.0)
     }
@@ -36,6 +39,7 @@ extension Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
     }
     
+    // Buttons
     public static var buttonPrimary: Color {
         return Color(red: 0.0 / 255.0, green: 98.0 / 255.0, blue: 233.0 / 255.0)
     }

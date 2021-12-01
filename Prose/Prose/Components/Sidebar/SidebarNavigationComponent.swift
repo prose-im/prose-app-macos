@@ -14,16 +14,13 @@ struct SidebarNavigationComponent: View {
     
     var body: some View {
         HStack {
-            let countOrDefault = count ?? 0
-            
             Label(title, systemImage: image)
             
             Spacer()
             
-            if countOrDefault > 0 {
-                Text(String(countOrDefault))
-                    .foregroundColor(Color.gray)
-            }
+            SidebarCounterComponent(
+                count: count
+            )
         }
     }
 }

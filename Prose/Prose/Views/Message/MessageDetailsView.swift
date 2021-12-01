@@ -14,7 +14,7 @@ struct MessageDetailsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             ScrollView {
-                VStack(spacing: 14) {
+                VStack(spacing: 10) {
                     Spacer()
                     
                     VStack(spacing: 3) {
@@ -27,25 +27,45 @@ struct MessageDetailsView: View {
                         
                         ContentMessageDetailsQuickActionsComponent()
                     }
-                     
-                    VStack(spacing: 10) {
-                        // Information
-                        Text("content_message_details_information_title".localized())
-                        
-                        ContentMessageDetailsInformationComponent()
-                        
-                        // Security
-                        Text("content_message_details_security_title".localized())
-                        
-                        ContentMessageDetailsSecurityComponent()
-                        
-                        // Actions
-                        Text("content_message_details_actions_title".localized())
-                        
-                        ContentMessageDetailsActionsComponent()
-                    }
                     
                     Spacer()
+                     
+                    VStack(spacing: 16) {
+                        let paddingSides: CGFloat = 15
+                        
+                        VStack(alignment: .leading, spacing: 0) {
+                            // Information
+                            ContentMessageDetailsTitleComponent(
+                                title: "content_message_details_information_title".localized(),
+                                paddingSides: paddingSides
+                            )
+                            
+                            ContentMessageDetailsInformationComponent()
+                                .padding(.horizontal, paddingSides)
+                        }
+                        
+                        // Security
+                        VStack(alignment: .leading, spacing: 0) {
+                            ContentMessageDetailsTitleComponent(
+                                title: "content_message_details_security_title".localized(),
+                                paddingSides: paddingSides
+                            )
+                            
+                            ContentMessageDetailsSecurityComponent()
+                                .padding(.horizontal, paddingSides)
+                        }
+                        
+                        // Actions
+                        VStack(alignment: .leading, spacing: 0) {
+                            ContentMessageDetailsTitleComponent(
+                                title: "content_message_details_actions_title".localized(),
+                                paddingSides: paddingSides
+                            )
+                            
+                            ContentMessageDetailsActionsComponent()
+                                .padding(.horizontal, paddingSides)
+                        }
+                    }
                 }
             }
         }

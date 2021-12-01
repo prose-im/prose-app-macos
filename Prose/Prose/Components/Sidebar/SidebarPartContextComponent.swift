@@ -20,7 +20,8 @@ struct SidebarPartContextComponent: View {
             HStack(alignment: .center, spacing: 12) {
                 // User avatar
                 SidebarContextAvatarComponent(
-                    avatar: avatar
+                    avatar: avatar,
+                    status: .online
                 )
                 
                 // Team name + user status
