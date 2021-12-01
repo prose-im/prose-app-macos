@@ -13,6 +13,10 @@ extension Color {
         return Color(red: 0 / 255.0, green: 171.0 / 255.0, blue: 126.0 / 255.0)
     }
     
+    public static var stateBlue: Color {
+        return Color(red: 0 / 255.0, green: 98.0 / 255.0, blue: 233.0 / 255.0)
+    }
+    
     public static var stateGrey: Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
     }
@@ -35,8 +39,16 @@ extension Color {
         return Color(red: 35.0 / 255.0, green: 37.0 / 255.0, blue: 38.0 / 255.0)
     }
     
+    public static var textPrimaryLight: Color {
+        return Color(red: 77.0 / 255.0, green: 77.0 / 255.0, blue: 77.0 / 255.0)
+    }
+    
     public static var textSecondary: Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
+    }
+    
+    public static var textSecondaryLight: Color {
+        return Color(red: 128.0 / 255.0, green: 128.0 / 255.0, blue: 128.0 / 255.0)
     }
     
     // Buttons

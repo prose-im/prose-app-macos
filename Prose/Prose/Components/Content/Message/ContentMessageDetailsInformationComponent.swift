@@ -8,15 +8,38 @@
 import SwiftUI
 
 struct ContentMessageDetailsInformationComponent: View {
+    let entries: [ContentMessageDetailsEntryOption] = [
+        .init(
+            value: "valerian@crisp.chat",
+            image: .system("envelope.fill")
+        ),
+        .init(
+            value: "+33631210280",
+            image: .system("iphone")
+        ),
+        .init(
+            value: "Active 1 min ago",
+            image: .system("hand.wave.fill")
+        ),
+        .init(
+            value: "5:03pm (UTC+1)",
+            image: .system("clock.fill")
+        ),
+        .init(
+            value: "Lisbon, Portugal",
+            image: .system("location.fill")
+        ),
+        .init(
+            value: "Focusing on code",
+            image: .literal("👨‍💻"),
+            valueColor: .textSecondaryLight
+        ),
+    ]
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(verbatim: "valerian@crisp.chat")
-            Text(verbatim: "+33631210280")
-            Text(verbatim: "Active 1 min ago")
-            Text(verbatim: "5:03pm (UTC+1)")
-            Text(verbatim: "Lisbon, Portugal")
-            Text(verbatim: "Focusing on code")
-        }
+        ContentMessageDetailsEntriesComponent(
+            entries: entries
+        )
     }
 }
 

@@ -23,7 +23,11 @@
 "sidebar_other_contacts_add" = "Add a contact";
 
 "content_message_details_information_title" = "Information";
+
 "content_message_details_security_title" = "Security";
+"content_message_details_security_identity_verified" = "Identity verified";
+"content_message_details_security_encrypted" = "Encrypted";
+
 "content_message_details_actions_title" = "Actions";
 
 "content_message_bar_compose_typing" = "%@ is typing…";

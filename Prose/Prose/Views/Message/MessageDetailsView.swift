@@ -29,11 +29,13 @@ struct MessageDetailsView: View {
                     }
                     
                     Spacer()
+                        .frame(height: 2)
                      
-                    VStack(spacing: 16) {
+                    VStack(spacing: 22) {
+                        let titleSpacing: CGFloat = 9
                         let paddingSides: CGFloat = 15
                         
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: titleSpacing) {
                             // Information
                             ContentMessageDetailsTitleComponent(
                                 title: "content_message_details_information_title".localized(),
@@ -45,7 +47,7 @@ struct MessageDetailsView: View {
                         }
                         
                         // Security
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: titleSpacing) {
                             ContentMessageDetailsTitleComponent(
                                 title: "content_message_details_security_title".localized(),
                                 paddingSides: paddingSides
@@ -56,7 +58,7 @@ struct MessageDetailsView: View {
                         }
                         
                         // Actions
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: titleSpacing) {
                             ContentMessageDetailsTitleComponent(
                                 title: "content_message_details_actions_title".localized(),
                                 paddingSides: paddingSides
@@ -78,5 +80,7 @@ struct MessageDetailsView_Previews: PreviewProvider {
             avatar: "avatar-valerian",
             name: "Valerian Saliou"
         )
+            .background(.white)
+            .frame(width: 220.0, height: 720)
     }
 }
