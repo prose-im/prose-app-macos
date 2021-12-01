@@ -58,14 +58,18 @@ struct MessageDetailsView: View {
                         }
                         
                         // Actions
-                        VStack(alignment: .leading, spacing: titleSpacing) {
+                        VStack(alignment: .leading, spacing: titleSpacing - 3) {
+                            let paddingActionsSides: CGFloat = 6
+                            
                             ContentMessageDetailsTitleComponent(
                                 title: "content_message_details_actions_title".localized(),
                                 paddingSides: paddingSides
                             )
                             
-                            ContentMessageDetailsActionsComponent()
-                                .padding(.horizontal, paddingSides)
+                            ContentMessageDetailsActionsComponent(
+                                paddingSides: paddingSides - paddingActionsSides
+                            )
+                                .padding(.horizontal, paddingActionsSides)
                         }
                     }
                 }

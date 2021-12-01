@@ -29,6 +29,10 @@
 "content_message_details_security_encrypted" = "Encrypted";
 
 "content_message_details_actions_title" = "Actions";
+"content_message_details_actions_shared_files" = "View shared files";
+"content_message_details_actions_encryption_settings" = "Encryption settings";
+"content_message_details_actions_remove_contact" = "Remove from contacts";
+"content_message_details_actions_block" = "Block contact";
 
 "content_message_bar_compose_typing" = "%@ is typing…";
 "content_message_bar_field_placeholder" = "Message %@";
