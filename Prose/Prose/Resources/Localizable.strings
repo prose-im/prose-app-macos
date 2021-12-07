@@ -62,3 +62,66 @@
 "settings_general_idle_automatically_mark_away_after_option_fifteen_minutes" = "15 minutes";
 "settings_general_idle_automatically_mark_away_after_option_thirty_minutes" = "30 minutes";
 "settings_general_idle_automatically_mark_away_after_option_one_hour" = "1 hour";
+
+"settings_notifications_notify_governor_label" = "Notify me about:";
+"settings_notifications_notify_governor_option_all" = "All messages";
+"settings_notifications_notify_governor_option_direct" = "Private messages";
+"settings_notifications_notify_governor_option_none" = "Nothing";
+
+"settings_notifications_notify_on_reply_toggle" = "Let me know when I receive a message reply";
+
+"settings_notifications_schedule_label" = "Get notified:";
+"settings_notifications_schedule_days_option_anytime" = "Anytime";
+"settings_notifications_schedule_days_option_weekdays" = "On weekdays";
+"settings_notifications_schedule_days_option_weekends" = "On weekends";
+
+"settings_notifications_schedule_time_separator" = "to";
+"settings_notifications_schedule_time_option_morning" = "Morning";
+"settings_notifications_schedule_time_option_evening" = "Evening";
+
+"settings_notifications_action_label" = "When notified:";
+"settings_notifications_action_badge_toggle" = "Show a badge on the Dock icon";
+"settings_notifications_action_sound_toggle" = "Play a sound";
+"settings_notifications_action_banner_toggle" = "Pop a banner";
+
+"settings_notifications_handover_label" = "Mobile alerts:";
+"settings_notifications_handover_forward_mobile_toggle" = "Forward to mobile if inactive after time on desktop:";
+"settings_notifications_handover_forward_mobile_after_option_one_minute" = "A minute";
+"settings_notifications_handover_forward_mobile_after_option_five_minutes" = "5 minutes";
+"settings_notifications_handover_forward_mobile_after_option_ten_minutes" = "10 minutes";
+
+"settings_messages_composing_label" = "Composing:";
+"settings_messages_composing_show_when_typing_toggle" = "Let users know when I am typing";
+"settings_messages_composing_spell_check_toggle" = "Enable spell checker";
+
+"settings_messages_messages_label" = "Messages:";
+"settings_messages_messages_24_hour_clock_toggle" = "Use a 24-hour clock";
+"settings_messages_messages_image_previews_toggle" = "Show a preview of image files";
+
+"settings_messages_thumbnails_label" = "Image thumbnails:";
+"settings_messages_thumbnails_size_option_small" = "Small";
+"settings_messages_thumbnails_size_option_large" = "Large";
+
+"settings_calls_video_input_tester_label" = "Camera tester:";
+
+"settings_calls_video_input_default_label" = "Default video input:";
+"settings_calls_video_input_default_option_system" = "Same as System";
+
+"settings_calls_audio_input_tester_label" = "Microphone tester:";
+"settings_calls_audio_input_default_option_system" = "Same as System";
+
+"settings_calls_audio_input_default_label" = "Default audio input:";
+"settings_calls_audio_output_default_option_system" = "Same as System";
+
+"settings_calls_audio_output_tester_label" = "Speakers tester:";
+"settings_calls_audio_output_tester_button" = "Play Test Sound";
+
+"settings_calls_audio_output_default_label" = "Default audio output:";
+
+"settings_advanced_update_channel_label" = "Update channel:";
+"settings_advanced_update_channel_option_stable" = "Stable releases";
+"settings_advanced_update_channel_option_beta" = "Beta releases";
+
+"settings_advanced_reports_label" = "Reports:";
+"settings_advanced_reports_usage_toggle" = "Send anonymous usage analytics";
+"settings_advanced_reports_crash_toggle" = "Automatically send crash reports";

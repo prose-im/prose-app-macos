@@ -35,6 +35,7 @@ struct GeneralSettingsView: View {
     
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
+            // "Theme"
             Preferences.Section(title: "settings_general_theme_label".localized()) {
                 Picker("", selection: $theme) {
                     ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
@@ -43,24 +44,33 @@ struct GeneralSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectWidth)
+                .frame(width: SettingsContants.selectNormalWidth)
+                
+                Spacer()
             }
             
+            // "Save downloads to"
             Preferences.Section(title: "settings_general_downloads_label".localized()) {
                 Picker("", selection: $downloadsPath) {
                     Text("(...)").tag(0)
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectWidth)
+                .frame(width: SettingsContants.selectNormalWidth)
+                
+                Spacer()
             }
             
+            // "Phone contacts"
             Preferences.Section(title: "settings_general_phone_label".localized()) {
                 Toggle("settings_general_phone_from_address_book_toggle".localized(), isOn: $phoneFromAddressBook)
                 
                 Text("settings_general_phone_from_address_book_description".localized())
                     .preferenceDescription()
+                
+                Spacer()
             }
             
+            // "When idle"
             Preferences.Section(title: "settings_general_idle_label".localized()) {
                 Toggle("settings_general_idle_automatically_mark_away_enabled_toggle".localized(), isOn: $automaticallyMarkAwayEnabled)
                 
@@ -71,7 +81,7 @@ struct GeneralSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectWidth)
+                .frame(width: SettingsContants.selectNormalWidth)
             }
         }
     }
