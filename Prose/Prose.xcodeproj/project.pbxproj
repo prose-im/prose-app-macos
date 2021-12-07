@@ -25,8 +25,10 @@
 		520D8F062754294D00AE73D4 /* SidebarContextAvatarComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */; };
 		520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */; };
 		520D8F0A2754296C00AE73D4 /* SidebarContextActionsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */; };
+		523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 523778E2275F64FF007FFF65 /* SettingsConstants.swift */; };
 		5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */; };
 		5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */; };
+		528240FB275F614200BC39F7 /* Preferences+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528240FA275F614200BC39F7 /* Preferences+Extension.swift */; };
 		52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */; };
 		52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D190274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift */; };
 		52C8D193274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D192274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift */; };
@@ -53,6 +55,19 @@
 		52EA1197274C2550007DA1C5 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1196274C2550007DA1C5 /* SidebarView.swift */; };
 		52EA1199274C2558007DA1C5 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1198274C2558007DA1C5 /* MessageView.swift */; };
 		52EA119C274C2606007DA1C5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52EA119B274C2606007DA1C5 /* Localizable.strings */; };
+		52F933C4275F51790097A2F8 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933C3275F51790097A2F8 /* GeneralSettingsView.swift */; };
+		52F933C7275F51940097A2F8 /* Preferences in Frameworks */ = {isa = PBXBuildFile; productRef = 52F933C6275F51940097A2F8 /* Preferences */; };
+		52F933C9275F556C0097A2F8 /* AccountsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933C8275F556C0097A2F8 /* AccountsSettingsView.swift */; };
+		52F933CB275F5D770097A2F8 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933CA275F5D770097A2F8 /* NotificationsSettingsView.swift */; };
+		52F933CD275F5D830097A2F8 /* MessagesSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933CC275F5D830097A2F8 /* MessagesSettingsView.swift */; };
+		52F933CF275F5D8B0097A2F8 /* CallsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933CE275F5D8B0097A2F8 /* CallsSettingsView.swift */; };
+		52F933D1275F5D920097A2F8 /* AdvancedSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933D0275F5D920097A2F8 /* AdvancedSettingsView.swift */; };
+		52F933D7275F5F650097A2F8 /* GeneralSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933D6275F5F650097A2F8 /* GeneralSettingsViewController.swift */; };
+		52F933D9275F5F720097A2F8 /* AccountsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933D8275F5F720097A2F8 /* AccountsSettingsViewController.swift */; };
+		52F933DB275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933DA275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift */; };
+		52F933DD275F5F850097A2F8 /* MessagesSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933DC275F5F850097A2F8 /* MessagesSettingsViewController.swift */; };
+		52F933DF275F5F8E0097A2F8 /* CallsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933DE275F5F8E0097A2F8 /* CallsSettingsViewController.swift */; };
+		52F933E1275F5F950097A2F8 /* AdvancedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933E0275F5F950097A2F8 /* AdvancedSettingsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,8 +89,10 @@
 		520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextAvatarComponent.swift; sourceTree = "<group>"; };
 		520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextCurrentComponent.swift; sourceTree = "<group>"; };
 		520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextActionsComponent.swift; sourceTree = "<group>"; };
+		523778E2275F64FF007FFF65 /* SettingsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConstants.swift; sourceTree = "<group>"; };
 		5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMessengerView.swift; sourceTree = "<group>"; };
 		5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDetailsView.swift; sourceTree = "<group>"; };
+		528240FA275F614200BC39F7 /* Preferences+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Preferences+Extension.swift"; sourceTree = "<group>"; };
 		52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsIdentityComponent.swift; sourceTree = "<group>"; };
 		52C8D190274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsQuickActionsComponent.swift; sourceTree = "<group>"; };
 		52C8D192274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsInformationComponent.swift; sourceTree = "<group>"; };
@@ -104,6 +121,18 @@
 		52EA1196274C2550007DA1C5 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		52EA1198274C2558007DA1C5 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		52EA119B274C2606007DA1C5 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		52F933C3275F51790097A2F8 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		52F933C8275F556C0097A2F8 /* AccountsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsView.swift; sourceTree = "<group>"; };
+		52F933CA275F5D770097A2F8 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		52F933CC275F5D830097A2F8 /* MessagesSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesSettingsView.swift; sourceTree = "<group>"; };
+		52F933CE275F5D8B0097A2F8 /* CallsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallsSettingsView.swift; sourceTree = "<group>"; };
+		52F933D0275F5D920097A2F8 /* AdvancedSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsView.swift; sourceTree = "<group>"; };
+		52F933D6275F5F650097A2F8 /* GeneralSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsViewController.swift; sourceTree = "<group>"; };
+		52F933D8275F5F720097A2F8 /* AccountsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsViewController.swift; sourceTree = "<group>"; };
+		52F933DA275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsViewController.swift; sourceTree = "<group>"; };
+		52F933DC275F5F850097A2F8 /* MessagesSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesSettingsViewController.swift; sourceTree = "<group>"; };
+		52F933DE275F5F8E0097A2F8 /* CallsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallsSettingsViewController.swift; sourceTree = "<group>"; };
+		52F933E0275F5F950097A2F8 /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52F933C7275F51940097A2F8 /* Preferences in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +188,7 @@
 		52EA1170274C23C2007DA1C5 /* Prose */ = {
 			isa = PBXGroup;
 			children = (
+				52F933D2275F5EF80097A2F8 /* Controllers */,
 				52EA1187274C2404007DA1C5 /* Views */,
 				52EA1186274C2400007DA1C5 /* Models */,
 				52EA1185274C23FC007DA1C5 /* Constants */,
@@ -211,6 +242,7 @@
 			children = (
 				52EA118D274C249A007DA1C5 /* Color+Extension.swift */,
 				52C8D1A2274E528F006C9360 /* String+Extension.swift */,
+				528240FA275F614200BC39F7 /* Preferences+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -218,6 +250,7 @@
 		52EA1185274C23FC007DA1C5 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
+				523778E2275F64FF007FFF65 /* SettingsConstants.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -232,6 +265,7 @@
 		52EA1187274C2404007DA1C5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				52F933C2275F509C0097A2F8 /* Settings */,
 				52EA119A274C25AD007DA1C5 /* Message */,
 				52EA1193274C2515007DA1C5 /* Common */,
 			);
@@ -307,6 +341,40 @@
 			path = Message;
 			sourceTree = "<group>";
 		};
+		52F933C2275F509C0097A2F8 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				52F933C3275F51790097A2F8 /* GeneralSettingsView.swift */,
+				52F933C8275F556C0097A2F8 /* AccountsSettingsView.swift */,
+				52F933CA275F5D770097A2F8 /* NotificationsSettingsView.swift */,
+				52F933CC275F5D830097A2F8 /* MessagesSettingsView.swift */,
+				52F933CE275F5D8B0097A2F8 /* CallsSettingsView.swift */,
+				52F933D0275F5D920097A2F8 /* AdvancedSettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		52F933D2275F5EF80097A2F8 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				52F933D3275F5EFE0097A2F8 /* Settings */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		52F933D3275F5EFE0097A2F8 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				52F933D6275F5F650097A2F8 /* GeneralSettingsViewController.swift */,
+				52F933D8275F5F720097A2F8 /* AccountsSettingsViewController.swift */,
+				52F933DA275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift */,
+				52F933DC275F5F850097A2F8 /* MessagesSettingsViewController.swift */,
+				52F933DE275F5F8E0097A2F8 /* CallsSettingsViewController.swift */,
+				52F933E0275F5F950097A2F8 /* AdvancedSettingsViewController.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -323,6 +391,9 @@
 			dependencies = (
 			);
 			name = Prose;
+			packageProductDependencies = (
+				52F933C6275F51940097A2F8 /* Preferences */,
+			);
 			productName = Prose;
 			productReference = 52EA116E274C23C2007DA1C5 /* Prose.app */;
 			productType = "com.apple.product-type.application";
@@ -351,6 +422,9 @@
 				Base,
 			);
 			mainGroup = 52EA1165274C23C2007DA1C5;
+			packageReferences = (
+				52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */,
+			);
 			productRefGroup = 52EA116F274C23C2007DA1C5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -385,25 +459,34 @@
 				52D95F9D27581CE400A26375 /* ContentMessageDetailsActionComponent.swift in Sources */,
 				520D8EF02753C34900AE73D4 /* ContentCommonToolbarNavigationComponent.swift in Sources */,
 				520D8EFC2753CF1700AE73D4 /* SidebarSectionSpotlightComponent.swift in Sources */,
+				52F933DF275F5F8E0097A2F8 /* CallsSettingsViewController.swift in Sources */,
 				520D8EF82753CD1400AE73D4 /* SidebarPartSectionsComponent.swift in Sources */,
 				52C8D197274D8260006C9360 /* ContentMessageDetailsActionsComponent.swift in Sources */,
+				523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */,
 				52C8D1A3274E528F006C9360 /* String+Extension.swift in Sources */,
 				52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */,
 				52C8D195274D8256006C9360 /* ContentMessageDetailsSecurityComponent.swift in Sources */,
 				520D8EF62753C71F00AE73D4 /* ContentCommonToolbarAuthenticationComponent.swift in Sources */,
+				52F933CF275F5D8B0097A2F8 /* CallsSettingsView.swift in Sources */,
 				52EA1192274C24C9007DA1C5 /* SidebarNavigationComponent.swift in Sources */,
+				528240FB275F614200BC39F7 /* Preferences+Extension.swift in Sources */,
+				52F933CD275F5D830097A2F8 /* MessagesSettingsView.swift in Sources */,
 				520D8F062754294D00AE73D4 /* SidebarContextAvatarComponent.swift in Sources */,
 				52C8D1A1274E45BD006C9360 /* ContentMessageBarFieldComponent.swift in Sources */,
 				52EA1197274C2550007DA1C5 /* SidebarView.swift in Sources */,
 				52C8D193274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift in Sources */,
 				520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */,
+				52F933E1275F5F950097A2F8 /* AdvancedSettingsViewController.swift in Sources */,
 				520D8EF42753C38700AE73D4 /* ContentCommonToolbarActionsComponent.swift in Sources */,
+				52F933C9275F556C0097A2F8 /* AccountsSettingsView.swift in Sources */,
 				52EA1174274C23C2007DA1C5 /* ContentView.swift in Sources */,
 				52EA1199274C2558007DA1C5 /* MessageView.swift in Sources */,
 				5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */,
 				52EA1172274C23C2007DA1C5 /* ProseApp.swift in Sources */,
 				520D8F022753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift in Sources */,
+				52F933D7275F5F650097A2F8 /* GeneralSettingsViewController.swift in Sources */,
 				520D8EEC2753A51300AE73D4 /* CommonStatusComponent.swift in Sources */,
+				52F933C4275F51790097A2F8 /* GeneralSettingsView.swift in Sources */,
 				52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */,
 				52EA118C274C2483007DA1C5 /* ContentMessageBubbleComponent.swift in Sources */,
 				520D8EF22753C37E00AE73D4 /* ContentCommonToolbarTitleComponent.swift in Sources */,
@@ -414,10 +497,15 @@
 				52EA1195274C2544007DA1C5 /* BaseView.swift in Sources */,
 				52D95F97275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift in Sources */,
 				520D8F002753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift in Sources */,
+				52F933D9275F5F720097A2F8 /* AccountsSettingsViewController.swift in Sources */,
 				52EA118E274C249A007DA1C5 /* Color+Extension.swift in Sources */,
+				52F933DD275F5F850097A2F8 /* MessagesSettingsViewController.swift in Sources */,
 				52EA1190274C24B4007DA1C5 /* ContentMessageBarComponent.swift in Sources */,
+				52F933D1275F5D920097A2F8 /* AdvancedSettingsView.swift in Sources */,
 				52C8D19F274E458F006C9360 /* ContentMessageBarComposeComponent.swift in Sources */,
+				52F933DB275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift in Sources */,
 				520D8EEA27539CAB00AE73D4 /* SidebarContactComponent.swift in Sources */,
+				52F933CB275F5D770097A2F8 /* NotificationsSettingsView.swift in Sources */,
 				52C8D19D274E3B36006C9360 /* CommonButtonActionComponent.swift in Sources */,
 				520D8F0A2754296C00AE73D4 /* SidebarContextActionsComponent.swift in Sources */,
 				52C8D19A274E338F006C9360 /* ContentCommonNameStatusComponent.swift in Sources */,
@@ -622,6 +710,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/Preferences";
+			requirement = {
+				kind = exactVersion;
+				version = 2.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		52F933C6275F51940097A2F8 /* Preferences */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */;
+			productName = Preferences;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 52EA1166274C23C2007DA1C5 /* Project object */;
 }

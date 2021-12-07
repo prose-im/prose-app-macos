@@ -37,3 +37,9 @@
 "content_message_bar_compose_typing" = "%@ is typing…";
 "content_message_bar_field_placeholder" = "Message %@";
 
+"settings_tabs_general" = "General";
+"settings_tabs_accounts" = "Accounts";
+"settings_tabs_notifications" = "Notifications";
+"settings_tabs_messages" = "Messages";
+"settings_tabs_calls" = "Calls";
+"settings_tabs_advanced" = "Advanced";

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Preferences
 
 @main
 struct ProseApp: App {
@@ -23,6 +24,25 @@ struct ProseApp: App {
                     print("Hello!")
                 }
                 .keyboardShortcut("h")
+            }
+            
+            CommandGroup(replacing: CommandGroupPlacement.appSettings) {
+                Button("Preferences...") {
+                    PreferencesWindowController(
+                        preferencePanes: [
+                            GeneralSettingsViewController(),
+                            AccountsSettingsViewController(),
+                            NotificationsSettingsViewController(),
+                            MessagesSettingsViewController(),
+                            CallsSettingsViewController(),
+                            AdvancedSettingsViewController()
+                        ],
+                        
+                        style: .toolbarItems,
+                        animated: true,
+                        hidesToolbarForSingleItem: true
+                    ).show()
+                }.keyboardShortcut(KeyEquivalent(","), modifiers: .command)
             }
         }
     }
