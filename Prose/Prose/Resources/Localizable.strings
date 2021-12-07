@@ -43,3 +43,22 @@
 "settings_tabs_messages" = "Messages";
 "settings_tabs_calls" = "Calls";
 "settings_tabs_advanced" = "Advanced";
+
+"settings_general_theme_label" = "Theme:";
+"settings_general_theme_option_match_system" = "Match system";
+"settings_general_theme_option_light" = "Light";
+"settings_general_theme_option_dark" = "Dark";
+
+"settings_general_downloads_label" = "Save downloads to:";
+
+"settings_general_phone_label" = "Phone contacts:";
+"settings_general_phone_from_address_book_toggle" = "Use phone numbers from my address book";
+"settings_general_phone_from_address_book_description" = "This is for local use only. Data does not get sent to a server.";
+
+"settings_general_idle_label" = "When idle:";
+"settings_general_idle_automatically_mark_away_enabled_toggle" = "Automatically mark me as away after:";
+"settings_general_idle_automatically_mark_away_after_option_five_minutes" = "5 minutes";
+"settings_general_idle_automatically_mark_away_after_option_ten_minutes" = "10 minutes";
+"settings_general_idle_automatically_mark_away_after_option_fifteen_minutes" = "15 minutes";
+"settings_general_idle_automatically_mark_away_after_option_thirty_minutes" = "30 minutes";
+"settings_general_idle_automatically_mark_away_after_option_one_hour" = "1 hour";

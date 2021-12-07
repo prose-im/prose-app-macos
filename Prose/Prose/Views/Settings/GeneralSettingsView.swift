@@ -8,26 +8,45 @@
 import SwiftUI
 import Preferences
 
+enum GeneralSettingsTheme: String, Equatable, CaseIterable {
+    case matchSystem = "settings_general_theme_option_match_system"
+    case light = "settings_general_theme_option_light"
+    case dark = "settings_general_theme_option_dark"
+    
+    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+}
+
+enum GeneralSettingsAutomaticallyMarkAwayAfter: String, Equatable, CaseIterable {
+    case fiveMinutes = "settings_general_idle_automatically_mark_away_after_option_five_minutes"
+    case tenMinutes = "settings_general_idle_automatically_mark_away_after_option_ten_minutes"
+    case fifteenMinutes = "settings_general_idle_automatically_mark_away_after_option_fifteen_minutes"
+    case thirtyMinutes = "settings_general_idle_automatically_mark_away_after_option_thirty_minutes"
+    case oneHour = "settings_general_idle_automatically_mark_away_after_option_one_hour"
+    
+    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+}
+
 struct GeneralSettingsView: View {
-    @AppStorage("settings.general.theme") var themeSelection = 0
+    @AppStorage("settings.general.theme") var theme: GeneralSettingsTheme = .matchSystem
     @AppStorage("settings.general.downloadsPath") var downloadsPath = 0
     @AppStorage("settings.general.phoneFromAddressBook") var phoneFromAddressBook = false
     @AppStorage("settings.general.automaticallyMarkAwayEnabled") var automaticallyMarkAwayEnabled = false
-    @AppStorage("settings.general.automaticallyMarkAwayAfter") var automaticallyMarkAwayAfter = 0
+    @AppStorage("settings.general.automaticallyMarkAwayAfter") var automaticallyMarkAwayAfter: GeneralSettingsAutomaticallyMarkAwayAfter = .fifteenMinutes
     
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
-            // TODO: translate everything
-            
-            Preferences.Section(title: "Theme:") {
-                Picker("", selection: $themeSelection) {
-                    Text("Match system").tag(0)
+            Preferences.Section(title: "settings_general_theme_label".localized()) {
+                Picker("", selection: $theme) {
+                    ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
+                        Text(value.localizedName)
+                            .tag(value)
+                    }
                 }
                 .labelsHidden()
                 .frame(width: SettingsContants.selectWidth)
             }
             
-            Preferences.Section(title: "Save downloads to:") {
+            Preferences.Section(title: "settings_general_downloads_label".localized()) {
                 Picker("", selection: $downloadsPath) {
                     Text("(...)").tag(0)
                 }
@@ -35,18 +54,21 @@ struct GeneralSettingsView: View {
                 .frame(width: SettingsContants.selectWidth)
             }
             
-            Preferences.Section(title: "Phone contacts:") {
-                Toggle("Use phone numbers from my address book", isOn: $phoneFromAddressBook)
+            Preferences.Section(title: "settings_general_phone_label".localized()) {
+                Toggle("settings_general_phone_from_address_book_toggle".localized(), isOn: $phoneFromAddressBook)
                 
-                Text("This is for local use only. Data does not get sent to a server.")
+                Text("settings_general_phone_from_address_book_description".localized())
                     .preferenceDescription()
             }
             
-            Preferences.Section(title: "When idle:") {
-                Toggle("Automatically mark me as away after:", isOn: $automaticallyMarkAwayEnabled)
+            Preferences.Section(title: "settings_general_idle_label".localized()) {
+                Toggle("settings_general_idle_automatically_mark_away_enabled_toggle".localized(), isOn: $automaticallyMarkAwayEnabled)
                 
                 Picker("", selection: $automaticallyMarkAwayAfter) {
-                    Text("5 minutes").tag(0)
+                    ForEach(GeneralSettingsAutomaticallyMarkAwayAfter.allCases, id: \.self) { value in
+                        Text(value.localizedName)
+                            .tag(value)
+                    }
                 }
                 .labelsHidden()
                 .frame(width: SettingsContants.selectWidth)
