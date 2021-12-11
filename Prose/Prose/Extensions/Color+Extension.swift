@@ -13,12 +13,20 @@ extension Color {
         return Color(red: 0 / 255.0, green: 171.0 / 255.0, blue: 126.0 / 255.0)
     }
     
+    public static var stateGreenLight: Color {
+        return Color(red: 97.0 / 255.0, green: 199.0 / 255.0, blue: 84.0 / 255.0)
+    }
+    
     public static var stateBlue: Color {
         return Color(red: 0 / 255.0, green: 98.0 / 255.0, blue: 233.0 / 255.0)
     }
     
     public static var stateGrey: Color {
         return Color(red: 121.0 / 255.0, green: 121.0 / 255.0, blue: 121.0 / 255.0)
+    }
+    
+    public static var stateGreyLight: Color {
+        return Color(red: 187.0 / 255.0, green: 187.0 / 255.0, blue: 187.0 / 255.0)
     }
     
     // Borders

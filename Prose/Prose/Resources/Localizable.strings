@@ -63,6 +63,18 @@
 "settings_general_idle_automatically_mark_away_after_option_thirty_minutes" = "30 minutes";
 "settings_general_idle_automatically_mark_away_after_option_one_hour" = "1 hour";
 
+"settings_accounts_tabs_account" = "Account";
+"settings_accounts_tabs_security" = "Security";
+"settings_accounts_tabs_features" = "Features";
+
+"settings_accounts_enabled_label" = "Enabled:";
+"settings_accounts_status_label" = "Status:";
+"settings_accounts_status_connected" = "Connected";
+"settings_accounts_address_label" = "Address:";
+"settings_accounts_address_placeholder" = "Enter your address...";
+"settings_accounts_password_label" = "Password:";
+"settings_accounts_password_placeholder" = "Enter password...";
+
 "settings_notifications_notify_governor_label" = "Notify me about:";
 "settings_notifications_notify_governor_option_all" = "All messages";
 "settings_notifications_notify_governor_option_direct" = "Private messages";
