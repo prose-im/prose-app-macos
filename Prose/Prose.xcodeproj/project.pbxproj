@@ -31,6 +31,7 @@
 		523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 523778E2275F64FF007FFF65 /* SettingsConstants.swift */; };
 		5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */; };
 		5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */; };
+		5279D23C27663EED0065043C /* AccountsSettingsTabsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5279D23B27663EED0065043C /* AccountsSettingsTabsComponent.swift */; };
 		528161B42766022A000C3129 /* AccountsSettingsAccountComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */; };
 		528161B627660234000C3129 /* AccountsSettingsSecurityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */; };
 		528161B82766023E000C3129 /* AccountsSettingsFeaturesComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */; };
@@ -105,6 +106,7 @@
 		523778E2275F64FF007FFF65 /* SettingsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConstants.swift; sourceTree = "<group>"; };
 		5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMessengerView.swift; sourceTree = "<group>"; };
 		5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDetailsView.swift; sourceTree = "<group>"; };
+		5279D23B27663EED0065043C /* AccountsSettingsTabsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsTabsComponent.swift; sourceTree = "<group>"; };
 		528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsAccountComponent.swift; sourceTree = "<group>"; };
 		528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsSecurityComponent.swift; sourceTree = "<group>"; };
 		528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsFeaturesComponent.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */,
 				528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */,
 				528161BF27662F70000C3129 /* SettingsPreviewVideoComponent.swift */,
+				5279D23B27663EED0065043C /* AccountsSettingsTabsComponent.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -544,6 +547,7 @@
 				520D8F002753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift in Sources */,
 				528161BC276611AF000C3129 /* ViewWrap+Extension.swift in Sources */,
 				520B1BFD27648BE9007B5D7A /* SettingsFormFieldComponent.swift in Sources */,
+				5279D23C27663EED0065043C /* AccountsSettingsTabsComponent.swift in Sources */,
 				52F933D9275F5F720097A2F8 /* AccountsSettingsViewController.swift in Sources */,
 				52EA118E274C249A007DA1C5 /* Color+Extension.swift in Sources */,
 				52F933DD275F5F850097A2F8 /* MessagesSettingsViewController.swift in Sources */,
