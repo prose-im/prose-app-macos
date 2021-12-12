@@ -13,19 +13,19 @@ struct SidebarSectionTeamMembersComponent: View {
     let teamMembersAtomOptions: [SidebarOption] = [
         .init(
             id: .teamMembersAtom("id-xx"),
-            title: "Antoine",
+            title: "Elison",
             image: "avatar-valerian",
             count: 0
         ),
         .init(
             id: .teamMembersAtom("id-xx"),
-            title: "Eliott",
+            title: "Elisa",
             image: "avatar-valerian",
             count: 3
         ),
         .init(
             id: .teamMembersAtom("id-xx"),
-            title: "Camille",
+            title: "David",
             image: "avatar-valerian",
             count: 2
         ),

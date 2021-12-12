@@ -13,7 +13,7 @@ struct SidebarSectionOtherContactsComponent: View {
     let otherContactsAtomOptions: [SidebarOption] = [
         .init(
             id: .otherContactsAtom("id-xx"),
-            title: "Nicolas",
+            title: "James",
             image: "avatar-valerian",
             count: 0
         ),

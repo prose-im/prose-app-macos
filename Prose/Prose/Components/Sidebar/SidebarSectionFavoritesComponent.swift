@@ -19,7 +19,7 @@ struct SidebarSectionFavoritesComponent: View {
         ),
         .init(
             id: .favoritesAtom("id-xx"),
-            title: "Julien",
+            title: "Julian",
             image: "avatar-valerian",
             count: 0
         ),
