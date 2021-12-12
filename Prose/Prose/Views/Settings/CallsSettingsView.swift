@@ -27,6 +27,8 @@ enum CallsSettingsAudioOutputDefault: String, Equatable, CaseIterable {
 }
 
 struct CallsSettingsView: View {
+    @State var videoInputStreamPath: String
+    
     @State private var audioInputLevel: Double = 0.6
     
     @AppStorage("settings.calls.videoInputDefault") var videoInputDefault: CallsSettingsVideoInputDefault = .system
@@ -40,7 +42,11 @@ struct CallsSettingsView: View {
                 title: "settings_calls_video_input_tester_label".localized(),
                 verticalAlignment: .center
             ) {
-                // TODO: video stream
+                SettingsPreviewVideoComponent(
+                    streamPath: videoInputStreamPath,
+                    sizeWidth: 260.0,
+                    sizeHeight: 180.0
+                )
             }
             
             // "Default video input"
@@ -117,6 +123,8 @@ struct CallsSettingsView: View {
 
 struct CallsSettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        CallsSettingsView()
+        CallsSettingsView(
+            videoInputStreamPath: "webcam-valerian"
+        )
     }
 }

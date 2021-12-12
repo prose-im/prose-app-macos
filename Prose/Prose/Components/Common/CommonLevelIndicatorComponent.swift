@@ -18,7 +18,7 @@ struct CommonLevelIndicatorComponent: View {
     var currentValue: Double
     
     var body: some View {
-        var indicator = NSLevelIndicator()
+        let indicator = NSLevelIndicator()
         
         // Configure bounds
         indicator.minValue = minimumValue * tickMarkFactor
