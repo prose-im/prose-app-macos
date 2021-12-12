@@ -19,32 +19,33 @@ struct AccountsSettingsView: View {
     @State private var selectedAccount: String = ""
     
     var body: some View {
-        let actionNames = ["plus", "minus"]
-        
         HStack(spacing: 12) {
             VStack(spacing: 0) {
-                ScrollView {
-                    List {
-                        // TODO
-                    }
+                List {
+                    SettingsPickAccountComponent(
+                        teamLogo: "logo-crisp",
+                        teamDomain: "crisp.chat",
+                        userName: "Baptiste"
+                    )
+                    
+                    SettingsPickAccountComponent(
+                        teamLogo: "logo-makair",
+                        teamDomain: "makair.life",
+                        userName: "Baptiste"
+                    )
                 }
+                .listStyle(PlainListStyle())
                 
                 Divider()
                 
                 HStack(spacing: 0) {
-                    ForEach(actionNames, id: \.self) { actionName in
-                        Button(action: {}) {
-                            Image(systemName: actionName)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.primary)
-                        }
-                        .buttonStyle(.plain)
-                        .frame(width: 26, alignment: .center)
-                        
-                        Divider()
-                            
-                    }
-                    .padding(.vertical, 3.0)
+                    SettingsPickActionComponent(
+                        actionName: "plus"
+                    )
+                    
+                    SettingsPickActionComponent(
+                        actionName: "minus"
+                    )
                     
                     Spacer()
                 }
