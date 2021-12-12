@@ -31,6 +31,10 @@
 		523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 523778E2275F64FF007FFF65 /* SettingsConstants.swift */; };
 		5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */; };
 		5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */; };
+		528161B42766022A000C3129 /* AccountsSettingsAccountComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */; };
+		528161B627660234000C3129 /* AccountsSettingsSecurityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */; };
+		528161B82766023E000C3129 /* AccountsSettingsFeaturesComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */; };
+		528161BA2766049B000C3129 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 528161B92766049B000C3129 /* Credits.rtf */; };
 		528240FB275F614200BC39F7 /* Preferences+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528240FA275F614200BC39F7 /* Preferences+Extension.swift */; };
 		52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */; };
 		52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52C8D190274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift */; };
@@ -98,6 +102,10 @@
 		523778E2275F64FF007FFF65 /* SettingsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConstants.swift; sourceTree = "<group>"; };
 		5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMessengerView.swift; sourceTree = "<group>"; };
 		5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDetailsView.swift; sourceTree = "<group>"; };
+		528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsAccountComponent.swift; sourceTree = "<group>"; };
+		528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsSecurityComponent.swift; sourceTree = "<group>"; };
+		528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsFeaturesComponent.swift; sourceTree = "<group>"; };
+		528161B92766049B000C3129 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		528240FA275F614200BC39F7 /* Preferences+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Preferences+Extension.swift"; sourceTree = "<group>"; };
 		52C8D18E274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsIdentityComponent.swift; sourceTree = "<group>"; };
 		52C8D190274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentMessageDetailsQuickActionsComponent.swift; sourceTree = "<group>"; };
@@ -158,6 +166,9 @@
 			children = (
 				520B1BFC27648BE9007B5D7A /* SettingsFormFieldComponent.swift */,
 				520B1BFE276491F8007B5D7A /* SettingsFormFieldLabelComponent.swift */,
+				528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */,
+				528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */,
+				528161B72766023E000C3129 /* AccountsSettingsFeaturesComponent.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -250,6 +261,7 @@
 			children = (
 				52EA1175274C23C3007DA1C5 /* Assets.xcassets */,
 				52EA119B274C2606007DA1C5 /* Localizable.strings */,
+				528161B92766049B000C3129 /* Credits.rtf */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -459,6 +471,7 @@
 				52EA1179274C23C3007DA1C5 /* Preview Assets.xcassets in Resources */,
 				52EA119C274C2606007DA1C5 /* Localizable.strings in Resources */,
 				52EA1176274C23C3007DA1C5 /* Assets.xcassets in Resources */,
+				528161BA2766049B000C3129 /* Credits.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -479,6 +492,7 @@
 				52F933DF275F5F8E0097A2F8 /* CallsSettingsViewController.swift in Sources */,
 				520D8EF82753CD1400AE73D4 /* SidebarPartSectionsComponent.swift in Sources */,
 				52C8D197274D8260006C9360 /* ContentMessageDetailsActionsComponent.swift in Sources */,
+				528161B42766022A000C3129 /* AccountsSettingsAccountComponent.swift in Sources */,
 				523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */,
 				52C8D1A3274E528F006C9360 /* String+Extension.swift in Sources */,
 				52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */,
@@ -492,6 +506,7 @@
 				52C8D1A1274E45BD006C9360 /* ContentMessageBarFieldComponent.swift in Sources */,
 				52EA1197274C2550007DA1C5 /* SidebarView.swift in Sources */,
 				52C8D193274D8244006C9360 /* ContentMessageDetailsInformationComponent.swift in Sources */,
+				528161B627660234000C3129 /* AccountsSettingsSecurityComponent.swift in Sources */,
 				520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */,
 				52F933E1275F5F950097A2F8 /* AdvancedSettingsViewController.swift in Sources */,
 				520D8EF42753C38700AE73D4 /* ContentCommonToolbarActionsComponent.swift in Sources */,
@@ -509,6 +524,7 @@
 				520D8EF22753C37E00AE73D4 /* ContentCommonToolbarTitleComponent.swift in Sources */,
 				5209CA06275623BA00CD9554 /* SidebarCounterComponent.swift in Sources */,
 				520D8EFE2753CF2B00AE73D4 /* SidebarSectionFavoritesComponent.swift in Sources */,
+				528161B82766023E000C3129 /* AccountsSettingsFeaturesComponent.swift in Sources */,
 				520B1BFF276491F8007B5D7A /* SettingsFormFieldLabelComponent.swift in Sources */,
 				520D8EFA2753CD3300AE73D4 /* SidebarPartContextComponent.swift in Sources */,
 				5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */,
@@ -658,7 +674,7 @@
 				CODE_SIGN_ENTITLEMENTS = Prose/Prose.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = Prose/Preview;
 				DEVELOPMENT_TEAM = YL9R2N39SR;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -671,7 +687,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.prose.Prose;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -687,7 +703,7 @@
 				CODE_SIGN_ENTITLEMENTS = Prose/Prose.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = Prose/Preview;
 				DEVELOPMENT_TEAM = YL9R2N39SR;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -700,7 +716,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = org.prose.Prose;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

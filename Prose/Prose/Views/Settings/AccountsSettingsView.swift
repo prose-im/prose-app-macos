@@ -17,17 +17,11 @@ enum AccountsSettingsTab {
 struct AccountsSettingsView: View {
     @State private var selectedTab: AccountsSettingsTab = .account
     
-    @AppStorage("settings.accounts.x.enabled") var enabled = true
-    @AppStorage("settings.accounts.x.username") var username = ""
-    @AppStorage("settings.accounts.x.password") var password = ""
-    
     var body: some View {
-        // TODO: finish base structure
-        
         HStack(spacing: 10) {
             // TODO: left bar
             GroupBox {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 22) {
                     HStack {
                         Spacer()
                         
@@ -42,44 +36,18 @@ struct AccountsSettingsView: View {
                         Spacer()
                     }
                     
-                    Toggle(isOn: $enabled) {
-                        SettingsFormFieldLabelComponent(
-                            label: "settings_accounts_enabled_label".localized()
-                        )
-                    }
-                        .toggleStyle(.switch)
-                    
-                    Divider()
-                    
-                    SettingsFormFieldComponent(label: "settings_accounts_status_label".localized()) {
-                        HStack(spacing: 4) {
-                            CommonConnectionStatusComponent(
-                                status: .connected
-                            )
+                    VStack(alignment: .leading, spacing: 18) {
+                        switch selectedTab {
+                        case .account:
+                            AccountsSettingsAccountComponent()
                             
-                            Text("settings_accounts_status_connected".localized())
-                                .font(.system(size: 13))
-                                .fontWeight(.semibold)
+                        case .security:
+                            AccountsSettingsSecurityComponent()
+                            
+                        case .features:
+                            AccountsSettingsFeaturesComponent()
                         }
                     }
-                
-                    Divider()
-                    
-                    Form {
-                        TextField(text: $username, prompt: Text("settings_accounts_address_placeholder".localized())) {
-                            SettingsFormFieldLabelComponent(
-                                label: "settings_accounts_address_label".localized()
-                            )
-                        }
-                            .disableAutocorrection(true)
-                        
-                        SecureField(text: $password, prompt: Text("settings_accounts_password_placeholder".localized())) {
-                            SettingsFormFieldLabelComponent(
-                                label: "settings_accounts_password_label".localized()
-                            )
-                        }
-                    }
-                        .textFieldStyle(.roundedBorder)
                 }
                 .padding(.horizontal, 28)
                 .padding(.bottom, 12)
