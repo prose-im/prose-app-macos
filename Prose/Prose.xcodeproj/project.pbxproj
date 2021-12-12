@@ -28,6 +28,7 @@
 		520D8F062754294D00AE73D4 /* SidebarContextAvatarComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */; };
 		520D8F082754295F00AE73D4 /* SidebarContextCurrentComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */; };
 		520D8F0A2754296C00AE73D4 /* SidebarContextActionsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */; };
+		521CD7A72766853100579D27 /* SidebarToolbarComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521CD7A62766853100579D27 /* SidebarToolbarComponent.swift */; };
 		523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 523778E2275F64FF007FFF65 /* SettingsConstants.swift */; };
 		52442D8A27665FEC007FB6F1 /* SettingsPickAccountComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52442D8927665FEC007FB6F1 /* SettingsPickAccountComponent.swift */; };
 		52442D8C276662DC007FB6F1 /* SettingsPickActionComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52442D8B276662DC007FB6F1 /* SettingsPickActionComponent.swift */; };
@@ -105,6 +106,7 @@
 		520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextAvatarComponent.swift; sourceTree = "<group>"; };
 		520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextCurrentComponent.swift; sourceTree = "<group>"; };
 		520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarContextActionsComponent.swift; sourceTree = "<group>"; };
+		521CD7A62766853100579D27 /* SidebarToolbarComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarToolbarComponent.swift; sourceTree = "<group>"; };
 		523778E2275F64FF007FFF65 /* SettingsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsConstants.swift; sourceTree = "<group>"; };
 		52442D8927665FEC007FB6F1 /* SettingsPickAccountComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPickAccountComponent.swift; sourceTree = "<group>"; };
 		52442D8B276662DC007FB6F1 /* SettingsPickActionComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPickActionComponent.swift; sourceTree = "<group>"; };
@@ -364,6 +366,7 @@
 				520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */,
 				520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */,
 				5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */,
+				521CD7A62766853100579D27 /* SidebarToolbarComponent.swift */,
 			);
 			path = Sidebar;
 			sourceTree = "<group>";
@@ -517,6 +520,7 @@
 				52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */,
 				52C8D195274D8256006C9360 /* ContentMessageDetailsSecurityComponent.swift in Sources */,
 				520D8EF62753C71F00AE73D4 /* ContentCommonToolbarAuthenticationComponent.swift in Sources */,
+				521CD7A72766853100579D27 /* SidebarToolbarComponent.swift in Sources */,
 				52F933CF275F5D8B0097A2F8 /* CallsSettingsView.swift in Sources */,
 				52EA1192274C24C9007DA1C5 /* SidebarNavigationComponent.swift in Sources */,
 				528240FB275F614200BC39F7 /* Preferences+Extension.swift in Sources */,

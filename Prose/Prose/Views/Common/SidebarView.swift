@@ -72,6 +72,9 @@ struct SidebarView: View {
             
             SidebarPartContextComponent()
         }
+        .toolbar {
+            SidebarToolbarComponent()
+        }
     }
 }
 
