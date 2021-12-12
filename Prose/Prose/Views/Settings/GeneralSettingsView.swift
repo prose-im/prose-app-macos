@@ -52,7 +52,7 @@ struct GeneralSettingsView: View {
             // "Save downloads to"
             Preferences.Section(title: "settings_general_downloads_label".localized()) {
                 Picker("", selection: $downloadsPath) {
-                    Text("(...)").tag(0)
+                    // TODO
                 }
                 .labelsHidden()
                 .frame(width: SettingsContants.selectNormalWidth)

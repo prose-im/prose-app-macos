@@ -10,7 +10,7 @@ import SwiftUI
 struct AccountsSettingsSecurityComponent: View {
     var body: some View {
         // TODO
-        Text("Security settings")
+        Text("(server security automated check, ie. no settings there)")
     }
 }
 

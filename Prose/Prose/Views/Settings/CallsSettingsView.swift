@@ -27,6 +27,8 @@ enum CallsSettingsAudioOutputDefault: String, Equatable, CaseIterable {
 }
 
 struct CallsSettingsView: View {
+    @State private var audioInputLevel: Double = 0.6
+    
     @AppStorage("settings.calls.videoInputDefault") var videoInputDefault: CallsSettingsVideoInputDefault = .system
     @AppStorage("settings.calls.audioInputDefault") var audioInputDefault: CallsSettingsAudioInputDefault = .system
     @AppStorage("settings.calls.audioOutputDefault") var audioOutputDefault: CallsSettingsAudioOutputDefault = .system
@@ -54,7 +56,11 @@ struct CallsSettingsView: View {
             
             // "Microphone tester"
             Preferences.Section(title: "settings_calls_audio_input_tester_label".localized()) {
-                // TODO: microphone level
+                CommonLevelIndicatorComponent(
+                    tickMarkFactor: 6.0,
+                    currentValue: audioInputLevel
+                )
+                .frame(width: SettingsContants.selectLargeWidth)
             }
             
             // "Default audio input"
