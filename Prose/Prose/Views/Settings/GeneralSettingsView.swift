@@ -36,7 +36,10 @@ struct GeneralSettingsView: View {
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Theme"
-            Preferences.Section(title: "settings_general_theme_label".localized()) {
+            Preferences.Section(
+                title: "settings_general_theme_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $theme) {
                     ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
                         Text(value.localizedName)
@@ -50,7 +53,10 @@ struct GeneralSettingsView: View {
             }
             
             // "Save downloads to"
-            Preferences.Section(title: "settings_general_downloads_label".localized()) {
+            Preferences.Section(
+                title: "settings_general_downloads_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $downloadsPath) {
                     // TODO
                 }
@@ -61,7 +67,10 @@ struct GeneralSettingsView: View {
             }
             
             // "Phone contacts"
-            Preferences.Section(title: "settings_general_phone_label".localized()) {
+            Preferences.Section(
+                title: "settings_general_phone_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_general_phone_from_address_book_toggle".localized(), isOn: $phoneFromAddressBook)
                 
                 Text("settings_general_phone_from_address_book_description".localized())
@@ -71,7 +80,10 @@ struct GeneralSettingsView: View {
             }
             
             // "When idle"
-            Preferences.Section(title: "settings_general_idle_label".localized()) {
+            Preferences.Section(
+                title: "settings_general_idle_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_general_idle_automatically_mark_away_enabled_toggle".localized(), isOn: $automaticallyMarkAwayEnabled)
                 
                 Picker("", selection: $automaticallyMarkAwayAfter) {

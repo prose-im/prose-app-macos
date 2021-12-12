@@ -25,7 +25,10 @@ struct MessagesSettingsView: View {
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Composing"
-            Preferences.Section(title: "settings_messages_composing_label".localized()) {
+            Preferences.Section(
+                title: "settings_messages_composing_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_messages_composing_show_when_typing_toggle".localized(), isOn: $composingShowWhenTyping)
                 Toggle("settings_messages_composing_spell_check_toggle".localized(), isOn: $composingSpellCheck)
                 
@@ -33,7 +36,10 @@ struct MessagesSettingsView: View {
             }
             
             // "Messages"
-            Preferences.Section(title: "settings_messages_messages_label".localized()) {
+            Preferences.Section(
+                title: "settings_messages_messages_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_messages_messages_24_hour_clock_toggle".localized(), isOn: $messages24HourClock)
                 Toggle("settings_messages_messages_image_previews_toggle".localized(), isOn: $messagesImagePreviews)
                 
@@ -41,7 +47,10 @@ struct MessagesSettingsView: View {
             }
             
             // "Image thumbnails"
-            Preferences.Section(title: "settings_messages_thumbnails_label".localized()) {
+            Preferences.Section(
+                title: "settings_messages_thumbnails_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $thumbnailsSize) {
                     ForEach(MessagesSettingsThumbnailsSize.allCases, id: \.self) { value in
                         Text(value.localizedName)

@@ -23,7 +23,10 @@ struct AdvancedSettingsView: View {
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Update channel"
-            Preferences.Section(title: "settings_advanced_update_channel_label".localized()) {
+            Preferences.Section(
+                title: "settings_advanced_update_channel_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $updateChannel) {
                     ForEach(AdvancedSettingsUpdateChannel.allCases, id: \.self) { value in
                         Text(value.localizedName)
@@ -37,7 +40,10 @@ struct AdvancedSettingsView: View {
             }
             
             // "Reports"
-            Preferences.Section(title: "settings_advanced_reports_label".localized()) {
+            Preferences.Section(
+                title: "settings_advanced_reports_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_advanced_reports_usage_toggle".localized(), isOn: $reportsUsage)
                 Toggle("settings_advanced_reports_crash_toggle".localized(), isOn: $reportsCrash)
             }

@@ -54,7 +54,10 @@ struct NotificationsSettingsView: View {
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Notify me about"
-            Preferences.Section(title: "settings_notifications_notify_governor_label".localized()) {
+            Preferences.Section(
+                title: "settings_notifications_notify_governor_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $notifyGovernor) {
                     ForEach(NotificationsSettingsNotify.allCases, id: \.self) { value in
                         Text(value.localizedName)
@@ -71,7 +74,10 @@ struct NotificationsSettingsView: View {
             }
             
             // "Get notified"
-            Preferences.Section(title: "settings_notifications_schedule_label".localized()) {
+            Preferences.Section(
+                title: "settings_notifications_schedule_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Picker("", selection: $scheduleDays) {
                     ForEach(NotificationsSettingsScheduleDays.allCases, id: \.self) { value in
                         Text(value.localizedName)
@@ -107,7 +113,10 @@ struct NotificationsSettingsView: View {
             }
             
             // "When notified"
-            Preferences.Section(title: "settings_notifications_action_label".localized()) {
+            Preferences.Section(
+                title: "settings_notifications_action_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_notifications_action_badge_toggle".localized(), isOn: $actionBadge)
                 Toggle("settings_notifications_action_sound_toggle".localized(), isOn: $actionSound)
                 Toggle("settings_notifications_action_banner_toggle".localized(), isOn: $actionBanner)
@@ -116,7 +125,10 @@ struct NotificationsSettingsView: View {
             }
             
             // "Mobile alerts"
-            Preferences.Section(title: "settings_notifications_handover_label".localized()) {
+            Preferences.Section(
+                title: "settings_notifications_handover_label".localized(),
+                verticalAlignment: .top
+            ) {
                 Toggle("settings_notifications_handover_forward_mobile_toggle".localized(), isOn: $handoverForwardMobileEnabled)
                 
                 Picker("", selection: $handoverForwardMobileAfter) {

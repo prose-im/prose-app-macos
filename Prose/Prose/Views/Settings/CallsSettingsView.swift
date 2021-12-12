@@ -36,13 +36,18 @@ struct CallsSettingsView: View {
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Camera tester"
-            Preferences.Section(title: "settings_calls_video_input_tester_label".localized()) {
+            Preferences.Section(
+                title: "settings_calls_video_input_tester_label".localized(),
+                verticalAlignment: .center
+            ) {
                 // TODO: video stream
             }
             
             // "Default video input"
             Preferences.Section(
-                title: "settings_calls_video_input_default_label".localized(), bottomDivider: true
+                title: "settings_calls_video_input_default_label".localized(),
+                bottomDivider: true,
+                verticalAlignment: .center
             ) {
                 Picker("", selection: $videoInputDefault) {
                     ForEach(CallsSettingsVideoInputDefault.allCases, id: \.self) { value in
@@ -55,9 +60,12 @@ struct CallsSettingsView: View {
             }
             
             // "Microphone tester"
-            Preferences.Section(title: "settings_calls_audio_input_tester_label".localized()) {
+            Preferences.Section(
+                title: "settings_calls_audio_input_tester_label".localized(),
+                verticalAlignment: .center
+            ) {
                 CommonLevelIndicatorComponent(
-                    tickMarkFactor: 6.0,
+                    tickMarkFactor: 8.0,
                     currentValue: audioInputLevel
                 )
                 .frame(width: SettingsContants.selectLargeWidth)
@@ -65,7 +73,9 @@ struct CallsSettingsView: View {
             
             // "Default audio input"
             Preferences.Section(
-                title: "settings_calls_audio_input_default_label".localized(), bottomDivider: true
+                title: "settings_calls_audio_input_default_label".localized(),
+                bottomDivider: true,
+                verticalAlignment: .center
             ) {
                 Picker("", selection: $audioInputDefault) {
                     ForEach(CallsSettingsAudioInputDefault.allCases, id: \.self) { value in
@@ -88,7 +98,10 @@ struct CallsSettingsView: View {
             }
             
             // "Default audio output"
-            Preferences.Section(title: "settings_calls_audio_output_default_label".localized()) {
+            Preferences.Section(
+                title: "settings_calls_audio_output_default_label".localized(),
+                verticalAlignment: .center
+            ) {
                 Picker("", selection: $audioOutputDefault) {
                     ForEach(CallsSettingsAudioOutputDefault.allCases, id: \.self) { value in
                         Text(value.localizedName)
