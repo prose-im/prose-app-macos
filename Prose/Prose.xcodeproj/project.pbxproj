@@ -34,6 +34,7 @@
 		52442D8C276662DC007FB6F1 /* SettingsPickActionComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52442D8B276662DC007FB6F1 /* SettingsPickActionComponent.swift */; };
 		5262B281274CDFA90034DBE3 /* MessageMessengerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */; };
 		5262B283274CDFB50034DBE3 /* MessageDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */; };
+		526F84572770F01A00D12127 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 526F84592770F01A00D12127 /* Localizable.strings */; };
 		5279D23C27663EED0065043C /* AccountsSettingsTabsComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5279D23B27663EED0065043C /* AccountsSettingsTabsComponent.swift */; };
 		528161B42766022A000C3129 /* AccountsSettingsAccountComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */; };
 		528161B627660234000C3129 /* AccountsSettingsSecurityComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */; };
@@ -68,7 +69,6 @@
 		52EA1195274C2544007DA1C5 /* BaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1194274C2544007DA1C5 /* BaseView.swift */; };
 		52EA1197274C2550007DA1C5 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1196274C2550007DA1C5 /* SidebarView.swift */; };
 		52EA1199274C2558007DA1C5 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1198274C2558007DA1C5 /* MessageView.swift */; };
-		52EA119C274C2606007DA1C5 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 52EA119B274C2606007DA1C5 /* Localizable.strings */; };
 		52F933C4275F51790097A2F8 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933C3275F51790097A2F8 /* GeneralSettingsView.swift */; };
 		52F933C7275F51940097A2F8 /* Preferences in Frameworks */ = {isa = PBXBuildFile; productRef = 52F933C6275F51940097A2F8 /* Preferences */; };
 		52F933C9275F556C0097A2F8 /* AccountsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F933C8275F556C0097A2F8 /* AccountsSettingsView.swift */; };
@@ -112,6 +112,7 @@
 		52442D8B276662DC007FB6F1 /* SettingsPickActionComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPickActionComponent.swift; sourceTree = "<group>"; };
 		5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMessengerView.swift; sourceTree = "<group>"; };
 		5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDetailsView.swift; sourceTree = "<group>"; };
+		526F84582770F01A00D12127 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5279D23B27663EED0065043C /* AccountsSettingsTabsComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsTabsComponent.swift; sourceTree = "<group>"; };
 		528161B32766022A000C3129 /* AccountsSettingsAccountComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsAccountComponent.swift; sourceTree = "<group>"; };
 		528161B527660234000C3129 /* AccountsSettingsSecurityComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsSecurityComponent.swift; sourceTree = "<group>"; };
@@ -148,7 +149,6 @@
 		52EA1194274C2544007DA1C5 /* BaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseView.swift; sourceTree = "<group>"; };
 		52EA1196274C2550007DA1C5 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		52EA1198274C2558007DA1C5 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
-		52EA119B274C2606007DA1C5 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		52F933C3275F51790097A2F8 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		52F933C8275F556C0097A2F8 /* AccountsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountsSettingsView.swift; sourceTree = "<group>"; };
 		52F933CA275F5D770097A2F8 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
@@ -279,7 +279,7 @@
 			isa = PBXGroup;
 			children = (
 				52EA1175274C23C3007DA1C5 /* Assets.xcassets */,
-				52EA119B274C2606007DA1C5 /* Localizable.strings */,
+				526F84592770F01A00D12127 /* Localizable.strings */,
 				528161B92766049B000C3129 /* Credits.rtf */,
 			);
 			path = Resources;
@@ -490,7 +490,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				52EA1179274C23C3007DA1C5 /* Preview Assets.xcassets in Resources */,
-				52EA119C274C2606007DA1C5 /* Localizable.strings in Resources */,
+				526F84572770F01A00D12127 /* Localizable.strings in Resources */,
 				52EA1176274C23C3007DA1C5 /* Assets.xcassets in Resources */,
 				528161BA2766049B000C3129 /* Credits.rtf in Resources */,
 			);
@@ -577,6 +577,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		526F84592770F01A00D12127 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				526F84582770F01A00D12127 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		52EA117B274C23C3007DA1C5 /* Debug */ = {
