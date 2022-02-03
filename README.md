@@ -2,7 +2,7 @@
 
 **Prose macOS application. Built in Swift / SwiftUI.**
 
-_Tested at Swift version `5.5.2` and Xcode version `13.2`._
+_Tested at Swift version: `5.5.2` and Xcode version: `13.2`._
 
 ## Architecture
 
