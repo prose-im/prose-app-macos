@@ -14,6 +14,7 @@ struct BaseView: View {
         NavigationView {
             SidebarView(selection: selection)
                 .frame(minWidth: 280.0)
+            Text("Nothing to show here 🤷")
         }
         .listStyle(SidebarListStyle())
         .frame(minWidth: 1280, minHeight: 720)

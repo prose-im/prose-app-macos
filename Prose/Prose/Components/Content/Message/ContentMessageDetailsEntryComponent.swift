@@ -61,7 +61,7 @@ struct ContentMessageDetailsEntryComponent: View {
                 Button(action: {}) {
                     Image(systemName: "info.circle")
                         .font(.system(size: 13))
-                        .foregroundColor(.black.opacity(0.50))
+                        .foregroundColor(Color.primary.opacity(0.50))
                 }
                     .buttonStyle(PlainButtonStyle())
             }

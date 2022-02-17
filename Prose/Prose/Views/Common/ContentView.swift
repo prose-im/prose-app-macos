@@ -12,7 +12,6 @@ struct ContentView: View {
         MessageView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle("")
-        .background(Color.white)
         .toolbar {
             ContentCommonToolbarComponent()
         }

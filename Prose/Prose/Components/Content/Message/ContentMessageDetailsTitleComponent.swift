@@ -16,7 +16,7 @@ struct ContentMessageDetailsTitleComponent: View {
             Text(verbatim: title)
                 .font(.system(size: 11))
                 .fontWeight(.semibold)
-                .foregroundColor(Color.black.opacity(0.25))
+                .foregroundColor(Color.primary.opacity(0.25))
                 .padding(.horizontal, paddingSides)
             
             Divider()

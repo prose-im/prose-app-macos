@@ -11,30 +11,26 @@ struct SidebarPartSectionsComponent: View {
     @State var selection: SidebarID?
     
     var body: some View {
-        VStack {
-            Spacer()
+        List(selection: $selection) {
+            SidebarSectionSpotlightComponent(
+                selection: selection
+            )
             
-            List(selection: $selection) {
-                SidebarSectionSpotlightComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionFavoritesComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionTeamMembersComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionOtherContactsComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionGroupsComponent(
-                    selection: selection
-                )
-            }
+            SidebarSectionFavoritesComponent(
+                selection: selection
+            )
+            
+            SidebarSectionTeamMembersComponent(
+                selection: selection
+            )
+            
+            SidebarSectionOtherContactsComponent(
+                selection: selection
+            )
+            
+            SidebarSectionGroupsComponent(
+                selection: selection
+            )
         }
     }
 }

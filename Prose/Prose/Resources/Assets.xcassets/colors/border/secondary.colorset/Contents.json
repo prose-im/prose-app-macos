@@ -9,6 +9,22 @@
         }
       },
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "color" : {
+        "color-space" : "extended-gray",
+        "components" : {
+          "alpha" : "0.750",
+          "white" : "128"
+        }
+      },
+      "idiom" : "universal"
     }
   ],
   "info" : {

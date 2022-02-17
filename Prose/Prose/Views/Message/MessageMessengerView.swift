@@ -8,19 +8,7 @@
 import SwiftUI
 
 struct MessageMessengerView: View {
-    @State var messages = [
-        "Hello 1",
-        "Hello 2",
-        "Hello 3",
-        "Hello 4",
-        "Hello 5",
-        "Hello 6",
-        "Hello 7",
-        "Hello 8",
-        "Hello 9",
-        "Hello 10",
-        "Hello 11"
-    ]
+    @State var messages = (1...21).map { "Hello \($0)" }
     
     var body: some View {
         VStack(spacing: 0) {
