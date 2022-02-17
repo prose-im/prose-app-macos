@@ -457,6 +457,7 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1310;
 				LastUpgradeCheck = 1310;
+				ORGANIZATIONNAME = Prose;
 				TargetAttributes = {
 					52EA116D274C23C2007DA1C5 = {
 						CreatedOnToolsVersion = 13.1;
