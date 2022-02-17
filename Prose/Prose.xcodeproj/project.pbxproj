@@ -222,6 +222,7 @@
 				52EA116F274C23C2007DA1C5 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		52EA116F274C23C2007DA1C5 /* Products */ = {
 			isa = PBXGroup;
