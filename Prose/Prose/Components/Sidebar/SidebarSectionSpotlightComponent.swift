@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct SidebarSectionSpotlightComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
     let spotlightOptions: [SidebarOption] = [
         .init(
-            id: .unreadStack,
+            id: .unread,
             title: "sidebar_spotlight_unread_stack".localized(),
             image: "tray.2",
             count: 0
@@ -39,17 +39,16 @@ struct SidebarSectionSpotlightComponent: View {
     
     var body: some View {
         Section(header: Text("sidebar_section_spotlight".localized())) {
-            ForEach(spotlightOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
+            ForEach(spotlightOptions) { option in
+                NavigationLink(tag: option.id, selection: $selection) {
+                    ContentView()
+                } label: {
                     SidebarNavigationComponent(
                         title: option.title,
                         image: option.image,
                         count: option.count
                     )
                 }
-                .tag(option.id)
             }
         }
     }
@@ -57,6 +56,8 @@ struct SidebarSectionSpotlightComponent: View {
 
 struct SidebarSectionSpotlightComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarSectionSpotlightComponent()
+        SidebarSectionSpotlightComponent(
+            selection: .constant(nil)
+        )
     }
 }

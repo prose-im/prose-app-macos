@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct BaseView: View {
-    @State var selection: SidebarID? = .unreadStack
+    @State var selection: SidebarID? = .unread
     
     var body: some View {
         NavigationView {
-            SidebarView(selection: selection)
+            SidebarView(selection: $selection)
                 .frame(minWidth: 280.0)
             Text("Nothing to show here 🤷")
         }

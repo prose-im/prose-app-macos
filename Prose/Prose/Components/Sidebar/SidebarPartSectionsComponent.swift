@@ -8,28 +8,28 @@
 import SwiftUI
 
 struct SidebarPartSectionsComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
     var body: some View {
-        List(selection: $selection) {
+        List {
             SidebarSectionSpotlightComponent(
-                selection: selection
+                selection: $selection
             )
             
             SidebarSectionFavoritesComponent(
-                selection: selection
+                selection: $selection
             )
             
             SidebarSectionTeamMembersComponent(
-                selection: selection
+                selection: $selection
             )
             
             SidebarSectionOtherContactsComponent(
-                selection: selection
+                selection: $selection
             )
             
             SidebarSectionGroupsComponent(
-                selection: selection
+                selection: $selection
             )
         }
     }
@@ -37,6 +37,8 @@ struct SidebarPartSectionsComponent: View {
 
 struct SidebarPartSectionsComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarPartSectionsComponent()
+        SidebarPartSectionsComponent(
+            selection: .constant(nil)
+        )
     }
 }

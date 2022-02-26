@@ -8,52 +8,37 @@
 import SwiftUI
 
 struct SidebarSectionOtherContactsComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
-    let otherContactsAtomOptions: [SidebarOption] = [
+    let otherContactsOptions: [SidebarOption] = [
         .init(
-            id: .otherContactsAtom("id-xx"),
+            id: .person(id: "id-james"),
             title: "James",
             image: "avatar-valerian",
             count: 0
         ),
     ]
     
-    let otherContactsActionOptions: [SidebarOption] = [
-        .init(
-            id: .otherContactsAdd,
-            title: "sidebar_other_contacts_add".localized(),
-            image: "plus.square.fill",
-            count: 0
-        ),
-    ]
-    
     var body: some View {
         Section(header: Text("sidebar_section_other_contacts".localized())) {
-            ForEach(otherContactsAtomOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
+            ForEach(otherContactsOptions) { option in
+                NavigationLink(tag: option.id, selection: $selection) {
+                    ContentView()
+                } label: {
                     SidebarContactComponent(
                         title: option.title,
                         avatar: option.image,
                         count: option.count
                     )
                 }
-                .tag(option.id)
             }
             
-            ForEach(otherContactsActionOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
-                    SidebarNavigationComponent(
-                        title: option.title,
-                        image: option.image,
-                        count: option.count
-                    )
-                }
-                .tag(option.id)
+            SidebarActionComponent(
+                title: "sidebar_other_contacts_add",
+                systemImage: "plus.square.fill"
+            ) {
+                // TODO: [Rémi Bardon] Add action
+                print("Add contact tapped")
             }
         }
     }
@@ -61,6 +46,8 @@ struct SidebarSectionOtherContactsComponent: View {
 
 struct SidebarSectionOtherContactsComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarSectionOtherContactsComponent()
+        SidebarSectionOtherContactsComponent(
+            selection: .constant(nil)
+        )
     }
 }

@@ -8,64 +8,49 @@
 import SwiftUI
 
 struct SidebarSectionTeamMembersComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
-    let teamMembersAtomOptions: [SidebarOption] = [
+    let teamMembersOptions: [SidebarOption] = [
         .init(
-            id: .teamMembersAtom("id-xx"),
+            id: .person(id: "id-elison"),
             title: "Elison",
             image: "avatar-valerian",
             count: 0
         ),
         .init(
-            id: .teamMembersAtom("id-xx"),
+            id: .person(id: "id-elisa"),
             title: "Elisa",
             image: "avatar-valerian",
             count: 3
         ),
         .init(
-            id: .teamMembersAtom("id-xx"),
+            id: .person(id: "id-david"),
             title: "David",
             image: "avatar-valerian",
             count: 2
         ),
     ]
     
-    let teamMembersActionOptions: [SidebarOption] = [
-        .init(
-            id: .teamMembersAdd,
-            title: "sidebar_team_members_add".localized(),
-            image: "plus.square.fill",
-            count: 0
-        ),
-    ]
-    
     var body: some View {
         Section(header: Text("sidebar_section_team_members".localized())) {
-            ForEach(teamMembersAtomOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
+            ForEach(teamMembersOptions) { option in
+                NavigationLink(tag: option.id, selection: $selection) {
+                    ContentView()
+                } label: {
                     SidebarContactComponent(
                         title: option.title,
                         avatar: option.image,
                         count: option.count
                     )
                 }
-                .tag(option.id)
             }
             
-            ForEach(teamMembersActionOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
-                    SidebarNavigationComponent(
-                        title: option.title,
-                        image: option.image,
-                        count: option.count
-                    )
-                }
-                .tag(option.id)
+            SidebarActionComponent(
+                title: "sidebar_team_members_add",
+                systemImage: "plus.square.fill"
+            ) {
+                // TODO: [Rémi Bardon] Add action
+                print("Add member tapped")
             }
         }
     }
@@ -73,6 +58,8 @@ struct SidebarSectionTeamMembersComponent: View {
 
 struct SidebarSectionTeamMembersComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarSectionTeamMembersComponent()
+        SidebarSectionTeamMembersComponent(
+            selection: .constant(nil)
+        )
     }
 }
