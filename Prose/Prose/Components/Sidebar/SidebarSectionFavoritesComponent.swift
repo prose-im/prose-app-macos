@@ -29,7 +29,7 @@ struct SidebarSectionFavoritesComponent: View {
         Section(header: Text("sidebar_section_favorites".localized())) {
             ForEach(favoritesOptions) { option in
                 NavigationLink(tag: option.id, selection: $selection) {
-                    ContentView()
+                    ContentView(selection: option.id)
                 } label: {
                     SidebarContactComponent(
                         title: option.title,

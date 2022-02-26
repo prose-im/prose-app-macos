@@ -8,15 +8,13 @@
 import SwiftUI
 
 struct MessageMessengerView: View {
-    @State var messages = (1...21).map { "Hello \($0)" }
+    @State var messages: [MessageViewModel]
     
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 14) {
-                    ForEach(messages, id: \.self) { message in
-                        ContentMessageBubbleComponent(text: message)
-                    }
+                    ForEach(messages, content: ContentMessageBubbleComponent.init(model:))
                 }
                 .padding()
             }
@@ -29,7 +27,24 @@ struct MessageMessengerView: View {
 }
 
 struct MessageMessengerView_Previews: PreviewProvider {
+    static let messages: [MessageViewModel] = (1...21)
+        .map { (n: Int) -> (Int, String) in
+            (n, (["A"] + Array(repeating: "long", count: (n - 1) * 4) + ["message."])
+                .joined(separator: " "))
+        }
+        .map {
+            MessageViewModel(
+                senderId: "id-valerian",
+                senderName: "Valerian",
+                avatar: "avatar-valerian",
+                content: $0.1,
+                timestamp: .now - Double($0.0) * 1_000
+            )
+        }
+    
     static var previews: some View {
-        MessageMessengerView()
+        MessageMessengerView(
+            messages: Self.messages
+        )
     }
 }

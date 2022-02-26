@@ -23,7 +23,7 @@ struct SidebarSectionOtherContactsComponent: View {
         Section(header: Text("sidebar_section_other_contacts".localized())) {
             ForEach(otherContactsOptions) { option in
                 NavigationLink(tag: option.id, selection: $selection) {
-                    ContentView()
+                    ContentView(selection: option.id)
                 } label: {
                     SidebarContactComponent(
                         title: option.title,

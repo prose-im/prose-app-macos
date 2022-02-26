@@ -35,7 +35,7 @@ struct SidebarSectionTeamMembersComponent: View {
         Section(header: Text("sidebar_section_team_members".localized())) {
             ForEach(teamMembersOptions) { option in
                 NavigationLink(tag: option.id, selection: $selection) {
-                    ContentView()
+                    ContentView(selection: option.id)
                 } label: {
                     SidebarContactComponent(
                         title: option.title,

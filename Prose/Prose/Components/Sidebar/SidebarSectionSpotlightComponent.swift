@@ -41,7 +41,7 @@ struct SidebarSectionSpotlightComponent: View {
         Section(header: Text("sidebar_section_spotlight".localized())) {
             ForEach(spotlightOptions) { option in
                 NavigationLink(tag: option.id, selection: $selection) {
-                    ContentView()
+                    ContentView(selection: option.id)
                 } label: {
                     SidebarNavigationComponent(
                         title: option.title,
