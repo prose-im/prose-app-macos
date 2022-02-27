@@ -11,7 +11,7 @@ struct SidebarPartContextComponent: View {
     var avatar: String = "avatar-valerian"
     var teamName: String = "Crisp"
     var statusIcon: Character = "🚀"
-    var statusMessage: String = "Building new features."
+    var statusMessage: String = "Building new stuff."
     
     var body: some View {
         VStack(spacing: 0) {
