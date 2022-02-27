@@ -29,6 +29,11 @@ extension Color {
         return Color("state/greyLight")
     }
     
+    // Backgrounds
+    public static var backgroundMessage: Color {
+        return Color("background/message")
+    }
+    
     // Borders
     public static var borderPrimary: Color {
         return Color("border/primary")

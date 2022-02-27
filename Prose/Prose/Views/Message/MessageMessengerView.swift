@@ -18,7 +18,7 @@ struct MessageMessengerView: View {
                 }
                 .padding()
             }
-            .background(.white)
+            .background(Color.backgroundMessage)
             
             ContentMessageBarComponent(
                 firstName: "Valerian"
