@@ -75,6 +75,7 @@ struct MessageDetailsView: View {
                 }
             }
         }
+        .background(.background)
     }
 }
 
