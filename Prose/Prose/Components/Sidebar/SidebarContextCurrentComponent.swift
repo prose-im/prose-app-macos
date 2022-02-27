@@ -21,6 +21,7 @@ struct SidebarContextCurrentComponent: View {
             Text(verbatim: "\(statusIcon) “\(statusMessage)”")
                 .font(.system(size: 11))
                 .foregroundColor(.textSecondary)
+                .layoutPriority(1)
         }
     }
 }

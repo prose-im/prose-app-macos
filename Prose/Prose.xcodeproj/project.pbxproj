@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		468C229027CA7A630075D281 /* SidebarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C228F27CA7A630075D281 /* SidebarModel.swift */; };
+		468C229227CA8BC30075D281 /* SidebarActionComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229127CA8BC30075D281 /* SidebarActionComponent.swift */; };
+		468C229527CA8FB30075D281 /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229427CA8FB30075D281 /* MessageStore.swift */; };
+		468C229727CACBD00075D281 /* UserStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229627CACBD00075D281 /* UserStore.swift */; };
 		5209CA06275623BA00CD9554 /* SidebarCounterComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */; };
 		520B1BFA2764887A007B5D7A /* CommonConnectionStatusComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520B1BF92764887A007B5D7A /* CommonConnectionStatusComponent.swift */; };
 		520B1BFD27648BE9007B5D7A /* SettingsFormFieldComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520B1BFC27648BE9007B5D7A /* SettingsFormFieldComponent.swift */; };
@@ -85,6 +89,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		468C228F27CA7A630075D281 /* SidebarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarModel.swift; sourceTree = "<group>"; };
+		468C229127CA8BC30075D281 /* SidebarActionComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarActionComponent.swift; sourceTree = "<group>"; };
+		468C229427CA8FB30075D281 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
+		468C229627CACBD00075D281 /* UserStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStore.swift; sourceTree = "<group>"; };
 		5209CA05275623BA00CD9554 /* SidebarCounterComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarCounterComponent.swift; sourceTree = "<group>"; };
 		520B1BF92764887A007B5D7A /* CommonConnectionStatusComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonConnectionStatusComponent.swift; sourceTree = "<group>"; };
 		520B1BFC27648BE9007B5D7A /* SettingsFormFieldComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFormFieldComponent.swift; sourceTree = "<group>"; };
@@ -222,6 +230,7 @@
 				52EA116F274C23C2007DA1C5 /* Products */,
 			);
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		52EA116F274C23C2007DA1C5 /* Products */ = {
 			isa = PBXGroup;
@@ -307,6 +316,9 @@
 		52EA1186274C2400007DA1C5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				468C228F27CA7A630075D281 /* SidebarModel.swift */,
+				468C229427CA8FB30075D281 /* MessageStore.swift */,
+				468C229627CACBD00075D281 /* UserStore.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -362,6 +374,7 @@
 				520D8EFF2753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift */,
 				520D8F012753CF4500AE73D4 /* SidebarSectionOtherContactsComponent.swift */,
 				520D8F032753CF5100AE73D4 /* SidebarSectionGroupsComponent.swift */,
+				468C229127CA8BC30075D281 /* SidebarActionComponent.swift */,
 				520D8F052754294D00AE73D4 /* SidebarContextAvatarComponent.swift */,
 				520D8F072754295F00AE73D4 /* SidebarContextCurrentComponent.swift */,
 				520D8F092754296C00AE73D4 /* SidebarContextActionsComponent.swift */,
@@ -457,6 +470,7 @@
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1310;
 				LastUpgradeCheck = 1310;
+				ORGANIZATIONNAME = Prose;
 				TargetAttributes = {
 					52EA116D274C23C2007DA1C5 = {
 						CreatedOnToolsVersion = 13.1;
@@ -546,6 +560,7 @@
 				52F933C4275F51790097A2F8 /* GeneralSettingsView.swift in Sources */,
 				52C8D18F274D8221006C9360 /* ContentMessageDetailsIdentityComponent.swift in Sources */,
 				52EA118C274C2483007DA1C5 /* ContentMessageBubbleComponent.swift in Sources */,
+				468C229027CA7A630075D281 /* SidebarModel.swift in Sources */,
 				520D8EF22753C37E00AE73D4 /* ContentCommonToolbarTitleComponent.swift in Sources */,
 				5209CA06275623BA00CD9554 /* SidebarCounterComponent.swift in Sources */,
 				520D8EFE2753CF2B00AE73D4 /* SidebarSectionFavoritesComponent.swift in Sources */,
@@ -556,6 +571,7 @@
 				52EA1195274C2544007DA1C5 /* BaseView.swift in Sources */,
 				52D95F97275805EC00A26375 /* ContentMessageDetailsTitleComponent.swift in Sources */,
 				520D8F002753CF3500AE73D4 /* SidebarSectionTeamMembersComponent.swift in Sources */,
+				468C229527CA8FB30075D281 /* MessageStore.swift in Sources */,
 				528161BC276611AF000C3129 /* ViewWrap+Extension.swift in Sources */,
 				520B1BFD27648BE9007B5D7A /* SettingsFormFieldComponent.swift in Sources */,
 				52442D8A27665FEC007FB6F1 /* SettingsPickAccountComponent.swift in Sources */,
@@ -567,7 +583,9 @@
 				52F933D1275F5D920097A2F8 /* AdvancedSettingsView.swift in Sources */,
 				52C8D19F274E458F006C9360 /* ContentMessageBarComposeComponent.swift in Sources */,
 				52F933DB275F5F7C0097A2F8 /* NotificationsSettingsViewController.swift in Sources */,
+				468C229727CACBD00075D281 /* UserStore.swift in Sources */,
 				520B1BFA2764887A007B5D7A /* CommonConnectionStatusComponent.swift in Sources */,
+				468C229227CA8BC30075D281 /* SidebarActionComponent.swift in Sources */,
 				520D8EEA27539CAB00AE73D4 /* SidebarContactComponent.swift in Sources */,
 				52F933CB275F5D770097A2F8 /* NotificationsSettingsView.swift in Sources */,
 				52C8D19D274E3B36006C9360 /* CommonButtonActionComponent.swift in Sources */,

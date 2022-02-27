@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct SidebarSectionFavoritesComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
     let favoritesOptions: [SidebarOption] = [
         .init(
-            id: .favoritesAtom("id-xx"),
+            id: .person(id: "id-valerian"),
             title: "Valerian",
             image: "avatar-valerian",
             count: 0
         ),
         .init(
-            id: .favoritesAtom("id-xx"),
+            id: .person(id: "id-julian"),
             title: "Julian",
             image: "avatar-valerian",
             count: 0
@@ -27,17 +27,16 @@ struct SidebarSectionFavoritesComponent: View {
     
     var body: some View {
         Section(header: Text("sidebar_section_favorites".localized())) {
-            ForEach(favoritesOptions, id: \.self) { option in
-                NavigationLink(
-                    destination: ContentView(), tag: option.id, selection: $selection
-                ) {
+            ForEach(favoritesOptions) { option in
+                NavigationLink(tag: option.id, selection: $selection) {
+                    ContentView(selection: option.id)
+                } label: {
                     SidebarContactComponent(
                         title: option.title,
                         avatar: option.image,
                         count: option.count
                     )
                 }
-                .tag(option.id)
             }
         }
     }
@@ -45,6 +44,8 @@ struct SidebarSectionFavoritesComponent: View {
 
 struct SidebarSectionFavoritesComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarSectionFavoritesComponent()
+        SidebarSectionFavoritesComponent(
+            selection: .constant(nil)
+        )
     }
 }

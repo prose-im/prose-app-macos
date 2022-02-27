@@ -14,10 +14,10 @@ struct SidebarPartContextComponent: View {
     var statusMessage: String = "Building new features."
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             Divider()
             
-            HStack(alignment: .center, spacing: 12) {
+            HStack(spacing: 12) {
                 // User avatar
                 SidebarContextAvatarComponent(
                     avatar: avatar,
@@ -25,24 +25,23 @@ struct SidebarPartContextComponent: View {
                 )
                 
                 // Team name + user status
-                HStack {
-                    SidebarContextCurrentComponent(
-                        teamName: teamName,
-                        statusIcon: statusIcon,
-                        statusMessage: statusMessage
-                    )
-                    
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
+                SidebarContextCurrentComponent(
+                    teamName: teamName,
+                    statusIcon: statusIcon,
+                    statusMessage: statusMessage
+                )
+                    .layoutPriority(1)
+                
+                Spacer()
                 
                 // Quick action button
                 SidebarContextActionsComponent()
             }
             .padding(.leading, 20.0)
             .padding(.trailing, 14.0)
-            .padding([.top, .bottom], 14.0)
+            .frame(maxHeight: 64)
         }
+        .frame(height: 64)
     }
 }
 

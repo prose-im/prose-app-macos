@@ -8,39 +8,37 @@
 import SwiftUI
 
 struct SidebarPartSectionsComponent: View {
-    @State var selection: SidebarID?
+    @Binding var selection: SidebarID?
     
     var body: some View {
-        VStack {
-            Spacer()
+        List {
+            SidebarSectionSpotlightComponent(
+                selection: $selection
+            )
             
-            List(selection: $selection) {
-                SidebarSectionSpotlightComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionFavoritesComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionTeamMembersComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionOtherContactsComponent(
-                    selection: selection
-                )
-                
-                SidebarSectionGroupsComponent(
-                    selection: selection
-                )
-            }
+            SidebarSectionFavoritesComponent(
+                selection: $selection
+            )
+            
+            SidebarSectionTeamMembersComponent(
+                selection: $selection
+            )
+            
+            SidebarSectionOtherContactsComponent(
+                selection: $selection
+            )
+            
+            SidebarSectionGroupsComponent(
+                selection: $selection
+            )
         }
     }
 }
 
 struct SidebarPartSectionsComponent_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarPartSectionsComponent()
+        SidebarPartSectionsComponent(
+            selection: .constant(nil)
+        )
     }
 }

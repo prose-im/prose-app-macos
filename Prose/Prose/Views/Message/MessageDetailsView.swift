@@ -8,73 +8,45 @@
 import SwiftUI
 
 struct MessageDetailsView: View {
+    struct SectionGroupStyle: GroupBoxStyle {
+        private static let sidesPadding: CGFloat = 15
+        
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(spacing: 8) {
+                ContentMessageDetailsTitleComponent(
+                    label: configuration.label,
+                    sidesPadding: Self.sidesPadding
+                )
+                
+                configuration.content
+                    .padding(.horizontal, Self.sidesPadding)
+            }
+        }
+    }
+    
     var avatar: String
     var name: String
     
     var body: some View {
-        VStack(alignment: .leading) {
-            ScrollView {
-                VStack(spacing: 10) {
-                    Spacer()
-                    
-                    VStack(spacing: 3) {
-                        ContentMessageDetailsIdentityComponent(
-                            avatar: avatar,
-                            name: name
-                        )
-                        
-                        Spacer()
-                        
-                        ContentMessageDetailsQuickActionsComponent()
-                    }
-                    
-                    Spacer()
-                        .frame(height: 2)
-                     
-                    VStack(spacing: 22) {
-                        let titleSpacing: CGFloat = 9
-                        let paddingSides: CGFloat = 15
-                        
-                        VStack(alignment: .leading, spacing: titleSpacing) {
-                            // Information
-                            ContentMessageDetailsTitleComponent(
-                                title: "content_message_details_information_title".localized(),
-                                paddingSides: paddingSides
-                            )
-                            
-                            ContentMessageDetailsInformationComponent()
-                                .padding(.horizontal, paddingSides)
-                        }
-                        
-                        // Security
-                        VStack(alignment: .leading, spacing: titleSpacing) {
-                            ContentMessageDetailsTitleComponent(
-                                title: "content_message_details_security_title".localized(),
-                                paddingSides: paddingSides
-                            )
-                            
-                            ContentMessageDetailsSecurityComponent()
-                                .padding(.horizontal, paddingSides)
-                        }
-                        
-                        // Actions
-                        VStack(alignment: .leading, spacing: titleSpacing - 3) {
-                            let paddingActionsSides: CGFloat = 6
-                            
-                            ContentMessageDetailsTitleComponent(
-                                title: "content_message_details_actions_title".localized(),
-                                paddingSides: paddingSides
-                            )
-                            
-                            ContentMessageDetailsActionsComponent(
-                                paddingSides: paddingSides - paddingActionsSides
-                            )
-                                .padding(.horizontal, paddingActionsSides)
-                        }
-                    }
-                }
+        ScrollView(.vertical) {
+            VStack(spacing: 12) {
+                ContentMessageDetailsIdentityComponent(
+                    avatar: avatar,
+                    name: name
+                )
+                ContentMessageDetailsQuickActionsComponent()
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            
+            VStack(spacing: 24) {
+                ContentMessageDetailsInformationComponent()
+                ContentMessageDetailsSecurityComponent()
+                ContentMessageDetailsActionsComponent()
             }
         }
+        .groupBoxStyle(SectionGroupStyle())
+        .background(.background)
     }
 }
 
@@ -84,7 +56,6 @@ struct MessageDetailsView_Previews: PreviewProvider {
             avatar: "avatar-valerian",
             name: "Valerian Saliou"
         )
-            .background(.white)
-            .frame(width: 220.0, height: 720)
+            .frame(width: 220.0, height: 720, alignment: .top)
     }
 }

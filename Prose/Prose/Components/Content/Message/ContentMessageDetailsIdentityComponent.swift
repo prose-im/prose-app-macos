@@ -12,13 +12,11 @@ struct ContentMessageDetailsIdentityComponent: View {
     var name: String
     
     var body: some View {
-        VStack(alignment: .center, spacing: 5) {
+        VStack(alignment: .center, spacing: 10) {
             Image(avatar)
                 .frame(width: 100.0, height: 100.0)
                 .cornerRadius(10.0)
-                .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
-            
-            Spacer()
+                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
             
             VStack(spacing: 4) {
                 ContentCommonNameStatusComponent(

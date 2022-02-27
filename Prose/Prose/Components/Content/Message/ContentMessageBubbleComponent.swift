@@ -7,33 +7,47 @@
 
 import SwiftUI
 
+struct MessageViewModel {
+    let senderId: String
+    let senderName: String
+    let avatar: String
+    let content: String
+    let timestamp: Date
+}
+
+extension MessageViewModel: Identifiable {
+    var id: String { "\(senderId)_\(timestamp.ISO8601Format())" }
+}
+
 struct ContentMessageBubbleComponent: View {
-    @State var text: String
+    let model: MessageViewModel
     
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "person.crop.square.fill")
-                .foregroundColor(Color.blue)
-                .opacity(0.5)
-                .font(.system(size: 32))
+        HStack(alignment: .top, spacing: 12) {
+            Image(model.avatar)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+                .background(Color.borderSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("John Doe")
+                    Text(model.senderName)
                         .font(.system(size: 13).bold())
                         .foregroundColor(.textPrimary)
                     
-                    Text("0:00 PM")
+                    Text(model.timestamp, format: .relative(presentation: .numeric))
                         .font(.system(size: 11.5))
                         .foregroundColor(.textSecondary)
                 }
                 
-                Text(text)
+                Text(model.content)
                     .font(.system(size: 12.5))
                     .fontWeight(.regular)
                     .foregroundColor(.textPrimary)
             }
-            .offset(x: -3, y: 0)
+            .textSelection(.enabled)
             
             Spacer()
         }
@@ -42,8 +56,40 @@ struct ContentMessageBubbleComponent: View {
 
 struct ContentMessageBubbleComponent_Previews: PreviewProvider {
     static var previews: some View {
-        ContentMessageBubbleComponent(
-            text: "Hello world, this is a message content!"
-        )
+        Group {
+            ContentMessageBubbleComponent(model: .init(
+                senderId: "id-valerian",
+                senderName: "Valerian",
+                avatar: "avatar-valerian",
+                content: "Hello world, this is a message content!",
+                timestamp: .now - 10_000
+            ))
+            ContentMessageBubbleComponent(model: .init(
+                senderId: "id-valerian",
+                senderName: "Valerian",
+                avatar: "avatar-valerian",
+                content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
+                timestamp: .now - 1_000
+            ))
+                .frame(width: 500)
+            ContentMessageBubbleComponent(model: .init(
+                senderId: "id-unknown",
+                senderName: "Unknown",
+                avatar: "",
+                content: "Unknown",
+                timestamp: .now - 500
+            ))
+                .preferredColorScheme(.light)
+            ContentMessageBubbleComponent(model: .init(
+                senderId: "id-unknown",
+                senderName: "Unknown",
+                avatar: "",
+                content: "Unknown",
+                timestamp: .now - 50
+            ))
+                .preferredColorScheme(.dark)
+        }
+//            .border(Color.green)
+            .padding()
     }
 }
