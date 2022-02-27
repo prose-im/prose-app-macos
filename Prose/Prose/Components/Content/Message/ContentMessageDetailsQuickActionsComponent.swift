@@ -9,19 +9,21 @@ import SwiftUI
 
 struct ContentMessageDetailsQuickActionsComponent: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 26) {
-                CommonButtonActionComponent(
-                    icon: "phone.fill",
-                    label: "phone"
-                )
-                
-                CommonButtonActionComponent(
-                    icon: "envelope.fill",
-                    label: "email"
-                )
+        HStack(spacing: 24) {
+            Button {
+                // TODO: Handle action
+                print("Phone tapped")
+            } label: {
+                Label("phone", systemImage: "phone")
+            }
+            Button {
+                // TODO: Handle action
+                print("Phone tapped")
+            } label: {
+                Label("email", systemImage: "envelope")
             }
         }
+        .buttonStyle(SubtitledActionButtonStyle())
     }
 }
 

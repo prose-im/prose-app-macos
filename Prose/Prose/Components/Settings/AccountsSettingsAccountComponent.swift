@@ -24,7 +24,7 @@ struct AccountsSettingsAccountComponent: View {
         
         SettingsFormFieldComponent(label: "settings_accounts_status_label".localized()) {
             HStack(spacing: 4) {
-                CommonConnectionStatusComponent(
+                ConnectionStatusIndicator(
                     status: .connected
                 )
                 
@@ -56,6 +56,8 @@ struct AccountsSettingsAccountComponent: View {
 
 struct AccountsSettingsAccountComponent_Previews: PreviewProvider {
     static var previews: some View {
-        AccountsSettingsAccountComponent()
+        VStack {
+            AccountsSettingsAccountComponent()
+        }
     }
 }

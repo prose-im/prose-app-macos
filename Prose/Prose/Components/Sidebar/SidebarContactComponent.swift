@@ -25,7 +25,7 @@ struct SidebarContactComponent: View {
             Text(title)
                 .offset(x: -2, y: 0)
             
-            CommonStatusComponent(
+            OnlineStatusIndicator(
                 status: .offline
             )
                 .offset(x: -3, y: 1)

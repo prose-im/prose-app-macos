@@ -70,9 +70,9 @@ struct CallsSettingsView: View {
                 title: "settings_calls_audio_input_tester_label".localized(),
                 verticalAlignment: .center
             ) {
-                CommonLevelIndicatorComponent(
-                    tickMarkFactor: 8.0,
-                    currentValue: audioInputLevel
+                LevelIndicator(
+                    currentValue: audioInputLevel,
+                    tickMarkFactor: 8.0
                 )
                 .frame(width: SettingsContants.selectLargeWidth)
             }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SidebarContextAvatarComponent: View {
     var avatar: String
-    var status: Status = .offline
+    var status: OnlineStatus = .offline
     var size: CGFloat = 34
     
     var body: some View {
@@ -19,7 +19,7 @@ struct SidebarContextAvatarComponent: View {
             let statusWithBorderSize: CGFloat = 8 + 2 * statusBorderSize
             
             ZStack {
-                CommonStatusComponent(
+                OnlineStatusIndicator(
                     status: status
                 )
                     .zIndex(2)
