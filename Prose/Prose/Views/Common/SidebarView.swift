@@ -12,15 +12,10 @@ struct SidebarView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            SidebarPartSectionsComponent(
-                selection: $selection
-            )
-            
-            SidebarPartContextComponent()
+            Content(selection: $selection)
+            Footer()
         }
-        .toolbar {
-            SidebarToolbarComponent()
-        }
+        .toolbar(content: SidebarToolbar.init)
     }
 }
 
