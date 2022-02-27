@@ -13,7 +13,6 @@ struct ContentMessageDetailsActionOption: Hashable {
 }
 
 struct ContentMessageDetailsActionComponent: View {
-    let paddingSides: CGFloat
     var action: ContentMessageDetailsActionOption
     
     var body: some View {
@@ -31,15 +30,13 @@ struct ContentMessageDetailsActionComponent: View {
                     .foregroundColor(.textPrimary)
             }
         }
-            .padding([.leading, .trailing], paddingSides)
-            .padding([.top, .bottom], 4.0)
+        .padding(.vertical, 4.0)
     }
 }
 
 struct ContentMessageDetailsActionComponent_Previews: PreviewProvider {
     static var previews: some View {
         ContentMessageDetailsActionComponent(
-            paddingSides: 15,
             action: .init(
                 name: "View full profile",
                 deployTo: true

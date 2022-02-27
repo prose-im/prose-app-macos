@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ContentMessageDetailsActionsComponent: View {
-    let paddingSides: CGFloat
-    
     let actions: [ContentMessageDetailsActionOption] = [
         .init(
             name: "content_message_details_actions_shared_files".localized(),
@@ -28,12 +26,13 @@ struct ContentMessageDetailsActionsComponent: View {
     ]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(actions, id: \.self) { action in
-                ContentMessageDetailsActionComponent(
-                    paddingSides: paddingSides,
-                    action: action
-                )
+        GroupBox("content_message_details_actions_title".localized()) {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(actions, id: \.self) { action in
+                    ContentMessageDetailsActionComponent(
+                        action: action
+                    )
+                }
             }
         }
     }
@@ -41,8 +40,6 @@ struct ContentMessageDetailsActionsComponent: View {
 
 struct ContentMessageDetailsActionsComponent_Previews: PreviewProvider {
     static var previews: some View {
-        ContentMessageDetailsActionsComponent(
-            paddingSides: 15
-        )
+        ContentMessageDetailsActionsComponent()
     }
 }

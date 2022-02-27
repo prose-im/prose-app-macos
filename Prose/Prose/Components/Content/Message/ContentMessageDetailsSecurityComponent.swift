@@ -24,9 +24,11 @@ struct ContentMessageDetailsSecurityComponent: View {
     ]
     
     var body: some View {
-        ContentMessageDetailsEntriesComponent(
-            entries: entries
-        )
+        GroupBox("content_message_details_security_title".localized()) {
+            ContentMessageDetailsEntriesComponent(
+                entries: entries
+            )
+        }
     }
 }
 

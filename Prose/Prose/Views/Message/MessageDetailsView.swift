@@ -8,74 +8,45 @@
 import SwiftUI
 
 struct MessageDetailsView: View {
-    private static let titleSpacing: CGFloat = 9
-    private static let sidesPadding: CGFloat = 15
+    struct SectionGroupStyle: GroupBoxStyle {
+        private static let sidesPadding: CGFloat = 15
+        
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(spacing: 8) {
+                ContentMessageDetailsTitleComponent(
+                    label: configuration.label,
+                    sidesPadding: Self.sidesPadding
+                )
+                
+                configuration.content
+                    .padding(.horizontal, Self.sidesPadding)
+            }
+        }
+    }
     
     var avatar: String
     var name: String
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    VStack(spacing: 12) {
-                        ContentMessageDetailsIdentityComponent(
-                            avatar: avatar,
-                            name: name
-                        )
-                        ContentMessageDetailsQuickActionsComponent()
-                    }
-                    .padding(.vertical)
-                    
-                    VStack(spacing: 22) {
-                        informationSection()
-                        securitySection()
-                        actionsSection()
-                    }
-                }
+        ScrollView(.vertical) {
+            VStack(spacing: 12) {
+                ContentMessageDetailsIdentityComponent(
+                    avatar: avatar,
+                    name: name
+                )
+                ContentMessageDetailsQuickActionsComponent()
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            
+            VStack(spacing: 24) {
+                ContentMessageDetailsInformationComponent()
+                ContentMessageDetailsSecurityComponent()
+                ContentMessageDetailsActionsComponent()
             }
         }
+        .groupBoxStyle(SectionGroupStyle())
         .background(.background)
-    }
-    
-    private func informationSection() -> some View {
-        VStack(alignment: .leading, spacing: Self.titleSpacing) {
-            ContentMessageDetailsTitleComponent(
-                title: "content_message_details_information_title".localized(),
-                paddingSides: Self.sidesPadding
-            )
-            
-            ContentMessageDetailsInformationComponent()
-                .padding(.horizontal, Self.sidesPadding)
-        }
-    }
-    
-    private func securitySection() -> some View {
-        VStack(alignment: .leading, spacing: Self.titleSpacing) {
-            ContentMessageDetailsTitleComponent(
-                title: "content_message_details_security_title".localized(),
-                paddingSides: Self.sidesPadding
-            )
-            
-            ContentMessageDetailsSecurityComponent()
-                .padding(.horizontal, Self.sidesPadding)
-        }
-    }
-    
-    private func actionsSection() -> some View {
-        VStack(alignment: .leading, spacing: Self.titleSpacing - 3) {
-            let paddingActionsSides: CGFloat = 6
-            
-            ContentMessageDetailsTitleComponent(
-                title: "content_message_details_actions_title".localized(),
-                paddingSides: Self.sidesPadding
-            )
-            
-            ContentMessageDetailsActionsComponent(
-                paddingSides: Self.sidesPadding - paddingActionsSides
-            )
-                .padding(.horizontal, paddingActionsSides)
-        }
     }
 }
 
@@ -85,7 +56,6 @@ struct MessageDetailsView_Previews: PreviewProvider {
             avatar: "avatar-valerian",
             name: "Valerian Saliou"
         )
-            .background(.white)
-            .frame(width: 220.0, height: 720)
+            .frame(width: 220.0, height: 720, alignment: .top)
     }
 }
