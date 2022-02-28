@@ -1,5 +1,5 @@
 //
-//  SidebarActionComponent.swift
+//  SidebarActionRow.swift
 //  Prose
 //
 //  Created by Rémi Bardon on 26/02/2022.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct SidebarActionComponent: View {
+struct SidebarActionRow: View {
     
     let title: LocalizedStringKey
     let systemImage: String
@@ -17,6 +17,7 @@ struct SidebarActionComponent: View {
     var body: some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
+                .symbolVariant(.fill)
                 // Make hit box full width
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(.interaction, Rectangle())
@@ -26,12 +27,15 @@ struct SidebarActionComponent: View {
     
 }
 
-struct SidebarActionComponent_Previews: PreviewProvider {
+struct SidebarActionRow_Previews: PreviewProvider {
+    
     static var previews: some View {
-        SidebarActionComponent(
+        SidebarActionRow(
             title: "sidebar_groups_add",
-            systemImage: "plus.square.fill",
+            systemImage: "plus.square",
             action: {}
         )
+        .frame(width: 196)
     }
+    
 }

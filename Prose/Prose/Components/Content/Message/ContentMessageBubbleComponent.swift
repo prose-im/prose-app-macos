@@ -24,12 +24,7 @@ struct ContentMessageBubbleComponent: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(model.avatar)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-                .background(Color.borderSecondary)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+            Avatar(model.avatar, size: 32)
             
             VStack(alignment: .leading, spacing: 3) {
                 HStack(alignment: .firstTextBaseline) {

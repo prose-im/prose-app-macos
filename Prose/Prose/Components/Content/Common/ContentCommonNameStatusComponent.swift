@@ -9,11 +9,11 @@ import SwiftUI
 
 struct ContentCommonNameStatusComponent: View {
     var name: String
-    var status: Status = .offline
+    var status: OnlineStatus = .offline
     
     var body: some View {
         HStack {
-            CommonStatusComponent(
+            OnlineStatusIndicator(
                 status: status
             )
                 .offset(x: 3, y: 1)
