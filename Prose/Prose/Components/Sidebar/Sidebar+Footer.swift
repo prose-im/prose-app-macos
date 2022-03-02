@@ -11,7 +11,7 @@ extension SidebarView {
     
     struct Footer: View {
         
-        let avatar: String = "avatar-valerian"
+        let avatar: String = PreviewImages.Avatars.valerian.rawValue
         let teamName: String = "Crisp"
         let statusIcon: Character = "🚀"
         let statusMessage: String = "Building new features."

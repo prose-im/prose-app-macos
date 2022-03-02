@@ -57,7 +57,7 @@ struct SidebarFooterAvatar_Previews: PreviewProvider {
             HStack {
                 ForEach(OnlineStatus.allCases, id: \.self) { status in
                     SidebarFooterAvatar(
-                        avatar: "avatar-valerian",
+                        avatar: PreviewImages.Avatars.valerian.rawValue,
                         status: status
                     )
                 }

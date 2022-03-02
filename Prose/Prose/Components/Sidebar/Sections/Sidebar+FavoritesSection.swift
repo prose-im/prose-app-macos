@@ -17,13 +17,13 @@ extension SidebarView {
             .init(
                 id: .person(id: "id-valerian"),
                 title: "Valerian",
-                image: "avatar-valerian",
+                image: PreviewImages.Avatars.valerian.rawValue,
                 count: 0
             ),
             .init(
-                id: .person(id: "id-julian"),
-                title: "Julian",
-                image: "avatar-valerian",
+                id: .person(id: "id-alexandre"),
+                title: "Alexandre",
+                image: PreviewImages.Avatars.alexandre.rawValue,
                 count: 0
             ),
         ]
@@ -51,10 +51,13 @@ extension SidebarView {
 struct Sidebar_FavoritesSection_Previews: PreviewProvider {
     
     static var previews: some View {
-        List {
-            SidebarView.FavoritesSection(
-                selection: .constant(nil)
-            )
+        NavigationView {
+            List {
+                SidebarView.FavoritesSection(
+                    selection: .constant(nil)
+                )
+            }
+            .frame(width: 256)
         }
     }
     

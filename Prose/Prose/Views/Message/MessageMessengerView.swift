@@ -37,7 +37,7 @@ struct MessageMessengerView_Previews: PreviewProvider {
             MessageViewModel(
                 senderId: "id-valerian",
                 senderName: "Valerian",
-                avatar: "avatar-valerian",
+                avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: $0.1,
                 timestamp: .now - Double($0.0) * 1_000
             )

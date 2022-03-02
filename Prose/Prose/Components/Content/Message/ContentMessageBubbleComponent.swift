@@ -55,14 +55,14 @@ struct ContentMessageBubbleComponent_Previews: PreviewProvider {
             ContentMessageBubbleComponent(model: .init(
                 senderId: "id-valerian",
                 senderName: "Valerian",
-                avatar: "avatar-valerian",
+                avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: "Hello world, this is a message content!",
                 timestamp: .now - 10_000
             ))
             ContentMessageBubbleComponent(model: .init(
                 senderId: "id-valerian",
                 senderName: "Valerian",
-                avatar: "avatar-valerian",
+                avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
                 timestamp: .now - 1_000
             ))

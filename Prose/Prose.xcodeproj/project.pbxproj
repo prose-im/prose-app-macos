@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4674CF8927D00D51005B9B4D /* PreviewImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4674CF8827D00D51005B9B4D /* PreviewImages.swift */; };
 		468C229027CA7A630075D281 /* SidebarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C228F27CA7A630075D281 /* SidebarModel.swift */; };
 		468C229227CA8BC30075D281 /* SidebarActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229127CA8BC30075D281 /* SidebarActionRow.swift */; };
 		468C229527CA8FB30075D281 /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229427CA8FB30075D281 /* MessageStore.swift */; };
@@ -90,6 +91,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4674CF8827D00D51005B9B4D /* PreviewImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImages.swift; sourceTree = "<group>"; };
 		468C228F27CA7A630075D281 /* SidebarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarModel.swift; sourceTree = "<group>"; };
 		468C229127CA8BC30075D281 /* SidebarActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarActionRow.swift; sourceTree = "<group>"; };
 		468C229427CA8FB30075D281 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
@@ -305,6 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				52EA1178274C23C3007DA1C5 /* Preview Assets.xcassets */,
+				4674CF8827D00D51005B9B4D /* PreviewImages.swift */,
 			);
 			path = Preview;
 			sourceTree = "<group>";
@@ -614,6 +617,7 @@
 				5279D23C27663EED0065043C /* AccountsSettingsTabsComponent.swift in Sources */,
 				52F933D9275F5F720097A2F8 /* AccountsSettingsViewController.swift in Sources */,
 				52EA118E274C249A007DA1C5 /* Color+Extension.swift in Sources */,
+				4674CF8927D00D51005B9B4D /* PreviewImages.swift in Sources */,
 				52F933DD275F5F850097A2F8 /* MessagesSettingsViewController.swift in Sources */,
 				52EA1190274C24B4007DA1C5 /* ContentMessageBarComponent.swift in Sources */,
 				52F933D1275F5D920097A2F8 /* AdvancedSettingsView.swift in Sources */,

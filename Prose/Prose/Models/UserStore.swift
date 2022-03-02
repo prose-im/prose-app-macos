@@ -19,20 +19,35 @@ final class UserStore {
     static let shared = UserStore()
     
     private let users: [String: User] = [
+        "id-alexandre": User(
+            userId: "id-alexandre",
+            displayName: "Alexandre",
+            avatar: PreviewImages.Avatars.alexandre.rawValue
+        ),
+        "id-antoine": User(
+            userId: "id-antoine",
+            displayName: "Antoine",
+            avatar: PreviewImages.Avatars.antoine.rawValue
+        ),
+        "id-baptiste": User(
+            userId: "id-baptiste",
+            displayName: "Baptiste",
+            avatar: PreviewImages.Avatars.baptiste.rawValue
+        ),
+        "id-eliott": User(
+            userId: "id-eliott",
+            displayName: "Eliott",
+            avatar: PreviewImages.Avatars.eliott.rawValue
+        ),
+        "id-camille": User(
+            userId: "id-camille",
+            displayName: "Camille",
+            avatar: PreviewImages.Avatars.camille.rawValue
+        ),
         "id-valerian": User(
             userId: "id-valerian",
             displayName: "Valerian",
-            avatar: "avatar-valerian"
-        ),
-        "id-julian": User(
-            userId: "id-julian",
-            displayName: "Julian",
-            avatar: "avatar-valerian"
-        ),
-        "id-eliso": User(
-            userId: "id-julian",
-            displayName: "Julian",
-            avatar: "avatar-valerian"
+            avatar: PreviewImages.Avatars.valerian.rawValue
         ),
     ]
     

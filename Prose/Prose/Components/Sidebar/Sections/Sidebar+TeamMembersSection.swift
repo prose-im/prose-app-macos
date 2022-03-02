@@ -15,21 +15,21 @@ extension SidebarView {
         
         let items: [SidebarOption] = [
             .init(
-                id: .person(id: "id-elison"),
-                title: "Elison",
-                image: "avatar-valerian",
+                id: .person(id: "id-antoine"),
+                title: "Antoine",
+                image: PreviewImages.Avatars.antoine.rawValue,
                 count: 0
             ),
             .init(
-                id: .person(id: "id-elisa"),
-                title: "Elisa",
-                image: "avatar-valerian",
+                id: .person(id: "id-eliott"),
+                title: "Eliott",
+                image: PreviewImages.Avatars.eliott.rawValue,
                 count: 3
             ),
             .init(
-                id: .person(id: "id-david"),
-                title: "David",
-                image: "avatar-valerian",
+                id: .person(id: "id-camille"),
+                title: "Camille",
+                image: PreviewImages.Avatars.camille.rawValue,
                 count: 2
             ),
         ]
@@ -65,10 +65,13 @@ extension SidebarView {
 struct Sidebar_TeamMembersSection_Previews: PreviewProvider {
     
     static var previews: some View {
-        List {
-            SidebarView.TeamMembersSection(
-                selection: .constant(nil)
-            )
+        NavigationView {
+            List {
+                SidebarView.TeamMembersSection(
+                    selection: .constant(nil)
+                )
+            }
+            .frame(width: 256)
         }
     }
     

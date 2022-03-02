@@ -35,7 +35,7 @@ struct ContentMessageDetailsIdentityComponent: View {
 struct ContentMessageDetailsIdentityComponent_Previews: PreviewProvider {
     static var previews: some View {
         ContentMessageDetailsIdentityComponent(
-            avatar: "avatar-valerian",
+            avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )
     }

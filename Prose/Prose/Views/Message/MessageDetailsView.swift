@@ -53,7 +53,7 @@ struct MessageDetailsView: View {
 struct MessageDetailsView_Previews: PreviewProvider {
     static var previews: some View {
         MessageDetailsView(
-            avatar: "avatar-valerian",
+            avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )
             .frame(width: 220.0, height: 720, alignment: .top)

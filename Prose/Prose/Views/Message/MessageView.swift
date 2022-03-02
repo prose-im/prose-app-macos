@@ -9,10 +9,12 @@ import SwiftUI
 
 struct MessageView: View {
     let chatId: String
+    let sender: User
     let messages: [MessageViewModel]
     
     init(chatId: String) {
         self.chatId = chatId
+        self.sender = UserStore.shared.user(for: chatId) ?? .init(userId: "", displayName: "", avatar: "")
         self.messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
     }
@@ -24,8 +26,8 @@ struct MessageView: View {
             Divider()
             
             MessageDetailsView(
-                avatar: "avatar-valerian",
-                name: "Valerian Saliou"
+                avatar: sender.avatar,
+                name: sender.displayName
             )
                 .frame(width: 220.0)
         }
@@ -34,6 +36,6 @@ struct MessageView: View {
 
 struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
-        MessageView(chatId: "id-julian")
+        MessageView(chatId: "id-alexandre")
     }
 }
