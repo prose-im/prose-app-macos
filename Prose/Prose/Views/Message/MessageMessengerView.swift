@@ -12,12 +12,20 @@ struct MessageMessengerView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 14) {
-                    ForEach(messages, content: ContentMessageBubbleComponent.init(model:))
+            ScrollViewReader { scrollView in
+                ScrollView {
+                    VStack(spacing: 14) {
+                        ForEach(messages, content: ContentMessageBubbleComponent.init(model:))
+                    }
+                    .padding()
                 }
-                .padding()
+                .onAppear {
+                    if let id = messages.last?.id {
+                        scrollView.scrollTo(id, anchor: .top)
+                    }
+                }
             }
+            .frame(maxWidth: .infinity)
             .background(Color.backgroundMessage)
             
             ContentMessageBarComponent(
