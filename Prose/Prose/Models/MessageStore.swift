@@ -44,7 +44,7 @@ final class MessageStore {
                 Message(
                     senderId: "id-antoine",
                     content: $0.1,
-                    timestamp: .now - Double($0.0) * 1_000
+                    timestamp: .now - Double($0.0) * 10_000
                 )
             }
             .reversed(),

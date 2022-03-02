@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4674CF8927D00D51005B9B4D /* PreviewImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4674CF8827D00D51005B9B4D /* PreviewImages.swift */; };
+		4674CF8C27D0207F005B9B4D /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 4674CF8B27D0207F005B9B4D /* OrderedCollections */; };
+		4674CF9127D02905005B9B4D /* DaySeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4674CF9027D02905005B9B4D /* DaySeparator.swift */; };
 		468C229027CA7A630075D281 /* SidebarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C228F27CA7A630075D281 /* SidebarModel.swift */; };
 		468C229227CA8BC30075D281 /* SidebarActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229127CA8BC30075D281 /* SidebarActionRow.swift */; };
 		468C229527CA8FB30075D281 /* MessageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 468C229427CA8FB30075D281 /* MessageStore.swift */; };
@@ -92,6 +94,7 @@
 
 /* Begin PBXFileReference section */
 		4674CF8827D00D51005B9B4D /* PreviewImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImages.swift; sourceTree = "<group>"; };
+		4674CF9027D02905005B9B4D /* DaySeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySeparator.swift; sourceTree = "<group>"; };
 		468C228F27CA7A630075D281 /* SidebarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarModel.swift; sourceTree = "<group>"; };
 		468C229127CA8BC30075D281 /* SidebarActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarActionRow.swift; sourceTree = "<group>"; };
 		468C229427CA8FB30075D281 /* MessageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageStore.swift; sourceTree = "<group>"; };
@@ -180,6 +183,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4674CF8C27D0207F005B9B4D /* OrderedCollections in Frameworks */,
 				52F933C7275F51940097A2F8 /* Preferences in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -437,6 +441,7 @@
 			children = (
 				52EA1198274C2558007DA1C5 /* MessageView.swift */,
 				5262B280274CDFA90034DBE3 /* MessageMessengerView.swift */,
+				4674CF9027D02905005B9B4D /* DaySeparator.swift */,
 				5262B282274CDFB50034DBE3 /* MessageDetailsView.swift */,
 			);
 			path = Message;
@@ -494,6 +499,7 @@
 			name = Prose;
 			packageProductDependencies = (
 				52F933C6275F51940097A2F8 /* Preferences */,
+				4674CF8B27D0207F005B9B4D /* OrderedCollections */,
 			);
 			productName = Prose;
 			productReference = 52EA116E274C23C2007DA1C5 /* Prose.app */;
@@ -526,6 +532,7 @@
 			mainGroup = 52EA1165274C23C2007DA1C5;
 			packageReferences = (
 				52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */,
+				4674CF8A27D0207F005B9B4D /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 52EA116F274C23C2007DA1C5 /* Products */;
 			projectDirPath = "";
@@ -567,6 +574,7 @@
 				528161C027662F70000C3129 /* SettingsPreviewVideoComponent.swift in Sources */,
 				52C8D197274D8260006C9360 /* ContentMessageDetailsActionsComponent.swift in Sources */,
 				528161B42766022A000C3129 /* AccountsSettingsAccountComponent.swift in Sources */,
+				4674CF9127D02905005B9B4D /* DaySeparator.swift in Sources */,
 				523778E3275F64FF007FFF65 /* SettingsConstants.swift in Sources */,
 				52C8D1A3274E528F006C9360 /* String+Extension.swift in Sources */,
 				52C8D191274D822E006C9360 /* ContentMessageDetailsQuickActionsComponent.swift in Sources */,
@@ -845,6 +853,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4674CF8A27D0207F005B9B4D /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/Preferences";
@@ -856,6 +872,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4674CF8B27D0207F005B9B4D /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4674CF8A27D0207F005B9B4D /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
 		52F933C6275F51940097A2F8 /* Preferences */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 52F933C5275F51940097A2F8 /* XCRemoteSwiftPackageReference "Preferences" */;

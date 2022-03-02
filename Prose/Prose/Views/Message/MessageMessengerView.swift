@@ -6,21 +6,43 @@
 //
 
 import SwiftUI
+import OrderedCollections
 
 struct MessageMessengerView: View {
-    @State var messages: [MessageViewModel]
+    @State var messages: OrderedDictionary<Date, [MessageViewModel]>
+    
+    init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
+        self.messages = messages
+    }
+    
+    init(messages: [Date: [MessageViewModel]]) {
+        self.init(messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values))
+    }
+    
+    init(messages: [MessageViewModel]) {
+        let calendar = Calendar.current
+        self.init(messages: OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) }))
+    }
     
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { scrollView in
                 ScrollView {
                     VStack(spacing: 14) {
-                        ForEach(messages, content: ContentMessageBubbleComponent.init(model:))
+                        ForEach(messages.keys, id: \.self) { date in
+                            Section {
+                                ForEach(messages[date]!, content: ContentMessageBubbleComponent.init(model:))
+                            } header: {
+                                DaySeparator(date: date)
+                                    .padding(.top)
+                            }
+                        }
                     }
                     .padding()
                 }
+                .frame(maxWidth: .infinity)
                 .onAppear {
-                    if let id = messages.last?.id {
+                    if let id = messages.values.last?.last?.id {
                         scrollView.scrollTo(id, anchor: .top)
                     }
                 }
@@ -31,6 +53,7 @@ struct MessageMessengerView: View {
             ContentMessageBarComponent(
                 firstName: "Valerian"
             )
+                .layoutPriority(1)
         }
     }
 }
