@@ -1,5 +1,5 @@
 //
-//  MessageDetailsView.swift
+//  ConversationDetailsView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -7,16 +7,20 @@
 
 import SwiftUI
 
-struct MessageDetailsView: View {
+struct ConversationDetailsView: View {
     struct SectionGroupStyle: GroupBoxStyle {
         private static let sidesPadding: CGFloat = 15
         
         func makeBody(configuration: Configuration) -> some View {
             VStack(spacing: 8) {
-                ContentMessageDetailsTitleComponent(
-                    label: configuration.label,
-                    sidesPadding: Self.sidesPadding
-                )
+                VStack(alignment: .leading, spacing: 2) {
+                    configuration.label
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Color.primary.opacity(0.25))
+                        .padding(.horizontal, Self.sidesPadding)
+                    
+                    Divider()
+                }
                 
                 configuration.content
                     .padding(.horizontal, Self.sidesPadding)
@@ -30,19 +34,19 @@ struct MessageDetailsView: View {
     var body: some View {
         ScrollView(.vertical) {
             VStack(spacing: 12) {
-                ContentMessageDetailsIdentityComponent(
+                IdentitySection(
                     avatar: avatar,
                     name: name
                 )
-                ContentMessageDetailsQuickActionsComponent()
+                QuickActionsSection()
             }
             .padding()
             .frame(maxWidth: .infinity)
             
             VStack(spacing: 24) {
-                ContentMessageDetailsInformationComponent()
-                ContentMessageDetailsSecurityComponent()
-                ContentMessageDetailsActionsComponent()
+                InformationSection()
+                SecuritySection()
+                ActionsSection()
             }
         }
         .groupBoxStyle(SectionGroupStyle())
@@ -50,9 +54,9 @@ struct MessageDetailsView: View {
     }
 }
 
-struct MessageDetailsView_Previews: PreviewProvider {
+struct ConversationDetailsView_Previews: PreviewProvider {
     static var previews: some View {
-        MessageDetailsView(
+        ConversationDetailsView(
             avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )

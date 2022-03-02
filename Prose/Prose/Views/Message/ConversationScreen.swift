@@ -1,5 +1,5 @@
 //
-//  MessageView.swift
+//  ConversationScreen.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/21/21.
@@ -7,25 +7,26 @@
 
 import SwiftUI
 
-struct MessageView: View {
+struct ConversationScreen: View {
     let chatId: String
     let sender: User
-    let messages: [MessageViewModel]
+    let chatViewModel: ChatViewModel
     
     init(chatId: String) {
         self.chatId = chatId
         self.sender = UserStore.shared.user(for: chatId) ?? .init(userId: "", displayName: "", avatar: "")
-        self.messages = (MessageStore.shared.messages(for: chatId) ?? [])
+        let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
+        self.chatViewModel = .init(messages: messages)
     }
     
     var body: some View {
         HStack(spacing: 0) {
-            MessageMessengerView(messages: messages)
+            ChatWithMessageBar(chatViewModel: chatViewModel)
             
             Divider()
             
-            MessageDetailsView(
+            ConversationDetailsView(
                 avatar: sender.avatar,
                 name: sender.displayName
             )
@@ -34,8 +35,8 @@ struct MessageView: View {
     }
 }
 
-struct MessageView_Previews: PreviewProvider {
+struct ConversationScreen_Previews: PreviewProvider {
     static var previews: some View {
-        MessageView(chatId: "id-alexandre")
+        ConversationScreen(chatId: "id-alexandre")
     }
 }

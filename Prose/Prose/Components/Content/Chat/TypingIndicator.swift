@@ -1,5 +1,5 @@
 //
-//  ContentMessageBarComposeComponent.swift
+//  TypingIndicator.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/24/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentMessageBarComposeComponent: View {
+struct TypingIndicator: View {
     @State var firstName: String
     
     var body: some View {
@@ -30,15 +30,15 @@ struct ContentMessageBarComposeComponent: View {
     }
 }
 
-struct ContentMessageBarComposeComponent_Previews: PreviewProvider {
+struct TypingIndicator_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            ContentMessageBarComposeComponent(
+            TypingIndicator(
                 firstName: "Valerian"
             )
                 .padding()
                 .previewDisplayName("Simple username")
-            ContentMessageBarComposeComponent(
+            TypingIndicator(
                 firstName: "Valerian"
             )
                 .padding()
@@ -47,12 +47,12 @@ struct ContentMessageBarComposeComponent_Previews: PreviewProvider {
         }
         .preferredColorScheme(.light)
         Group {
-            ContentMessageBarComposeComponent(
+            TypingIndicator(
                 firstName: "Valerian"
             )
                 .padding()
                 .previewDisplayName("Simple username / Dark")
-            ContentMessageBarComposeComponent(
+            TypingIndicator(
                 firstName: "Valerian"
             )
                 .padding()

@@ -1,5 +1,5 @@
 //
-//  ContentMessageBarComponent.swift
+//  MessageBar.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/21/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentMessageBarComponent: View {
+struct MessageBar: View {
     private static let height: CGFloat = 64
     
     @State private var message: String = ""
@@ -22,12 +22,12 @@ struct ContentMessageBarComponent: View {
                 leadingButtons()
                 
                 ZStack {
-                    ContentMessageBarFieldComponent(
+                    MessageBarTextField(
                         firstName: firstName,
                         message: message
                     )
                     
-                    ContentMessageBarComposeComponent(
+                    TypingIndicator(
                         firstName: firstName
                     )
                         .offset(y: -Self.height/2)
@@ -70,22 +70,22 @@ struct ContentMessageBarComponent: View {
     }
 }
 
-struct ContentMessageBarComponent_Previews: PreviewProvider {
+struct MessageBar_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: "Valerian"
             )
                 .previewDisplayName("Simple username")
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
             )
                 .previewDisplayName("Long username")
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: ""
             )
                 .previewDisplayName("Empty")
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: "Valerian"
             )
                 .padding()
@@ -94,15 +94,15 @@ struct ContentMessageBarComponent_Previews: PreviewProvider {
         }
         .preferredColorScheme(.light)
         Group {
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: "Valerian"
             )
                 .previewDisplayName("Simple username / Dark")
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: ""
             )
                 .previewDisplayName("Empty / Dark")
-            ContentMessageBarComponent(
+            MessageBar(
                 firstName: "Valerian"
             )
                 .padding()

@@ -1,5 +1,5 @@
 //
-//  ContentMessageBubbleComponent.swift
+//  MessageView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/21/21.
@@ -19,7 +19,7 @@ extension MessageViewModel: Identifiable {
     var id: String { "\(senderId)_\(timestamp.ISO8601Format())" }
 }
 
-struct ContentMessageBubbleComponent: View {
+struct MessageView: View {
     let model: MessageViewModel
     
     var body: some View {
@@ -49,17 +49,17 @@ struct ContentMessageBubbleComponent: View {
     }
 }
 
-struct ContentMessageBubbleComponent_Previews: PreviewProvider {
+struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            ContentMessageBubbleComponent(model: .init(
+            MessageView(model: .init(
                 senderId: "id-valerian",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: "Hello world, this is a message content!",
                 timestamp: .now - 10_000
             ))
-            ContentMessageBubbleComponent(model: .init(
+            MessageView(model: .init(
                 senderId: "id-valerian",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
@@ -67,7 +67,7 @@ struct ContentMessageBubbleComponent_Previews: PreviewProvider {
                 timestamp: .now - 1_000
             ))
                 .frame(width: 500)
-            ContentMessageBubbleComponent(model: .init(
+            MessageView(model: .init(
                 senderId: "id-unknown",
                 senderName: "Unknown",
                 avatar: "",
@@ -75,7 +75,7 @@ struct ContentMessageBubbleComponent_Previews: PreviewProvider {
                 timestamp: .now - 500
             ))
                 .preferredColorScheme(.light)
-            ContentMessageBubbleComponent(model: .init(
+            MessageView(model: .init(
                 senderId: "id-unknown",
                 senderName: "Unknown",
                 avatar: "",

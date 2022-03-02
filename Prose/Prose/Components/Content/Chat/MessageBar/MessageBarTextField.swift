@@ -1,5 +1,5 @@
 //
-//  ContentMessageBarFieldComponent.swift
+//  MessageBarTextField.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/24/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentMessageBarFieldComponent: View {
+struct MessageBarTextField: View {
     @State var firstName: String
     @State var message: String
     
@@ -43,30 +43,30 @@ struct ContentMessageBarFieldComponent: View {
     }
 }
 
-struct ContentMessageBarFieldComponent_Previews: PreviewProvider {
+struct MessageBarTextField_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: "This is a message that was written."
             )
                 .previewDisplayName("Simple message")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
             )
                 .previewDisplayName("Long message")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
                 message: ""
             )
                 .previewDisplayName("Long username")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
                 .previewDisplayName("Empty")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
@@ -76,17 +76,17 @@ struct ContentMessageBarFieldComponent_Previews: PreviewProvider {
         }
             .preferredColorScheme(.light)
         Group {
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: "This is a message that was written."
             )
                 .previewDisplayName("Simple message / Dark")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
                 .previewDisplayName("Empty / Dark")
-            ContentMessageBarFieldComponent(
+            MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )

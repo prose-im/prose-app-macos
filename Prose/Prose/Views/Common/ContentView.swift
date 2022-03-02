@@ -23,7 +23,7 @@ struct ContentView: View {
     private func content() -> some View {
         switch selection {
         case .person(let id), .group(let id):
-            MessageView(chatId: id)
+            ConversationScreen(chatId: id)
         case .none:
             Text("No selection 🤷")
         default:
