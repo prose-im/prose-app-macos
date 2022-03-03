@@ -20,33 +20,34 @@ struct Message {
 final class MessageStore {
     static let shared = MessageStore()
     
-    private let messages: [String: [Message]] = [
+    private lazy var messages: [String: [Message]] = [
         "id-valerian": (1...21).map {
             Message(
                 senderId: "id-valerian",
                 content: "Hello from Valerian \($0)!",
                 timestamp: .now - Double($0) * 1_000
             )
-        },
-        "id-julian": (1...10).map {
+        }.reversed(),
+        "id-alexandre": (1...10).map {
             Message(
-                senderId: "id-julian",
-                content: "Hello from Julian \($0) 👋",
+                senderId: "id-alexandre",
+                content: "Hello from Alexandre \($0) 👋",
                 timestamp: .now - Double($0) * 1_000
             )
-        },
-        "id-elison": (1...21)
+        }.reversed(),
+        "id-antoine": (1...21)
             .map { (n: Int) -> (Int, String) in
                 (n, (["A"] + Array(repeating: "long", count: (n - 1) * 4) + ["message."])
                     .joined(separator: " "))
             }
             .map {
                 Message(
-                    senderId: "id-elison",
+                    senderId: "id-antoine",
                     content: $0.1,
-                    timestamp: .now - Double($0.0) * 1_000
+                    timestamp: .now - Double($0.0) * 10_000
                 )
-            },
+            }
+            .reversed(),
     ]
     
     private init() {}

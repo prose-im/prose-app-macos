@@ -15,9 +15,9 @@ extension SidebarView {
         
         let items: [SidebarOption] = [
             .init(
-                id: .person(id: "id-james"),
-                title: "James",
-                image: "avatar-valerian",
+                id: .person(id: "id-baptiste"),
+                title: "Baptiste",
+                image: PreviewImages.Avatars.baptiste.rawValue,
                 count: 0
             ),
         ]
@@ -53,10 +53,13 @@ extension SidebarView {
 struct Sidebar_OtherContactsSection_Previews: PreviewProvider {
     
     static var previews: some View {
-        List {
-            SidebarView.OtherContactsSection(
-                selection: .constant(nil)
-            )
+        NavigationView {
+            List {
+                SidebarView.OtherContactsSection(
+                    selection: .constant(nil)
+                )
+            }
+            .frame(width: 256)
         }
     }
     

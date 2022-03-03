@@ -36,7 +36,7 @@ struct SidebarContactRow_Previews: PreviewProvider {
         var body: some View {
             SidebarContactRow(
                 title: "Valerian",
-                avatar: "avatar-valerian",
+                avatar: PreviewImages.Avatars.valerian.rawValue,
                 count: 3
             )
             .frame(width: 196)

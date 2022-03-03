@@ -33,8 +33,8 @@ struct Avatar: View {
 struct Avatar_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            Avatar("avatar-valerian", size: 48)
-            Avatar("avatar-valerian", size: 24)
+            Avatar(PreviewImages.Avatars.valerian.rawValue, size: 48)
+            Avatar(PreviewImages.Avatars.valerian.rawValue, size: 24)
         }
         .padding()
     }
