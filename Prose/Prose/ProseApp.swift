@@ -5,14 +5,15 @@
 //  Created by Valerian Saliou on 9/14/21.
 //
 
+import App
 import SwiftUI
-import Preferences
+import SettingsFeature
 
 @main
 struct ProseApp: App {
     var body: some Scene {
         WindowGroup {
-            BaseView()
+            AppView()
         }
         .windowStyle(DefaultWindowStyle())
         .windowToolbarStyle(UnifiedWindowToolbarStyle())
@@ -26,24 +27,7 @@ struct ProseApp: App {
                 .keyboardShortcut("h")
             }
             
-            CommandGroup(replacing: CommandGroupPlacement.appSettings) {
-                Button("Preferences...") {
-                    PreferencesWindowController(
-                        preferencePanes: [
-                            GeneralSettingsViewController(),
-                            AccountsSettingsViewController(),
-                            NotificationsSettingsViewController(),
-                            MessagesSettingsViewController(),
-                            CallsSettingsViewController(),
-                            AdvancedSettingsViewController()
-                        ],
-                        
-                        style: .toolbarItems,
-                        animated: true,
-                        hidesToolbarForSingleItem: true
-                    ).show()
-                }.keyboardShortcut(KeyEquivalent(","), modifiers: .command)
-            }
+            AppSettings()
         }
     }
 }
