@@ -5,12 +5,13 @@ import PackageDescription
 let package = Package(
   name: "ProseLib",
   defaultLocalization: "en",
-  platforms: [.iOS(.v15), .macOS(.v12)],
+  platforms: [.macOS(.v12)],
   products: [
     .library(name: "App", targets: ["App"]),
     .library(name: "ProseUI", targets: ["ProseUI"]),
   ],
   dependencies: [
+    .package(path: "../../ProseCore"),
     .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
     .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.2")),
     .package(
@@ -26,6 +27,7 @@ let package = Package(
         "SidebarFeature",
         "AuthenticationFeature",
         "TcaHelpers",
+        "ProseCore",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
@@ -42,7 +44,14 @@ let package = Package(
     .target(name: "SettingsFeature", dependencies: ["Preferences", "Assets", "ProseUI"]),
     .target(
       name: "SidebarFeature",
-      dependencies: ["Assets", "ProseUI", "PreviewAssets", "ConversationFeature"]
+      dependencies: [
+        "Assets",
+        "ProseUI",
+        "PreviewAssets",
+        "ConversationFeature",
+        "ProseCore",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
     ),
     .target(
       name: "ConversationFeature",
@@ -56,6 +65,8 @@ let package = Package(
     .target(
       name: "AuthenticationFeature",
       dependencies: [
+        "ProseCore",
+        "SharedModels",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
