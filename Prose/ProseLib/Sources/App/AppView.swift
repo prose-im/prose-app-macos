@@ -7,8 +7,6 @@ import TcaHelpers
 public struct AppView: View {
   private let store: Store<AppState, AppAction>
 
-  @State var selection: SidebarID? = .unread
-
   public init() {
     self.store = Store(
       initialState: AppState(),
@@ -32,12 +30,20 @@ public struct AppView: View {
         )
 
       case .main:
-        NavigationView {
-          SidebarView(selection: $selection)
-            .frame(minWidth: 280.0)
-          Text("Nothing to show here 🤷")
-        }
-        .listStyle(SidebarListStyle())
+        IfLetStore(
+          self.store.scope(
+            state: (\AppState.route).case(/AppState.Route.main),
+            action: AppAction.main
+          ),
+          then: { store in
+            NavigationView {
+              SidebarView(store: store)
+                .frame(minWidth: 280.0)
+              Text("Nothing to show here 🤷")
+            }
+            .listStyle(SidebarListStyle())
+          }
+        )
       }
     }
     .frame(minWidth: 1280, minHeight: 720)

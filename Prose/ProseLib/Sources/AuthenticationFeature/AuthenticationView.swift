@@ -17,7 +17,7 @@ public struct AuthenticationView: View {
         Spacer()
         Form {
           Section {
-            TextField("Email", text: viewStore.binding(\.$email))
+            TextField("Jid", text: viewStore.binding(\.$jid))
             SecureField("Password", text: viewStore.binding(\.$password))
           }
           Button("Login") {
@@ -26,6 +26,7 @@ public struct AuthenticationView: View {
         }.frame(maxWidth: 500)
         Spacer()
       }
+      .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
     }
   }
 }
