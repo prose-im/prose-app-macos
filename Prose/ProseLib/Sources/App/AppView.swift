@@ -1,8 +1,16 @@
-import AuthenticationFeature
+//import AuthenticationFeature
 import ComposableArchitecture
 import SidebarFeature
 import SwiftUI
 import TcaHelpers
+
+struct AuthenticationView: View {
+  let store: Store<AuthenticationState, AuthenticationAction>
+
+  var body: some View {
+    Text("Implement me")
+  }
+}
 
 public struct AppView: View {
   private let store: Store<AppState, AppAction>
