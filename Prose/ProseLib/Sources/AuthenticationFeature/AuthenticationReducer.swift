@@ -1,7 +1,7 @@
 import Combine
 import ComposableArchitecture
 import Foundation
-import ProseCore
+//import ProseCore
 import SharedModels
 
 public struct AuthenticationState: Equatable {

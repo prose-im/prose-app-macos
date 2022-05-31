@@ -1,6 +1,14 @@
 import ComposableArchitecture
 import Foundation
-import ProseCore
+//import ProseCore
+
+public struct UserCredentials: Equatable {
+  public var jid: String
+
+  public init(jid: String) {
+    self.jid = jid
+  }
+}
 
 public struct SidebarState: Equatable {
   var credentials: UserCredentials

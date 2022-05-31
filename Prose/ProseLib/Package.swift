@@ -11,7 +11,7 @@ let package = Package(
     .library(name: "ProseUI", targets: ["ProseUI"]),
   ],
   dependencies: [
-    .package(path: "../../ProseCore"),
+    //.package(path: "../../ProseCore"),
     .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
     .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.2")),
     .package(
@@ -25,9 +25,9 @@ let package = Package(
       dependencies: [
         "SettingsFeature",
         "SidebarFeature",
-        "AuthenticationFeature",
+        //"AuthenticationFeature",
         "TcaHelpers",
-        "ProseCore",
+        //"ProseCore",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
@@ -49,7 +49,7 @@ let package = Package(
         "ProseUI",
         "PreviewAssets",
         "ConversationFeature",
-        "ProseCore",
+        //"ProseCore",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
@@ -62,13 +62,13 @@ let package = Package(
         .product(name: "OrderedCollections", package: "swift-collections"),
       ]
     ),
-    .target(
-      name: "AuthenticationFeature",
-      dependencies: [
-        "ProseCore",
-        "SharedModels",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
+//    .target(
+//      name: "AuthenticationFeature",
+//      dependencies: [
+//        //"ProseCore",
+//        "SharedModels",
+//        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+//      ]
+//    ),
   ]
 )
