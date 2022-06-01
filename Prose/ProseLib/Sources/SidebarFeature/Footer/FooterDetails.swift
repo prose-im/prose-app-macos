@@ -1,5 +1,5 @@
 //
-//  SidebarFooterDetails.swift
+//  FooterDetails.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/28/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SidebarFooterDetails: View {
+struct FooterDetails: View {
     let teamName: String
     let statusIcon: Character
     let statusMessage: String
@@ -26,10 +26,10 @@ struct SidebarFooterDetails: View {
     }
 }
 
-struct SidebarFooterDetails_Previews: PreviewProvider {
+struct FooterDetails_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            SidebarFooterDetails(
+            FooterDetails(
                 teamName: "Crisp",
                 statusIcon: "🚀",
                 statusMessage: "Building new stuff."

@@ -1,5 +1,5 @@
 //
-//  SidebarNavigationRow.swift
+//  NavigationRow.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/15/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SidebarNavigationRow: View {
+struct NavigationRow: View {
     private let title: String
     private let image: String
     private let count: UInt16?
@@ -28,16 +28,16 @@ struct SidebarNavigationRow: View {
 
             Spacer()
 
-            SidebarCounter(
+            Counter(
                 count: count
             )
         }
     }
 }
 
-struct SidebarNavigationRow_Previews: PreviewProvider {
+struct NavigationRow_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarNavigationRow(
+        NavigationRow(
             title: "Label",
             image: "trash"
         )

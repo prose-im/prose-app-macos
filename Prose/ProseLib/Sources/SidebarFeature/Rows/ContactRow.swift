@@ -1,5 +1,5 @@
 //
-//  SidebarContactRow.swift
+//  ContactRow.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/28/21.
@@ -9,7 +9,7 @@ import PreviewAssets
 import ProseUI
 import SwiftUI
 
-struct SidebarContactRow: View {
+struct ContactRow: View {
     var title: String
     var avatar: String
     var count: UInt16? = 0
@@ -26,15 +26,15 @@ struct SidebarContactRow: View {
 
             Spacer()
 
-            SidebarCounter(count: count)
+            Counter(count: count)
         }
     }
 }
 
-struct SidebarContactRow_Previews: PreviewProvider {
+struct ContactRow_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            SidebarContactRow(
+            ContactRow(
                 title: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 count: 3

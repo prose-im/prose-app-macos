@@ -41,9 +41,7 @@ extension AppEnvironment {
 //    })
     //  }
 
-    var main: SidebarEnvironment {
-        .init()
-    }
+    var main: SidebarEnvironment { () }
 }
 
 let appReducer = Reducer.combine(

@@ -1,16 +1,24 @@
 //
-//  ContentView.swift
+//  NavigationDestinationView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/15/21.
 //
 
+import ComposableArchitecture
 import ConversationFeature
 import ProseUI
 import SwiftUI
 
-struct ContentView: View {
-    let selection: SidebarID?
+// swiftlint:disable file_types_order
+
+// MARK: - View
+
+/// The view displayed in the middle of the screen when a row is selected in the left sidebar.
+///
+/// - TODO: Migrate to TCA once `ConversationScreen` supports it.
+struct NavigationDestinationView: View {
+    let selection: Route?
 
     var body: some View {
         content()
@@ -28,14 +36,16 @@ struct ContentView: View {
             ConversationScreen(chatId: id)
         case .none:
             Text("No selection 🤷")
-        default:
-            Text("Not supported yet")
+        case let .some(value):
+            Text("\(String(describing: value)) (not supported yet)")
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+// MARK: - Previews
+
+struct NavigationDestinationView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(selection: .person(id: "id-valerian"))
+        NavigationDestinationView(selection: .person(id: "id-valerian"))
     }
 }

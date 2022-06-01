@@ -1,5 +1,5 @@
 //
-//  SidebarFooterAvatar.swift
+//  FooterAvatar.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/28/21.
@@ -10,7 +10,8 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-struct SidebarFooterAvatar: View {
+/// User avatar in the left sidebar footer
+struct FooterAvatar: View {
     private let avatar: String
     private let status: OnlineStatus
     private let size: CGFloat
@@ -50,12 +51,12 @@ struct SidebarFooterAvatar: View {
     }
 }
 
-struct SidebarFooterAvatar_Previews: PreviewProvider {
+struct FooterAvatar_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
             HStack {
                 ForEach(OnlineStatus.allCases, id: \.self) { status in
-                    SidebarFooterAvatar(
+                    FooterAvatar(
                         avatar: PreviewImages.Avatars.valerian.rawValue,
                         status: status
                     )

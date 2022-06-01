@@ -1,5 +1,5 @@
 //
-//  SidebarActionRow.swift
+//  ActionRow.swift
 //  Prose
 //
 //  Created by Rémi Bardon on 26/02/2022.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct SidebarActionRow: View {
+struct ActionRow: View {
     let title: LocalizedStringKey
     let systemImage: String
     let action: () -> Void
@@ -25,9 +25,9 @@ struct SidebarActionRow: View {
     }
 }
 
-struct SidebarActionRow_Previews: PreviewProvider {
+struct ActionRow_Previews: PreviewProvider {
     static var previews: some View {
-        SidebarActionRow(
+        ActionRow(
             title: "sidebar_groups_add",
             systemImage: "plus.square",
             action: {}

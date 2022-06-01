@@ -1,5 +1,5 @@
 //
-//  SidebarCounter.swift
+//  Counter.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/30/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SidebarCounter: View {
+struct Counter: View {
     private let count: UInt16?
 
     init(count: UInt16? = nil) {
@@ -29,7 +29,7 @@ struct SidebarCounter: View {
     }
 }
 
-struct SidebarCounter_Previews: PreviewProvider {
+struct Counter_Previews: PreviewProvider {
     private struct Preview: View {
         private static let values: [UInt16?] = [nil, 0, 2, 10, 1_000]
 
@@ -39,7 +39,7 @@ struct SidebarCounter_Previews: PreviewProvider {
                     HStack {
                         Text(count?.description ?? "nil")
                         Spacer()
-                        SidebarCounter(count: count)
+                        Counter(count: count)
                     }
                 }
             }
