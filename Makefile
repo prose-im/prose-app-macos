@@ -1,9 +1,20 @@
+# ################ Assets ################
+
+assets: strings
+
+strings:
+	# Check that swiftgen is installed
+	which swiftgen > /dev/null 2>&1 || (echo 'You need to install `swiftgen`. Check out <https://github.com/SwiftGen/SwiftGen#installation> for installation steps.' && exit 1)
+	cd Prose/ProseLib && swiftgen
+
+# ################ FFIs ################
+
 RUST_LIB_PATH = ../uniffi_test
 RUST_LIB_NAME = uniffi_test
 SWIFT_LIB_NAME = ProseCore
 BUILD_FOLDER = Build
 
-all: interface framework
+ffi: interface framework
 
 interface:
 	uniffi-bindgen generate $(RUST_LIB_PATH)/src/$(RUST_LIB_NAME).udl -o ./$(BUILD_FOLDER)/interface --language swift
