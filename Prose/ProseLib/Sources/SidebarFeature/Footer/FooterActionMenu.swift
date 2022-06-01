@@ -42,6 +42,12 @@ struct FooterActionMenu: View {
 
     @ViewBuilder
     private func popover() -> some View {
+        Self.popover(store: self.store)
+    }
+
+    @ViewBuilder
+    fileprivate static func popover(store: Store<State, Action>) -> some View {
+        let actions: ViewStore<Void, Action> = ViewStore(store.stateless)
         VStack(alignment: .leading) {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
@@ -205,6 +211,13 @@ struct FooterActionMenu_Previews: PreviewProvider {
                 reducer: footerActionMenuReducer,
                 environment: ()
             ))
+            .padding()
+            FooterActionMenu.popover(store: Store(
+                initialState: FooterActionMenuState(),
+                reducer: footerActionMenuReducer,
+                environment: ()
+            ))
+            .frame(width: 256)
             .padding()
         }
     }
