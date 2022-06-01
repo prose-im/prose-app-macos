@@ -23,15 +23,18 @@ struct Toolbar: ToolbarContent {
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some ToolbarContent {
-        ToolbarItemGroup(placement: .primaryAction) {
+        ToolbarItemGroup(placement: ToolbarItemPlacement.primaryAction) {
             Button { actions.send(.startCallTapped) } label: {
                 Label(l10n.Actions.StartCall.label, systemImage: "phone.bubble.left")
             }
             .accessibilityHint(l10n.Actions.StartCall.hint)
-            Button { actions.send(.writeMessageTapped) } label: {
-                Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
+            WithViewStore(self.store) { viewStore in
+                Toggle(isOn: viewStore.binding(\State.$writingNewMessage)) {
+                    Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
+                }
+                .toggleStyle(.button)
+                .accessibilityHint(l10n.Actions.WriteMessage.hint)
             }
-            .accessibilityHint(l10n.Actions.WriteMessage.hint)
         }
     }
 }
@@ -43,25 +46,32 @@ struct Toolbar: ToolbarContent {
 private let toolbarCoreReducer: Reducer<
     ToolbarState,
     ToolbarAction,
-    Void
-> = Reducer { _, action, _ in
+    SidebarEnvironment
+> = Reducer { state, action, _ in
     switch action {
     case .startCallTapped:
         // TODO: [Rémi Bardon] Handle action
         print("Start call tapped")
 
-    case .writeMessageTapped:
+    case .binding(\.$writingNewMessage):
         // TODO: [Rémi Bardon] Handle action
-        print("Write message tapped")
+        if state.writingNewMessage {
+            print("Start writing new message tapped")
+        } else {
+            print("Stop writing new message tapped")
+        }
+
+    case .binding:
+        break
     }
 
     return .none
-}
+}.binding()
 
 public let toolbarReducer: Reducer<
     ToolbarState,
     ToolbarAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     toolbarCoreReducer,
 ])
@@ -69,11 +79,18 @@ public let toolbarReducer: Reducer<
 // MARK: State
 
 public struct ToolbarState: Equatable {
-    public init() {}
+    @BindableState public var writingNewMessage: Bool
+
+    public init(
+        writingNewMessage: Bool = false
+    ) {
+        self.writingNewMessage = writingNewMessage
+    }
 }
 
 // MARK: Actions
 
-public enum ToolbarAction: Equatable {
-    case startCallTapped, writeMessageTapped
+public enum ToolbarAction: Equatable, BindableAction {
+    case startCallTapped
+    case binding(BindingAction<ToolbarState>)
 }

@@ -10,6 +10,7 @@ public enum Route: Hashable {
     case unread, replies, directMessages, peopleAndGroups
     case person(id: String)
     case group(id: String)
+    case newMessage
 }
 
 struct SidebarItem: Hashable, Identifiable {
