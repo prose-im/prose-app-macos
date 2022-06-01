@@ -24,8 +24,8 @@ public struct AppView: View {
   }
 
   public var body: some View {
-    WithViewStore(self.store) { viewStore in
-      switch viewStore.route {
+    WithViewStore(self.store.scope(state: \AppState.route)) { route in
+      switch route.state {
       case .auth:
         IfLetStore(
           self.store.scope(
