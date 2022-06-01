@@ -5,10 +5,13 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.Groups.self
 
 // MARK: - View
 
@@ -22,7 +25,7 @@ struct GroupsSection: View {
     @Binding var route: Route?
 
     var body: some View {
-        Section("sidebar_section_groups".localized()) {
+        Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -38,7 +41,7 @@ struct GroupsSection: View {
             }
 
             ActionRow(
-                title: "sidebar_groups_add",
+                title: l10n.Add.label,
                 systemImage: "plus.square.fill"
             ) { actions.send(.addGroupTapped) }
         }

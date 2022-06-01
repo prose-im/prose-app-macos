@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ActionRow: View {
-    let title: LocalizedStringKey
+    let title: String
     let systemImage: String
     let action: () -> Void
 

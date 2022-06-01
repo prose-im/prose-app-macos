@@ -5,10 +5,13 @@
 //  Created by Valerian Saliou on 12/12/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.Toolbar.self
 
 // MARK: - View
 
@@ -22,11 +25,13 @@ struct Toolbar: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button { actions.send(.startCallTapped) } label: {
-                Label("Phone", systemImage: "phone.bubble.left")
+                Label(l10n.Actions.StartCall.label, systemImage: "phone.bubble.left")
             }
+            .accessibilityHint(l10n.Actions.StartCall.hint)
             Button { actions.send(.writeMessageTapped) } label: {
-                Label("Edit", systemImage: "square.and.pencil")
+                Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
             }
+            .accessibilityHint(l10n.Actions.WriteMessage.hint)
         }
     }
 }

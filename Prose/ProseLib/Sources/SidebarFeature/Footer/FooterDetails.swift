@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import SwiftUI
 
 struct FooterDetails: View {
@@ -23,6 +24,11 @@ struct FooterDetails: View {
                 .foregroundColor(.textSecondary)
                 .layoutPriority(1)
         }
+        // Make hit box full width
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape([.interaction, .focusEffect], Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(L10n.Server.ConnectedTo.label(teamName)), \(statusMessage)")
     }
 }
 

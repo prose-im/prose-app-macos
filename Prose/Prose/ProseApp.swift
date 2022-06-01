@@ -6,8 +6,8 @@
 //
 
 import App
-import SwiftUI
 import SettingsFeature
+import SwiftUI
 
 @main
 struct ProseApp: App {
@@ -19,14 +19,14 @@ struct ProseApp: App {
         .windowToolbarStyle(UnifiedWindowToolbarStyle())
         .commands {
             SidebarCommands()
-            
+
             CommandMenu("TODO Menu") {
                 Button("Say Hello") {
                     print("Hello!")
                 }
                 .keyboardShortcut("h")
             }
-            
+
             AppSettings()
         }
     }

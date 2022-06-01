@@ -46,6 +46,7 @@ let package = Package(
         .target(
             name: "SidebarFeature",
             dependencies: [
+                "AppLocalization",
                 "Assets",
                 "ProseUI",
                 "PreviewAssets",

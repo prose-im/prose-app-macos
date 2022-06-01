@@ -5,10 +5,13 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import PreviewAssets
 import ProseUI
 import SharedModels
 import SwiftUI
+
+private let l10n = L10n.Sidebar.Footer.Actions.Account.self
 
 /// User avatar in the left sidebar footer
 struct FooterAvatar: View {
@@ -27,14 +30,16 @@ struct FooterAvatar: View {
     }
 
     var body: some View {
-        ZStack {
+        Button(action: {}) {
             Avatar(avatar, size: size)
-                .overlay(alignment: .bottomTrailing) {
-                    statusIndicator()
-                        // Offset of half the size minus 2 points (otherwise it looks odd)
-                        .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
-                        .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
-                }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(l10n.label)
+        .overlay(alignment: .bottomTrailing) {
+            statusIndicator()
+                // Offset of half the size minus 2 points (otherwise it looks odd)
+                .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
+                .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
         }
     }
 

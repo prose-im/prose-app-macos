@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
@@ -12,6 +13,8 @@ import SwiftUI
 // swiftlint:disable file_types_order
 
 // MARK: - View
+
+private let l10n = L10n.Sidebar.Footer.Actions.self
 
 /// Quick actions button in the left sidebar footer.
 struct FooterActionMenu: View {
@@ -37,6 +40,10 @@ struct FooterActionMenu: View {
             }
             .buttonStyle(.plain)
             .popover(isPresented: viewStore.binding(\State.$showingMenu), content: popover)
+            .accessibilityLabel(l10n.Server.label)
+            // FIXME: [Rémi Bardon] Custom actions don't show up in the Accessibility Inspector, is it working?
+            .accessibilityAction(named: l10n.Server.SwitchAccount.New.label) { actions.send(.connectAccountTapped) }
+            .accessibilityAction(named: l10n.Server.ServerSettings.Manage.label) { actions.send(.manageServerTapped) }
         }
     }
 
@@ -65,8 +72,13 @@ struct FooterActionMenu: View {
                 }
                 .foregroundColor(.primary)
             }
+            // Make hit box full width
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape([.interaction, .focusEffect], Rectangle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
 
-            GroupBox("Switch account") {
+            GroupBox(l10n.Server.SwitchAccount.title) {
                 VStack(spacing: 4) {
                     Button { actions.send(.switchAccountTapped(account: "crisp.chat")) } label: {
                         Label {
@@ -88,8 +100,10 @@ struct FooterActionMenu: View {
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(.interaction, Rectangle())
+                        .contentShape([.interaction, .focusEffect], Rectangle())
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
                     Button { actions.send(.switchAccountTapped(account: "makair.life")) } label: {
                         Label {
                             HStack(spacing: 4) {
@@ -107,34 +121,35 @@ struct FooterActionMenu: View {
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(.interaction, Rectangle())
+                        .contentShape([.interaction, .focusEffect], Rectangle())
                     }
+                    .accessibilityLabel(l10n.Server.SwitchAccount.label("MakAir (makair.life)"))
                     Button { actions.send(.connectAccountTapped) } label: {
                         Label {
-                            Text("Connect account")
+                            Text(l10n.Server.SwitchAccount.New.label)
                         } icon: {
                             Image(systemName: "plus")
                                 .frame(width: 24, height: 24)
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(.interaction, Rectangle())
+                        .contentShape([.interaction, .focusEffect], Rectangle())
                     }
                     .foregroundColor(.accentColor)
                 }
                 .buttonStyle(.plain)
             }
 
-            GroupBox("Server settings") {
+            GroupBox(l10n.Server.ServerSettings.title) {
                 Link(destination: URL(string: "https://crisp.chat")!) {
                     HStack {
-                        Text("Manage server")
+                        Text(l10n.Server.ServerSettings.Manage.label)
                         Spacer()
                         Image(systemName: "arrow.up.forward.square")
                     }
                     // Make hit box full width
                     .frame(maxWidth: .infinity)
-                    .contentShape(.interaction, Rectangle())
+                    .contentShape([.interaction, .focusEffect], Rectangle())
                 }
                 .foregroundColor(.accentColor)
             }
@@ -165,6 +180,10 @@ private let footerActionMenuCoreReducer: Reducer<
     case .connectAccountTapped:
         // TODO: [Rémi Bardon] Handle action
         print("Connect account tapped")
+
+    case .manageServerTapped:
+        // TODO: [Rémi Bardon] Handle action (find a way to open a URL)
+        print("Manage server tapped")
 
     case .binding:
         break
@@ -198,6 +217,8 @@ public enum FooterActionMenuAction: Equatable, BindableAction {
     case showMenuTapped
     case switchAccountTapped(account: String)
     case connectAccountTapped
+    /// Only here for accessibility
+    case manageServerTapped
     case binding(BindingAction<FooterActionMenuState>)
 }
 

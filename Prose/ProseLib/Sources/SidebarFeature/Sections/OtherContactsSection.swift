@@ -5,11 +5,14 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.OtherContacts.self
 
 // MARK: - View
 
@@ -23,7 +26,7 @@ struct OtherContactsSection: View {
     @Binding var route: Route?
 
     var body: some View {
-        Section("sidebar_section_other_contacts".localized()) {
+        Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -39,7 +42,7 @@ struct OtherContactsSection: View {
             }
 
             ActionRow(
-                title: "sidebar_other_contacts_add",
+                title: l10n.Add.label,
                 systemImage: "plus.square.fill"
             ) { actions.send(.addContactTapped) }
         }

@@ -5,12 +5,15 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SharedModels
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.Footer.self
 
 // MARK: - View
 
@@ -45,8 +48,6 @@ struct Footer: View {
                 }
                 .layoutPriority(1)
 
-                Spacer()
-
                 // Quick actions button
                 FooterActionMenu(store: self.store.scope(state: \State.0.actionButton, action: Action.actionButton))
             }
@@ -55,6 +56,8 @@ struct Footer: View {
             .frame(maxHeight: 64)
         }
         .frame(height: 64)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(l10n.label)
     }
 }
 

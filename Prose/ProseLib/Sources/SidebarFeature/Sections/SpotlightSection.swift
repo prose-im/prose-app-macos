@@ -5,10 +5,13 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.Spotlight.self
 
 // MARK: - View
 
@@ -22,7 +25,7 @@ struct SpotlightSection: View {
     @Binding var route: Route?
 
     var body: some View {
-        Section("sidebar_section_spotlight".localized()) {
+        Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -56,25 +59,25 @@ public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
             id: .unread,
-            title: "sidebar_spotlight_unread_stack".localized(),
+            title: l10n.unreadStack,
             image: "tray.2",
             count: 0
         ),
         .init(
             id: .replies,
-            title: "sidebar_spotlight_replies".localized(),
+            title: l10n.replies,
             image: "arrowshape.turn.up.left.2",
             count: 5
         ),
         .init(
             id: .directMessages,
-            title: "sidebar_spotlight_direct_messages".localized(),
+            title: l10n.directMessages,
             image: "message",
             count: 0
         ),
         .init(
             id: .peopleAndGroups,
-            title: "sidebar_spotlight_people_and_groups".localized(),
+            title: l10n.peopleAndGroups,
             image: "text.book.closed",
             count: 2
         ),

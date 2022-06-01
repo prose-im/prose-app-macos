@@ -5,11 +5,14 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
 
 // swiftlint:disable file_types_order
+
+private let l10n = L10n.Sidebar.Favorites.self
 
 // MARK: - View
 
@@ -23,7 +26,7 @@ struct FavoritesSection: View {
     @Binding var route: Route?
 
     var body: some View {
-        Section("sidebar_section_favorites".localized()) {
+        Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {

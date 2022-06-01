@@ -12,28 +12,28 @@ struct SidebarPartContextComponent: View {
     var teamName: String = "Crisp"
     var statusIcon: Character = "🚀"
     var statusMessage: String = "Building new stuff."
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            
+
             HStack(spacing: 12) {
                 // User avatar
                 SidebarContextAvatarComponent(
                     avatar: avatar,
                     status: .online
                 )
-                
+
                 // Team name + user status
                 SidebarContextCurrentComponent(
                     teamName: teamName,
                     statusIcon: statusIcon,
                     statusMessage: statusMessage
                 )
-                    .layoutPriority(1)
-                
+                .layoutPriority(1)
+
                 Spacer()
-                
+
                 // Quick action button
                 SidebarContextActionsComponent()
             }

@@ -5,22 +5,42 @@
 // Created by Valerian Saliou on 11/15/21.
 //
 
-"sidebar.section.spotlight" = "Spotlight";
-"sidebar.section.favorites" = "Favorites";
-"sidebar.section.team_members" = "Team members";
-"sidebar.section.other_contacts" = "Other contacts";
-"sidebar.section.groups" = "Groups";
-
+"sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";
 "sidebar.spotlight.replies" = "Replies";
 "sidebar.spotlight.direct_messages" = "Direct messages";
 "sidebar.spotlight.people_and_groups" = "People & groups";
 
-"sidebar.groups_add" = "Add a group";
+"sidebar.favorites.title" = "Favorites";
 
-"sidebar.team_members_add" = "Add a member";
+"sidebar.team_members.title" = "Team members";
+"sidebar.team_members.add.label" = "Add a member";
 
-"sidebar.other_contacts_add" = "Add a contact";
+"sidebar.other_contacts.title" = "Other contacts";
+"sidebar.other_contacts.add.label" = "Add a contact";
+
+"sidebar.groups.title" = "Groups";
+"sidebar.groups.add.label" = "Add a group";
+
+"sidebar.footer.label" = "Footer";
+
+"sidebar.footer.actions.account.label" = "Account actions";
+
+"sidebar.footer.actions.server.label" = "Server actions";
+
+"sidebar.footer.actions.server.switch_account.title" = "Switch account";
+"sidebar.footer.actions.server.switch_account.label" = "Switch to %s";
+"sidebar.footer.actions.server.switch_account.new.label" = "Connect account";
+
+"sidebar.footer.actions.server.server_settings.title" = "Server settings";
+"sidebar.footer.actions.server.server_settings.manage.label" = "Manage server";
+
+"sidebar.toolbar.actions.start_call.label" = "Start a call";
+"sidebar.toolbar.actions.start_call.hint" = "Opens a window to start a new call.";
+"sidebar.toolbar.actions.write_message.label" = "Write a message";
+"sidebar.toolbar.actions.write_message.hint" = "Asks for recipients then starts composing a message.";
+
+"server.connected_to.label" = "Connected to %s";
 
 "content.message_details.information.title" = "Information";
 
