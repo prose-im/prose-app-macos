@@ -15,10 +15,10 @@ let CallsSettingsViewController: () -> PreferencePane = {
         toolbarIcon: NSImage(systemSymbolName: "phone.arrow.up.right", accessibilityDescription: "")!
     ) {
         CallsSettingsView(
-            // TODO
+            // TODO:
             videoInputStreamPath: "webcam-valerian"
         )
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

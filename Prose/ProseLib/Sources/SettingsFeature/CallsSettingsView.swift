@@ -5,37 +5,37 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import Preferences
 import ProseUI
 import SwiftUI
-import Preferences
 
 enum CallsSettingsVideoInputDefault: String, Equatable, CaseIterable {
     case system = "settings_calls_video_input_default_option_system"
-    
+
     var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
 }
 
 enum CallsSettingsAudioInputDefault: String, Equatable, CaseIterable {
     case system = "settings_calls_audio_input_default_option_system"
-    
+
     var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
 }
 
 enum CallsSettingsAudioOutputDefault: String, Equatable, CaseIterable {
     case system = "settings_calls_audio_output_default_option_system"
-    
+
     var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
 }
 
 struct CallsSettingsView: View {
     @State var videoInputStreamPath: String
-    
+
     @State private var audioInputLevel: Double = 0.6
-    
+
     @AppStorage("settings.calls.videoInputDefault") var videoInputDefault: CallsSettingsVideoInputDefault = .system
     @AppStorage("settings.calls.audioInputDefault") var audioInputDefault: CallsSettingsAudioInputDefault = .system
     @AppStorage("settings.calls.audioOutputDefault") var audioOutputDefault: CallsSettingsAudioOutputDefault = .system
-    
+
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Camera tester"
@@ -49,7 +49,7 @@ struct CallsSettingsView: View {
                     sizeHeight: 180.0
                 )
             }
-            
+
             // "Default video input"
             Preferences.Section(
                 title: "settings_calls_video_input_default_label".localized(),
@@ -65,7 +65,7 @@ struct CallsSettingsView: View {
                 .labelsHidden()
                 .frame(width: SettingsContants.selectLargeWidth)
             }
-            
+
             // "Microphone tester"
             Preferences.Section(
                 title: "settings_calls_audio_input_tester_label".localized(),
@@ -77,7 +77,7 @@ struct CallsSettingsView: View {
                 )
                 .frame(width: SettingsContants.selectLargeWidth)
             }
-            
+
             // "Default audio input"
             Preferences.Section(
                 title: "settings_calls_audio_input_default_label".localized(),
@@ -93,7 +93,7 @@ struct CallsSettingsView: View {
                 .labelsHidden()
                 .frame(width: SettingsContants.selectLargeWidth)
             }
-            
+
             // "Speakers tester"
             Preferences.Section(
                 title: "settings_calls_audio_output_tester_label".localized(),
@@ -103,7 +103,7 @@ struct CallsSettingsView: View {
                     Text("settings_calls_audio_output_tester_button".localized())
                 }
             }
-            
+
             // "Default audio output"
             Preferences.Section(
                 title: "settings_calls_audio_output_default_label".localized(),

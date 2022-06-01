@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct SidebarToolbar: ToolbarContent {
-    
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button(action: {}) {
                 Label("Phone", systemImage: "phone.bubble.left")
             }
-            
+
             Button(action: {}) {
                 Label("Edit", systemImage: "square.and.pencil")
             }
         }
     }
-    
 }

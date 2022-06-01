@@ -9,12 +9,11 @@ import Cocoa
 import SwiftUI
 
 public struct LevelIndicator: View {
-    
     private let minimumValue, maximumValue: Double
     private let warningValue, criticalValue: Double
     private let tickMarkFactor: Double
     private let currentValue: Double
-    
+
     public init(
         currentValue: Double,
         minimumValue: Double = 0.0,
@@ -30,28 +29,25 @@ public struct LevelIndicator: View {
         self.tickMarkFactor = tickMarkFactor
         self.currentValue = currentValue
     }
-    
+
     public var body: some View {
         let indicator = NSLevelIndicator()
-        
+
         // Configure bounds
         indicator.minValue = minimumValue * tickMarkFactor
         indicator.maxValue = maximumValue * tickMarkFactor
         indicator.warningValue = warningValue * tickMarkFactor
         indicator.criticalValue = criticalValue * tickMarkFactor
-        
+
         // Apply value
         indicator.doubleValue = currentValue * tickMarkFactor
-        
+
         return ViewWrap(indicator)
     }
-    
 }
 
 struct LevelIndicator_Previews: PreviewProvider {
-    
     private struct Preview: View {
-        
         var body: some View {
             VStack {
                 ForEach([-2, 0, 0.2, 0.4, 0.6, 0.8, 1, 2], id: \.self) { value in
@@ -62,17 +58,15 @@ struct LevelIndicator_Previews: PreviewProvider {
             }
             .padding()
         }
-        
     }
-    
+
     static var previews: some View {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-        
+
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
     }
-    
 }

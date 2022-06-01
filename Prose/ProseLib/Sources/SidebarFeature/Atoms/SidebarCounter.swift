@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct SidebarCounter: View {
-    
     private let count: UInt16?
-    
+
     init(count: UInt16? = nil) {
         self.count = count
     }
-    
+
     var body: some View {
         if let count = count, count > 0 {
             Text(count, format: .number)
@@ -28,15 +27,12 @@ struct SidebarCounter: View {
                 }
         }
     }
-    
 }
 
 struct SidebarCounter_Previews: PreviewProvider {
-    
     private struct Preview: View {
-        
-        private static let values: [UInt16?] = [nil, 0, 2, 10, 1000]
-        
+        private static let values: [UInt16?] = [nil, 0, 2, 10, 1_000]
+
         var body: some View {
             VStack {
                 ForEach(Self.values, id: \.self) { count in
@@ -50,17 +46,15 @@ struct SidebarCounter_Previews: PreviewProvider {
             .frame(width: 128)
             .padding()
         }
-        
     }
-    
+
     static var previews: some View {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-        
+
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
     }
-    
 }

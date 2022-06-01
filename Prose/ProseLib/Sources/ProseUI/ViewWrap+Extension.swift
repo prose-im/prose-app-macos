@@ -12,7 +12,8 @@ import SwiftUI
 // This wraps any AppKit (NS[..]) component and transforms it into a SwiftUI-compatible View
 extension ViewWrap {
     init(_ makeView: @escaping @autoclosure () -> Wrapped,
-         updater update: @escaping (Wrapped) -> Void) {
+         updater update: @escaping (Wrapped) -> Void)
+    {
         self.makeView = makeView
         self.update = { view, _ in update(view) }
     }
@@ -30,16 +31,17 @@ struct ViewWrap<Wrapped: NSView>: NSViewRepresentable {
     var update: (Wrapped, Context) -> Void
 
     init(_ makeView: @escaping @autoclosure () -> Wrapped,
-         updater update: @escaping Updater) {
+         updater update: @escaping Updater)
+    {
         self.makeView = makeView
         self.update = update
     }
 
-    func makeNSView(context: Context) -> Wrapped {
-        makeView()
+    func makeNSView(context _: Context) -> Wrapped {
+        self.makeView()
     }
 
     func updateNSView(_ view: Wrapped, context: Context) {
-        update(view, context)
+        self.update(view, context)
     }
 }

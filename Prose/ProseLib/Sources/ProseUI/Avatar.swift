@@ -11,15 +11,14 @@ import Foundation
 import SwiftUI
 
 public struct Avatar: View {
-    
     private let imageName: String
     private let size: CGFloat
-    
+
     public init(_ imageName: String, size: CGFloat) {
         self.imageName = imageName
         self.size = size
     }
-    
+
     public var body: some View {
         Image(imageName)
             .resizable()
@@ -28,7 +27,6 @@ public struct Avatar: View {
             .background(Color.borderSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
     }
-    
 }
 
 import PreviewAssets

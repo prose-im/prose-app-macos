@@ -14,7 +14,7 @@ struct ContentCommonToolbarAuthenticationComponent: View {
                 .renderingMode(.template)
                 .foregroundColor(.stateGreen)
                 .offset(x: 5, y: 0)
-            
+
             Text(verbatim: "valerian@crisp.chat").foregroundColor(.textSecondary)
         }
     }

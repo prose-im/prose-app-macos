@@ -1,7 +1,7 @@
 import Foundation
-//import ProseCore
+// import ProseCore
 //
-//extension LoginError: LocalizedError {
+// extension LoginError: LocalizedError {
 //  public var errorDescription: String? {
 //    switch self {
 //    case let .NoSuchUser(message):
@@ -12,4 +12,4 @@ import Foundation
 //      return "Unknown error"
 //    }
 //  }
-//}
+// }

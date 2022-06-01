@@ -16,6 +16,6 @@ let MessagesSettingsViewController: () -> PreferencePane = {
     ) {
         MessagesSettingsView()
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

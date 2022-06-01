@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AccountsSettingsFeaturesComponent: View {
     var body: some View {
-        // TODO
+        // TODO:
         Text("(server features automated check, ie. no settings there)")
     }
 }

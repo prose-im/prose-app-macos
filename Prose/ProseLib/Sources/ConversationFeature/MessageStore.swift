@@ -19,7 +19,7 @@ struct Message {
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 final class MessageStore {
     static let shared = MessageStore()
-    
+
     private lazy var messages: [String: [Message]] = [
         "id-valerian": (1...21).map {
             Message(
@@ -49,18 +49,18 @@ final class MessageStore {
             }
             .reversed(),
     ]
-    
+
     private init() {}
-    
+
     func messages(for chatId: String) -> [Message]? {
-        messages[chatId]
+        self.messages[chatId]
     }
 }
 
 extension Message {
     var toMessageViewModel: MessageViewModel {
         let sender = UserStore.shared.user(for: self.senderId)
-        
+
         return MessageViewModel(
             senderId: self.senderId,
             senderName: sender?.displayName ?? "Unknown",

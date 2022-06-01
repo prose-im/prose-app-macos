@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension ConversationDetailsView {
-    
     struct SecuritySection: View {
         let entries: [ContentMessageDetailsEntryOption] = [
             .init(
@@ -24,14 +23,13 @@ extension ConversationDetailsView {
                 informationAction: true
             ),
         ]
-        
+
         var body: some View {
             GroupBox("content_message_details_security_title".localized()) {
                 EntriesView(entries: entries)
             }
         }
     }
-    
 }
 
 struct ConversationDetailsView_SecuritySection_Previews: PreviewProvider {

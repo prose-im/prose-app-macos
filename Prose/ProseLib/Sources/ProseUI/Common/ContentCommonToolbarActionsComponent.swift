@@ -18,9 +18,9 @@ struct ContentCommonToolbarActionsComponent: View {
                     Image(systemName: "info.circle")
                 }
             }
-            
+
             Divider()
-            
+
             HStack(spacing: 0) {
                 Button(action: {}) {
                     Image(systemName: "magnifyingglass")

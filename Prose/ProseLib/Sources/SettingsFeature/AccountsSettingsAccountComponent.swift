@@ -11,46 +11,46 @@ struct AccountsSettingsAccountComponent: View {
     @AppStorage("settings.accounts.x.account.enabled") var enabled = true
     @AppStorage("settings.accounts.x.account.username") var username = ""
     @AppStorage("settings.accounts.x.account.password") var password = ""
-    
+
     var body: some View {
         Toggle(isOn: $enabled) {
             SettingsFormFieldLabelComponent(
                 label: "settings_accounts_enabled_label".localized()
             )
         }
-            .toggleStyle(.switch)
-        
+        .toggleStyle(.switch)
+
         Divider()
-        
+
         SettingsFormFieldComponent(label: "settings_accounts_status_label".localized()) {
             HStack(spacing: 4) {
                 ConnectionStatusIndicator(
                     status: .connected
                 )
-                
+
                 Text("settings_accounts_status_connected".localized())
                     .font(.system(size: 13))
                     .fontWeight(.semibold)
             }
         }
-    
+
         Divider()
-        
+
         Form {
             TextField(text: $username, prompt: Text("settings_accounts_address_placeholder".localized())) {
                 SettingsFormFieldLabelComponent(
                     label: "settings_accounts_address_label".localized()
                 )
             }
-                .disableAutocorrection(true)
-            
+            .disableAutocorrection(true)
+
             SecureField(text: $password, prompt: Text("settings_accounts_password_placeholder".localized())) {
                 SettingsFormFieldLabelComponent(
                     label: "settings_accounts_password_label".localized()
                 )
             }
         }
-            .textFieldStyle(.roundedBorder)
+        .textFieldStyle(.roundedBorder)
     }
 }
 

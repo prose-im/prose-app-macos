@@ -12,10 +12,10 @@ struct SettingsPickAccountComponent: View {
     var teamLogo: String
     var teamDomain: String
     var userName: String
-    
+
     var body: some View {
         let logoSize: CGFloat = 26
-        
+
         HStack(spacing: 6) {
             Image(teamLogo)
                 .resizable()
@@ -24,17 +24,17 @@ struct SettingsPickAccountComponent: View {
                 .cornerRadius(2)
                 .clipped()
                 .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 2)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: userName)
                     .font(.system(size: 11).bold())
                     .foregroundColor(.textPrimary)
-                
+
                 Text(verbatim: teamDomain)
                     .font(.system(size: 10.5))
                     .foregroundColor(.textSecondary)
             }
-            
+
             Spacer()
         }
     }

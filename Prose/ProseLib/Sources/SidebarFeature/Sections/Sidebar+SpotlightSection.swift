@@ -8,10 +8,9 @@
 import SwiftUI
 
 extension SidebarView {
-    
     struct SpotlightSection: View {
         @Binding var selection: SidebarID?
-        
+
         let items: [SidebarOption] = [
             .init(
                 id: .unread,
@@ -38,7 +37,7 @@ extension SidebarView {
                 count: 2
             ),
         ]
-        
+
         var body: some View {
             Section("sidebar_section_spotlight".localized()) {
                 ForEach(items) { item in
@@ -54,13 +53,10 @@ extension SidebarView {
                 }
             }
         }
-        
     }
-    
 }
 
 struct Sidebar_SpotlightSection_Previews: PreviewProvider {
-    
     static var previews: some View {
         List {
             SidebarView.SpotlightSection(
@@ -68,5 +64,4 @@ struct Sidebar_SpotlightSection_Previews: PreviewProvider {
             )
         }
     }
-    
 }

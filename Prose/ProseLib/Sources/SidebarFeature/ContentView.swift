@@ -11,20 +11,20 @@ import SwiftUI
 
 struct ContentView: View {
     let selection: SidebarID?
-    
+
     var body: some View {
         content()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle("")
-        .toolbar {
-            ContentCommonToolbarComponent()
-        }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle("")
+            .toolbar {
+                ContentCommonToolbarComponent()
+            }
     }
-    
+
     @ViewBuilder
     private func content() -> some View {
-        switch selection {
-        case .person(let id), .group(let id):
+        switch self.selection {
+        case let .person(id), let .group(id):
             ConversationScreen(chatId: id)
         case .none:
             Text("No selection 🤷")

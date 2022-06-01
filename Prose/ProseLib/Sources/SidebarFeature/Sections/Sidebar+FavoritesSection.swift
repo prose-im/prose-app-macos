@@ -9,11 +9,9 @@ import PreviewAssets
 import SwiftUI
 
 extension SidebarView {
-    
     struct FavoritesSection: View {
-        
         @Binding var selection: SidebarID?
-        
+
         let items: [SidebarOption] = [
             .init(
                 id: .person(id: "id-valerian"),
@@ -28,7 +26,7 @@ extension SidebarView {
                 count: 0
             ),
         ]
-        
+
         var body: some View {
             Section("sidebar_section_favorites".localized()) {
                 ForEach(items) { item in
@@ -44,13 +42,10 @@ extension SidebarView {
                 }
             }
         }
-        
     }
-    
 }
 
 struct Sidebar_FavoritesSection_Previews: PreviewProvider {
-    
     static var previews: some View {
         NavigationView {
             List {
@@ -61,5 +56,4 @@ struct Sidebar_FavoritesSection_Previews: PreviewProvider {
             .frame(width: 256)
         }
     }
-    
 }

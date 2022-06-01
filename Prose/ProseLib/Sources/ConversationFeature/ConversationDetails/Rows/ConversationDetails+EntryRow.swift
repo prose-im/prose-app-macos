@@ -15,10 +15,10 @@ enum ContentMessageDetailsEntryImage {
 extension ContentMessageDetailsEntryImage: Hashable {
     func hash(into hasher: inout Hasher) {
         switch self {
-        case .system(let inner):
+        case let .system(inner):
             hasher.combine(0)
             hasher.combine(inner)
-        case .literal(let inner):
+        case let .literal(inner):
             hasher.combine(1)
             hasher.combine(inner)
         }
@@ -34,31 +34,30 @@ struct ContentMessageDetailsEntryOption: Hashable {
 }
 
 extension ConversationDetailsView {
-    
     struct EntryRow: View {
         var entry: ContentMessageDetailsEntryOption
-        
+
         var body: some View {
             let iconFrameMinWidth: CGFloat = 16
-            
+
             HStack(alignment: .center, spacing: 8) {
                 switch entry.image {
-                case .system(let inner):
+                case let .system(inner):
                     Image(systemName: inner)
                         .font(.system(size: 13))
                         .foregroundColor(entry.imageColor)
                         .frame(width: iconFrameMinWidth, alignment: .center)
-                case .literal(let inner):
+                case let .literal(inner):
                     Text(verbatim: inner)
                         .frame(width: iconFrameMinWidth, alignment: .center)
                 }
-                
+
                 Text(verbatim: entry.value)
                     .font(.system(size: 13))
                     .foregroundColor(entry.valueColor)
-                
+
                 Spacer()
-                
+
                 if entry.informationAction {
                     Button(action: {}) {
                         Image(systemName: "info.circle")
@@ -70,7 +69,6 @@ extension ConversationDetailsView {
             }
         }
     }
-    
 }
 
 struct ConversationDetailsView_EntryRow_Previews: PreviewProvider {

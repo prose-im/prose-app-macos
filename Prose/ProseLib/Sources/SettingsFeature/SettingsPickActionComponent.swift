@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsPickActionComponent: View {
     var actionName: String
-    
+
     var body: some View {
         HStack(spacing: 0) {
             Button(action: {}) {
@@ -19,7 +19,7 @@ struct SettingsPickActionComponent: View {
             }
             .buttonStyle(.plain)
             .frame(width: 26, alignment: .center)
-            
+
             Divider()
                 .padding(.vertical, 3.0)
         }

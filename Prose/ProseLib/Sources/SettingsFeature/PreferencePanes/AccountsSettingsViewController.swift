@@ -16,6 +16,6 @@ let AccountsSettingsViewController: () -> PreferencePane = {
     ) {
         AccountsSettingsView()
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

@@ -11,7 +11,7 @@ struct SettingsPreviewVideoComponent: View {
     @State var streamPath: String
     @State var sizeWidth: CGFloat = 180
     @State var sizeHeight: CGFloat = 100
-    
+
     var body: some View {
         Image(streamPath)
             .resizable()

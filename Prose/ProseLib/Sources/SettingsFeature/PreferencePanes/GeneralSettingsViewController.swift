@@ -16,6 +16,6 @@ let GeneralSettingsViewController: () -> PreferencePane = {
     ) {
         GeneralSettingsView()
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

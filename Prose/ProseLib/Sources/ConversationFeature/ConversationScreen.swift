@@ -11,7 +11,7 @@ public struct ConversationScreen: View {
     let chatId: String
     let sender: User
     let chatViewModel: ChatViewModel
-    
+
     public init(chatId: String) {
         self.chatId = chatId
         self.sender = UserStore.shared.user(for: chatId) ?? .init(userId: "", displayName: "", avatar: "")
@@ -19,18 +19,18 @@ public struct ConversationScreen: View {
             .map(\.toMessageViewModel)
         self.chatViewModel = .init(messages: messages)
     }
-    
+
     public var body: some View {
         HStack(spacing: 0) {
             ChatWithMessageBar(chatViewModel: chatViewModel)
-            
+
             Divider()
-            
+
             ConversationDetailsView(
                 avatar: sender.avatar,
                 name: sender.displayName
             )
-                .frame(width: 220.0)
+            .frame(width: 220.0)
         }
     }
 }

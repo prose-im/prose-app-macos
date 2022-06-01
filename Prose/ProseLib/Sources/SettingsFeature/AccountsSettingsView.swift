@@ -5,8 +5,8 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
-import SwiftUI
 import Preferences
+import SwiftUI
 
 enum AccountsSettingsTab {
     case account
@@ -17,7 +17,7 @@ enum AccountsSettingsTab {
 struct AccountsSettingsView: View {
     @State private var selectedTab: AccountsSettingsTab = .account
     @State private var selectedAccount: String = ""
-    
+
     var body: some View {
         HStack(spacing: 12) {
             VStack(spacing: 0) {
@@ -27,7 +27,7 @@ struct AccountsSettingsView: View {
                         teamDomain: "crisp.chat",
                         userName: "Baptiste"
                     )
-                    
+
                     SettingsPickAccountComponent(
                         teamLogo: "logo-makair",
                         teamDomain: "makair.life",
@@ -35,18 +35,18 @@ struct AccountsSettingsView: View {
                     )
                 }
                 .listStyle(PlainListStyle())
-                
+
                 Divider()
-                
+
                 HStack(spacing: 0) {
                     SettingsPickActionComponent(
                         actionName: "plus"
                     )
-                    
+
                     SettingsPickActionComponent(
                         actionName: "minus"
                     )
-                    
+
                     Spacer()
                 }
                 .frame(height: 22)
@@ -54,21 +54,21 @@ struct AccountsSettingsView: View {
             .frame(maxWidth: 140)
             .background(.white)
             .border(Color.borderTertiaryLight, width: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/)
-            
+
             GroupBox(
                 label: AccountsSettingsTabsComponent(
                     selection: $selectedTab
                 )
-                    .zIndex(1)
+                .zIndex(1)
             ) {
                 VStack(alignment: .leading, spacing: 18) {
                     switch selectedTab {
                     case .account:
                         AccountsSettingsAccountComponent()
-                        
+
                     case .security:
                         AccountsSettingsSecurityComponent()
-                        
+
                     case .features:
                         AccountsSettingsFeaturesComponent()
                     }
@@ -77,7 +77,6 @@ struct AccountsSettingsView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 12)
                 .frame(maxWidth: .infinity, alignment: .top)
-                
             }
             .frame(maxWidth: .infinity)
         }

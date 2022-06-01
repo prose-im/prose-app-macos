@@ -11,11 +11,10 @@ import SharedModels
 import SwiftUI
 
 struct SidebarFooterAvatar: View {
-    
     private let avatar: String
     private let status: OnlineStatus
     private let size: CGFloat
-    
+
     init(
         avatar: String,
         status: OnlineStatus = .offline,
@@ -25,7 +24,7 @@ struct SidebarFooterAvatar: View {
         self.status = status
         self.size = size
     }
-    
+
     var body: some View {
         ZStack {
             Avatar(avatar, size: size)
@@ -37,11 +36,11 @@ struct SidebarFooterAvatar: View {
                 }
         }
     }
-    
+
     @ViewBuilder
     private func statusIndicator() -> some View {
-        if status != .offline {
-            OnlineStatusIndicator(status: status)
+        if self.status != .offline {
+            OnlineStatusIndicator(status: self.status)
                 .padding(2)
                 .background {
                     Circle()
@@ -49,13 +48,10 @@ struct SidebarFooterAvatar: View {
                 }
         }
     }
-    
 }
 
 struct SidebarFooterAvatar_Previews: PreviewProvider {
-    
     private struct Preview: View {
-        
         var body: some View {
             HStack {
                 ForEach(OnlineStatus.allCases, id: \.self) { status in
@@ -67,17 +63,15 @@ struct SidebarFooterAvatar_Previews: PreviewProvider {
             }
             .padding()
         }
-        
     }
-    
+
     static var previews: some View {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-        
+
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
     }
-    
 }

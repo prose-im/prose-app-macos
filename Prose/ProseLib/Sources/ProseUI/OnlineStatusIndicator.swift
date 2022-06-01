@@ -10,10 +10,9 @@ import SharedModels
 import SwiftUI
 
 public struct OnlineStatusIndicator: View {
-    
     private let status: OnlineStatus
     private let size: CGFloat
-    
+
     public init(
         status: OnlineStatus = .offline,
         size: CGFloat = 8.0
@@ -21,11 +20,11 @@ public struct OnlineStatusIndicator: View {
         self.status = status
         self.size = size
     }
-    
+
     public init(_ status: OnlineStatus) {
         self.init(status: status)
     }
-    
+
     public var body: some View {
         // Having a `ZStack` with the background circle always present allows animations.
         // Conditional views (aka `if`, `switch`…) break identity, and thus animations.
@@ -38,7 +37,6 @@ public struct OnlineStatusIndicator: View {
         }
         .frame(width: size, height: size)
     }
-    
 }
 
 private extension OnlineStatus {
@@ -53,26 +51,22 @@ private extension OnlineStatus {
 }
 
 struct StatusIndicator_Previews: PreviewProvider {
-    
     private struct Preview: View {
-        
         var body: some View {
             HStack {
                 ForEach(OnlineStatus.allCases, id: \.self, content: OnlineStatusIndicator.init(_:))
             }
             .padding()
         }
-        
     }
-    
+
     static var previews: some View {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-        
+
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
     }
-    
 }

@@ -7,85 +7,85 @@
 
 import SwiftUI
 
-extension Color {
+public extension Color {
     // States
-    public static var stateGreen: Color {
-        return Color("state/green")
+    static var stateGreen: Color {
+        Color("state/green")
     }
-    
-    public static var stateGreenLight: Color {
-        return Color("state/greenLight")
+
+    static var stateGreenLight: Color {
+        Color("state/greenLight")
     }
-    
-    public static var stateBlue: Color {
-        return Color("state/blue")
+
+    static var stateBlue: Color {
+        Color("state/blue")
     }
-    
-    public static var stateGrey: Color {
-        return Color("state/grey")
+
+    static var stateGrey: Color {
+        Color("state/grey")
     }
-    
-    public static var stateGreyLight: Color {
-        return Color("state/greyLight")
+
+    static var stateGreyLight: Color {
+        Color("state/greyLight")
     }
-    
+
     // Backgrounds
-    public static var backgroundMessage: Color {
-        return Color("background/message")
+    static var backgroundMessage: Color {
+        Color("background/message")
     }
-    
+
     // Borders
-    public static var borderPrimary: Color {
-        return Color("border/primary")
+    static var borderPrimary: Color {
+        Color("border/primary")
     }
-    
-    public static var borderSecondary: Color {
-        return Color("border/secondary")
+
+    static var borderSecondary: Color {
+        Color("border/secondary")
     }
-    
-    public static var borderTertiary: Color {
-        return Color("border/tertiary")
+
+    static var borderTertiary: Color {
+        Color("border/tertiary")
     }
-    
-    public static var borderTertiaryLight: Color {
-        return Color("border/tertiaryLight")
+
+    static var borderTertiaryLight: Color {
+        Color("border/tertiaryLight")
     }
-    
+
     // Texts
-    public static var textPrimary: Color {
-        return Color("text/primary")
+    static var textPrimary: Color {
+        Color("text/primary")
     }
-    
-    public static var textPrimaryLight: Color {
-        return Color("text/primaryLight")
+
+    static var textPrimaryLight: Color {
+        Color("text/primaryLight")
     }
-    
-    public static var textSecondary: Color {
-        return Color("text/secondary")
+
+    static var textSecondary: Color {
+        Color("text/secondary")
     }
-    
-    public static var textSecondaryLight: Color {
-        return Color("text/secondaryLight")
+
+    static var textSecondaryLight: Color {
+        Color("text/secondaryLight")
     }
-    
+
     // Buttons
-    public static var buttonPrimary: Color {
-        return Color("button/primary")
+    static var buttonPrimary: Color {
+        Color("button/primary")
     }
-    
-    public static var buttonActionGradientFromText: Color {
-        return Color("button/actionGradientFromText")
+
+    static var buttonActionGradientFromText: Color {
+        Color("button/actionGradientFromText")
     }
-    
-    public static var buttonActionGradientToText: Color {
-        return Color("button/actionGradientToText")
+
+    static var buttonActionGradientToText: Color {
+        Color("button/actionGradientToText")
     }
-    
-    public static var buttonActionText: Color {
-        return Color("button/actionText")
+
+    static var buttonActionText: Color {
+        Color("button/actionText")
     }
-    
-    public static var buttonActionShadow: Color {
-        return Color("button/actionShadow")
+
+    static var buttonActionShadow: Color {
+        Color("button/actionShadow")
     }
 }

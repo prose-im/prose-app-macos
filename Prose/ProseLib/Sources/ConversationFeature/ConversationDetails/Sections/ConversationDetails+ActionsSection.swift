@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension ConversationDetailsView {
-    
     struct ActionsSection: View {
         let actions: [ContentMessageDetailsActionOption] = [
             .init(
@@ -26,7 +25,7 @@ extension ConversationDetailsView {
                 name: "content_message_details_actions_block".localized()
             ),
         ]
-        
+
         var body: some View {
             GroupBox("content_message_details_actions_title".localized()) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -35,7 +34,6 @@ extension ConversationDetailsView {
             }
         }
     }
-    
 }
 
 struct ConversationDetailsView_ActionsSection_Previews: PreviewProvider {

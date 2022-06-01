@@ -10,13 +10,13 @@ import SwiftUI
 struct SettingsFormFieldComponent<Content: View>: View {
     var label: String
     let viewBuilder: () -> Content
-    
+
     var body: some View {
         HStack {
             SettingsFormFieldLabelComponent(
                 label: label
             )
-            
+
             viewBuilder()
         }
     }

@@ -8,11 +8,9 @@
 import SwiftUI
 
 extension SidebarView {
-    
     struct GroupsSection: View {
-        
         @Binding var selection: SidebarID?
-        
+
         let items: [SidebarOption] = [
             .init(
                 id: .group(id: "group-bugs"),
@@ -39,7 +37,7 @@ extension SidebarView {
                 count: 0
             ),
         ]
-        
+
         var body: some View {
             Section("sidebar_section_groups".localized()) {
                 ForEach(items) { item in
@@ -53,7 +51,7 @@ extension SidebarView {
                         )
                     }
                 }
-                
+
                 SidebarActionRow(
                     title: "sidebar_groups_add",
                     systemImage: "plus.square.fill"
@@ -63,13 +61,10 @@ extension SidebarView {
                 }
             }
         }
-        
     }
-    
 }
 
 struct Sidebar_GroupsSection_Previews: PreviewProvider {
-    
     static var previews: some View {
         List {
             SidebarView.GroupsSection(
@@ -77,5 +72,4 @@ struct Sidebar_GroupsSection_Previews: PreviewProvider {
             )
         }
     }
-    
 }

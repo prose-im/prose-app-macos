@@ -10,20 +10,20 @@ import SwiftUI
 struct MessageBarTextField: View {
     @State var firstName: String
     @State var message: String
-    
+
     var body: some View {
         HStack(spacing: 0) {
             TextField(
                 "content_message_bar_field_placeholder".localized(withFormat: firstName),
                 text: $message
             )
-                .padding(.vertical, 7.0)
-                .padding(.leading, 16.0)
-                .padding(.trailing, 4.0)
-                .font(Font.system(size: 13, weight: .regular))
-                .foregroundColor(.primary)
-                .textFieldStyle(.plain)
-            
+            .padding(.vertical, 7.0)
+            .padding(.leading, 16.0)
+            .padding(.trailing, 4.0)
+            .font(Font.system(size: 13, weight: .regular))
+            .foregroundColor(.primary)
+            .textFieldStyle(.plain)
+
             Button(action: {}) {
                 Image(systemName: "paperplane.circle.fill")
                     .font(.system(size: 22, weight: .regular))
@@ -32,14 +32,14 @@ struct MessageBarTextField: View {
             }
             .buttonStyle(.plain)
         }
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(.background)
-                    RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(Color.borderSecondary)
-                }
-            )
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.background)
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(Color.borderSecondary)
+            }
+        )
     }
 }
 
@@ -50,50 +50,50 @@ struct MessageBarTextField_Previews: PreviewProvider {
                 firstName: "Valerian",
                 message: "This is a message that was written."
             )
-                .previewDisplayName("Simple message")
+            .previewDisplayName("Simple message")
             MessageBarTextField(
                 firstName: "Valerian",
                 message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
             )
-                .previewDisplayName("Long message")
+            .previewDisplayName("Long message")
             MessageBarTextField(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
                 message: ""
             )
-                .previewDisplayName("Long username")
+            .previewDisplayName("Long username")
             MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
-                .previewDisplayName("Empty")
+            .previewDisplayName("Empty")
             MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background")
         }
-            .preferredColorScheme(.light)
+        .preferredColorScheme(.light)
         Group {
             MessageBarTextField(
                 firstName: "Valerian",
                 message: "This is a message that was written."
             )
-                .previewDisplayName("Simple message / Dark")
+            .previewDisplayName("Simple message / Dark")
             MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
-                .previewDisplayName("Empty / Dark")
+            .previewDisplayName("Empty / Dark")
             MessageBarTextField(
                 firstName: "Valerian",
                 message: ""
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background / Dark")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background / Dark")
         }
-            .preferredColorScheme(.dark)
+        .preferredColorScheme(.dark)
     }
 }

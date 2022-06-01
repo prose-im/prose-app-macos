@@ -9,11 +9,10 @@
 import SwiftUI
 
 struct SidebarActionRow: View {
-    
     let title: LocalizedStringKey
     let systemImage: String
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
@@ -24,11 +23,9 @@ struct SidebarActionRow: View {
         }
         .buttonStyle(.plain)
     }
-    
 }
 
 struct SidebarActionRow_Previews: PreviewProvider {
-    
     static var previews: some View {
         SidebarActionRow(
             title: "sidebar_groups_add",
@@ -37,5 +34,4 @@ struct SidebarActionRow_Previews: PreviewProvider {
         )
         .frame(width: 196)
     }
-    
 }

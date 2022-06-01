@@ -6,32 +6,30 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
-import PreviewAssets
 import OrderedCollections
+import PreviewAssets
 import SwiftUI
 
 struct ChatViewModel {
-    
     let messages: OrderedDictionary<Date, [MessageViewModel]>
-    
+
     init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
         self.messages = messages
     }
-    
+
     init(messages: [Date: [MessageViewModel]]) {
         self.init(messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values))
     }
-    
+
     init(messages: [MessageViewModel]) {
         let calendar = Calendar.current
         self.init(messages: OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) }))
     }
-    
 }
 
 struct Chat: View {
     let model: ChatViewModel
-    
+
     var body: some View {
         ScrollViewReader { scrollView in
             ScrollView {
@@ -73,7 +71,7 @@ struct Chat_Previews: PreviewProvider {
                 timestamp: .now - Double($0.0) * 1_000
             )
         }
-    
+
     static var previews: some View {
         Chat(model: .init(messages: Self.messages))
     }

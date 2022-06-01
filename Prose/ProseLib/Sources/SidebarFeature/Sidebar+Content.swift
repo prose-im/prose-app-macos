@@ -8,11 +8,9 @@
 import SwiftUI
 
 extension SidebarView {
-    
     struct Content: View {
-        
         @Binding var selection: SidebarID?
-        
+
         var body: some View {
             List {
                 SpotlightSection(selection: $selection)
@@ -22,25 +20,19 @@ extension SidebarView {
                 GroupsSection(selection: $selection)
             }
         }
-        
     }
-    
 }
 
 struct Sidebar_Content_Previews: PreviewProvider {
-    
     private struct Preview: View {
-        
         @State private var selection: SidebarID?
-        
+
         var body: some View {
             SidebarView.Content(selection: $selection)
         }
-        
     }
-    
+
     static var previews: some View {
         Preview()
     }
-    
 }

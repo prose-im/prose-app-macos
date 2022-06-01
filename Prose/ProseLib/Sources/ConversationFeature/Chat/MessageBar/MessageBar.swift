@@ -9,30 +9,30 @@ import SwiftUI
 
 struct MessageBar: View {
     private static let height: CGFloat = 64
-    
+
     @State private var message: String = ""
-    
+
     var firstName: String
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            
+
             HStack(spacing: 16) {
                 leadingButtons()
-                
+
                 ZStack {
                     MessageBarTextField(
                         firstName: firstName,
                         message: message
                     )
-                    
+
                     TypingIndicator(
                         firstName: firstName
                     )
-                        .offset(y: -Self.height/2)
+                    .offset(y: -Self.height / 2)
                 }
-                
+
                 trailingButtons()
             }
             .font(.title2)
@@ -45,7 +45,7 @@ struct MessageBar: View {
 //        .background(.ultraThinMaterial)
         .background(.background)
     }
-    
+
     @ViewBuilder
     private func leadingButtons() -> some View {
         HStack(spacing: 12) {
@@ -55,7 +55,7 @@ struct MessageBar: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     @ViewBuilder
     private func trailingButtons() -> some View {
         HStack(spacing: 12) {
@@ -76,38 +76,38 @@ struct MessageBar_Previews: PreviewProvider {
             MessageBar(
                 firstName: "Valerian"
             )
-                .previewDisplayName("Simple username")
+            .previewDisplayName("Simple username")
             MessageBar(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
             )
-                .previewDisplayName("Long username")
+            .previewDisplayName("Long username")
             MessageBar(
                 firstName: ""
             )
-                .previewDisplayName("Empty")
+            .previewDisplayName("Empty")
             MessageBar(
                 firstName: "Valerian"
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background")
         }
         .preferredColorScheme(.light)
         Group {
             MessageBar(
                 firstName: "Valerian"
             )
-                .previewDisplayName("Simple username / Dark")
+            .previewDisplayName("Simple username / Dark")
             MessageBar(
                 firstName: ""
             )
-                .previewDisplayName("Empty / Dark")
+            .previewDisplayName("Empty / Dark")
             MessageBar(
                 firstName: "Valerian"
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background / Dark")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background / Dark")
         }
         .preferredColorScheme(.dark)
     }

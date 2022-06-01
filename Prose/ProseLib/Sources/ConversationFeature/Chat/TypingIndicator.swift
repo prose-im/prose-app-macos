@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TypingIndicator: View {
     @State var firstName: String
-    
+
     var body: some View {
         Text("content_message_bar_compose_typing".localized(withFormat: firstName))
             .padding(.vertical, 4.0)
@@ -36,29 +36,29 @@ struct TypingIndicator_Previews: PreviewProvider {
             TypingIndicator(
                 firstName: "Valerian"
             )
-                .padding()
-                .previewDisplayName("Simple username")
+            .padding()
+            .previewDisplayName("Simple username")
             TypingIndicator(
                 firstName: "Valerian"
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background")
         }
         .preferredColorScheme(.light)
         Group {
             TypingIndicator(
                 firstName: "Valerian"
             )
-                .padding()
-                .previewDisplayName("Simple username / Dark")
+            .padding()
+            .previewDisplayName("Simple username / Dark")
             TypingIndicator(
                 firstName: "Valerian"
             )
-                .padding()
-                .background(Color.pink)
-                .previewDisplayName("Colorful background / Dark")
+            .padding()
+            .background(Color.pink)
+            .previewDisplayName("Colorful background / Dark")
         }
-            .preferredColorScheme(.dark)
+        .preferredColorScheme(.dark)
     }
 }

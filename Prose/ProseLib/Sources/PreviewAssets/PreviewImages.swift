@@ -7,7 +7,6 @@
 //
 
 public enum PreviewImages {
-    
     public enum Avatars: String {
         case alexandre = "avatars/alexandre"
         case antoine = "avatars/antoine"
@@ -16,5 +15,4 @@ public enum PreviewImages {
         case eliott = "avatars/eliott"
         case valerian = "avatars/valerian"
     }
-    
 }

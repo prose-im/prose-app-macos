@@ -16,6 +16,6 @@ let AdvancedSettingsViewController: () -> PreferencePane = {
     ) {
         AdvancedSettingsView()
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

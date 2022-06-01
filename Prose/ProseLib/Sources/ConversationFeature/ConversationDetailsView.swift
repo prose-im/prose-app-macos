@@ -11,7 +11,7 @@ import SwiftUI
 struct ConversationDetailsView: View {
     struct SectionGroupStyle: GroupBoxStyle {
         private static let sidesPadding: CGFloat = 15
-        
+
         func makeBody(configuration: Configuration) -> some View {
             VStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -19,19 +19,19 @@ struct ConversationDetailsView: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(Color.primary.opacity(0.25))
                         .padding(.horizontal, Self.sidesPadding)
-                    
+
                     Divider()
                 }
-                
+
                 configuration.content
                     .padding(.horizontal, Self.sidesPadding)
             }
         }
     }
-    
+
     var avatar: String
     var name: String
-    
+
     var body: some View {
         ScrollView(.vertical) {
             VStack(spacing: 12) {
@@ -43,7 +43,7 @@ struct ConversationDetailsView: View {
             }
             .padding()
             .frame(maxWidth: .infinity)
-            
+
             VStack(spacing: 24) {
                 InformationSection()
                 SecuritySection()
@@ -61,6 +61,6 @@ struct ConversationDetailsView_Previews: PreviewProvider {
             avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )
-            .frame(width: 220.0, height: 720, alignment: .top)
+        .frame(width: 220.0, height: 720, alignment: .top)
     }
 }

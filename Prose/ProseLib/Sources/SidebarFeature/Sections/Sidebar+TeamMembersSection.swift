@@ -9,11 +9,9 @@ import PreviewAssets
 import SwiftUI
 
 extension SidebarView {
-    
     struct TeamMembersSection: View {
-        
         @Binding var selection: SidebarID?
-        
+
         let items: [SidebarOption] = [
             .init(
                 id: .person(id: "id-antoine"),
@@ -34,7 +32,7 @@ extension SidebarView {
                 count: 2
             ),
         ]
-        
+
         var body: some View {
             Section("sidebar_section_team_members".localized()) {
                 ForEach(items) { item in
@@ -48,7 +46,7 @@ extension SidebarView {
                         )
                     }
                 }
-                
+
                 SidebarActionRow(
                     title: "sidebar_team_members_add",
                     systemImage: "plus.square.fill"
@@ -58,13 +56,10 @@ extension SidebarView {
                 }
             }
         }
-        
     }
-    
 }
 
 struct Sidebar_TeamMembersSection_Previews: PreviewProvider {
-    
     static var previews: some View {
         NavigationView {
             List {
@@ -75,5 +70,4 @@ struct Sidebar_TeamMembersSection_Previews: PreviewProvider {
             .frame(width: 256)
         }
     }
-    
 }

@@ -1,0 +1,6 @@
+--indent 4
+--self insert
+--disable enumNamespaces
+--enable isEmpty,blockComments
+--decimalgrouping 3,4
+--ranges no-space

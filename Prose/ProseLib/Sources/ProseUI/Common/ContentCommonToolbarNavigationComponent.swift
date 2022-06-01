@@ -16,9 +16,9 @@ struct ContentCommonToolbarNavigationComponent: View {
             Button(action: {}) {
                 Image(systemName: "chevron.forward")
             }
-            
+
             Menu {
-                // TODO
+                // TODO:
             } label: {
                 Image(systemName: "clock")
             }

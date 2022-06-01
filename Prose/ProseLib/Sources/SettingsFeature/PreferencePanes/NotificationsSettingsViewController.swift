@@ -16,6 +16,6 @@ let NotificationsSettingsViewController: () -> PreferencePane = {
     ) {
         NotificationsSettingsView()
     }
-    
+
     return Preferences.PaneHostingController(pane: paneView)
 }

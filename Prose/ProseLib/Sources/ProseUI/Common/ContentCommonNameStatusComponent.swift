@@ -11,19 +11,19 @@ import SwiftUI
 public struct ContentCommonNameStatusComponent: View {
     var name: String
     var status: OnlineStatus = .offline
-    
+
     public init(name: String, status: OnlineStatus = .offline) {
-      self.name = name
-      self.status = status
+        self.name = name
+        self.status = status
     }
-    
+
     public var body: some View {
         HStack {
             OnlineStatusIndicator(
                 status: status
             )
-                .offset(x: 3, y: 1)
-            
+            .offset(x: 3, y: 1)
+
             Text(verbatim: name)
                 .font(.system(size: 14).bold())
         }

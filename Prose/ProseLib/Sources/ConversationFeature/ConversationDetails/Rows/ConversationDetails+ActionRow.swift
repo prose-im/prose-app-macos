@@ -13,19 +13,18 @@ struct ContentMessageDetailsActionOption: Hashable {
 }
 
 extension ConversationDetailsView {
-    
     struct ActionRow: View {
         var action: ContentMessageDetailsActionOption
-        
+
         var body: some View {
             HStack(spacing: 6) {
                 Text(verbatim: action.name)
                     .font(.system(size: 12))
                     .fontWeight(.medium)
                     .foregroundColor(.textPrimaryLight)
-                
+
                 Spacer()
-                
+
                 if action.deployTo {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10))
@@ -35,7 +34,6 @@ extension ConversationDetailsView {
             .padding(.vertical, 4.0)
         }
     }
-    
 }
 
 struct ConversationDetailsView_ActionRow_Previews: PreviewProvider {

@@ -20,7 +20,7 @@ struct User {
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 final class UserStore {
     static let shared = UserStore()
-    
+
     private let users: [String: User] = [
         "id-alexandre": User(
             userId: "id-alexandre",
@@ -53,10 +53,10 @@ final class UserStore {
             avatar: PreviewImages.Avatars.valerian.rawValue
         ),
     ]
-    
+
     private init() {}
-    
+
     func user(for userId: String) -> User? {
-        users[userId]
+        self.users[userId]
     }
 }

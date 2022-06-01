@@ -8,10 +8,9 @@
 import SwiftUI
 
 extension ConversationDetailsView {
-    
     struct EntriesView: View {
         var entries: [ContentMessageDetailsEntryOption]
-        
+
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(entries, id: \.self) { entry in
@@ -22,7 +21,6 @@ extension ConversationDetailsView {
             }
         }
     }
-    
 }
 
 struct ConversationDetailsView_EntriesView_Previews: PreviewProvider {
@@ -36,7 +34,7 @@ struct ConversationDetailsView_EntriesView_Previews: PreviewProvider {
                 .init(
                     value: "Phone number",
                     image: .system("iphone")
-                )
+                ),
             ]
         )
     }

@@ -9,7 +9,6 @@ import Assets
 import SwiftUI
 
 extension ConversationDetailsView {
-    
     struct InformationSection: View {
         let entries: [ContentMessageDetailsEntryOption] = [
             .init(
@@ -38,14 +37,13 @@ extension ConversationDetailsView {
                 valueColor: .textSecondaryLight
             ),
         ]
-        
+
         var body: some View {
             GroupBox("content_message_details_information_title".localized()) {
                 EntriesView(entries: entries)
             }
         }
     }
-    
 }
 
 struct ConversationDetailsView_InformationSection_Previews: PreviewProvider {

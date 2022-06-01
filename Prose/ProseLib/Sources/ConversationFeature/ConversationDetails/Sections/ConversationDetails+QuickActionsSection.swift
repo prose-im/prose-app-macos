@@ -8,7 +8,6 @@
 import SwiftUI
 
 extension ConversationDetailsView {
-    
     struct QuickActionsSection: View {
         var body: some View {
             HStack(spacing: 24) {
@@ -28,7 +27,6 @@ extension ConversationDetailsView {
             .buttonStyle(SubtitledActionButtonStyle())
         }
     }
-    
 }
 
 struct ConversationDetailsView_QuickActionsSection_Previews: PreviewProvider {

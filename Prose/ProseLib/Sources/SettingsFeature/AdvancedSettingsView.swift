@@ -5,13 +5,13 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
-import SwiftUI
 import Preferences
+import SwiftUI
 
 enum AdvancedSettingsUpdateChannel: String, Equatable, CaseIterable {
     case stable = "settings_advanced_update_channel_option_stable"
     case beta = "settings_advanced_update_channel_option_beta"
-    
+
     var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
 }
 
@@ -19,7 +19,7 @@ struct AdvancedSettingsView: View {
     @AppStorage("settings.advanced.updateChannel") var updateChannel: AdvancedSettingsUpdateChannel = .stable
     @AppStorage("settings.advanced.reportsUsage") var reportsUsage = true
     @AppStorage("settings.advanced.reportsCrash") var reportsCrash = true
-    
+
     var body: some View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Update channel"
@@ -35,10 +35,10 @@ struct AdvancedSettingsView: View {
                 }
                 .labelsHidden()
                 .frame(width: SettingsContants.selectNormalWidth)
-                
+
                 Spacer()
             }
-            
+
             // "Reports"
             Preferences.Section(
                 title: "settings_advanced_reports_label".localized(),
