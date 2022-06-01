@@ -1,0 +1,139 @@
+//
+// Localizable.strings
+// Prose
+//
+// Created by Valerian Saliou on 11/15/21.
+//
+
+"sidebar.section.spotlight" = "Spotlight";
+"sidebar.section.favorites" = "Favorites";
+"sidebar.section.team_members" = "Team members";
+"sidebar.section.other_contacts" = "Other contacts";
+"sidebar.section.groups" = "Groups";
+
+"sidebar.spotlight.unread_stack" = "Unread stack";
+"sidebar.spotlight.replies" = "Replies";
+"sidebar.spotlight.direct_messages" = "Direct messages";
+"sidebar.spotlight.people_and_groups" = "People & groups";
+
+"sidebar.groups_add" = "Add a group";
+
+"sidebar.team_members_add" = "Add a member";
+
+"sidebar.other_contacts_add" = "Add a contact";
+
+"content.message_details.information.title" = "Information";
+
+"content.message_details.security.title" = "Security";
+"content.message_details.security.identity_verified" = "Identity verified";
+"content.message_details.security.encrypted" = "Encrypted";
+
+"content.message_details.actions.title" = "Actions";
+"content.message_details.actions.shared_files" = "View shared files";
+"content.message_details.actions.encryption_settings" = "Encryption settings";
+"content.message_details.actions.remove_contact" = "Remove from contacts";
+"content.message_details.actions.block" = "Block contact";
+
+"content.message_bar.compose_typing" = "%@ is typing…";
+"content.message_bar.field_placeholder" = "Message %@";
+
+"settings.tabs.general" = "General";
+"settings.tabs.accounts" = "Accounts";
+"settings.tabs.notifications" = "Notifications";
+"settings.tabs.messages" = "Messages";
+"settings.tabs.calls" = "Calls";
+"settings.tabs.advanced" = "Advanced";
+
+"settings.general.theme_label" = "Theme:";
+"settings.general.theme_option_match_system" = "Match system";
+"settings.general.theme_option_light" = "Light";
+"settings.general.theme_option_dark" = "Dark";
+
+"settings.general.downloads_label" = "Save downloads to:";
+
+"settings.general.phone_label" = "Phone contacts:";
+"settings.general.phone_from_address_book.toggle" = "Use phone numbers from my address book";
+"settings.general.phone_from_address_book.description" = "This is for local use only. Data does not get sent to a server.";
+
+"settings.general.idle_label" = "When idle:";
+"settings.general.idle_automatically_mark_away.enabled_toggle" = "Automatically mark me as away after:";
+"settings.general.idle_automatically_mark_away.after_option_five_minutes" = "5 minutes";
+"settings.general.idle_automatically_mark_away.after_option_ten_minutes" = "10 minutes";
+"settings.general.idle_automatically_mark_away.after_option_fifteen_minutes" = "15 minutes";
+"settings.general.idle_automatically_mark_away.after_option_thirty_minutes" = "30 minutes";
+"settings.general.idle_automatically_mark_away.after_option_one_hour" = "1 hour";
+
+"settings.accounts.tabs.account" = "Account";
+"settings.accounts.tabs.security" = "Security";
+"settings.accounts.tabs.features" = "Features";
+
+"settings.accounts.enabled_label" = "Enabled:";
+"settings.accounts.status_label" = "Status:";
+"settings.accounts.status_connected" = "Connected";
+"settings.accounts.address_label" = "Address:";
+"settings.accounts.address_placeholder" = "Enter your address...";
+"settings.accounts.password_label" = "Password:";
+"settings.accounts.password_placeholder" = "Enter password...";
+
+"settings.notifications.notify_governor.label" = "Notify me about:";
+"settings.notifications.notify_governor.option_all" = "All messages";
+"settings.notifications.notify_governor.option_direct" = "Private messages";
+"settings.notifications.notify_governor.option_none" = "Nothing";
+
+"settings.notifications.notify_on_reply.toggle" = "Let me know when I receive a message reply";
+
+"settings.notifications.schedule.label" = "Get notified:";
+"settings.notifications.schedule.days.option_anytime" = "Anytime";
+"settings.notifications.schedule.days.option_weekdays" = "On weekdays";
+"settings.notifications.schedule.days.option_weekends" = "On weekends";
+
+"settings.notifications.schedule.time_separator" = "to";
+"settings.notifications.schedule.time_option_morning" = "Morning";
+"settings.notifications.schedule.time_option_evening" = "Evening";
+
+"settings.notifications.action.label" = "When notified:";
+"settings.notifications.action.badge_toggle" = "Show a badge on the Dock icon";
+"settings.notifications.action.sound_toggle" = "Play a sound";
+"settings.notifications.action.banner_toggle" = "Pop a banner";
+
+"settings.notifications.handover.label" = "Mobile alerts:";
+"settings.notifications.handover.forward_mobile.toggle" = "Forward to mobile if inactive after time on desktop:";
+"settings.notifications.handover.forward_mobile.after_option_one_minute" = "A minute";
+"settings.notifications.handover.forward_mobile.after_option_five_minutes" = "5 minutes";
+"settings.notifications.handover.forward_mobile.after_option_ten_minutes" = "10 minutes";
+
+"settings.messages.composing.label" = "Composing:";
+"settings.messages.composing.show_when_typing_toggle" = "Let users know when I am typing";
+"settings.messages.composing.spell_check_toggle" = "Enable spell checker";
+
+"settings.messages.messages.label" = "Messages:";
+"settings.messages.messages.24_hour_clock_toggle" = "Use a 24-hour clock";
+"settings.messages.messages.image_previews_toggle" = "Show a preview of image files";
+
+"settings.messages.thumbnails.label" = "Image thumbnails:";
+"settings.messages.thumbnails.size_option_small" = "Small";
+"settings.messages.thumbnails.size_option_large" = "Large";
+
+"settings.calls.video_input.tester_label" = "Camera tester:";
+
+"settings.calls.video_input.default_label" = "Default video input:";
+"settings.calls.video_input.default_option_system" = "Same as System";
+
+"settings.calls.audio_input.tester_label" = "Microphone tester:";
+
+"settings.calls.audio_input.default_label" = "Default audio input:";
+"settings.calls.audio_input.default_option_system" = "Same as System";
+
+"settings.calls.audio_output.tester_label" = "Speakers tester:";
+"settings.calls.audio_output.tester_button" = "Play Test Sound";
+
+"settings.calls.audio_output.default_label" = "Default audio output:";
+"settings.calls.audio_output.default_option_system" = "Same as System";
+
+"settings.advanced.update_channel.label" = "Update channel:";
+"settings.advanced.update_channel.option_stable" = "Stable releases";
+"settings.advanced.update_channel.option_beta" = "Beta releases";
+
+"settings.advanced.reports.label" = "Reports:";
+"settings.advanced.reports.usage_toggle" = "Send anonymous usage analytics";
+"settings.advanced.reports.crash_toggle" = "Automatically send crash reports";

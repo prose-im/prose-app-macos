@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		2C4F3D1027F716C2004B79F3 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 2C4F3D0F27F716C2004B79F3 /* App */; };
-		2C4F3D1527F72FA9004B79F3 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C4F3D1227F72F7E004B79F3 /* Localizable.strings */; };
 		2C4F3D1927F72FFB004B79F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */; };
 		2C4F3D1F27F73325004B79F3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C4F3D1E27F73325004B79F3 /* Preview Assets.xcassets */; };
 		52EA1172274C23C2007DA1C5 /* ProseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EA1171274C23C2007DA1C5 /* ProseApp.swift */; };
@@ -16,7 +15,6 @@
 
 /* Begin PBXFileReference section */
 		2C4F3D0D27F713E5004B79F3 /* ProseLib */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ProseLib; sourceTree = "<group>"; };
-		2C4F3D1327F72F7E004B79F3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C4F3D1A27F73002004B79F3 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		2C4F3D1E27F73325004B79F3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -44,20 +42,11 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		2C4F3D1127F72F7E004B79F3 /* en.lproj */ = {
-			isa = PBXGroup;
-			children = (
-				2C4F3D1227F72F7E004B79F3 /* Localizable.strings */,
-			);
-			path = en.lproj;
-			sourceTree = "<group>";
-		};
 		2C4F3D1427F72F8B004B79F3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 				2C4F3D1A27F73002004B79F3 /* Credits.rtf */,
 				2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */,
-				2C4F3D1127F72F7E004B79F3 /* en.lproj */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -166,7 +155,6 @@
 			files = (
 				2C4F3D1927F72FFB004B79F3 /* Assets.xcassets in Resources */,
 				2C4F3D1F27F73325004B79F3 /* Preview Assets.xcassets in Resources */,
-				2C4F3D1527F72FA9004B79F3 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,17 +170,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		2C4F3D1227F72F7E004B79F3 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2C4F3D1327F72F7E004B79F3 /* en */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		52EA117B274C23C3007DA1C5 /* Debug */ = {

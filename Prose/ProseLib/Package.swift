@@ -32,6 +32,7 @@ let package = Package(
             ]
         ),
         .target(name: "Assets"),
+        .target(name: "AppLocalization", resources: [.process("Resources")]),
         .target(name: "PreviewAssets"),
         .target(name: "ProseUI", dependencies: ["Assets", "PreviewAssets", "SharedModels"]),
         .target(name: "SharedModels"),
