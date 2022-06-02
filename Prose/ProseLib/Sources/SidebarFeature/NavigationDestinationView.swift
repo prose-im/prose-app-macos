@@ -9,6 +9,7 @@ import ComposableArchitecture
 import ConversationFeature
 import ProseUI
 import SwiftUI
+import UnreadFeature
 
 // swiftlint:disable file_types_order
 
@@ -38,6 +39,7 @@ struct NavigationDestinationView: View {
             UnreadScreen(model: .init(
                 messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
             ))
+            .groupBoxStyle(.spotlight)
         case .none:
             Text("No selection 🤷")
         case let .some(value):

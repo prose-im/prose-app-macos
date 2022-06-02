@@ -11,10 +11,10 @@ import PreviewAssets
 import SharedModels
 import SwiftUI
 
-struct UnreadScreenModel {
+public struct UnreadScreenModel {
     let messages: OrderedDictionary<ChatID, [MessageViewModel]>
 
-    init(messages: OrderedDictionary<ChatID, [MessageViewModel]>) {
+    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]>) {
         self.messages = messages
     }
 
@@ -26,10 +26,14 @@ struct UnreadScreenModel {
     }
 }
 
-struct UnreadScreen: View {
-    let model: UnreadScreenModel
+public struct UnreadScreen: View {
+    public let model: UnreadScreenModel
+    
+    public init(model: UnreadScreenModel) {
+        self.model = model
+    }
 
-    var body: some View {
+    public var body: some View {
         content()
             .background(Color.backgroundMessage)
     }

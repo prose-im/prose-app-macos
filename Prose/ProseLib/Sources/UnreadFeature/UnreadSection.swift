@@ -57,7 +57,6 @@ struct UnreadSection: View {
                     .foregroundColor(.secondary)
             }
         }
-        .groupBoxStyle(.spotlight)
     }
 
     private func label(for chatId: ChatID) -> String {

@@ -53,11 +53,12 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 "Assets",
+                "ConversationFeature",
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
-                "ConversationFeature",
                 // "ProseCore",
+                "UnreadFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -77,6 +78,17 @@ let package = Package(
                 // "ProseCore",
                 "SharedModels",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
+            name: "UnreadFeature",
+            dependencies: [
+                "ConversationFeature",
+                "ProseUI",
+                "PreviewAssets",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
     ]
