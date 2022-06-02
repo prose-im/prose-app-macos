@@ -17,22 +17,16 @@ struct ChatWithMessageBar: View {
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-    init(store: Store<State, Action>) {
-        self.store = store
-    }
-
     var body: some View {
-        WithViewStore(self.store) { viewStore in
-            Chat(model: viewStore.chatViewModel)
-                .frame(maxWidth: .infinity)
-                .safeAreaInset(edge: .bottom, spacing: 0) {
-                    MessageBar(
-                        firstName: "Valerian"
-                    )
-                    // Make footer have a higher priority, to be accessible over the scroll view
-                    .accessibilitySortPriority(1)
-                }
-        }
+        Chat(store: self.store.scope(state: \State.chat, action: Action.chat))
+            .frame(maxWidth: .infinity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                MessageBar(
+                    firstName: "Valerian"
+                )
+                // Make footer have a higher priority, to be accessible over the scroll view
+                .accessibilitySortPriority(1)
+            }
     }
 }
 
@@ -44,23 +38,29 @@ public let chatWithBarReducer: Reducer<
     ChatWithBarState,
     ChatWithBarAction,
     Void
-> = Reducer.empty
+> = chatReducer.pullback(
+    state: \ChatWithBarState.chat,
+    action: /ChatWithBarAction.chat,
+    environment: { $0 }
+)
 
 // MARK: State
 
 public struct ChatWithBarState: Equatable {
-    let chatViewModel: ChatViewModel
+    var chat: ChatState
 
     public init(
-        chatViewModel: ChatViewModel
+        chat: ChatState
     ) {
-        self.chatViewModel = chatViewModel
+        self.chat = chat
     }
 }
 
 // MARK: Actions
 
-public enum ChatWithBarAction: Equatable {}
+public enum ChatWithBarAction: Equatable {
+    case chat(ChatAction)
+}
 
 // MARK: - Previews
 
@@ -86,7 +86,7 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
     static var previews: some View {
         ChatWithMessageBar(store: Store(
             initialState: ChatWithBarState(
-                chatViewModel: .init(messages: Self.messages)
+                chat: ChatState(messages: Self.messages)
             ),
             reducer: chatWithBarReducer,
             environment: ()

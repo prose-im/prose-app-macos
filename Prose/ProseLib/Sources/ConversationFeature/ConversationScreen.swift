@@ -79,7 +79,7 @@ public struct ConversationState: Equatable {
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
-            chatViewModel: .init(messages: messages)
+            chat: ChatState(messages: messages)
         )
     }
 }
