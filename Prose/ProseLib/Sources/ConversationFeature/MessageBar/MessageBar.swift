@@ -89,12 +89,6 @@ public let messageBarReducer: Reducer<
     MessageBarAction,
     Void
 > = Reducer.empty.binding()
-// Reducer { state, action, environment in
-//    switch action {
-//    }
-//
-//    return .none
-// }
 
 // MARK: State
 
