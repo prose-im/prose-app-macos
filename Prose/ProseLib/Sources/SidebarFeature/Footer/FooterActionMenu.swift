@@ -10,8 +10,6 @@ import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 private let l10n = L10n.Sidebar.Footer.Actions.self
@@ -159,11 +157,11 @@ struct FooterActionMenu: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 
-private let footerActionMenuCoreReducer: Reducer<
+let footerActionMenuReducer: Reducer<
     FooterActionMenuState,
     FooterActionMenuAction,
     Void
@@ -191,18 +189,11 @@ private let footerActionMenuCoreReducer: Reducer<
 
     return .none
 }.binding()
-let footerActionMenuReducer: Reducer<
-    FooterActionMenuState,
-    FooterActionMenuAction,
-    Void
-> = Reducer.combine([
-    footerActionMenuCoreReducer,
-])
 
 // MARK: State
 
 public struct FooterActionMenuState: Equatable {
-    @BindableState public var showingMenu: Bool
+    @BindableState var showingMenu: Bool
 
     public init(
         showingMenu: Bool = false

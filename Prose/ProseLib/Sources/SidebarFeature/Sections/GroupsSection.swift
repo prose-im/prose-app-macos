@@ -10,8 +10,6 @@ import ComposableArchitecture
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 private let l10n = L10n.Sidebar.Groups.self
 
 // MARK: - View
@@ -49,7 +47,7 @@ struct GroupsSection: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 

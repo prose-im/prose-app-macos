@@ -37,22 +37,9 @@ public struct SidebarView: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
-
-private let sidebarCoreReducer = Reducer<
-    SidebarState,
-    SidebarAction,
-    SidebarEnvironment
-> { _, action, _ in
-    switch action {
-    case .content, .footer, .toolbar, .binding:
-        break
-    }
-
-    return .none
-}
 
 public let sidebarReducer: Reducer<
     SidebarState,
@@ -74,16 +61,15 @@ public let sidebarReducer: Reducer<
         action: /SidebarAction.toolbar,
         environment: { $0 }
     ),
-    sidebarCoreReducer,
 ])
 
 // MARK: State
 
 public struct SidebarState: Equatable {
-    public var credentials: UserCredentials
-    public var content: SidebarContentState
-    public var footer: FooterState
-    public var toolbar: ToolbarState
+    var credentials: UserCredentials
+    var content: SidebarContentState
+    var footer: FooterState
+    var toolbar: ToolbarState
 
     public init(
         credentials: UserCredentials,

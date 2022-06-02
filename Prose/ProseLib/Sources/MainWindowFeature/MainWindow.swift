@@ -10,8 +10,6 @@ import SidebarFeature
 import SwiftUI
 import TcaHelpers
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 public struct MainWindow: View {
@@ -37,40 +35,24 @@ public struct MainWindow: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
-
-private let mainWindowCoreReducer: Reducer<
-    MainWindowState,
-    MainWindowAction,
-    MainWindowEnvironment
-> = Reducer { _, action, _ in
-    switch action {
-    case .sidebar:
-        break
-    }
-
-    return .none
-}
 
 public let mainWindowReducer: Reducer<
     MainWindowState,
     MainWindowAction,
     MainWindowEnvironment
-> = Reducer.combine([
-    sidebarReducer._pullback(
-        state: \MainWindowState.sidebar,
-        action: /MainWindowAction.sidebar,
-        environment: \MainWindowEnvironment.sidebar
-    ),
-    mainWindowCoreReducer,
-])
+> = sidebarReducer._pullback(
+    state: \MainWindowState.sidebar,
+    action: /MainWindowAction.sidebar,
+    environment: \MainWindowEnvironment.sidebar
+)
 
 // MARK: State
 
 public struct MainWindowState: Equatable {
-    public var sidebar: SidebarState
+    var sidebar: SidebarState
 
     public init(
         sidebar: SidebarState
@@ -88,7 +70,7 @@ public enum MainWindowAction: Equatable {
 // MARK: Environment
 
 public struct MainWindowEnvironment: Equatable {
-    public var sidebar: SidebarEnvironment
+    var sidebar: SidebarEnvironment
 
     public init(
         sidebar: SidebarEnvironment = .init()

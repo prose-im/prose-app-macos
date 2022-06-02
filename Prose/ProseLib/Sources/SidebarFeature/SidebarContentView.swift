@@ -8,8 +8,6 @@
 import ComposableArchitecture
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 struct SidebarContentView: View {
     typealias State = SidebarContentState
     typealias Action = SidebarContentAction
@@ -47,22 +45,10 @@ struct SidebarContentView: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 
-private let sidebarContentCoreReducer: Reducer<
-    SidebarContentState,
-    SidebarContentAction,
-    Void
-> = Reducer { _, action, _ in
-    switch action {
-    case .spotlight, .favorites, .teamMembers, .otherContacts, .groups, .binding:
-        break
-    }
-
-    return .none
-}.binding()
 public let sidebarContentReducer: Reducer<
     SidebarContentState,
     SidebarContentAction,
@@ -93,19 +79,19 @@ public let sidebarContentReducer: Reducer<
         action: /SidebarContentAction.groups,
         environment: { $0 }
     ),
-    sidebarContentCoreReducer,
+    Reducer.empty.binding(),
 ])
 
 // MARK: State
 
 public struct SidebarContentState: Equatable {
-    public var spotlight: SpotlightSectionState
-    public var favorites: FavoritesSectionState
-    public var teamMembers: TeamMembersSectionState
-    public var otherContacts: OtherContactsSectionState
-    public var groups: GroupsSectionState
+    var spotlight: SpotlightSectionState
+    var favorites: FavoritesSectionState
+    var teamMembers: TeamMembersSectionState
+    var otherContacts: OtherContactsSectionState
+    var groups: GroupsSectionState
 
-    @BindableState public var route: Route?
+    @BindableState var route: Route?
 
     public init(
         route: Route? = .unread,

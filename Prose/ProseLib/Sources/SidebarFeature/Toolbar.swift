@@ -9,8 +9,6 @@ import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 private let l10n = L10n.Sidebar.Toolbar.self
 
 // MARK: - View
@@ -39,11 +37,11 @@ struct Toolbar: ToolbarContent {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 
-private let toolbarCoreReducer: Reducer<
+public let toolbarReducer: Reducer<
     ToolbarState,
     ToolbarAction,
     SidebarEnvironment
@@ -68,18 +66,10 @@ private let toolbarCoreReducer: Reducer<
     return .none
 }.binding()
 
-public let toolbarReducer: Reducer<
-    ToolbarState,
-    ToolbarAction,
-    SidebarEnvironment
-> = Reducer.combine([
-    toolbarCoreReducer,
-])
-
 // MARK: State
 
 public struct ToolbarState: Equatable {
-    @BindableState public var writingNewMessage: Bool
+    @BindableState var writingNewMessage: Bool
 
     public init(
         writingNewMessage: Bool = false

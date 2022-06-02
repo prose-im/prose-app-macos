@@ -11,8 +11,6 @@ import PreviewAssets
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 private let l10n = L10n.Sidebar.Footer.self
 
 // MARK: - View
@@ -63,26 +61,9 @@ struct Footer: View {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
-
-private let footerCoreReducer: Reducer<
-    FooterState,
-    FooterAction,
-    Void
-> = Reducer { _, action, _ in
-    switch action {
-    case .actionButton:
-        break
-
-    default:
-        // TODO: [Rémi Bardon] Handle actions
-        assertionFailure("Received unhandled action: \(String(describing: action))")
-    }
-
-    return .none
-}
 
 public let footerReducer: Reducer<
     FooterState,
@@ -94,7 +75,18 @@ public let footerReducer: Reducer<
         action: /FooterAction.actionButton,
         environment: { $0 }
     ),
-    footerCoreReducer,
+    Reducer { _, action, _ in
+        switch action {
+        case .actionButton:
+            break
+
+        default:
+            // TODO: [Rémi Bardon] Handle actions
+            assertionFailure("Received unhandled action: \(String(describing: action))")
+        }
+
+        return .none
+    },
 ])
 
 // MARK: State
