@@ -1,5 +1,5 @@
 //
-//  ConversationDetailsView.swift
+//  ConversationInfoView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -8,7 +8,7 @@
 import PreviewAssets
 import SwiftUI
 
-struct ConversationDetailsView: View {
+struct ConversationInfoView: View {
     struct SectionGroupStyle: GroupBoxStyle {
         private static let sidesPadding: CGFloat = 15
 
@@ -55,9 +55,9 @@ struct ConversationDetailsView: View {
     }
 }
 
-struct ConversationDetailsView_Previews: PreviewProvider {
+struct ConversationInfoView_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView(
+        ConversationInfoView(
             avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )

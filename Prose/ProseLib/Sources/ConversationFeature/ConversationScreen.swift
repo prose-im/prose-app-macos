@@ -31,7 +31,7 @@ public struct ConversationScreen: View {
             .safeAreaInset(edge: .trailing, spacing: 0) {
                 HStack(spacing: 0) {
                     Divider()
-                    ConversationDetailsView(
+                    ConversationInfoView(
                         avatar: sender.avatar,
                         name: sender.displayName
                     )

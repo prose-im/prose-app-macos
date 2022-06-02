@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+QuickActionsSection.swift
+//  Info+QuickActionsSection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct QuickActionsSection: View {
         var body: some View {
             HStack(spacing: 24) {
@@ -29,8 +29,8 @@ extension ConversationDetailsView {
     }
 }
 
-struct ConversationDetailsView_QuickActionsSection_Previews: PreviewProvider {
+struct ConversationInfoView_QuickActionsSection_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.QuickActionsSection()
+        ConversationInfoView.QuickActionsSection()
     }
 }

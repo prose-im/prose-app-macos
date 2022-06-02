@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+SecuritySection.swift
+//  Info+SecuritySection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct SecuritySection: View {
         let entries: [ContentMessageDetailsEntryOption] = [
             .init(
@@ -32,8 +32,8 @@ extension ConversationDetailsView {
     }
 }
 
-struct ConversationDetailsView_SecuritySection_Previews: PreviewProvider {
+struct ConversationInfoView_SecuritySection_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.SecuritySection()
+        ConversationInfoView.SecuritySection()
     }
 }

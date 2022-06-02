@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+ActionRow.swift
+//  Info+ActionRow.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/1/21.
@@ -12,7 +12,7 @@ struct ContentMessageDetailsActionOption: Hashable {
     var deployTo: Bool = false
 }
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct ActionRow: View {
         var action: ContentMessageDetailsActionOption
 
@@ -36,9 +36,9 @@ extension ConversationDetailsView {
     }
 }
 
-struct ConversationDetailsView_ActionRow_Previews: PreviewProvider {
+struct ConversationInfoView_ActionRow_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.ActionRow(
+        ConversationInfoView.ActionRow(
             action: .init(
                 name: "View full profile",
                 deployTo: true

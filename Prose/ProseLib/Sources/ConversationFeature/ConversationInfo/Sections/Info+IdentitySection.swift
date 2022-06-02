@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+IdentitySection.swift
+//  Info+IdentitySection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -9,7 +9,7 @@ import PreviewAssets
 import ProseUI
 import SwiftUI
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct IdentitySection: View {
         var avatar: String
         var name: String
@@ -36,9 +36,9 @@ extension ConversationDetailsView {
     }
 }
 
-struct ConversationDetailsView_IdentitySection_Previews: PreviewProvider {
+struct ConversationInfoView_IdentitySection_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.IdentitySection(
+        ConversationInfoView.IdentitySection(
             avatar: PreviewImages.Avatars.valerian.rawValue,
             name: "Valerian Saliou"
         )
