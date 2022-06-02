@@ -40,7 +40,7 @@ struct Toolbar: ToolbarContent {
             Label("Video", systemImage: "video")
         }
 
-        Button { print("Info tapped") } label: {
+        Toggle(isOn: .constant(true)) {
             Label("Info", systemImage: "info.circle")
         }
     }
