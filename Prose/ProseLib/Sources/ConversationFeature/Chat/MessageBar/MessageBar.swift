@@ -44,6 +44,9 @@ struct MessageBar: View {
         // TODO: [Rémi Bardon] Maybe add a material background here, to make it more beautiful with content going under
 //        .background(.ultraThinMaterial)
         .background(.background)
+        // Make sure accessibility frame is correct
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder

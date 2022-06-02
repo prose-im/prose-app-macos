@@ -34,21 +34,21 @@ struct ConversationDetailsView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            VStack(spacing: 12) {
-                IdentitySection(
-                    avatar: avatar,
-                    name: name
-                )
-                QuickActionsSection()
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-
             VStack(spacing: 24) {
+                VStack(spacing: 12) {
+                    IdentitySection(
+                        avatar: avatar,
+                        name: name
+                    )
+                    QuickActionsSection()
+                }
+                .padding(.horizontal)
+
                 InformationSection()
                 SecuritySection()
                 ActionsSection()
             }
+            .padding(.vertical)
         }
         .groupBoxStyle(SectionGroupStyle())
         .background(.background)

@@ -13,15 +13,15 @@ struct ChatWithMessageBar: View {
     let chatViewModel: ChatViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            Chat(model: chatViewModel)
-                .frame(maxWidth: .infinity)
-
-            MessageBar(
-                firstName: "Valerian"
-            )
-            .layoutPriority(1)
-        }
+        Chat(model: chatViewModel)
+            .frame(maxWidth: .infinity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                MessageBar(
+                    firstName: "Valerian"
+                )
+                // Make footer have a higher priority, to be accessible over the scroll view
+                .accessibilitySortPriority(1)
+            }
     }
 }
 
