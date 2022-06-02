@@ -30,6 +30,7 @@ extension ConversationInfoView {
             GroupBox("content_message_details_actions_title".localized()) {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(actions, id: \.self, content: ActionRow.init(action:))
+                        .unredacted()
                 }
             }
         }

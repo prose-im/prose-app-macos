@@ -21,6 +21,7 @@ struct ConversationInfoView: View {
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(Color.primary.opacity(0.25))
                         .padding(.horizontal, Self.sidesPadding)
+                        .unredacted()
 
                     Divider()
                 }
@@ -94,20 +95,29 @@ public enum ConversationInfoAction: Equatable {}
     import PreviewAssets
 #endif
 
-struct ConversationInfoView_Previews: PreviewProvider {
+internal struct ConversationInfoView_Previews: PreviewProvider {
+    private struct Preview: View {
+        var body: some View {
+            ConversationInfoView(store: Store(
+                initialState: ConversationInfoState(
+                    user: .init(
+                        userId: "valerian@prose.org",
+                        displayName: "Valerian",
+                        fullName: "valerian Saliou",
+                        avatar: PreviewImages.Avatars.valerian.rawValue
+                    )
+                ),
+                reducer: conversationInfoReducer,
+                environment: ()
+            ))
+            .frame(width: 220, height: 720)
+        }
+    }
+
     static var previews: some View {
-        ConversationInfoView(store: Store(
-            initialState: ConversationInfoState(
-                user: .init(
-                    userId: "valerian@prose.org",
-                    displayName: "Valerian",
-                    fullName: "valerian Saliou",
-                    avatar: PreviewImages.Avatars.valerian.rawValue
-                )
-            ),
-            reducer: conversationInfoReducer,
-            environment: ()
-        ))
-        .frame(width: 220.0, height: 720, alignment: .top)
+        Preview()
+            .previewDisplayName("Normal")
+        Preview()
+            .previewDisplayName("Placeholder")
     }
 }

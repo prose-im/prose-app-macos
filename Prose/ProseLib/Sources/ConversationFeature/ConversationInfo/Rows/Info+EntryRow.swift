@@ -35,6 +35,8 @@ struct ContentMessageDetailsEntryOption: Hashable {
 
 extension ConversationInfoView {
     struct EntryRow: View {
+        @Environment(\.redactionReasons) private var redactionReasons
+
         var entry: ContentMessageDetailsEntryOption
 
         var body: some View {
@@ -47,6 +49,7 @@ extension ConversationInfoView {
                         .font(.system(size: 13))
                         .foregroundColor(entry.imageColor)
                         .frame(width: iconFrameMinWidth, alignment: .center)
+                        .unredacted()
                 case let .literal(inner):
                     Text(verbatim: inner)
                         .frame(width: iconFrameMinWidth, alignment: .center)
@@ -65,6 +68,8 @@ extension ConversationInfoView {
                             .foregroundColor(Color.primary.opacity(0.50))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .unredacted()
+                    .disabled(redactionReasons.contains(.placeholder))
                 }
             }
         }

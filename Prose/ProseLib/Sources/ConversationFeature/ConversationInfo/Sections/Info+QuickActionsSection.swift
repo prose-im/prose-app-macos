@@ -9,6 +9,8 @@ import SwiftUI
 
 extension ConversationInfoView {
     struct QuickActionsSection: View {
+        @Environment(\.redactionReasons) private var redactionReasons
+
         var body: some View {
             HStack(spacing: 24) {
                 Button {
@@ -25,6 +27,8 @@ extension ConversationInfoView {
                 }
             }
             .buttonStyle(SubtitledActionButtonStyle())
+            .unredacted()
+            .disabled(redactionReasons.contains(.placeholder))
         }
     }
 }

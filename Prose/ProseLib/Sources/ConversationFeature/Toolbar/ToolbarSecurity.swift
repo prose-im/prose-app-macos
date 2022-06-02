@@ -9,16 +9,21 @@ import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.
 struct ToolbarSecurity: View {
+    let jid: String
+    let isVerified: Bool
+
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Image(systemName: "checkmark.seal.fill")
-                .renderingMode(.template)
-                .foregroundColor(.stateGreen)
-                .accessibilityElement()
-                .accessibilityLabel("Verified")
-                .accessibilitySortPriority(1)
+            if isVerified {
+                Image(systemName: "checkmark.seal.fill")
+                    .renderingMode(.template)
+                    .foregroundColor(.stateGreen)
+                    .accessibilityElement()
+                    .accessibilityLabel("Verified")
+                    .accessibilitySortPriority(1)
+            }
 
-            Text(verbatim: "valerian@crisp.chat")
+            Text(verbatim: jid)
                 .foregroundColor(.textSecondary)
                 .accessibilitySortPriority(2)
         }
@@ -29,6 +34,15 @@ struct ToolbarSecurity: View {
 
 struct ToolbarSecurity_Previews: PreviewProvider {
     static var previews: some View {
-        ToolbarSecurity()
+        HStack {
+            ToolbarSecurity(
+                jid: "valerian@prose.org",
+                isVerified: true
+            )
+            ToolbarSecurity(
+                jid: "valerian@prose.org",
+                isVerified: false
+            )
+        }
     }
 }
