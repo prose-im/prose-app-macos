@@ -23,20 +23,17 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        WithViewStore(self.store) { viewStore in
-            ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
-                .safeAreaInset(edge: .trailing, spacing: 0) {
+        ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
+            .safeAreaInset(edge: .trailing, spacing: 0) {
+                IfLetStore(self.store.scope(state: \State.info, action: Action.info)) { store in
                     HStack(spacing: 0) {
                         Divider()
-                        ConversationInfoView(
-                            avatar: viewStore.sender.avatar,
-                            name: viewStore.sender.displayName
-                        )
+                        ConversationInfoView(store: store)
                     }
                     .frame(width: 220)
                 }
-                .toolbar(content: Toolbar.init)
-        }
+            }
+            .toolbar(content: Toolbar.init)
     }
 }
 
@@ -48,34 +45,34 @@ public let conversationReducer: Reducer<
     ConversationState,
     ConversationAction,
     ConversationEnvironment
-> = chatWithBarReducer.pullback(
-    state: \ConversationState.chat,
-    action: /ConversationAction.chat,
-    environment: { _ in () }
-)
+> = Reducer.combine([
+    chatWithBarReducer.pullback(
+        state: \ConversationState.chat,
+        action: /ConversationAction.chat,
+        environment: { _ in () }
+    ),
+    conversationInfoReducer.optional().pullback(
+        state: \ConversationState.info,
+        action: /ConversationAction.info,
+        environment: { _ in () }
+    ),
+])
 
 // MARK: State
 
 public struct ConversationState: Equatable {
-    let sender: User
     var chat: ChatWithBarState
+    var info: ConversationInfoState?
 
     init(
-        sender: User,
-        chat: ChatWithBarState
+        chat: ChatWithBarState,
+        info: ConversationInfoState
     ) {
-        self.sender = sender
         self.chat = chat
+        self.info = info
     }
 
     public init(chatId: ChatID) {
-        switch chatId {
-        case let .person(userId):
-            self.sender = UserStore.shared.user(for: userId) ?? .init(userId: "", displayName: "", fullName: "", avatar: "")
-        case .group:
-            fatalError("Not supported yet")
-        }
-
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
@@ -83,6 +80,15 @@ public struct ConversationState: Equatable {
             // TODO: Make this dynamic
             messageBar: MessageBarState(firstName: "Valerian")
         )
+
+        switch chatId {
+        case let .person(userId):
+            let user = UserStore.shared.user(for: userId) ?? .init(userId: "", displayName: "", fullName: "", avatar: "")
+            self.info = ConversationInfoState(user: user)
+        case .group:
+            print("Group info not supported yet")
+            self.info = nil
+        }
     }
 }
 
@@ -90,6 +96,7 @@ public struct ConversationState: Equatable {
 
 public enum ConversationAction: Equatable {
     case chat(ChatWithBarAction)
+    case info(ConversationInfoAction)
 }
 
 // MARK: Environment
