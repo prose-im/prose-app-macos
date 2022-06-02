@@ -32,10 +32,8 @@ public struct MainWindow: View {
             //       `Key path value type 'SidebarState' cannot be converted to contextual type
             //       'SidebarView.State' (aka 'SidebarState')`. We need to omit `State`.
             SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
-                .frame(minWidth: 280)
             Text("Nothing to show here 🤷")
         }
-        .listStyle(.sidebar)
     }
 }
 

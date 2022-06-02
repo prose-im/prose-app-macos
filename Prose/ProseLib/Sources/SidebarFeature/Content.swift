@@ -43,6 +43,7 @@ struct Content: View {
                 )
             }
         }
+        .listStyle(.sidebar)
     }
 }
 

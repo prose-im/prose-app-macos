@@ -22,6 +22,8 @@ struct Footer: View {
     typealias State = (FooterState, UserCredentials)
     typealias Action = FooterAction
 
+    static let height: CGFloat = 64
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -55,7 +57,7 @@ struct Footer: View {
             .padding(.trailing, 14.0)
             .frame(maxHeight: 64)
         }
-        .frame(height: 64)
+        .frame(height: Self.height)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(l10n.label)
     }

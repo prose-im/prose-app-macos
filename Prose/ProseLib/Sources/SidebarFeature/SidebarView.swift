@@ -15,20 +15,21 @@ public struct SidebarView: View {
     public typealias State = SidebarState
     public typealias Action = SidebarAction
 
-    let store: Store<State, Action>
+    private let store: Store<State, Action>
 
     public init(store: Store<State, Action>) {
         self.store = store
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            Content(store: self.store.scope(state: \State.content, action: Action.content))
-            Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
-        }
-        .toolbar {
-            Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
-        }
+        Content(store: self.store.scope(state: \State.content, action: Action.content))
+            .frame(minWidth: 280)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
+            }
+            .toolbar {
+                Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
+            }
     }
 }
 
