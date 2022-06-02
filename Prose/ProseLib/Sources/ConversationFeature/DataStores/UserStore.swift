@@ -10,7 +10,7 @@ import PreviewAssets
 import SwiftUI
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
-public struct User {
+public struct User: Equatable {
     let userId: String
     let displayName: String
     public let fullName: String

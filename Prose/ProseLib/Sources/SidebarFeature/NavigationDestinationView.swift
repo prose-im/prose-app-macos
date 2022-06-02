@@ -30,7 +30,11 @@ struct NavigationDestinationView: View {
     private func content() -> some View {
         switch self.selection {
         case let .chat(id):
-            ConversationScreen(chatId: id)
+            ConversationScreen(store: Store(
+                initialState: ConversationState(chatId: id),
+                reducer: conversationReducer,
+                environment: ConversationEnvironment()
+            ))
         case .unread:
             UnreadScreen(model: .init(
                 messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }

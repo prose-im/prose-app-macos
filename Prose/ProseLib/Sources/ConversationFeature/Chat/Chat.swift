@@ -10,7 +10,7 @@ import OrderedCollections
 import PreviewAssets
 import SwiftUI
 
-struct ChatViewModel {
+struct ChatViewModel: Equatable {
     let messages: OrderedDictionary<Date, [MessageViewModel]>
 
     init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
