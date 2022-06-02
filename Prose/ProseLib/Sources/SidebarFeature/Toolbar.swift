@@ -37,7 +37,7 @@ struct Toolbar: ToolbarContent {
     }
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 

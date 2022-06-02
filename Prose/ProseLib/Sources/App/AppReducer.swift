@@ -5,7 +5,7 @@ import MainWindowFeature
 // import ProseCore
 import SharedModels
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 
