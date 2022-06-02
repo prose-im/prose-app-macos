@@ -1,5 +1,5 @@
 //
-//  SwadowedButtonStyle.swift
+//  ShadowedButtonStyle.swift
 //  Prose
 //
 //  Created by Rémi Bardon on 27/03/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct SwadowedButtonStyle: ButtonStyle {
+public struct ShadowedButtonStyle: ButtonStyle {
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.5 : 1)
@@ -21,11 +21,11 @@ public struct SwadowedButtonStyle: ButtonStyle {
     }
 }
 
-public extension ButtonStyle where Self == SwadowedButtonStyle {
-    static var shadowed: Self { SwadowedButtonStyle() }
+public extension ButtonStyle where Self == ShadowedButtonStyle {
+    static var shadowed: Self { ShadowedButtonStyle() }
 }
 
-struct SwadowedButtonStyle_Previews: PreviewProvider {
+struct ShadowedButtonStyle_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Button(action: {}) {
