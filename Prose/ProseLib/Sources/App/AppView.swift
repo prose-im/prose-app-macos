@@ -1,58 +1,35 @@
-// import AuthenticationFeature
+//
+//  AppView.swift
+//  Prose
+//
+//  Created by Valerian Saliou on 28/11/2021.
+//
+
+import AuthenticationFeature
 import ComposableArchitecture
-import SidebarFeature
+import MainWindowFeature
 import SwiftUI
-import TcaHelpers
-
-struct AuthenticationView: View {
-    let store: Store<AuthenticationState, AuthenticationAction>
-
-    var body: some View {
-        Text("Implement me")
-    }
-}
 
 public struct AppView: View {
-    private let store: Store<AppState, AppAction>
+    public typealias State = AppState
+    public typealias Action = AppAction
 
-    public init() {
-        self.store = Store(
-            initialState: AppState(),
-            reducer: appReducer,
-            environment: .live()
-        )
+    private let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+
+    // swiftlint:disable:next type_contents_order
+    public init(store: Store<State, Action> = Store(
+        initialState: AppState(),
+        reducer: appReducer,
+        environment: AppEnvironment.live
+    )) {
+        self.store = store
     }
 
     public var body: some View {
-        WithViewStore(self.store.scope(state: \AppState.route)) { route in
-            switch route.state {
-            case .auth:
-                IfLetStore(
-                    self.store.scope(
-                        state: (\AppState.route).case(/AppState.Route.auth),
-                        action: AppAction.auth
-                    ),
-                    then: { store in
-                        AuthenticationView(store: store)
-                    }
-                )
-
-            case .main:
-                IfLetStore(
-                    self.store.scope(
-                        state: (\AppState.route).case(/AppState.Route.main),
-                        action: AppAction.main
-                    ),
-                    then: { store in
-                        NavigationView {
-                            SidebarView(store: store)
-                                .frame(minWidth: 280.0)
-                            Text("Nothing to show here 🤷")
-                        }
-                        .listStyle(SidebarListStyle())
-                    }
-                )
-            }
+        SwitchStore(self.store.scope(state: \State.route)) {
+            CaseLet(state: /AppRoute.auth, action: AppAction.auth, then: AuthenticationView.init(store:))
+            CaseLet(state: /AppRoute.main, action: AppAction.main, then: MainWindow.init(store:))
         }
         .frame(minWidth: 1_280, minHeight: 720)
     }

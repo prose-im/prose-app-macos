@@ -23,9 +23,9 @@ let package = Package(
         .target(
             name: "App",
             dependencies: [
+                "MainWindowFeature",
                 "SettingsFeature",
-                "SidebarFeature",
-                // "AuthenticationFeature",
+                "AuthenticationFeature",
                 "TcaHelpers",
                 // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -42,6 +42,11 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
+        .target(name: "MainWindowFeature", dependencies: [
+            "SidebarFeature",
+            "TcaHelpers",
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        ]),
         .target(name: "SettingsFeature", dependencies: ["Preferences", "Assets", "ProseUI"]),
         .target(
             name: "SidebarFeature",
@@ -64,13 +69,13 @@ let package = Package(
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
-//    .target(
-//      name: "AuthenticationFeature",
-//      dependencies: [
-//        //"ProseCore",
-//        "SharedModels",
-//        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-//      ]
-//    ),
+        .target(
+            name: "AuthenticationFeature",
+            dependencies: [
+                // "ProseCore",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
     ]
 )

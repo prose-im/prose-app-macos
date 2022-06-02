@@ -57,12 +57,12 @@ public let sidebarReducer: Reducer<
     contentReducer.pullback(
         state: \SidebarState.content,
         action: /SidebarAction.content,
-        environment: { $0 }
+        environment: { _ in () }
     ),
     footerReducer.pullback(
         state: \SidebarState.footer,
         action: /SidebarAction.footer,
-        environment: { $0 }
+        environment: { _ in () }
     ),
     toolbarReducer.pullback(
         state: \SidebarState.toolbar,
@@ -107,7 +107,7 @@ public struct SidebarState: Equatable {
 
 // MARK: Actions
 
-public enum SidebarAction: BindableAction {
+public enum SidebarAction: Equatable, BindableAction {
     case content(ContentAction)
     case footer(FooterAction)
     case toolbar(ToolbarAction)
@@ -116,4 +116,6 @@ public enum SidebarAction: BindableAction {
 
 // MARK: Environment
 
-public typealias SidebarEnvironment = Void
+public struct SidebarEnvironment: Equatable {
+    public init() {}
+}
