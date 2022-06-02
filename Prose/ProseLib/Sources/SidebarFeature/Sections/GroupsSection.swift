@@ -73,25 +73,25 @@ public struct GroupsSectionState: Equatable {
         .init(
             id: .group(id: "group-bugs"),
             title: "bugs",
-            image: "circle.grid.2x2",
+            image: Icon.group.rawValue,
             count: 0
         ),
         .init(
             id: .group(id: "group-constellation"),
             title: "constellation",
-            image: "circle.grid.2x2",
+            image: Icon.group.rawValue,
             count: 7
         ),
         .init(
             id: .group(id: "group-general"),
             title: "general",
-            image: "circle.grid.2x2",
+            image: Icon.group.rawValue,
             count: 0
         ),
         .init(
             id: .group(id: "group-support"),
             title: "support",
-            image: "circle.grid.2x2",
+            image: Icon.group.rawValue,
             count: 0
         ),
     ]
