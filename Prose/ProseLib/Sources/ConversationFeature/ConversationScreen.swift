@@ -24,7 +24,7 @@ public struct ConversationScreen: View {
 
     public var body: some View {
         WithViewStore(self.store) { viewStore in
-            ChatWithMessageBar(chatViewModel: viewStore.chatViewModel)
+            ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
                 .safeAreaInset(edge: .trailing, spacing: 0) {
                     HStack(spacing: 0) {
                         Divider()
@@ -48,46 +48,47 @@ public let conversationReducer: Reducer<
     ConversationState,
     ConversationAction,
     ConversationEnvironment
-> = Reducer { _, action, _ in
-    switch action {}
-
-    return .none
-}
+> = chatWithBarReducer.pullback(
+    state: \ConversationState.chat,
+    action: /ConversationAction.chat,
+    environment: { _ in () }
+)
 
 // MARK: State
 
 public struct ConversationState: Equatable {
-    let chatId: ChatID
     let sender: User
-    let chatViewModel: ChatViewModel
+    var chat: ChatWithBarState
 
     init(
-        chatId: ChatID,
         sender: User,
-        chatViewModel: ChatViewModel
+        chat: ChatWithBarState
     ) {
-        self.chatId = chatId
         self.sender = sender
-        self.chatViewModel = chatViewModel
+        self.chat = chat
     }
 
     public init(chatId: ChatID) {
-        self.chatId = chatId
         switch chatId {
         case let .person(userId):
             self.sender = UserStore.shared.user(for: userId) ?? .init(userId: "", displayName: "", fullName: "", avatar: "")
         case .group:
             fatalError("Not supported yet")
         }
+
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
-        self.chatViewModel = .init(messages: messages)
+        self.chat = ChatWithBarState(
+            chatViewModel: .init(messages: messages)
+        )
     }
 }
 
 // MARK: Actions
 
-public enum ConversationAction: Equatable {}
+public enum ConversationAction: Equatable {
+    case chat(ChatWithBarAction)
+}
 
 // MARK: Environment
 

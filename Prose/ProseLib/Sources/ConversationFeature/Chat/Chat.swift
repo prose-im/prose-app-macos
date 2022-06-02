@@ -10,18 +10,18 @@ import OrderedCollections
 import PreviewAssets
 import SwiftUI
 
-struct ChatViewModel: Equatable {
+public struct ChatViewModel: Equatable {
     let messages: OrderedDictionary<Date, [MessageViewModel]>
 
-    init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
+    public init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
         self.messages = messages
     }
 
-    init(messages: [Date: [MessageViewModel]]) {
+    public init(messages: [Date: [MessageViewModel]]) {
         self.init(messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values))
     }
 
-    init(messages: [MessageViewModel]) {
+    public init(messages: [MessageViewModel]) {
         let calendar = Calendar.current
         self.init(messages: OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) }))
     }
