@@ -21,11 +21,9 @@ struct ChatWithMessageBar: View {
         Chat(store: self.store.scope(state: \State.chat, action: Action.chat))
             .frame(maxWidth: .infinity)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                MessageBar(
-                    firstName: "Valerian"
-                )
-                // Make footer have a higher priority, to be accessible over the scroll view
-                .accessibilitySortPriority(1)
+                MessageBar(store: self.store.scope(state: \State.messageBar, action: Action.messageBar))
+                    // Make footer have a higher priority, to be accessible over the scroll view
+                    .accessibilitySortPriority(1)
             }
     }
 }
@@ -38,21 +36,31 @@ public let chatWithBarReducer: Reducer<
     ChatWithBarState,
     ChatWithBarAction,
     Void
-> = chatReducer.pullback(
-    state: \ChatWithBarState.chat,
-    action: /ChatWithBarAction.chat,
-    environment: { $0 }
-)
+> = Reducer.combine([
+    chatReducer.pullback(
+        state: \ChatWithBarState.chat,
+        action: /ChatWithBarAction.chat,
+        environment: { $0 }
+    ),
+    messageBarReducer.pullback(
+        state: \ChatWithBarState.messageBar,
+        action: /ChatWithBarAction.messageBar,
+        environment: { $0 }
+    ),
+])
 
 // MARK: State
 
 public struct ChatWithBarState: Equatable {
     var chat: ChatState
+    var messageBar: MessageBarState
 
     public init(
-        chat: ChatState
+        chat: ChatState,
+        messageBar: MessageBarState
     ) {
         self.chat = chat
+        self.messageBar = messageBar
     }
 }
 
@@ -60,6 +68,7 @@ public struct ChatWithBarState: Equatable {
 
 public enum ChatWithBarAction: Equatable {
     case chat(ChatAction)
+    case messageBar(MessageBarAction)
 }
 
 // MARK: - Previews
@@ -86,7 +95,8 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
     static var previews: some View {
         ChatWithMessageBar(store: Store(
             initialState: ChatWithBarState(
-                chat: ChatState(messages: Self.messages)
+                chat: ChatState(messages: Self.messages),
+                messageBar: MessageBarState(firstName: "Valerian")
             ),
             reducer: chatWithBarReducer,
             environment: ()

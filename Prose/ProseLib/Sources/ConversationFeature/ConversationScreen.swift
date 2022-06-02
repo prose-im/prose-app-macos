@@ -79,7 +79,9 @@ public struct ConversationState: Equatable {
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
-            chat: ChatState(messages: messages)
+            chat: ChatState(messages: messages),
+            // TODO: Make this dynamic
+            messageBar: MessageBarState(firstName: "Valerian")
         )
     }
 }
