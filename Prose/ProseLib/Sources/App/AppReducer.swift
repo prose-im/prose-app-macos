@@ -29,7 +29,7 @@ public let appReducer: Reducer<
 // MARK: State
 
 public struct AppState: Equatable {
-    public var route: AppRoute
+    var route: AppRoute
 
     public init(
         route: AppRoute = .main(MainWindowState(
@@ -50,8 +50,8 @@ public enum AppAction: Equatable {
 // MARK: Environment
 
 public struct AppEnvironment: Equatable {
-    public var auth: AuthenticationEnvironment
-    public var main: MainWindowEnvironment
+    var auth: AuthenticationEnvironment
+    var main: MainWindowEnvironment
 
     private init(
         auth: AuthenticationEnvironment,

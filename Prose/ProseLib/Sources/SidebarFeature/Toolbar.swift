@@ -69,7 +69,7 @@ public let toolbarReducer: Reducer<
 // MARK: State
 
 public struct ToolbarState: Equatable {
-    @BindableState public var writingNewMessage: Bool
+    @BindableState var writingNewMessage: Bool
 
     public init(
         writingNewMessage: Bool = false

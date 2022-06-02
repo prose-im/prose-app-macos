@@ -193,7 +193,7 @@ let footerActionMenuReducer: Reducer<
 // MARK: State
 
 public struct FooterActionMenuState: Equatable {
-    @BindableState public var showingMenu: Bool
+    @BindableState var showingMenu: Bool
 
     public init(
         showingMenu: Bool = false

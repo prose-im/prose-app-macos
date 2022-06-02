@@ -52,7 +52,7 @@ public let mainWindowReducer: Reducer<
 // MARK: State
 
 public struct MainWindowState: Equatable {
-    public var sidebar: SidebarState
+    var sidebar: SidebarState
 
     public init(
         sidebar: SidebarState
@@ -70,7 +70,7 @@ public enum MainWindowAction: Equatable {
 // MARK: Environment
 
 public struct MainWindowEnvironment: Equatable {
-    public var sidebar: SidebarEnvironment
+    var sidebar: SidebarEnvironment
 
     public init(
         sidebar: SidebarEnvironment = .init()

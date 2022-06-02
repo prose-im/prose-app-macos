@@ -36,7 +36,7 @@ extension MessageViewModel: Identifiable {
 }
 
 public struct MessageView: View {
-    public let model: MessageViewModel
+    let model: MessageViewModel
 
     public init(model: MessageViewModel) {
         self.model = model

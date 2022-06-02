@@ -66,10 +66,10 @@ public let sidebarReducer: Reducer<
 // MARK: State
 
 public struct SidebarState: Equatable {
-    public var credentials: UserCredentials
-    public var content: SidebarContentState
-    public var footer: FooterState
-    public var toolbar: ToolbarState
+    var credentials: UserCredentials
+    var content: SidebarContentState
+    var footer: FooterState
+    var toolbar: ToolbarState
 
     public init(
         credentials: UserCredentials,

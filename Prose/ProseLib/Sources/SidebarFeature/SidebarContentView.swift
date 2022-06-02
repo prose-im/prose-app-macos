@@ -85,13 +85,13 @@ public let sidebarContentReducer: Reducer<
 // MARK: State
 
 public struct SidebarContentState: Equatable {
-    public var spotlight: SpotlightSectionState
-    public var favorites: FavoritesSectionState
-    public var teamMembers: TeamMembersSectionState
-    public var otherContacts: OtherContactsSectionState
-    public var groups: GroupsSectionState
+    var spotlight: SpotlightSectionState
+    var favorites: FavoritesSectionState
+    var teamMembers: TeamMembersSectionState
+    var otherContacts: OtherContactsSectionState
+    var groups: GroupsSectionState
 
-    @BindableState public var route: Route?
+    @BindableState var route: Route?
 
     public init(
         route: Route? = .unread,
