@@ -26,6 +26,10 @@ public struct SidebarView: View {
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
+                    // Make sure accessibility frame isn't inset by the window's rounded corners
+                    .contentShape(Rectangle())
+                    // Make footer have a higher priority, to be accessible over the scroll view
+                    .accessibilitySortPriority(1)
             }
             .toolbar {
                 Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
