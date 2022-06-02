@@ -8,8 +8,6 @@
 import ComposableArchitecture
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 public struct AuthenticationView: View {

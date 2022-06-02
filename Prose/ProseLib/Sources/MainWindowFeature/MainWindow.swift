@@ -10,8 +10,6 @@ import SidebarFeature
 import SwiftUI
 import TcaHelpers
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 public struct MainWindow: View {

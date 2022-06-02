@@ -10,8 +10,6 @@ import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 private let l10n = L10n.Sidebar.Footer.Actions.self

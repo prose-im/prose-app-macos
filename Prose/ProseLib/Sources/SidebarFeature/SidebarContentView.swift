@@ -8,8 +8,6 @@
 import ComposableArchitecture
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 struct SidebarContentView: View {
     typealias State = SidebarContentState
     typealias Action = SidebarContentAction

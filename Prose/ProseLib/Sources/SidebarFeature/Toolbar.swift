@@ -9,8 +9,6 @@ import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 private let l10n = L10n.Sidebar.Toolbar.self
 
 // MARK: - View

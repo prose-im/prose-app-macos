@@ -5,8 +5,6 @@ import MainWindowFeature
 // import ProseCore
 import SharedModels
 
-// swiftlint:disable file_types_order
-
 // MARK: - The Composabe Architecture
 
 // MARK: Reducer

@@ -12,8 +12,6 @@ import ProseUI
 import SwiftUI
 import UnreadFeature
 
-// swiftlint:disable file_types_order
-
 // MARK: - View
 
 /// The view displayed in the middle of the screen when a row is selected in the left sidebar.

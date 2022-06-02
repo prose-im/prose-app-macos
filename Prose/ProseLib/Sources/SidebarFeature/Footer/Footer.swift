@@ -11,8 +11,6 @@ import PreviewAssets
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable file_types_order
-
 private let l10n = L10n.Sidebar.Footer.self
 
 // MARK: - View
