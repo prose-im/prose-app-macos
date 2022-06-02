@@ -7,6 +7,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 // swiftlint:disable file_types_order
@@ -71,25 +72,25 @@ let groupsSectionReducer: Reducer<
 public struct GroupsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .group(id: "group-bugs"),
+            id: .chat(id: .group(id: "group-bugs")),
             title: "bugs",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .group(id: "group-constellation"),
+            id: .chat(id: .group(id: "group-constellation")),
             title: "constellation",
             image: Icon.group.rawValue,
             count: 7
         ),
         .init(
-            id: .group(id: "group-general"),
+            id: .chat(id: .group(id: "group-general")),
             title: "general",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .group(id: "group-support"),
+            id: .chat(id: .group(id: "group-support")),
             title: "support",
             image: Icon.group.rawValue,
             count: 0

@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-enum Icon: String, CaseIterable {
+public enum Icon: String, CaseIterable {
     case unread = "tray.2"
     case reply = "arrowshape.turn.up.left.2"
     case directMessage = "message"
     case addressBook = "text.book.closed"
     case group = "circle.grid.2x2"
 
-    var image: Image {
+    public var image: Image {
         Image(systemName: self.rawValue)
     }
 }

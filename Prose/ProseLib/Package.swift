@@ -55,6 +55,7 @@ let package = Package(
                 "Assets",
                 "ProseUI",
                 "PreviewAssets",
+                "SharedModels",
                 "ConversationFeature",
                 // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -66,6 +67,7 @@ let package = Package(
                 "Assets",
                 "ProseUI",
                 "PreviewAssets",
+                "SharedModels",
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),

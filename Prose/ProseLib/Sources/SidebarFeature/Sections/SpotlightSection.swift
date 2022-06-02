@@ -7,6 +7,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 // swiftlint:disable file_types_order
