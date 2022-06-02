@@ -7,6 +7,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import SharedModels
 import SwiftUI
 
 // swiftlint:disable file_types_order
@@ -57,30 +58,10 @@ let spotlightSectionReducer: Reducer<
 
 public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
-        .init(
-            id: .unread,
-            title: l10n.unreadStack,
-            image: "tray.2",
-            count: 0
-        ),
-        .init(
-            id: .replies,
-            title: l10n.replies,
-            image: "arrowshape.turn.up.left.2",
-            count: 5
-        ),
-        .init(
-            id: .directMessages,
-            title: l10n.directMessages,
-            image: "message",
-            count: 0
-        ),
-        .init(
-            id: .peopleAndGroups,
-            title: l10n.peopleAndGroups,
-            image: "text.book.closed",
-            count: 2
-        ),
+        .init(id: .unread, title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
+        .init(id: .replies, title: l10n.replies, image: Icon.reply.rawValue, count: 5),
+        .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
+        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
     ]
 
     public init() {}

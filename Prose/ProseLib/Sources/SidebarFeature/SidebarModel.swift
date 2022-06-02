@@ -6,10 +6,11 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
+import SharedModels
+
 public enum Route: Hashable {
     case unread, replies, directMessages, peopleAndGroups
-    case person(id: String)
-    case group(id: String)
+    case chat(id: ChatID)
     case newMessage
 }
 

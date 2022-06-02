@@ -72,19 +72,19 @@ let teamMembersSectionReducer: Reducer<
 public struct TeamMembersSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .person(id: "id-antoine"),
+            id: .chat(id: .person(id: "id-antoine")),
             title: "Antoine",
             image: PreviewImages.Avatars.antoine.rawValue,
             count: 0
         ),
         .init(
-            id: .person(id: "id-eliott"),
+            id: .chat(id: .person(id: "id-eliott")),
             title: "Eliott",
             image: PreviewImages.Avatars.eliott.rawValue,
             count: 3
         ),
         .init(
-            id: .person(id: "id-camille"),
+            id: .chat(id: .person(id: "id-camille")),
             title: "Camille",
             image: PreviewImages.Avatars.camille.rawValue,
             count: 2

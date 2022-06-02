@@ -1,5 +1,5 @@
 //
-//  Content.swift
+//  SidebarContentView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/28/21.
@@ -10,9 +10,9 @@ import SwiftUI
 
 // swiftlint:disable file_types_order
 
-struct Content: View {
-    typealias State = ContentState
-    typealias Action = ContentAction
+struct SidebarContentView: View {
+    typealias State = SidebarContentState
+    typealias Action = SidebarContentAction
 
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -51,9 +51,9 @@ struct Content: View {
 
 // MARK: Reducer
 
-private let contentCoreReducer: Reducer<
-    ContentState,
-    ContentAction,
+private let sidebarContentCoreReducer: Reducer<
+    SidebarContentState,
+    SidebarContentAction,
     Void
 > = Reducer { _, action, _ in
     switch action {
@@ -63,42 +63,42 @@ private let contentCoreReducer: Reducer<
 
     return .none
 }.binding()
-public let contentReducer: Reducer<
-    ContentState,
-    ContentAction,
+public let sidebarContentReducer: Reducer<
+    SidebarContentState,
+    SidebarContentAction,
     Void
 > = Reducer.combine([
     spotlightSectionReducer.pullback(
-        state: \ContentState.spotlight,
-        action: /ContentAction.spotlight,
+        state: \SidebarContentState.spotlight,
+        action: /SidebarContentAction.spotlight,
         environment: { $0 }
     ),
     favoritesSectionReducer.pullback(
-        state: \ContentState.favorites,
-        action: /ContentAction.favorites,
+        state: \SidebarContentState.favorites,
+        action: /SidebarContentAction.favorites,
         environment: { $0 }
     ),
     teamMembersSectionReducer.pullback(
-        state: \ContentState.teamMembers,
-        action: /ContentAction.teamMembers,
+        state: \SidebarContentState.teamMembers,
+        action: /SidebarContentAction.teamMembers,
         environment: { $0 }
     ),
     otherContactsSectionReducer.pullback(
-        state: \ContentState.otherContacts,
-        action: /ContentAction.otherContacts,
+        state: \SidebarContentState.otherContacts,
+        action: /SidebarContentAction.otherContacts,
         environment: { $0 }
     ),
     groupsSectionReducer.pullback(
-        state: \ContentState.groups,
-        action: /ContentAction.groups,
+        state: \SidebarContentState.groups,
+        action: /SidebarContentAction.groups,
         environment: { $0 }
     ),
-    contentCoreReducer,
+    sidebarContentCoreReducer,
 ])
 
 // MARK: State
 
-public struct ContentState: Equatable {
+public struct SidebarContentState: Equatable {
     public var spotlight: SpotlightSectionState
     public var favorites: FavoritesSectionState
     public var teamMembers: TeamMembersSectionState
@@ -126,21 +126,21 @@ public struct ContentState: Equatable {
 
 // MARK: Actions
 
-public enum ContentAction: Equatable, BindableAction {
+public enum SidebarContentAction: Equatable, BindableAction {
     case spotlight(SpotlightSectionAction)
     case favorites(FavoritesSectionAction)
     case teamMembers(TeamMembersSectionAction)
     case otherContacts(OtherContactsSectionAction)
     case groups(GroupsSectionAction)
-    case binding(BindingAction<ContentState>)
+    case binding(BindingAction<SidebarContentState>)
 }
 
-struct Content_Previews: PreviewProvider {
+struct SidebarContent_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            Content(store: Store(
+            SidebarContentView(store: Store(
                 initialState: .init(),
-                reducer: contentReducer,
+                reducer: sidebarContentReducer,
                 environment: ()
             ))
             .frame(width: 256)

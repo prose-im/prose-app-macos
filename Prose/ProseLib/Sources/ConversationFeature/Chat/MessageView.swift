@@ -9,22 +9,40 @@ import PreviewAssets
 import ProseUI
 import SwiftUI
 
-struct MessageViewModel {
+public struct MessageViewModel {
     let senderId: String
     let senderName: String
     let avatar: String
     let content: String
-    let timestamp: Date
+    public let timestamp: Date
+
+    public init(
+        senderId: String,
+        senderName: String,
+        avatar: String,
+        content: String,
+        timestamp: Date
+    ) {
+        self.senderId = senderId
+        self.senderName = senderName
+        self.avatar = avatar
+        self.content = content
+        self.timestamp = timestamp
+    }
 }
 
 extension MessageViewModel: Identifiable {
-    var id: String { "\(self.senderId)_\(self.timestamp.ISO8601Format())" }
+    public var id: String { "\(self.senderId)_\(self.timestamp.ISO8601Format())" }
 }
 
-struct MessageView: View {
-    let model: MessageViewModel
+public struct MessageView: View {
+    public let model: MessageViewModel
 
-    var body: some View {
+    public init(model: MessageViewModel) {
+        self.model = model
+    }
+
+    public var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Avatar(model.avatar, size: 32)
 

@@ -47,16 +47,23 @@ let package = Package(
             "TcaHelpers",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
+        .target(name: "AddressBookFeature", dependencies: [
+            "ProseUI",
+            "SharedModels",
+        ]),
         .target(name: "SettingsFeature", dependencies: ["Preferences", "Assets", "ProseUI"]),
         .target(
             name: "SidebarFeature",
             dependencies: [
+                "AddressBookFeature",
                 "AppLocalization",
                 "Assets",
+                "ConversationFeature",
                 "ProseUI",
                 "PreviewAssets",
-                "ConversationFeature",
+                "SharedModels",
                 // "ProseCore",
+                "UnreadFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -66,6 +73,7 @@ let package = Package(
                 "Assets",
                 "ProseUI",
                 "PreviewAssets",
+                "SharedModels",
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
@@ -75,6 +83,17 @@ let package = Package(
                 // "ProseCore",
                 "SharedModels",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
+            name: "UnreadFeature",
+            dependencies: [
+                "ConversationFeature",
+                "ProseUI",
+                "PreviewAssets",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
     ]

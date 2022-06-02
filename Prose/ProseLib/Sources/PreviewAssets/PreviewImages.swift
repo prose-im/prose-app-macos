@@ -12,7 +12,9 @@ public enum PreviewImages {
         case antoine = "avatars/antoine"
         case baptiste = "avatars/baptiste"
         case camille = "avatars/camille"
+        case constellationHealth = "avatars/constellation-health"
         case eliott = "avatars/eliott"
+        case julien = "avatars/julien"
         case valerian = "avatars/valerian"
     }
 }

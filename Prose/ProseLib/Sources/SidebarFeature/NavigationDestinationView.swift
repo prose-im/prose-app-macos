@@ -5,10 +5,12 @@
 //  Created by Valerian Saliou on 11/15/21.
 //
 
+import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
 import ProseUI
 import SwiftUI
+import UnreadFeature
 
 // swiftlint:disable file_types_order
 
@@ -24,20 +26,25 @@ struct NavigationDestinationView: View {
         content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("")
-            .toolbar {
-                ContentCommonToolbarComponent()
-            }
     }
 
     @ViewBuilder
     private func content() -> some View {
         switch self.selection {
-        case let .person(id), let .group(id):
+        case let .chat(id):
             ConversationScreen(chatId: id)
+        case .unread:
+            UnreadScreen(model: .init(
+                messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
+            ))
+            .groupBoxStyle(.spotlight)
+        case .peopleAndGroups:
+            AddressBookScreen()
         case .none:
             Text("No selection 🤷")
         case let .some(value):
             Text("\(String(describing: value)) (not supported yet)")
+                .toolbar(content: CommonToolbar.init)
         }
     }
 }
@@ -46,6 +53,6 @@ struct NavigationDestinationView: View {
 
 struct NavigationDestinationView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationDestinationView(selection: .person(id: "id-valerian"))
+        NavigationDestinationView(selection: .chat(id: .person(id: "id-valerian")))
     }
 }

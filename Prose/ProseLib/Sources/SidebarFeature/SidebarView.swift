@@ -22,7 +22,7 @@ public struct SidebarView: View {
     }
 
     public var body: some View {
-        Content(store: self.store.scope(state: \State.content, action: Action.content))
+        SidebarContentView(store: self.store.scope(state: \State.content, action: Action.content))
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
@@ -59,7 +59,7 @@ public let sidebarReducer: Reducer<
     SidebarAction,
     SidebarEnvironment
 > = Reducer.combine([
-    contentReducer.pullback(
+    sidebarContentReducer.pullback(
         state: \SidebarState.content,
         action: /SidebarAction.content,
         environment: { _ in () }
@@ -81,13 +81,13 @@ public let sidebarReducer: Reducer<
 
 public struct SidebarState: Equatable {
     public var credentials: UserCredentials
-    public var content: ContentState
+    public var content: SidebarContentState
     public var footer: FooterState
     public var toolbar: ToolbarState
 
     public init(
         credentials: UserCredentials,
-        content: ContentState = .init(),
+        content: SidebarContentState = .init(),
         footer: FooterState = .init(),
         toolbar: ToolbarState = .init()
     ) {
@@ -113,7 +113,7 @@ public struct SidebarState: Equatable {
 // MARK: Actions
 
 public enum SidebarAction: Equatable, BindableAction {
-    case content(ContentAction)
+    case content(SidebarContentAction)
     case footer(FooterAction)
     case toolbar(ToolbarAction)
     case binding(BindingAction<SidebarState>)
