@@ -39,31 +39,15 @@ public struct MainWindow: View {
 
 // MARK: Reducer
 
-private let mainWindowCoreReducer: Reducer<
-    MainWindowState,
-    MainWindowAction,
-    MainWindowEnvironment
-> = Reducer { _, action, _ in
-    switch action {
-    case .sidebar:
-        break
-    }
-
-    return .none
-}
-
 public let mainWindowReducer: Reducer<
     MainWindowState,
     MainWindowAction,
     MainWindowEnvironment
-> = Reducer.combine([
-    sidebarReducer._pullback(
-        state: \MainWindowState.sidebar,
-        action: /MainWindowAction.sidebar,
-        environment: \MainWindowEnvironment.sidebar
-    ),
-    mainWindowCoreReducer,
-])
+> = sidebarReducer._pullback(
+    state: \MainWindowState.sidebar,
+    action: /MainWindowAction.sidebar,
+    environment: \MainWindowEnvironment.sidebar
+)
 
 // MARK: State
 

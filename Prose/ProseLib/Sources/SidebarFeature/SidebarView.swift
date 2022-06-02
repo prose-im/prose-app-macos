@@ -41,19 +41,6 @@ public struct SidebarView: View {
 
 // MARK: Reducer
 
-private let sidebarCoreReducer = Reducer<
-    SidebarState,
-    SidebarAction,
-    SidebarEnvironment
-> { _, action, _ in
-    switch action {
-    case .content, .footer, .toolbar, .binding:
-        break
-    }
-
-    return .none
-}
-
 public let sidebarReducer: Reducer<
     SidebarState,
     SidebarAction,
@@ -74,7 +61,6 @@ public let sidebarReducer: Reducer<
         action: /SidebarAction.toolbar,
         environment: { $0 }
     ),
-    sidebarCoreReducer,
 ])
 
 // MARK: State

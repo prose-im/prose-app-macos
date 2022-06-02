@@ -65,23 +65,6 @@ struct Footer: View {
 
 // MARK: Reducer
 
-private let footerCoreReducer: Reducer<
-    FooterState,
-    FooterAction,
-    Void
-> = Reducer { _, action, _ in
-    switch action {
-    case .actionButton:
-        break
-
-    default:
-        // TODO: [Rémi Bardon] Handle actions
-        assertionFailure("Received unhandled action: \(String(describing: action))")
-    }
-
-    return .none
-}
-
 public let footerReducer: Reducer<
     FooterState,
     FooterAction,
@@ -92,7 +75,18 @@ public let footerReducer: Reducer<
         action: /FooterAction.actionButton,
         environment: { $0 }
     ),
-    footerCoreReducer,
+    Reducer { _, action, _ in
+        switch action {
+        case .actionButton:
+            break
+
+        default:
+            // TODO: [Rémi Bardon] Handle actions
+            assertionFailure("Received unhandled action: \(String(describing: action))")
+        }
+
+        return .none
+    },
 ])
 
 // MARK: State

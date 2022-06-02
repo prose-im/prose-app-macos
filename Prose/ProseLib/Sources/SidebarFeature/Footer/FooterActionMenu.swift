@@ -161,7 +161,7 @@ struct FooterActionMenu: View {
 
 // MARK: Reducer
 
-private let footerActionMenuCoreReducer: Reducer<
+let footerActionMenuReducer: Reducer<
     FooterActionMenuState,
     FooterActionMenuAction,
     Void
@@ -189,13 +189,6 @@ private let footerActionMenuCoreReducer: Reducer<
 
     return .none
 }.binding()
-let footerActionMenuReducer: Reducer<
-    FooterActionMenuState,
-    FooterActionMenuAction,
-    Void
-> = Reducer.combine([
-    footerActionMenuCoreReducer,
-])
 
 // MARK: State
 

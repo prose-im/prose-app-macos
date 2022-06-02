@@ -49,18 +49,6 @@ struct SidebarContentView: View {
 
 // MARK: Reducer
 
-private let sidebarContentCoreReducer: Reducer<
-    SidebarContentState,
-    SidebarContentAction,
-    Void
-> = Reducer { _, action, _ in
-    switch action {
-    case .spotlight, .favorites, .teamMembers, .otherContacts, .groups, .binding:
-        break
-    }
-
-    return .none
-}.binding()
 public let sidebarContentReducer: Reducer<
     SidebarContentState,
     SidebarContentAction,
@@ -91,7 +79,7 @@ public let sidebarContentReducer: Reducer<
         action: /SidebarContentAction.groups,
         environment: { $0 }
     ),
-    sidebarContentCoreReducer,
+    Reducer.empty.binding(),
 ])
 
 // MARK: State

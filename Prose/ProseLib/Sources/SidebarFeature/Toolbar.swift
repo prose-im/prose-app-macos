@@ -41,7 +41,7 @@ struct Toolbar: ToolbarContent {
 
 // MARK: Reducer
 
-private let toolbarCoreReducer: Reducer<
+public let toolbarReducer: Reducer<
     ToolbarState,
     ToolbarAction,
     SidebarEnvironment
@@ -65,14 +65,6 @@ private let toolbarCoreReducer: Reducer<
 
     return .none
 }.binding()
-
-public let toolbarReducer: Reducer<
-    ToolbarState,
-    ToolbarAction,
-    SidebarEnvironment
-> = Reducer.combine([
-    toolbarCoreReducer,
-])
 
 // MARK: State
 
