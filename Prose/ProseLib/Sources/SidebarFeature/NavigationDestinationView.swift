@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/15/21.
 //
 
+import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
 import ProseUI
@@ -25,9 +26,6 @@ struct NavigationDestinationView: View {
         content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("")
-            .toolbar {
-                ContentCommonToolbarComponent()
-            }
     }
 
     @ViewBuilder
@@ -40,10 +38,13 @@ struct NavigationDestinationView: View {
                 messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
             ))
             .groupBoxStyle(.spotlight)
+        case .peopleAndGroups:
+            AddressBookScreen()
         case .none:
             Text("No selection 🤷")
         case let .some(value):
             Text("\(String(describing: value)) (not supported yet)")
+                .toolbar(content: CommonToolbar.init)
         }
     }
 }

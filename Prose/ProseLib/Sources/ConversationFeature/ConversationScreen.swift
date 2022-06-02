@@ -38,6 +38,7 @@ public struct ConversationScreen: View {
             )
             .frame(width: 220.0)
         }
+        .toolbar(content: Toolbar.init)
     }
 }
 

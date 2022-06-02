@@ -47,10 +47,15 @@ let package = Package(
             "TcaHelpers",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
+        .target(name: "AddressBookFeature", dependencies: [
+            "ProseUI",
+            "SharedModels",
+        ]),
         .target(name: "SettingsFeature", dependencies: ["Preferences", "Assets", "ProseUI"]),
         .target(
             name: "SidebarFeature",
             dependencies: [
+                "AddressBookFeature",
                 "AppLocalization",
                 "Assets",
                 "ConversationFeature",

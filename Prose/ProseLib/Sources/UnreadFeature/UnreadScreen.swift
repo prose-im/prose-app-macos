@@ -8,6 +8,7 @@
 import ConversationFeature
 import OrderedCollections
 import PreviewAssets
+import ProseUI
 import SharedModels
 import SwiftUI
 
@@ -28,7 +29,7 @@ public struct UnreadScreenModel {
 
 public struct UnreadScreen: View {
     public let model: UnreadScreenModel
-    
+
     public init(model: UnreadScreenModel) {
         self.model = model
     }
@@ -36,6 +37,7 @@ public struct UnreadScreen: View {
     public var body: some View {
         content()
             .background(Color.backgroundMessage)
+            .toolbar(content: Toolbar.init)
     }
 
     @ViewBuilder

@@ -36,6 +36,8 @@ public struct OnlineStatusIndicator: View {
                 .fill(status.fillColor ?? Color.clear)
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(String(describing: status))
     }
 }
 
