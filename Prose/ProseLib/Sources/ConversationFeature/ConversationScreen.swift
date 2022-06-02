@@ -27,18 +27,18 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        HStack(spacing: 0) {
-            ChatWithMessageBar(chatViewModel: chatViewModel)
-
-            Divider()
-
-            ConversationDetailsView(
-                avatar: sender.avatar,
-                name: sender.displayName
-            )
-            .frame(width: 220.0)
-        }
-        .toolbar(content: Toolbar.init)
+        ChatWithMessageBar(chatViewModel: chatViewModel)
+            .safeAreaInset(edge: .trailing, spacing: 0) {
+                HStack(spacing: 0) {
+                    Divider()
+                    ConversationDetailsView(
+                        avatar: sender.avatar,
+                        name: sender.displayName
+                    )
+                }
+                .frame(width: 220)
+            }
+            .toolbar(content: Toolbar.init)
     }
 }
 
