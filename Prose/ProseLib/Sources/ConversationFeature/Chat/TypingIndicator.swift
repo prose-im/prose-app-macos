@@ -5,13 +5,16 @@
 //  Created by Valerian Saliou on 11/24/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+fileprivate let l10n = L10n.Content.MessageBar.self
 
 struct TypingIndicator: View {
     @State var firstName: String
 
     var body: some View {
-        Text("content_message_bar_compose_typing".localized(withFormat: firstName))
+        Text(l10n.composeTyping(firstName))
             .padding(.vertical, 4.0)
             .padding(.horizontal, 16.0)
             .font(Font.system(size: 10.5, weight: .light))

@@ -5,7 +5,10 @@
 //  Created by Valerian Saliou on 11/24/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+fileprivate let l10n = L10n.Content.MessageBar.self
 
 struct MessageBarTextField: View {
     @State var firstName: String
@@ -13,18 +16,15 @@ struct MessageBarTextField: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            TextField(
-                "content_message_bar_field_placeholder".localized(withFormat: firstName),
-                text: $message
-            )
-            .padding(.vertical, 7.0)
-            .padding(.leading, 16.0)
-            .padding(.trailing, 4.0)
-            .font(Font.system(size: 13, weight: .regular))
-            .foregroundColor(.primary)
-            .textFieldStyle(.plain)
+            TextField(l10n.fieldPlaceholder(firstName), text: $message)
+                .padding(.vertical, 7.0)
+                .padding(.leading, 16.0)
+                .padding(.trailing, 4.0)
+                .font(Font.system(size: 13, weight: .regular))
+                .foregroundColor(.primary)
+                .textFieldStyle(.plain)
 
-            Button(action: {}) {
+            Button { print("Send tapped") } label: {
                 Image(systemName: "paperplane.circle.fill")
                     .font(.system(size: 22, weight: .regular))
                     .foregroundColor(.buttonPrimary)

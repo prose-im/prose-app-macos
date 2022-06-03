@@ -70,6 +70,7 @@ let package = Package(
         .target(
             name: "ConversationFeature",
             dependencies: [
+                "AppLocalization",
                 "Assets",
                 "ProseUI",
                 "PreviewAssets",

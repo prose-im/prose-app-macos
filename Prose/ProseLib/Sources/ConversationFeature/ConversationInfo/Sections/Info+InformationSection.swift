@@ -5,8 +5,11 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
+import AppLocalization
 import Assets
 import SwiftUI
+
+fileprivate let l10n = L10n.Content.MessageDetails.Information.self
 
 extension ConversationInfoView {
     struct InformationSection: View {
@@ -39,7 +42,7 @@ extension ConversationInfoView {
         ]
 
         var body: some View {
-            GroupBox("content_message_details_information_title".localized()) {
+            GroupBox(l10n.title) {
                 EntriesView(entries: entries)
             }
         }

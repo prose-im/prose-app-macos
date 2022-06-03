@@ -5,19 +5,22 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+fileprivate let l10n = L10n.Content.MessageDetails.Security.self
 
 extension ConversationInfoView {
     struct SecuritySection: View {
         let entries: [ContentMessageDetailsEntryOption] = [
             .init(
-                value: "content_message_details_security_identity_verified".localized(),
+                value: l10n.identityVerified,
                 image: .system("checkmark.seal.fill"),
                 imageColor: .stateGreen,
                 informationAction: true
             ),
             .init(
-                value: "content_message_details_security_encrypted".localized() + " (C648A)",
+                value: l10n.encrypted("C648A"),
                 image: .system("lock.fill"),
                 imageColor: .stateBlue,
                 informationAction: true
@@ -25,7 +28,7 @@ extension ConversationInfoView {
         ]
 
         var body: some View {
-            GroupBox("content_message_details_security_title".localized()) {
+            GroupBox(l10n.title) {
                 EntriesView(entries: entries)
             }
         }

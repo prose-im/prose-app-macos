@@ -5,29 +5,22 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+fileprivate let l10n = L10n.Content.MessageDetails.Actions.self
 
 extension ConversationInfoView {
     struct ActionsSection: View {
         let actions: [ContentMessageDetailsActionOption] = [
-            .init(
-                name: "content_message_details_actions_shared_files".localized(),
-                deployTo: true
-            ),
-            .init(
-                name: "content_message_details_actions_encryption_settings".localized(),
-                deployTo: true
-            ),
-            .init(
-                name: "content_message_details_actions_remove_contact".localized()
-            ),
-            .init(
-                name: "content_message_details_actions_block".localized()
-            ),
+            .init(name: l10n.sharedFiles, deployTo: true),
+            .init(name: l10n.encryptionSettings, deployTo: true),
+            .init(name: l10n.removeContact),
+            .init(name: l10n.block),
         ]
 
         var body: some View {
-            GroupBox("content_message_details_actions_title".localized()) {
+            GroupBox(l10n.title) {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(actions, id: \.self, content: ActionRow.init(action:))
                         .unredacted()
