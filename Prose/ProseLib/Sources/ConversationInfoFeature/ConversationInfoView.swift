@@ -6,18 +6,23 @@
 //
 
 import ComposableArchitecture
+import ProseCoreStub
 import SwiftUI
 
 // MARK: - View
 
-struct ConversationInfoView: View {
-    typealias State = ConversationInfoState
-    typealias Action = ConversationInfoAction
+public struct ConversationInfoView: View {
+    public typealias State = ConversationInfoState
+    public typealias Action = ConversationInfoAction
 
-    let store: Store<State, Action>
+    private let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-    var body: some View {
+    public init(store: Store<State, Action>) {
+        self.store = store
+    }
+
+    public var body: some View {
         ScrollView(.vertical) {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
@@ -42,30 +47,7 @@ struct ConversationInfoView: View {
     }
 }
 
-extension ConversationInfoView {
-    struct SectionGroupStyle: GroupBoxStyle {
-        private static let sidesPadding: CGFloat = 15
-
-        func makeBody(configuration: Configuration) -> some View {
-            VStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    configuration.label
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Color.primary.opacity(0.25))
-                        .padding(.horizontal, Self.sidesPadding)
-                        .unredacted()
-
-                    Divider()
-                }
-
-                configuration.content
-                    .padding(.horizontal, Self.sidesPadding)
-            }
-        }
-    }
-}
-
-extension ConversationInfoView {
+public extension ConversationInfoView {
     static var placeholder: some View {
         ConversationInfoView(store: Store(
             initialState: ConversationInfoState(

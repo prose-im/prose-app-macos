@@ -7,25 +7,19 @@
 
 import SwiftUI
 
-extension ConversationInfoView {
-    struct EntriesView: View {
-        var entries: [ContentMessageDetailsEntryOption]
+struct EntriesView: View {
+    var entries: [ContentMessageDetailsEntryOption]
 
-        var body: some View {
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(entries, id: \.self) { entry in
-                    ConversationInfoView.EntryRow(
-                        entry: entry
-                    )
-                }
-            }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach(entries, id: \.self, content: EntryRow.init(entry:))
         }
     }
 }
 
 struct ConversationInfoView_EntriesView_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationInfoView.EntriesView(
+        EntriesView(
             entries: [
                 .init(
                     value: "Email address",

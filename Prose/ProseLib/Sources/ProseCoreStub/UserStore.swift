@@ -11,10 +11,22 @@ import SwiftUI
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 public struct User: Equatable {
-    let userId: String
-    let displayName: String
+    public let userId: String
+    public let displayName: String
     public let fullName: String
-    let avatar: String
+    public let avatar: String
+
+    public init(
+        userId: String,
+        displayName: String,
+        fullName: String,
+        avatar: String
+    ) {
+        self.userId = userId
+        self.displayName = displayName
+        self.fullName = fullName
+        self.avatar = avatar
+    }
 }
 
 public extension User {

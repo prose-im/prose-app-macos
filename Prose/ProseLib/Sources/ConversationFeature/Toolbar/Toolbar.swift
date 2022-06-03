@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProseCoreStub
 import ProseUI
 import SwiftUI
 

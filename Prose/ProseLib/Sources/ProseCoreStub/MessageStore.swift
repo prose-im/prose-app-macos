@@ -12,9 +12,9 @@ import SharedModels
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 public struct Message {
-    let senderId: String
-    let content: String
-    let timestamp: Date
+    public let senderId: String
+    public let content: String
+    public let timestamp: Date
 }
 
 /// This is just a simple store sendiong fake data.
@@ -96,19 +96,5 @@ public final class MessageStore {
                     timestamp: Date() - 100_000
                 ),
             ]))
-    }
-}
-
-public extension Message {
-    var toMessageViewModel: MessageViewModel {
-        let sender = UserStore.shared.user(for: self.senderId)
-
-        return MessageViewModel(
-            senderId: self.senderId,
-            senderName: sender?.displayName ?? "Unknown",
-            avatar: sender?.avatar ?? "",
-            content: self.content,
-            timestamp: self.timestamp
-        )
     }
 }

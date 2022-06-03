@@ -72,6 +72,8 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 "Assets",
+                "ConversationInfoFeature",
+                "ProseCoreStub",
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
@@ -79,6 +81,10 @@ let package = Package(
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
+        .target(name: "ConversationInfoFeature", dependencies: [
+            "ProseCoreStub",
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        ]),
         .target(
             name: "AuthenticationFeature",
             dependencies: [
@@ -98,5 +104,8 @@ let package = Package(
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
+        .target(name: "ProseCoreStub", dependencies: [
+            .product(name: "OrderedCollections", package: "swift-collections"),
+        ]),
     ]
 )
