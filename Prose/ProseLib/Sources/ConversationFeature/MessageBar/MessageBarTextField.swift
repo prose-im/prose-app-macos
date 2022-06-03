@@ -8,7 +8,7 @@
 import AppLocalization
 import SwiftUI
 
-fileprivate let l10n = L10n.Content.MessageBar.self
+private let l10n = L10n.Content.MessageBar.self
 
 struct MessageBarTextField: View {
     @State var firstName: String

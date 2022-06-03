@@ -8,7 +8,7 @@
 import AppLocalization
 import SwiftUI
 
-fileprivate let l10n = L10n.Content.MessageDetails.Security.self
+private let l10n = L10n.Content.MessageDetails.Security.self
 
 extension ConversationInfoView {
     struct SecuritySection: View {

@@ -11,27 +11,6 @@ import SwiftUI
 // MARK: - View
 
 struct ConversationInfoView: View {
-    struct SectionGroupStyle: GroupBoxStyle {
-        private static let sidesPadding: CGFloat = 15
-
-        func makeBody(configuration: Configuration) -> some View {
-            VStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    configuration.label
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(Color.primary.opacity(0.25))
-                        .padding(.horizontal, Self.sidesPadding)
-                        .unredacted()
-
-                    Divider()
-                }
-
-                configuration.content
-                    .padding(.horizontal, Self.sidesPadding)
-            }
-        }
-    }
-
     typealias State = ConversationInfoState
     typealias Action = ConversationInfoAction
 
@@ -60,6 +39,29 @@ struct ConversationInfoView: View {
         }
         .groupBoxStyle(SectionGroupStyle())
         .background(.background)
+    }
+}
+
+extension ConversationInfoView {
+    struct SectionGroupStyle: GroupBoxStyle {
+        private static let sidesPadding: CGFloat = 15
+
+        func makeBody(configuration: Configuration) -> some View {
+            VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    configuration.label
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Color.primary.opacity(0.25))
+                        .padding(.horizontal, Self.sidesPadding)
+                        .unredacted()
+
+                    Divider()
+                }
+
+                configuration.content
+                    .padding(.horizontal, Self.sidesPadding)
+            }
+        }
     }
 }
 

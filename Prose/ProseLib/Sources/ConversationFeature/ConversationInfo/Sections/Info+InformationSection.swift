@@ -9,7 +9,7 @@ import AppLocalization
 import Assets
 import SwiftUI
 
-fileprivate let l10n = L10n.Content.MessageDetails.Information.self
+private let l10n = L10n.Content.MessageDetails.Information.self
 
 extension ConversationInfoView {
     struct InformationSection: View {
