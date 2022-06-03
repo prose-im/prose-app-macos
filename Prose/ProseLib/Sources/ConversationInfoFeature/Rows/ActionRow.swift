@@ -1,5 +1,5 @@
 //
-//  Info+ActionRow.swift
+//  ActionRow.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/1/21.
@@ -34,7 +34,7 @@ struct ActionRow: View {
     }
 }
 
-struct ConversationInfoView_ActionRow_Previews: PreviewProvider {
+struct ActionRow_Previews: PreviewProvider {
     static var previews: some View {
         ActionRow(
             action: .init(

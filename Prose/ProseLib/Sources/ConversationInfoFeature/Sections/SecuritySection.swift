@@ -1,5 +1,5 @@
 //
-//  Info+SecuritySection.swift
+//  SecuritySection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -90,7 +90,7 @@ extension SecuritySectionModel {
     }
 }
 
-struct ConversationInfoView_SecuritySection_Previews: PreviewProvider {
+struct SecuritySection_Previews: PreviewProvider {
     static var previews: some View {
         SecuritySection(model: .init(
             isIdentityVerified: true,

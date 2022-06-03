@@ -1,5 +1,5 @@
 //
-//  Info+ActionsSection.swift
+//  ActionsSection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -28,7 +28,7 @@ struct ActionsSection: View {
     }
 }
 
-struct ConversationInfoView_ActionsSection_Previews: PreviewProvider {
+struct ActionsSection_Previews: PreviewProvider {
     static var previews: some View {
         ActionsSection()
     }

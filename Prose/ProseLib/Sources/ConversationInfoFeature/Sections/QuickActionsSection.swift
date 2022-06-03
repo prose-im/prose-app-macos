@@ -1,5 +1,5 @@
 //
-//  Info+QuickActionsSection.swift
+//  QuickActionsSection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
