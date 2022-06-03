@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+EntryRow.swift
+//  Info+EntryRow.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/1/21.
@@ -33,8 +33,10 @@ struct ContentMessageDetailsEntryOption: Hashable {
     var informationAction: Bool = false
 }
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct EntryRow: View {
+        @Environment(\.redactionReasons) private var redactionReasons
+
         var entry: ContentMessageDetailsEntryOption
 
         var body: some View {
@@ -47,6 +49,7 @@ extension ConversationDetailsView {
                         .font(.system(size: 13))
                         .foregroundColor(entry.imageColor)
                         .frame(width: iconFrameMinWidth, alignment: .center)
+                        .unredacted()
                 case let .literal(inner):
                     Text(verbatim: inner)
                         .frame(width: iconFrameMinWidth, alignment: .center)
@@ -65,15 +68,17 @@ extension ConversationDetailsView {
                             .foregroundColor(Color.primary.opacity(0.50))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .unredacted()
+                    .disabled(redactionReasons.contains(.placeholder))
                 }
             }
         }
     }
 }
 
-struct ConversationDetailsView_EntryRow_Previews: PreviewProvider {
+struct ConversationInfoView_EntryRow_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.EntryRow(
+        ConversationInfoView.EntryRow(
             entry: .init(
                 value: "Lima, Peru",
                 image: .system("location.fill"),

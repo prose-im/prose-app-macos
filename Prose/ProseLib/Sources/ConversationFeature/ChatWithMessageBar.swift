@@ -5,25 +5,77 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
-import OrderedCollections
-import PreviewAssets
+import ComposableArchitecture
 import SwiftUI
 
+// MARK: - View
+
 struct ChatWithMessageBar: View {
-    let chatViewModel: ChatViewModel
+    typealias State = ChatWithBarState
+    typealias Action = ChatWithBarAction
+
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
-        Chat(model: chatViewModel)
+        Chat(store: self.store.scope(state: \State.chat, action: Action.chat))
             .frame(maxWidth: .infinity)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                MessageBar(
-                    firstName: "Valerian"
-                )
-                // Make footer have a higher priority, to be accessible over the scroll view
-                .accessibilitySortPriority(1)
+                MessageBar(store: self.store.scope(state: \State.messageBar, action: Action.messageBar))
+                    // Make footer have a higher priority, to be accessible over the scroll view
+                    .accessibilitySortPriority(1)
             }
     }
 }
+
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let chatWithBarReducer: Reducer<
+    ChatWithBarState,
+    ChatWithBarAction,
+    Void
+> = Reducer.combine([
+    chatReducer.pullback(
+        state: \ChatWithBarState.chat,
+        action: /ChatWithBarAction.chat,
+        environment: { $0 }
+    ),
+    messageBarReducer.pullback(
+        state: \ChatWithBarState.messageBar,
+        action: /ChatWithBarAction.messageBar,
+        environment: { $0 }
+    ),
+])
+
+// MARK: State
+
+public struct ChatWithBarState: Equatable {
+    var chat: ChatState
+    var messageBar: MessageBarState
+
+    public init(
+        chat: ChatState,
+        messageBar: MessageBarState
+    ) {
+        self.chat = chat
+        self.messageBar = messageBar
+    }
+}
+
+// MARK: Actions
+
+public enum ChatWithBarAction: Equatable {
+    case chat(ChatAction)
+    case messageBar(MessageBarAction)
+}
+
+// MARK: - Previews
+
+#if DEBUG
+    import PreviewAssets
+#endif
 
 struct ChatWithMessageBar_Previews: PreviewProvider {
     static let messages: [MessageViewModel] = (1...21)
@@ -41,6 +93,13 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
         }
 
     static var previews: some View {
-        ChatWithMessageBar(chatViewModel: .init(messages: Self.messages))
+        ChatWithMessageBar(store: Store(
+            initialState: ChatWithBarState(
+                chat: ChatState(messages: Self.messages),
+                messageBar: MessageBarState(firstName: "Valerian")
+            ),
+            reducer: chatWithBarReducer,
+            environment: ()
+        ))
     }
 }

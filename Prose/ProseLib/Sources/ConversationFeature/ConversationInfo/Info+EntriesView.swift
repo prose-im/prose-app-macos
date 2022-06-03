@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+EntriesView.swift
+//  ConversationInfo+EntriesView.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/1/21.
@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct EntriesView: View {
         var entries: [ContentMessageDetailsEntryOption]
 
         var body: some View {
             VStack(alignment: .leading, spacing: 12) {
                 ForEach(entries, id: \.self) { entry in
-                    ConversationDetailsView.EntryRow(
+                    ConversationInfoView.EntryRow(
                         entry: entry
                     )
                 }
@@ -23,9 +23,9 @@ extension ConversationDetailsView {
     }
 }
 
-struct ConversationDetailsView_EntriesView_Previews: PreviewProvider {
+struct ConversationInfoView_EntriesView_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.EntriesView(
+        ConversationInfoView.EntriesView(
             entries: [
                 .init(
                     value: "Email address",

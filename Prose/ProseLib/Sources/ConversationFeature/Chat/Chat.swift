@@ -6,55 +6,86 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
+import ComposableArchitecture
 import OrderedCollections
-import PreviewAssets
 import SwiftUI
 
-struct ChatViewModel {
+// MARK: - View
+
+struct Chat: View {
+    typealias State = ChatState
+    typealias Action = ChatAction
+
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+
+    var body: some View {
+        WithViewStore(self.store.scope(state: \State.messages)) { messages in
+            let messages = messages.state
+            ScrollViewReader { scrollView in
+                ScrollView {
+                    VStack(spacing: 14) {
+                        ForEach(messages.keys, id: \.self) { date in
+                            Section {
+                                ForEach(messages[date]!, content: MessageView.init(model:))
+                            } header: {
+                                DaySeparator(date: date)
+                                    .padding(.top)
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                .frame(maxWidth: .infinity)
+                .onAppear {
+                    if let id = messages.values.last?.last?.id {
+                        scrollView.scrollTo(id, anchor: .top)
+                    }
+                }
+            }
+            .background(Color.backgroundMessage)
+        }
+    }
+}
+
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let chatReducer: Reducer<
+    ChatState,
+    ChatAction,
+    Void
+> = Reducer.empty
+
+// MARK: State
+
+public struct ChatState: Equatable {
     let messages: OrderedDictionary<Date, [MessageViewModel]>
 
-    init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
+    public init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
         self.messages = messages
     }
 
-    init(messages: [Date: [MessageViewModel]]) {
+    public init(messages: [Date: [MessageViewModel]]) {
         self.init(messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values))
     }
 
-    init(messages: [MessageViewModel]) {
+    public init(messages: [MessageViewModel]) {
         let calendar = Calendar.current
         self.init(messages: OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) }))
     }
 }
 
-struct Chat: View {
-    let model: ChatViewModel
+// MARK: Actions
 
-    var body: some View {
-        ScrollViewReader { scrollView in
-            ScrollView {
-                VStack(spacing: 14) {
-                    ForEach(model.messages.keys, id: \.self) { date in
-                        Section {
-                            ForEach(model.messages[date]!, content: MessageView.init(model:))
-                        } header: {
-                            DaySeparator(date: date)
-                                .padding(.top)
-                        }
-                    }
-                }
-                .padding()
-            }
-            .frame(maxWidth: .infinity)
-            .onAppear {
-                if let id = model.messages.values.last?.last?.id {
-                    scrollView.scrollTo(id, anchor: .top)
-                }
-            }
-        }
-        .background(Color.backgroundMessage)
-    }
-}
+public enum ChatAction: Equatable {}
+
+// MARK: - Previews
+
+#if DEBUG
+    import PreviewAssets
+#endif
 
 struct Chat_Previews: PreviewProvider {
     static let messages: [MessageViewModel] = (1...21)
@@ -73,6 +104,10 @@ struct Chat_Previews: PreviewProvider {
         }
 
     static var previews: some View {
-        Chat(model: .init(messages: Self.messages))
+        Chat(store: Store(
+            initialState: ChatState(messages: Self.messages),
+            reducer: chatReducer,
+            environment: ()
+        ))
     }
 }

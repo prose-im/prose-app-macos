@@ -9,7 +9,7 @@ import PreviewAssets
 import ProseUI
 import SwiftUI
 
-public struct MessageViewModel {
+public struct MessageViewModel: Equatable {
     let senderId: String
     let senderName: String
     let avatar: String

@@ -5,14 +5,19 @@
 //  Created by Valerian Saliou on 11/21/21.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
+// MARK: - View
+
 struct MessageBar: View {
-    private static let height: CGFloat = 64
+    typealias State = MessageBarState
+    typealias Action = MessageBarAction
 
-    @State private var message: String = ""
+    static let height: CGFloat = 64
 
-    var firstName: String
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,15 +27,17 @@ struct MessageBar: View {
                 leadingButtons()
 
                 ZStack {
-                    MessageBarTextField(
-                        firstName: firstName,
-                        message: message
-                    )
+                    WithViewStore(self.store) { viewStore in
+                        MessageBarTextField(
+                            firstName: viewStore.firstName,
+                            message: viewStore.binding(\State.$message)
+                        )
 
-                    TypingIndicator(
-                        firstName: firstName
-                    )
-                    .offset(y: -Self.height / 2)
+                        TypingIndicator(
+                            firstName: viewStore.firstName
+                        )
+                        .offset(y: -Self.height / 2)
+                    }
                 }
 
                 trailingButtons()
@@ -73,22 +80,67 @@ struct MessageBar: View {
     }
 }
 
-struct MessageBar_Previews: PreviewProvider {
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let messageBarReducer: Reducer<
+    MessageBarState,
+    MessageBarAction,
+    Void
+> = Reducer.empty.binding()
+
+// MARK: State
+
+public struct MessageBarState: Equatable {
+    let firstName: String
+    @BindableState var message: String
+
+    public init(
+        firstName: String,
+        message: String = ""
+    ) {
+        self.firstName = firstName
+        self.message = message
+    }
+}
+
+// MARK: Actions
+
+public enum MessageBarAction: Equatable, BindableAction {
+    case binding(BindingAction<MessageBarState>)
+}
+
+// MARK: - Previews
+
+internal struct MessageBar_Previews: PreviewProvider {
+    private struct Preview: View {
+        let firstName: String
+
+        var body: some View {
+            MessageBar(store: Store(
+                initialState: MessageBarState(firstName: firstName),
+                reducer: messageBarReducer,
+                environment: ()
+            ))
+        }
+    }
+
     static var previews: some View {
         Group {
-            MessageBar(
+            Preview(
                 firstName: "Valerian"
             )
             .previewDisplayName("Simple username")
-            MessageBar(
+            Preview(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
             )
             .previewDisplayName("Long username")
-            MessageBar(
+            Preview(
                 firstName: ""
             )
             .previewDisplayName("Empty")
-            MessageBar(
+            Preview(
                 firstName: "Valerian"
             )
             .padding()
@@ -97,15 +149,15 @@ struct MessageBar_Previews: PreviewProvider {
         }
         .preferredColorScheme(.light)
         Group {
-            MessageBar(
+            Preview(
                 firstName: "Valerian"
             )
             .previewDisplayName("Simple username / Dark")
-            MessageBar(
+            Preview(
                 firstName: ""
             )
             .previewDisplayName("Empty / Dark")
-            MessageBar(
+            Preview(
                 firstName: "Valerian"
             )
             .padding()

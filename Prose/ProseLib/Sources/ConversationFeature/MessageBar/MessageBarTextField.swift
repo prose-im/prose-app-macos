@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MessageBarTextField: View {
     @State var firstName: String
-    @State var message: String
+    @Binding var message: String
 
     var body: some View {
         HStack(spacing: 0) {
@@ -48,27 +48,27 @@ struct MessageBarTextField_Previews: PreviewProvider {
         Group {
             MessageBarTextField(
                 firstName: "Valerian",
-                message: "This is a message that was written."
+                message: .constant("This is a message that was written.")
             )
             .previewDisplayName("Simple message")
             MessageBarTextField(
                 firstName: "Valerian",
-                message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
+                message: .constant("This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written.")
             )
             .previewDisplayName("Long message")
             MessageBarTextField(
                 firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
-                message: ""
+                message: .constant("")
             )
             .previewDisplayName("Long username")
             MessageBarTextField(
                 firstName: "Valerian",
-                message: ""
+                message: .constant("")
             )
             .previewDisplayName("Empty")
             MessageBarTextField(
                 firstName: "Valerian",
-                message: ""
+                message: .constant("")
             )
             .padding()
             .background(Color.pink)
@@ -78,17 +78,17 @@ struct MessageBarTextField_Previews: PreviewProvider {
         Group {
             MessageBarTextField(
                 firstName: "Valerian",
-                message: "This is a message that was written."
+                message: .constant("This is a message that was written.")
             )
             .previewDisplayName("Simple message / Dark")
             MessageBarTextField(
                 firstName: "Valerian",
-                message: ""
+                message: .constant("")
             )
             .previewDisplayName("Empty / Dark")
             MessageBarTextField(
                 firstName: "Valerian",
-                message: ""
+                message: .constant("")
             )
             .padding()
             .background(Color.pink)

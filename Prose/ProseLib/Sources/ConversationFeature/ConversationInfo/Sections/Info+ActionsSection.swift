@@ -1,5 +1,5 @@
 //
-//  ConversationDetails+ActionsSection.swift
+//  Info+ActionsSection.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 11/23/21.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension ConversationDetailsView {
+extension ConversationInfoView {
     struct ActionsSection: View {
         let actions: [ContentMessageDetailsActionOption] = [
             .init(
@@ -30,14 +30,15 @@ extension ConversationDetailsView {
             GroupBox("content_message_details_actions_title".localized()) {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(actions, id: \.self, content: ActionRow.init(action:))
+                        .unredacted()
                 }
             }
         }
     }
 }
 
-struct ConversationDetailsView_ActionsSection_Previews: PreviewProvider {
+struct ConversationInfoView_ActionsSection_Previews: PreviewProvider {
     static var previews: some View {
-        ConversationDetailsView.ActionsSection()
+        ConversationInfoView.ActionsSection()
     }
 }
