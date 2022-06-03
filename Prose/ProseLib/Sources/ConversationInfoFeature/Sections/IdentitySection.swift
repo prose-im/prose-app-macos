@@ -33,7 +33,7 @@ struct IdentitySection: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func avatar() -> some View {
         if let imageName = model.avatar {
@@ -51,7 +51,7 @@ public struct IdentitySectionModel: Equatable {
     let status: OnlineStatus
     let jobTitle: String
     let company: String
-    
+
     public init(
         avatar: String?,
         fullName: String,
@@ -67,8 +67,8 @@ public struct IdentitySectionModel: Equatable {
     }
 }
 
-extension IdentitySectionModel {
-    public init(
+public extension IdentitySectionModel {
+    init(
         from user: User,
         status: OnlineStatus
     ) {

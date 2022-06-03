@@ -29,7 +29,7 @@ public struct ConversationInfoView: View {
                     WithViewStore(self.store) { viewStore in
                         IdentitySection(model: viewStore.identity)
                     }
-                    QuickActionsSection()
+                    QuickActionsSection(store: self.store.scope(state: \State.quickActions, action: Action.quickActions))
                 }
                 .padding(.horizontal)
 
@@ -49,6 +49,7 @@ public extension ConversationInfoView {
         ConversationInfoView(store: Store(
             initialState: ConversationInfoState(
                 identity: .init(from: .placeholder, status: .offline),
+                quickActions: .init(),
                 user: .placeholder
             ),
             reducer: Reducer.empty,
@@ -66,26 +67,35 @@ public let conversationInfoReducer: Reducer<
     ConversationInfoState,
     ConversationInfoAction,
     Void
-> = Reducer.empty
+> = quickActionsSectionReducer.pullback(
+    state: \ConversationInfoState.quickActions,
+    action: /ConversationInfoAction.quickActions,
+    environment: { $0 }
+)
 
 // MARK: State
 
 public struct ConversationInfoState: Equatable {
     let identity: IdentitySectionModel
+    var quickActions: QuickActionsSectionState
     let user: User
 
     public init(
         identity: IdentitySectionModel,
+        quickActions: QuickActionsSectionState,
         user: User
     ) {
         self.identity = identity
+        self.quickActions = quickActions
         self.user = user
     }
 }
 
 // MARK: Actions
 
-public enum ConversationInfoAction: Equatable {}
+public enum ConversationInfoAction: Equatable {
+    case quickActions(QuickActionsSectionAction)
+}
 
 // MARK: - Previews
 
@@ -105,6 +115,7 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
                         jobTitle: "CTO",
                         company: "Crisp"
                     ),
+                    quickActions: .init(),
                     user: .init(
                         userId: "valerian@prose.org",
                         displayName: "Valerian",

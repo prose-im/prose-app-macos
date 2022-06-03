@@ -11,7 +11,7 @@ import SharedModels
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 public final class OnlineStatusStore {
     public static let shared = OnlineStatusStore()
-    
+
     private let onlineStatuses: [String: OnlineStatus] = [
         "id-alexandre": .offline,
         "id-antoine": .online,
@@ -22,9 +22,9 @@ public final class OnlineStatusStore {
         "id-julien": .offline,
         "id-valerian": .online,
     ]
-    
+
     private init() {}
-    
+
     public func onlineStatus(for userId: String) -> OnlineStatus? {
         self.onlineStatuses[userId]
     }

@@ -90,10 +90,11 @@ public let conversationReducer: Reducer<
                     user = nil
                     status = nil
                 }
-                
+
                 if let user = user, let status = status {
                     state.info = ConversationInfoState(
                         identity: IdentitySectionModel(from: user, status: status),
+                        quickActions: QuickActionsSectionState(),
                         user: user
                     )
                 }
@@ -129,7 +130,7 @@ public struct ConversationState: Equatable {
 
     public init(chatId: ChatID) {
         self.chatId = chatId
-        
+
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
