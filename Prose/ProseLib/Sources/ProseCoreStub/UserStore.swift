@@ -61,7 +61,7 @@ public extension User {
     }
 }
 
-/// This is just a simple store sendiong fake data.
+/// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 public final class UserStore {
     public static let shared = UserStore()
