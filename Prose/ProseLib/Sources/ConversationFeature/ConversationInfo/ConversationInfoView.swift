@@ -63,6 +63,19 @@ struct ConversationInfoView: View {
     }
 }
 
+extension ConversationInfoView {
+    static var placeholder: some View {
+        ConversationInfoView(store: Store(
+            initialState: ConversationInfoState(
+                user: .placeholder
+            ),
+            reducer: Reducer.empty,
+            environment: ()
+        ))
+        .redacted(reason: .placeholder)
+    }
+}
+
 // MARK: - The Composable Architecture
 
 // MARK: Reducer
@@ -118,6 +131,8 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
         Preview()
             .previewDisplayName("Normal")
         Preview()
-            .previewDisplayName("Placeholder")
+            .previewDisplayName("Real placeholder")
+        ConversationInfoView.placeholder
+            .previewDisplayName("Simple placeholder")
     }
 }

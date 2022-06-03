@@ -32,20 +32,7 @@ public struct ConversationScreen: View {
                         IfLetStore(self.store.scope(state: \State.info, action: Action.info)) { store in
                             ConversationInfoView(store: store)
                         } else: {
-                            ConversationInfoView(store: Store(
-                                initialState: ConversationInfoState(
-                                    user: User(
-                                        userId: "valerian@prose.org",
-                                        displayName: "Valerian",
-                                        fullName: "valerian Saliou",
-                                        // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
-                                        avatar: PreviewImages.Avatars.valerian.rawValue
-                                    )
-                                ),
-                                reducer: Reducer.empty,
-                                environment: ()
-                            ))
-                            .redacted(reason: .placeholder)
+                            ConversationInfoView.placeholder
                         }
                         .frame(width: 256)
                     }

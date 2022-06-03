@@ -17,6 +17,18 @@ public struct User: Equatable {
     let avatar: String
 }
 
+public extension User {
+    static var placeholder: User {
+        User(
+            userId: "valerian@prose.org",
+            displayName: "Valerian",
+            fullName: "valerian Saliou",
+            // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
+            avatar: PreviewImages.Avatars.valerian.rawValue
+        )
+    }
+}
+
 /// This is just a simple store sendiong fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 public final class UserStore {
