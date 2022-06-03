@@ -27,10 +27,7 @@ public struct ConversationInfoView: View {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
                     WithViewStore(self.store) { viewStore in
-                        IdentitySection(
-                            avatar: viewStore.user.avatar,
-                            name: viewStore.user.fullName
-                        )
+                        IdentitySection(model: viewStore.identity)
                     }
                     QuickActionsSection()
                 }
@@ -51,6 +48,7 @@ public extension ConversationInfoView {
     static var placeholder: some View {
         ConversationInfoView(store: Store(
             initialState: ConversationInfoState(
+                identity: .init(from: .placeholder, status: .offline),
                 user: .placeholder
             ),
             reducer: Reducer.empty,
@@ -73,11 +71,14 @@ public let conversationInfoReducer: Reducer<
 // MARK: State
 
 public struct ConversationInfoState: Equatable {
+    let identity: IdentitySectionModel
     let user: User
 
     public init(
+        identity: IdentitySectionModel,
         user: User
     ) {
+        self.identity = identity
         self.user = user
     }
 }
@@ -97,11 +98,20 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
         var body: some View {
             ConversationInfoView(store: Store(
                 initialState: ConversationInfoState(
+                    identity: .init(
+                        avatar: PreviewImages.Avatars.valerian.rawValue,
+                        fullName: "Valerian Saliou",
+                        status: .online,
+                        jobTitle: "CTO",
+                        company: "Crisp"
+                    ),
                     user: .init(
                         userId: "valerian@prose.org",
                         displayName: "Valerian",
-                        fullName: "valerian Saliou",
-                        avatar: PreviewImages.Avatars.valerian.rawValue
+                        fullName: "Valerian Saliou",
+                        avatar: PreviewImages.Avatars.valerian.rawValue,
+                        jobTitle: "CTO",
+                        company: "Crisp"
                     )
                 ),
                 reducer: conversationInfoReducer,

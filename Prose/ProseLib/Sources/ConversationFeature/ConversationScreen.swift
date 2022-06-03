@@ -78,9 +78,25 @@ public let conversationReducer: Reducer<
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
             //       trigger an asynchronous call here, to retrieve it.
             //       Use a placeholder while waiting for the data.
-            //       For now, we'll use the `User` `struct` stored at the creation of the `State`.
             if state.toolbar.isShowingInfo, state.info == nil {
-                state.info = state.toolbar.user.map(ConversationInfoState.init(user:))
+                let user: User?
+                let status: OnlineStatus?
+                switch state.chatId {
+                case let .person(userId):
+                    user = UserStore.shared.user(for: userId)
+                    status = OnlineStatusStore.shared.onlineStatus(for: userId)
+                case .group:
+                    print("Group info not supported yet")
+                    user = nil
+                    status = nil
+                }
+                
+                if let user = user, let status = status {
+                    state.info = ConversationInfoState(
+                        identity: IdentitySectionModel(from: user, status: status),
+                        user: user
+                    )
+                }
             }
 
         default:
@@ -94,21 +110,26 @@ public let conversationReducer: Reducer<
 // MARK: State
 
 public struct ConversationState: Equatable {
+    let chatId: ChatID
     var chat: ChatWithBarState
     var info: ConversationInfoState?
     var toolbar: ToolbarState
 
     init(
+        chatId: ChatID,
         chat: ChatWithBarState,
-        info: ConversationInfoState,
+        info: ConversationInfoState? = nil,
         toolbar: ToolbarState
     ) {
+        self.chatId = chatId
         self.chat = chat
         self.info = info
         self.toolbar = toolbar
     }
 
     public init(chatId: ChatID) {
+        self.chatId = chatId
+        
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
@@ -120,7 +141,7 @@ public struct ConversationState: Equatable {
         let user: User?
         switch chatId {
         case let .person(userId):
-            user = UserStore.shared.user(for: userId) ?? .init(userId: "", displayName: "", fullName: "", avatar: "")
+            user = UserStore.shared.user(for: userId)
         case .group:
             print("Group info not supported yet")
             user = nil
