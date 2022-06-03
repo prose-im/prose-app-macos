@@ -81,20 +81,41 @@ public let conversationReducer: Reducer<
             if state.toolbar.isShowingInfo, state.info == nil {
                 let user: User?
                 let status: OnlineStatus?
+                let lastSeenDate: Date?
+                let timeZone: TimeZone?
+                let statusLine: (Character, String)?
                 switch state.chatId {
                 case let .person(userId):
                     user = UserStore.shared.user(for: userId)
-                    status = OnlineStatusStore.shared.onlineStatus(for: userId)
+                    status = StatusStore.shared.onlineStatus(for: userId)
+                    lastSeenDate = StatusStore.shared.lastSeenDate(for: userId)
+                    timeZone = StatusStore.shared.timeZone(for: userId)
+                    statusLine = StatusStore.shared.statusLine(for: userId)
                 case .group:
                     print("Group info not supported yet")
                     user = nil
                     status = nil
+                    lastSeenDate = nil
+                    timeZone = nil
+                    statusLine = nil
                 }
 
-                if let user = user, let status = status {
+                if let user = user,
+                   let status = status,
+                   let lastSeenDate = lastSeenDate,
+                   let timeZone = timeZone,
+                   let statusLine = statusLine
+                {
                     state.info = ConversationInfoState(
                         identity: IdentitySectionModel(from: user, status: status),
                         quickActions: QuickActionsSectionState(),
+                        information: InformationSectionModel(
+                            from: user,
+                            lastSeenDate: lastSeenDate,
+                            timeZone: timeZone,
+                            statusIcon: statusLine.0,
+                            statusMessage: statusLine.1
+                        ),
                         user: user
                     )
                 }

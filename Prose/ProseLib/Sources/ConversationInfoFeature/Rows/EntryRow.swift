@@ -42,21 +42,20 @@ struct EntryRow: View {
         let iconFrameMinWidth: CGFloat = 16
 
         HStack(alignment: .center, spacing: 8) {
-            switch entry.image {
-            case let .system(inner):
-                Image(systemName: inner)
-                    .font(.system(size: 13))
-                    .foregroundColor(entry.imageColor)
-                    .frame(width: iconFrameMinWidth, alignment: .center)
-                    .unredacted()
-            case let .literal(inner):
-                Text(verbatim: inner)
-                    .frame(width: iconFrameMinWidth, alignment: .center)
+            Label {
+                Text(verbatim: entry.value)
+                    .foregroundColor(entry.valueColor)
+            } icon: {
+                switch entry.image {
+                case let .system(inner):
+                    Image(systemName: inner)
+                        .foregroundColor(entry.imageColor)
+                        .unredacted()
+                case let .literal(inner):
+                    Text(verbatim: inner)
+                }
             }
-
-            Text(verbatim: entry.value)
-                .font(.system(size: 13))
-                .foregroundColor(entry.valueColor)
+            .labelStyle(EntryRowLabelStyle())
 
             Spacer()
 
@@ -71,6 +70,23 @@ struct EntryRow: View {
                 .disabled(redactionReasons.contains(.placeholder))
             }
         }
+    }
+}
+
+struct EntryRowLabelStyle: LabelStyle {
+    static let iconFrameMinWidth: CGFloat = 16
+
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            configuration.icon
+                .foregroundColor(.stateGrey)
+                .frame(width: Self.iconFrameMinWidth, alignment: .center)
+
+            configuration.title
+                .foregroundColor(.textPrimaryLight)
+        }
+        .font(.system(size: 13))
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

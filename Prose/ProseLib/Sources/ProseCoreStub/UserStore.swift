@@ -9,6 +9,7 @@
 import PreviewAssets
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
+/// It more or less represents a vCard.
 public struct User: Equatable {
     public let userId: String
     public let displayName: String
@@ -16,6 +17,9 @@ public struct User: Equatable {
     public let avatar: String
     public let jobTitle: String
     public let company: String
+    public let emailAddress: String
+    public let phoneNumber: String
+    public let location: String
 
     public init(
         userId: String,
@@ -23,7 +27,10 @@ public struct User: Equatable {
         fullName: String,
         avatar: String,
         jobTitle: String,
-        company: String
+        company: String,
+        emailAddress: String,
+        phoneNumber: String,
+        location: String
     ) {
         self.userId = userId
         self.displayName = displayName
@@ -31,6 +38,9 @@ public struct User: Equatable {
         self.avatar = avatar
         self.jobTitle = jobTitle
         self.company = company
+        self.emailAddress = emailAddress
+        self.phoneNumber = phoneNumber
+        self.location = location
     }
 }
 
@@ -43,7 +53,10 @@ public extension User {
             // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
             avatar: PreviewImages.Avatars.valerian.rawValue,
             jobTitle: "CTO",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "valerian@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Lisbon, Portugal"
         )
     }
 }
@@ -60,7 +73,10 @@ public final class UserStore {
             fullName: "Alexandre",
             avatar: PreviewImages.Avatars.alexandre.rawValue,
             jobTitle: "Software Engineer",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "alexandre@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Somewhere"
         ),
         "id-antoine": User(
             userId: "id-antoine",
@@ -68,7 +84,10 @@ public final class UserStore {
             fullName: "Antoine Goret",
             avatar: PreviewImages.Avatars.antoine.rawValue,
             jobTitle: "Marketing & Sales",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "antoine@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Somewhere"
         ),
         "id-baptiste": User(
             userId: "id-baptiste",
@@ -76,7 +95,10 @@ public final class UserStore {
             fullName: "Baptiste Jamin",
             avatar: PreviewImages.Avatars.baptiste.rawValue,
             jobTitle: "CEO",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "baptiste@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Nantes, France"
         ),
         "id-camille": User(
             userId: "id-camille",
@@ -84,7 +106,10 @@ public final class UserStore {
             fullName: "Camille LB",
             avatar: PreviewImages.Avatars.camille.rawValue,
             jobTitle: "Technical Support",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "camille@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Somewhere"
         ),
         "id-constellation-health": User(
             userId: "id-constellation-health",
@@ -92,7 +117,10 @@ public final class UserStore {
             fullName: "constellation-health",
             avatar: PreviewImages.Avatars.constellationHealth.rawValue,
             jobTitle: "Bot",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "constellation@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Around the globe"
         ),
         "id-eliott": User(
             userId: "id-eliott",
@@ -100,7 +128,10 @@ public final class UserStore {
             fullName: "Eliott Vincent",
             avatar: PreviewImages.Avatars.eliott.rawValue,
             jobTitle: "Software Engineer",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "eliott@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Somewhere"
         ),
         "id-julien": User(
             userId: "id-julien",
@@ -108,7 +139,10 @@ public final class UserStore {
             fullName: "Julien Le Coupanec",
             avatar: PreviewImages.Avatars.julien.rawValue,
             jobTitle: "Growth Hacker",
-            company: "TheFamily"
+            company: "TheFamily",
+            emailAddress: "julien@thefamily.com",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Somewhere"
         ),
         "id-valerian": User(
             userId: "id-valerian",
@@ -116,7 +150,10 @@ public final class UserStore {
             fullName: "Valerian Saliou",
             avatar: PreviewImages.Avatars.valerian.rawValue,
             jobTitle: "CTO",
-            company: "Crisp"
+            company: "Crisp",
+            emailAddress: "valerian@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            location: "Lisbon, Portugal"
         ),
     ]
 

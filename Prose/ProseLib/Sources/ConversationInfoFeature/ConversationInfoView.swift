@@ -26,14 +26,16 @@ public struct ConversationInfoView: View {
         ScrollView(.vertical) {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
-                    WithViewStore(self.store) { viewStore in
-                        IdentitySection(model: viewStore.identity)
+                    WithViewStore(self.store.scope(state: \State.identity)) { identity in
+                        IdentitySection(model: identity.state)
                     }
                     QuickActionsSection(store: self.store.scope(state: \State.quickActions, action: Action.quickActions))
                 }
                 .padding(.horizontal)
 
-                InformationSection()
+                WithViewStore(self.store.scope(state: \State.information)) { information in
+                    InformationSection(model: information.state)
+                }
                 SecuritySection()
                 ActionsSection()
             }
@@ -50,6 +52,7 @@ public extension ConversationInfoView {
             initialState: ConversationInfoState(
                 identity: .init(from: .placeholder, status: .offline),
                 quickActions: .init(),
+                information: .placeholder,
                 user: .placeholder
             ),
             reducer: Reducer.empty,
@@ -78,15 +81,18 @@ public let conversationInfoReducer: Reducer<
 public struct ConversationInfoState: Equatable {
     let identity: IdentitySectionModel
     var quickActions: QuickActionsSectionState
+    let information: InformationSectionModel
     let user: User
 
     public init(
         identity: IdentitySectionModel,
         quickActions: QuickActionsSectionState,
+        information: InformationSectionModel,
         user: User
     ) {
         self.identity = identity
         self.quickActions = quickActions
+        self.information = information
         self.user = user
     }
 }
@@ -116,13 +122,25 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
                         company: "Crisp"
                     ),
                     quickActions: .init(),
+                    information: .init(
+                        emailAddress: "valerian@crisp.chat",
+                        phoneNumber: "+33 6 12 34 56",
+                        lastSeenDate: Date.now - 1_000,
+                        timeZone: TimeZone(identifier: "WEST")!,
+                        location: "Lisbon, Portugal",
+                        statusIcon: "👨‍💻",
+                        statusMessage: "Focusing on code"
+                    ),
                     user: .init(
-                        userId: "valerian@prose.org",
+                        userId: "valerian@crisp.chat",
                         displayName: "Valerian",
                         fullName: "Valerian Saliou",
                         avatar: PreviewImages.Avatars.valerian.rawValue,
                         jobTitle: "CTO",
-                        company: "Crisp"
+                        company: "Crisp",
+                        emailAddress: "valerian@crisp.chat",
+                        phoneNumber: "+33 6 12 34 56",
+                        location: "Lisbon, Portugal"
                     )
                 ),
                 reducer: conversationInfoReducer,
