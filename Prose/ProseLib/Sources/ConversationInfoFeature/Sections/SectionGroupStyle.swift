@@ -23,6 +23,7 @@ struct SectionGroupStyle: GroupBoxStyle {
             }
 
             configuration.content
+                .font(.system(size: 13))
                 .labelStyle(EntryRowLabelStyle())
                 .padding(.horizontal, Self.sidesPadding)
         }

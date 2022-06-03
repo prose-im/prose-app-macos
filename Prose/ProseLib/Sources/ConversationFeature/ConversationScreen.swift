@@ -84,6 +84,9 @@ public let conversationReducer: Reducer<
                 let lastSeenDate: Date?
                 let timeZone: TimeZone?
                 let statusLine: (Character, String)?
+                let isIdentityVerified: Bool
+                let encryptionFingerprint: String?
+
                 switch state.chatId {
                 case let .person(userId):
                     user = UserStore.shared.user(for: userId)
@@ -91,6 +94,8 @@ public let conversationReducer: Reducer<
                     lastSeenDate = StatusStore.shared.lastSeenDate(for: userId)
                     timeZone = StatusStore.shared.timeZone(for: userId)
                     statusLine = StatusStore.shared.statusLine(for: userId)
+                    isIdentityVerified = SecurityStore.shared.isIdentityVerified(for: userId)
+                    encryptionFingerprint = SecurityStore.shared.encryptionFingerprint(for: userId)
                 case .group:
                     print("Group info not supported yet")
                     user = nil
@@ -98,6 +103,8 @@ public let conversationReducer: Reducer<
                     lastSeenDate = nil
                     timeZone = nil
                     statusLine = nil
+                    isIdentityVerified = false
+                    encryptionFingerprint = nil
                 }
 
                 if let user = user,
@@ -116,7 +123,10 @@ public let conversationReducer: Reducer<
                             statusIcon: statusLine.0,
                             statusMessage: statusLine.1
                         ),
-                        user: user
+                        security: SecuritySectionModel(
+                            isIdentityVerified: isIdentityVerified,
+                            encryptionFingerprint: encryptionFingerprint
+                        )
                     )
                 }
             }

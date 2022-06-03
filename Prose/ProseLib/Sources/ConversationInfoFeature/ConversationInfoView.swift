@@ -36,7 +36,9 @@ public struct ConversationInfoView: View {
                 WithViewStore(self.store.scope(state: \State.information)) { information in
                     InformationSection(model: information.state)
                 }
-                SecuritySection()
+                WithViewStore(self.store.scope(state: \State.security)) { security in
+                    SecuritySection(model: security.state)
+                }
                 ActionsSection()
             }
             .padding(.vertical)
@@ -53,7 +55,7 @@ public extension ConversationInfoView {
                 identity: .init(from: .placeholder, status: .offline),
                 quickActions: .init(),
                 information: .placeholder,
-                user: .placeholder
+                security: .placeholder
             ),
             reducer: Reducer.empty,
             environment: ()
@@ -82,18 +84,18 @@ public struct ConversationInfoState: Equatable {
     let identity: IdentitySectionModel
     var quickActions: QuickActionsSectionState
     let information: InformationSectionModel
-    let user: User
+    let security: SecuritySectionModel
 
     public init(
         identity: IdentitySectionModel,
         quickActions: QuickActionsSectionState,
         information: InformationSectionModel,
-        user: User
+        security: SecuritySectionModel
     ) {
         self.identity = identity
         self.quickActions = quickActions
         self.information = information
-        self.user = user
+        self.security = security
     }
 }
 
@@ -131,16 +133,9 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
                         statusIcon: "👨‍💻",
                         statusMessage: "Focusing on code"
                     ),
-                    user: .init(
-                        userId: "valerian@crisp.chat",
-                        displayName: "Valerian",
-                        fullName: "Valerian Saliou",
-                        avatar: PreviewImages.Avatars.valerian.rawValue,
-                        jobTitle: "CTO",
-                        company: "Crisp",
-                        emailAddress: "valerian@crisp.chat",
-                        phoneNumber: "+33 6 12 34 56",
-                        location: "Lisbon, Portugal"
+                    security: .init(
+                        isIdentityVerified: true,
+                        encryptionFingerprint: "V5I92"
                     )
                 ),
                 reducer: conversationInfoReducer,
