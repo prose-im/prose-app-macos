@@ -11,20 +11,30 @@ import SwiftUI
 private let l10n = L10n.Content.MessageDetails.Actions.self
 
 struct ActionsSection: View {
-    let actions: [ContentMessageDetailsActionOption] = [
-        .init(name: l10n.sharedFiles, deployTo: true),
-        .init(name: l10n.encryptionSettings, deployTo: true),
-        .init(name: l10n.removeContact),
-        .init(name: l10n.block),
-    ]
-
     var body: some View {
         GroupBox(l10n.title) {
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(actions, id: \.self, content: ActionRow.init(action:))
-                    .unredacted()
-            }
+            ActionRow(
+                name: l10n.sharedFiles,
+                deployTo: true,
+                action: { print("View shared files tapped") }
+            )
+            ActionRow(
+                name: l10n.encryptionSettings,
+                deployTo: true,
+                action: { print("Encryption settings tapped") }
+            )
+            // TODO: [Rémi Bardon] We should make this red, as it's a destructive action (using the `role` parameter of `Button`)
+            ActionRow(
+                name: l10n.removeContact,
+                action: { print("Remove contact tapped") }
+            )
+            // TODO: [Rémi Bardon] We should make this red, as it's a destructive action (using the `role` parameter of `Button`)
+            ActionRow(
+                name: l10n.block,
+                action: { print("Block tapped") }
+            )
         }
+        .unredacted()
     }
 }
 

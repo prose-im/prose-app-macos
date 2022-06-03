@@ -7,40 +7,38 @@
 
 import SwiftUI
 
-struct ContentMessageDetailsActionOption: Hashable {
+struct ActionRow: View {
     let name: String
     var deployTo: Bool = false
-}
-
-struct ActionRow: View {
-    var action: ContentMessageDetailsActionOption
+    let action: () -> Void
 
     var body: some View {
-        HStack(spacing: 6) {
-            Text(verbatim: action.name)
-                .font(.system(size: 12))
-                .fontWeight(.medium)
-                .foregroundColor(.textPrimaryLight)
+        Button(action: self.action) {
+            HStack(spacing: 8) {
+                Text(self.name)
+                    .fontWeight(.medium)
 
-            Spacer()
+                Spacer()
 
-            if action.deployTo {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10))
-                    .foregroundColor(.textPrimary)
+                if self.deployTo {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10))
+                        .foregroundColor(.textPrimary)
+                }
             }
+            // Make hit box full width
+            .contentShape([.interaction], Rectangle())
         }
-        .padding(.vertical, 4.0)
+        .buttonStyle(.plain)
     }
 }
 
 struct ActionRow_Previews: PreviewProvider {
     static var previews: some View {
         ActionRow(
-            action: .init(
-                name: "View full profile",
-                deployTo: true
-            )
+            name: "View full profile",
+            deployTo: true,
+            action: {}
         )
     }
 }
