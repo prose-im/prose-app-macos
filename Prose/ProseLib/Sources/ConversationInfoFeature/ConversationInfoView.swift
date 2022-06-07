@@ -36,9 +36,7 @@ public struct ConversationInfoView: View {
                 WithViewStore(self.store.scope(state: \State.information)) { information in
                     InformationSection(model: information.state)
                 }
-                WithViewStore(self.store.scope(state: \State.security)) { security in
-                    SecuritySection(model: security.state)
-                }
+                SecuritySection(store: self.store.scope(state: \State.security, action: Action.security))
                 ActionsSection()
             }
             .padding(.vertical)
@@ -72,11 +70,18 @@ public let conversationInfoReducer: Reducer<
     ConversationInfoState,
     ConversationInfoAction,
     Void
-> = quickActionsSectionReducer.pullback(
-    state: \ConversationInfoState.quickActions,
-    action: /ConversationInfoAction.quickActions,
-    environment: { $0 }
-)
+> = Reducer.combine([
+    quickActionsSectionReducer.pullback(
+        state: \ConversationInfoState.quickActions,
+        action: /ConversationInfoAction.quickActions,
+        environment: { $0 }
+    ),
+    securitySectionReducer.pullback(
+        state: \ConversationInfoState.security,
+        action: /ConversationInfoAction.security,
+        environment: { $0 }
+    ),
+])
 
 // MARK: State
 
@@ -84,13 +89,13 @@ public struct ConversationInfoState: Equatable {
     let identity: IdentitySectionModel
     var quickActions: QuickActionsSectionState
     let information: InformationSectionModel
-    let security: SecuritySectionModel
+    var security: SecuritySectionState
 
     public init(
         identity: IdentitySectionModel,
         quickActions: QuickActionsSectionState,
         information: InformationSectionModel,
-        security: SecuritySectionModel
+        security: SecuritySectionState
     ) {
         self.identity = identity
         self.quickActions = quickActions
@@ -103,6 +108,7 @@ public struct ConversationInfoState: Equatable {
 
 public enum ConversationInfoAction: Equatable {
     case quickActions(QuickActionsSectionAction)
+    case security(SecuritySectionAction)
 }
 
 // MARK: - Previews

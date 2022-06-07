@@ -6,19 +6,34 @@
 //
 
 import AppLocalization
+import ComposableArchitecture
 import SwiftUI
 
 private let l10n = L10n.Content.MessageDetails.Security.self
 
+// MARK: - View
+
 struct SecuritySection: View {
+    typealias State = SecuritySectionState
+    typealias Action = SecuritySectionAction
+
     @Environment(\.redactionReasons) private var redactionReasons
 
-    let model: SecuritySectionModel
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
         GroupBox(l10n.title) {
-            HStack(spacing: 8) {
-                if model.isIdentityVerified {
+            identityVerified()
+            encryption()
+        }
+    }
+
+    @ViewBuilder
+    private func identityVerified() -> some View {
+        HStack(spacing: 8) {
+            WithViewStore(self.store.scope(state: \State.isIdentityVerified)) { isIdentityVerified in
+                if isIdentityVerified.state {
                     Label {
                         Text("Identity verified")
                     } icon: {
@@ -33,12 +48,18 @@ struct SecuritySection: View {
                             .foregroundColor(.orange)
                     }
                 }
-                infoButton(action: { print("ID verification info tapped") })
             }
-            HStack(spacing: 8) {
-                if let encryptionFingerprint = model.encryptionFingerprint {
+            infoButton(action: { actions.send(.showIdVerificationInfoTapped) })
+        }
+    }
+
+    @ViewBuilder
+    private func encryption() -> some View {
+        HStack(spacing: 8) {
+            WithViewStore(self.store.scope(state: \State.encryptionFingerprint)) { fingerprint in
+                if let fingerprint = fingerprint.state {
                     Label {
-                        Text("Encrypted (\(encryptionFingerprint))")
+                        Text("Encrypted (\(fingerprint))")
                     } icon: {
                         Image(systemName: "lock.fill")
                             .foregroundColor(.stateBlue)
@@ -51,8 +72,8 @@ struct SecuritySection: View {
                             .foregroundColor(.red)
                     }
                 }
-                infoButton(action: { print("Encryption info tapped") })
             }
+            infoButton(action: { actions.send(.showEncryptionInfoTapped) })
         }
     }
 
@@ -68,7 +89,29 @@ struct SecuritySection: View {
     }
 }
 
-public struct SecuritySectionModel: Equatable {
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let securitySectionReducer: Reducer<
+    SecuritySectionState,
+    SecuritySectionAction,
+    Void
+> = Reducer { _, action, _ in
+    switch action {
+    case .showIdVerificationInfoTapped:
+        print("Show ID verification info tapped")
+
+    case .showEncryptionInfoTapped:
+        print("Show encryption info tapped")
+    }
+
+    return .none
+}
+
+// MARK: State
+
+public struct SecuritySectionState: Equatable {
     let isIdentityVerified: Bool
     let encryptionFingerprint: String?
 
@@ -81,7 +124,7 @@ public struct SecuritySectionModel: Equatable {
     }
 }
 
-extension SecuritySectionModel {
+extension SecuritySectionState {
     static var placeholder: Self {
         Self(
             isIdentityVerified: false,
@@ -90,13 +133,34 @@ extension SecuritySectionModel {
     }
 }
 
+// MARK: Actions
+
+public enum SecuritySectionAction: Equatable {
+    case showIdVerificationInfoTapped
+    case showEncryptionInfoTapped
+}
+
+// MARK: - Previews
+
 struct SecuritySection_Previews: PreviewProvider {
+    private struct Preview: View {
+        let state: SecuritySectionState
+
+        var body: some View {
+            SecuritySection(store: Store(
+                initialState: state,
+                reducer: securitySectionReducer,
+                environment: ()
+            ))
+        }
+    }
+
     static var previews: some View {
-        SecuritySection(model: .init(
+        Preview(state: .init(
             isIdentityVerified: true,
             encryptionFingerprint: "NW6DB"
         ))
-        SecuritySection(model: .init(
+        Preview(state: .init(
             isIdentityVerified: false,
             encryptionFingerprint: nil
         ))

@@ -123,7 +123,7 @@ public let conversationReducer: Reducer<
                             statusIcon: statusLine.0,
                             statusMessage: statusLine.1
                         ),
-                        security: SecuritySectionModel(
+                        security: SecuritySectionState(
                             isIdentityVerified: isIdentityVerified,
                             encryptionFingerprint: encryptionFingerprint
                         )
