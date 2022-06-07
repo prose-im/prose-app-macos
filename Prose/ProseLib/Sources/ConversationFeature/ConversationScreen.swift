@@ -126,7 +126,8 @@ public let conversationReducer: Reducer<
                         security: SecuritySectionState(
                             isIdentityVerified: isIdentityVerified,
                             encryptionFingerprint: encryptionFingerprint
-                        )
+                        ),
+                        actions: .init()
                     )
                 }
             }

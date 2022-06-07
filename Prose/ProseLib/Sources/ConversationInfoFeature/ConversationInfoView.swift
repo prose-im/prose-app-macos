@@ -37,7 +37,7 @@ public struct ConversationInfoView: View {
                     InformationSection(model: information.state)
                 }
                 SecuritySection(store: self.store.scope(state: \State.security, action: Action.security))
-                ActionsSection()
+                ActionsSection(store: self.store.scope(state: \State.actions, action: Action.actions))
             }
             .padding(.vertical)
         }
@@ -53,7 +53,8 @@ public extension ConversationInfoView {
                 identity: .init(from: .placeholder, status: .offline),
                 quickActions: .init(),
                 information: .placeholder,
-                security: .placeholder
+                security: .placeholder,
+                actions: .placeholder
             ),
             reducer: Reducer.empty,
             environment: ()
@@ -81,6 +82,11 @@ public let conversationInfoReducer: Reducer<
         action: /ConversationInfoAction.security,
         environment: { $0 }
     ),
+    actionsSectionReducer.pullback(
+        state: \ConversationInfoState.actions,
+        action: /ConversationInfoAction.actions,
+        environment: { $0 }
+    ),
 ])
 
 // MARK: State
@@ -90,17 +96,20 @@ public struct ConversationInfoState: Equatable {
     var quickActions: QuickActionsSectionState
     let information: InformationSectionModel
     var security: SecuritySectionState
+    var actions: ActionsSectionState
 
     public init(
         identity: IdentitySectionModel,
         quickActions: QuickActionsSectionState,
         information: InformationSectionModel,
-        security: SecuritySectionState
+        security: SecuritySectionState,
+        actions: ActionsSectionState
     ) {
         self.identity = identity
         self.quickActions = quickActions
         self.information = information
         self.security = security
+        self.actions = actions
     }
 }
 
@@ -109,6 +118,7 @@ public struct ConversationInfoState: Equatable {
 public enum ConversationInfoAction: Equatable {
     case quickActions(QuickActionsSectionAction)
     case security(SecuritySectionAction)
+    case actions(ActionsSectionAction)
 }
 
 // MARK: - Previews
@@ -142,7 +152,8 @@ internal struct ConversationInfoView_Previews: PreviewProvider {
                     security: .init(
                         isIdentityVerified: true,
                         encryptionFingerprint: "V5I92"
-                    )
+                    ),
+                    actions: .init()
                 ),
                 reducer: conversationInfoReducer,
                 environment: ()
