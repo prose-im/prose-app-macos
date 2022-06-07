@@ -16,10 +16,10 @@ private let l10n = L10n.Content.MessageDetails.Actions.self
 struct ActionsSection: View {
     typealias State = ActionsSectionState
     typealias Action = ActionsSectionAction
-    
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
-    
+
     var body: some View {
         GroupBox(l10n.title) {
             ActionRow(
@@ -55,20 +55,19 @@ public let actionsSectionReducer: Reducer<
     ActionsSectionState,
     ActionsSectionAction,
     Void
-> = Reducer { state, action, _ in
+> = Reducer { _, action, _ in
     switch action {
     case .viewSharedFilesTapped:
         print("View shared files tapped")
-        
+
     case .encryptionSettingsTapped:
         print("Encryption settings tapped")
-        
+
     case .removeContactTapped:
         print("Remove contact tapped")
-        
+
     case .blockContactTapped:
         print("Block tapped")
-        
     }
 
     return .none
