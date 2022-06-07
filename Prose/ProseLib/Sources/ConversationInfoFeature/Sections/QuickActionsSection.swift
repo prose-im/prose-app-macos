@@ -62,6 +62,12 @@ public struct QuickActionsSectionState: Equatable {
     public init() {}
 }
 
+extension QuickActionsSectionState {
+    static var placeholder: Self {
+        Self()
+    }
+}
+
 // MARK: Actions
 
 public enum QuickActionsSectionAction: Equatable {

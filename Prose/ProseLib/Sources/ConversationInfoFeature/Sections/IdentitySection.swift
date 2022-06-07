@@ -83,6 +83,12 @@ public extension IdentitySectionModel {
 }
 
 extension IdentitySectionModel {
+    static var placeholder: Self {
+        Self(from: .placeholder, status: .offline)
+    }
+}
+
+extension IdentitySectionModel {
     /// Only for previews
     static var valerian: Self {
         Self(

@@ -50,8 +50,8 @@ public extension ConversationInfoView {
     static var placeholder: some View {
         ConversationInfoView(store: Store(
             initialState: ConversationInfoState(
-                identity: .init(from: .placeholder, status: .offline),
-                quickActions: .init(),
+                identity: .placeholder,
+                quickActions: .placeholder,
                 information: .placeholder,
                 security: .placeholder,
                 actions: .placeholder
