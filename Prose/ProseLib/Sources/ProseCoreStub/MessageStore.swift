@@ -12,7 +12,7 @@ import SharedModels
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 public struct Message {
-    public let senderId: String
+    public let senderId: JID
     public let content: String
     public let timestamp: Date
 }
@@ -23,28 +23,28 @@ public final class MessageStore {
     public static let shared = MessageStore()
 
     private lazy var messages: [ChatID: [Message]] = [
-        .person(id: "id-valerian"): (1...21).map {
+        .person(id: "valerian@crisp.chat"): (1...21).map {
             Message(
-                senderId: "id-valerian",
+                senderId: "valerian@crisp.chat",
                 content: "Hello from Valerian \($0)!",
                 timestamp: .now - Double($0) * 1_000
             )
         }.reversed(),
-        .person(id: "id-alexandre"): (1...10).map {
+        .person(id: "alexandre@crisp.chat"): (1...10).map {
             Message(
-                senderId: "id-alexandre",
+                senderId: "alexandre@crisp.chat",
                 content: "Hello from Alexandre \($0) 👋",
                 timestamp: .now - Double($0) * 1_000
             )
         }.reversed(),
-        .person(id: "id-antoine"): (1...21)
+        .person(id: "antoine@crisp.chat"): (1...21)
             .map { (n: Int) -> (Int, String) in
                 (n, (["A"] + Array(repeating: "long", count: (n - 1) * 4) + ["message."])
                     .joined(separator: " "))
             }
             .map {
                 Message(
-                    senderId: "id-antoine",
+                    senderId: "antoine@crisp.chat",
                     content: $0.1,
                     timestamp: .now - Double($0.0) * 10_000
                 )
@@ -60,38 +60,38 @@ public final class MessageStore {
 
     public func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
         OrderedDictionary(dictionaryLiteral:
-            (ChatID.person(id: "id-valerian"), [
+            (ChatID.person(id: "valerian@crisp.chat"), [
                 Message(
-                    senderId: "id-baptiste",
+                    senderId: "baptiste@crisp.chat",
                     content: "They forgot to ship the package.",
                     timestamp: Date() - 2_800
                 ),
                 Message(
-                    senderId: "id-valerian",
+                    senderId: "valerian@crisp.chat",
                     content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
                     timestamp: Date() - 3_000
                 ),
             ]),
-            (ChatID.person(id: "id-julien"), [
+            (ChatID.person(id: "julien@thefamily.com"), [
                 Message(
-                    senderId: "id-baptiste",
+                    senderId: "baptiste@crisp.chat",
                     content: "Can I initiate a deployment of the Vue app?",
                     timestamp: Date() - 9_000
                 ),
                 Message(
-                    senderId: "id-julien",
+                    senderId: "julien@thefamily.com",
                     content: "Yes, it's ready. 3 new features are shipping! 😀",
                     timestamp: Date() - 10_000
                 ),
             ]),
             (ChatID.group(id: "constellation"), [
                 Message(
-                    senderId: "id-baptiste",
+                    senderId: "baptiste@crisp.chat",
                     content: "⚠️ I'm performing a change of the server IP definitions. Slight outage espected.",
                     timestamp: Date() - 90_000
                 ),
                 Message(
-                    senderId: "id-constellation-health",
+                    senderId: "constellation-health@crisp.chat",
                     content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
                     timestamp: Date() - 100_000
                 ),

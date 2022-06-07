@@ -70,25 +70,25 @@ let groupsSectionReducer: Reducer<
 public struct GroupsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(id: .group(id: "group-bugs")),
+            id: .chat(id: .group(id: "bugs@crisp.chat")),
             title: "bugs",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .group(id: "group-constellation")),
+            id: .chat(id: .group(id: "constellation@crisp.chat")),
             title: "constellation",
             image: Icon.group.rawValue,
             count: 7
         ),
         .init(
-            id: .chat(id: .group(id: "group-general")),
+            id: .chat(id: .group(id: "general@crisp.chat")),
             title: "general",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .group(id: "group-support")),
+            id: .chat(id: .group(id: "support@crisp.chat")),
             title: "support",
             image: Icon.group.rawValue,
             count: 0

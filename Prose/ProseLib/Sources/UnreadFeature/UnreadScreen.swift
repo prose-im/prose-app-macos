@@ -74,32 +74,32 @@ struct UnreadScreen_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
             UnreadScreen(model: .init(messages: OrderedDictionary(dictionaryLiteral:
-                (ChatID.person(id: "id-valerian"), [
+                (ChatID.person(id: "valerian@crisp.chat"), [
                     MessageViewModel(
-                        senderId: "id-baptiste",
+                        senderId: "baptiste@crisp.chat",
                         senderName: "Baptiste",
                         avatar: PreviewImages.Avatars.baptiste.rawValue,
                         content: "They forgot to ship the package.",
                         timestamp: Date() - 2_800
                     ),
                     MessageViewModel(
-                        senderId: "id-valerian",
+                        senderId: "valerian@crisp.chat",
                         senderName: "Valerian",
                         avatar: PreviewImages.Avatars.valerian.rawValue,
                         content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
                         timestamp: Date() - 3_000
                     ),
                 ]),
-                (ChatID.person(id: "id-julien"), [
+                (ChatID.person(id: "julien@thefamily.com"), [
                     MessageViewModel(
-                        senderId: "id-baptiste",
+                        senderId: "baptiste@crisp.chat",
                         senderName: "Baptiste",
                         avatar: PreviewImages.Avatars.baptiste.rawValue,
                         content: "Can I initiate a deployment of the Vue app?",
                         timestamp: Date() - 9_000
                     ),
                     MessageViewModel(
-                        senderId: "id-julien",
+                        senderId: "julien@thefamily.com",
                         senderName: "Julien",
                         avatar: PreviewImages.Avatars.julien.rawValue,
                         content: "Yes, it's ready. 3 new features are shipping! 😀",
@@ -108,14 +108,14 @@ struct UnreadScreen_Previews: PreviewProvider {
                 ]),
                 (ChatID.group(id: "constellation"), [
                     MessageViewModel(
-                        senderId: "id-baptiste",
+                        senderId: "baptiste@crisp.chat",
                         senderName: "Baptiste",
                         avatar: PreviewImages.Avatars.baptiste.rawValue,
                         content: "⚠️ I'm performing a change of the server IP definitions. Slight outage espected.",
                         timestamp: Date() - 90_000
                     ),
                     MessageViewModel(
-                        senderId: "id-constellation-health",
+                        senderId: "constellation-health@crisp.chat",
                         senderName: "constellation-health",
                         avatar: PreviewImages.Avatars.constellationHealth.rawValue,
                         content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",

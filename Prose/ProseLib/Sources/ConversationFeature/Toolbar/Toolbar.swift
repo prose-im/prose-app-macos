@@ -40,7 +40,7 @@ struct Toolbar: ToolbarContent {
             IfLetStore(self.store.scope(state: \State.user)) { store in
                 WithViewStore(store) { viewStore in
                     ToolbarSecurity(
-                        jid: viewStore.userId,
+                        jid: viewStore.jid,
                         // TODO: Make this dynamic
                         isVerified: true
                     )

@@ -13,62 +13,62 @@ import SharedModels
 public final class StatusStore {
     public static let shared = StatusStore()
 
-    private let onlineStatuses: [String: OnlineStatus] = [
-        "id-alexandre": .offline,
-        "id-antoine": .online,
-        "id-baptiste": .online,
-        "id-camille": .online,
-        "id-constellation-health": .online,
-        "id-eliott": .offline,
-        "id-julien": .offline,
-        "id-valerian": .online,
+    private let onlineStatuses: [JID: OnlineStatus] = [
+        "alexandre@crisp.chat": .offline,
+        "antoine@crisp.chat": .online,
+        "baptiste@crisp.chat": .online,
+        "camille@crisp.chat": .online,
+        "constellation-health@crisp.chat": .online,
+        "eliott@crisp.chat": .offline,
+        "julien@thefamily.com": .offline,
+        "valerian@crisp.chat": .online,
     ]
-    private let lastSeenDates: [String: Date] = [
-        "id-alexandre": Date.now - 10_000,
-        "id-antoine": Date.now - 1_000,
-        "id-baptiste": Date.now - 30,
-        "id-camille": Date.now - 200,
-        "id-constellation-health": Date.now,
-        "id-eliott": Date.now - 12_000,
-        "id-julien": Date.now - 5_000,
-        "id-valerian": Date.now - 100,
+    private let lastSeenDates: [JID: Date] = [
+        "alexandre@crisp.chat": Date.now - 10_000,
+        "antoine@crisp.chat": Date.now - 1_000,
+        "baptiste@crisp.chat": Date.now - 30,
+        "camille@crisp.chat": Date.now - 200,
+        "constellation-health@crisp.chat": Date.now,
+        "eliott@crisp.chat": Date.now - 12_000,
+        "julien@thefamily.com": Date.now - 5_000,
+        "valerian@crisp.chat": Date.now - 100,
     ]
-    private let timeZones: [String: TimeZone] = [
-        "id-alexandre": TimeZone(abbreviation: "WEST")!,
-        "id-antoine": TimeZone(abbreviation: "WEST")!,
-        "id-baptiste": TimeZone(abbreviation: "WEST")!,
-        "id-camille": TimeZone(abbreviation: "WEST")!,
-        "id-constellation-health": TimeZone(abbreviation: "WEST")!,
-        "id-eliott": TimeZone(abbreviation: "WEST")!,
-        "id-julien": TimeZone(abbreviation: "WEST")!,
-        "id-valerian": TimeZone(abbreviation: "WEST")!,
+    private let timeZones: [JID: TimeZone] = [
+        "alexandre@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "antoine@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "baptiste@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "camille@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "constellation-health@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "eliott@crisp.chat": TimeZone(abbreviation: "WEST")!,
+        "julien@thefamily.com": TimeZone(abbreviation: "WEST")!,
+        "valerian@crisp.chat": TimeZone(abbreviation: "WEST")!,
     ]
-    private let statusLines: [String: (Character, String)] = [
-        "id-alexandre": ("👨‍💻", "Working"),
-        "id-antoine": ("👨‍💻", "Working"),
-        "id-baptiste": ("🚀", "Building new features"),
-        "id-camille": ("🛟", "Helping clients"),
-        "id-constellation-health": ("🔭", "Monitoring things"),
-        "id-eliott": ("👨‍💻", "Working"),
-        "id-julien": ("👨‍💻", "Working"),
-        "id-valerian": ("👨‍💻", "Focusing on code"),
+    private let statusLines: [JID: (Character, String)] = [
+        "alexandre@crisp.chat": ("👨‍💻", "Working"),
+        "antoine@crisp.chat": ("👨‍💻", "Working"),
+        "baptiste@crisp.chat": ("🚀", "Building new features"),
+        "camille@crisp.chat": ("🛟", "Helping clients"),
+        "constellation-health@crisp.chat": ("🔭", "Monitoring things"),
+        "eliott@crisp.chat": ("👨‍💻", "Working"),
+        "julien@thefamily.com": ("👨‍💻", "Working"),
+        "valerian@crisp.chat": ("👨‍💻", "Focusing on code"),
     ]
 
     private init() {}
 
-    public func onlineStatus(for userId: String) -> OnlineStatus? {
-        self.onlineStatuses[userId]
+    public func onlineStatus(for jid: JID) -> OnlineStatus? {
+        self.onlineStatuses[jid]
     }
 
-    public func lastSeenDate(for userId: String) -> Date? {
-        self.lastSeenDates[userId]
+    public func lastSeenDate(for jid: JID) -> Date? {
+        self.lastSeenDates[jid]
     }
 
-    public func timeZone(for userId: String) -> TimeZone? {
-        self.timeZones[userId]
+    public func timeZone(for jid: JID) -> TimeZone? {
+        self.timeZones[jid]
     }
 
-    public func statusLine(for userId: String) -> (Character, String)? {
-        self.statusLines[userId]
+    public func statusLine(for jid: JID) -> (Character, String)? {
+        self.statusLines[jid]
     }
 }
