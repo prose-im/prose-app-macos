@@ -34,14 +34,14 @@ struct SpotlightGroupBoxStyle_Previews: PreviewProvider {
     static var previews: some View {
         GroupBox {
             MessageView(model: .init(
-                senderId: "id-valerian",
+                senderId: "valerian@crisp.chat",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: "Message from Valerian",
                 timestamp: Date() - 10_000
             ))
             MessageView(model: .init(
-                senderId: "id-baptiste",
+                senderId: "baptiste@crisp.chat",
                 senderName: "Baptiste",
                 avatar: PreviewImages.Avatars.baptiste.rawValue,
                 content: "Message from Baptiste",

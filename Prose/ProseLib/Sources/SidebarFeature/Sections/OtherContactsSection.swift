@@ -70,7 +70,7 @@ let otherContactsSectionReducer: Reducer<
 public struct OtherContactsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(id: .person(id: "id-julien")),
+            id: .chat(id: .person(id: "julien@thefamily.com")),
             title: "Julien",
             image: PreviewImages.Avatars.julien.rawValue,
             count: 2

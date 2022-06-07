@@ -88,14 +88,14 @@ public let conversationReducer: Reducer<
                 let encryptionFingerprint: String?
 
                 switch state.chatId {
-                case let .person(userId):
-                    user = UserStore.shared.user(for: userId)
-                    status = StatusStore.shared.onlineStatus(for: userId)
-                    lastSeenDate = StatusStore.shared.lastSeenDate(for: userId)
-                    timeZone = StatusStore.shared.timeZone(for: userId)
-                    statusLine = StatusStore.shared.statusLine(for: userId)
-                    isIdentityVerified = SecurityStore.shared.isIdentityVerified(for: userId)
-                    encryptionFingerprint = SecurityStore.shared.encryptionFingerprint(for: userId)
+                case let .person(jid):
+                    user = UserStore.shared.user(for: jid)
+                    status = StatusStore.shared.onlineStatus(for: jid)
+                    lastSeenDate = StatusStore.shared.lastSeenDate(for: jid)
+                    timeZone = StatusStore.shared.timeZone(for: jid)
+                    statusLine = StatusStore.shared.statusLine(for: jid)
+                    isIdentityVerified = SecurityStore.shared.isIdentityVerified(for: jid)
+                    encryptionFingerprint = SecurityStore.shared.encryptionFingerprint(for: jid)
                 case .group:
                     print("Group info not supported yet")
                     user = nil
@@ -173,8 +173,8 @@ public struct ConversationState: Equatable {
 
         let user: User?
         switch chatId {
-        case let .person(userId):
-            user = UserStore.shared.user(for: userId)
+        case let .person(jid):
+            user = UserStore.shared.user(for: jid)
         case .group:
             print("Group info not supported yet")
             user = nil
@@ -206,7 +206,7 @@ public struct ConversationEnvironment: Equatable {
 struct ConversationScreen_Previews: PreviewProvider {
     static var previews: some View {
         ConversationScreen(store: Store(
-            initialState: ConversationState(chatId: .person(id: "id-alexandre")),
+            initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
             reducer: conversationReducer,
             environment: ConversationEnvironment()
         ))
