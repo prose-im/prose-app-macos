@@ -31,9 +31,7 @@ public struct ConversationInfoView: View {
                 }
                 .padding(.horizontal)
 
-                WithViewStore(self.store.scope(state: \State.information)) { information in
-                    InformationSection(model: information.state)
-                }
+                InformationSection(store: self.store.scope(state: \State.information, action: Action.information))
                 SecuritySection(store: self.store.scope(state: \State.security, action: Action.security))
                 ActionsSection(store: self.store.scope(state: \State.actions, action: Action.actions))
             }
@@ -97,14 +95,14 @@ public let conversationInfoReducer: Reducer<
 public struct ConversationInfoState: Equatable {
     var identity: IdentitySectionState
     var quickActions: QuickActionsSectionState
-    let information: InformationSectionModel
+    var information: InformationSectionState
     var security: SecuritySectionState
     var actions: ActionsSectionState
 
     public init(
         identity: IdentitySectionState,
         quickActions: QuickActionsSectionState,
-        information: InformationSectionModel,
+        information: InformationSectionState,
         security: SecuritySectionState,
         actions: ActionsSectionState
     ) {
@@ -121,6 +119,7 @@ public struct ConversationInfoState: Equatable {
 public enum ConversationInfoAction: Equatable {
     case identity(IdentitySectionAction)
     case quickActions(QuickActionsSectionAction)
+    case information(InformationSectionAction)
     case security(SecuritySectionAction)
     case actions(ActionsSectionAction)
 }

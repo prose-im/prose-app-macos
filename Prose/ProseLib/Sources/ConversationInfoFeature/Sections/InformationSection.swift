@@ -7,38 +7,41 @@
 
 import AppLocalization
 import Assets
+import ComposableArchitecture
 import ProseCoreStub
 import SwiftUI
 
 private let l10n = L10n.Content.MessageDetails.Information.self
 
+// MARK: - View
+
 struct InformationSection: View {
-    let model: InformationSectionModel
-    var localDateString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = self.model.timeZone
-        dateFormatter.timeStyle = .long
-        return dateFormatter.string(from: Date.now)
-    }
+    typealias State = InformationSectionState
+    typealias Action = InformationSectionAction
+
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
         GroupBox(l10n.title) {
-            label(model.emailAddress, systemImage: "envelope.fill")
-            label(model.phoneNumber, systemImage: "iphone")
-            Label {
-                // TODO: Localize
-                Text("Active \(model.lastSeenDate, format: .relative(presentation: .numeric, unitsStyle: .wide))")
-            } icon: {
-                Image(systemName: "hand.wave.fill")
-                    .unredacted()
-            }
-            label(localDateString, systemImage: "clock.fill")
-            label(model.location, systemImage: "location.fill")
-            Label {
-                Text("“\(model.statusMessage)”")
-                    .foregroundColor(.textSecondary)
-            } icon: {
-                Text(String(model.statusIcon))
+            WithViewStore(self.store) { viewStore in
+                label(viewStore.emailAddress, systemImage: "envelope.fill")
+                label(viewStore.phoneNumber, systemImage: "iphone")
+                Label {
+                    // TODO: Localize
+                    Text("Active \(viewStore.lastSeenDate, format: .relative(presentation: .numeric, unitsStyle: .wide))")
+                } icon: {
+                    Image(systemName: "hand.wave.fill")
+                        .unredacted()
+                }
+                label(viewStore.localDateString, systemImage: "clock.fill")
+                label(viewStore.location, systemImage: "location.fill")
+                Label {
+                    Text("“\(viewStore.statusMessage)”")
+                        .foregroundColor(.textSecondary)
+                } icon: {
+                    Text(String(viewStore.statusIcon))
+                }
             }
         }
     }
@@ -54,7 +57,19 @@ struct InformationSection: View {
     }
 }
 
-public struct InformationSectionModel: Equatable {
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let informationSectionReducer: Reducer<
+    InformationSectionState,
+    InformationSectionAction,
+    Void
+> = Reducer.empty
+
+// MARK: State
+
+public struct InformationSectionState: Equatable {
     let emailAddress: String
     let phoneNumber: String
     let lastSeenDate: Date
@@ -62,6 +77,13 @@ public struct InformationSectionModel: Equatable {
     let location: String
     let statusIcon: Character
     let statusMessage: String
+
+    var localDateString: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = self.timeZone
+        dateFormatter.timeStyle = .long
+        return dateFormatter.string(from: Date.now)
+    }
 
     public init(
         emailAddress: String,
@@ -82,7 +104,7 @@ public struct InformationSectionModel: Equatable {
     }
 }
 
-public extension InformationSectionModel {
+public extension InformationSectionState {
     init(
         from user: User,
         lastSeenDate: Date,
@@ -102,7 +124,7 @@ public extension InformationSectionModel {
     }
 }
 
-extension InformationSectionModel {
+extension InformationSectionState {
     static var placeholder: Self {
         Self(
             emailAddress: "valerian@crisp.chat",
@@ -116,8 +138,26 @@ extension InformationSectionModel {
     }
 }
 
-// struct InformationSection_Previews: PreviewProvider {
-//    static var previews: some View {
-//        InformationSection()
-//    }
-// }
+// MARK: Actions
+
+public enum InformationSectionAction: Equatable {}
+
+// MARK: - Previews
+
+struct InformationSection_Previews: PreviewProvider {
+    static var previews: some View {
+        InformationSection(store: Store(
+            initialState: InformationSectionState(
+                emailAddress: "valerian@crisp.chat",
+                phoneNumber: "+33 6 12 34 56",
+                lastSeenDate: Date.now - 1_000,
+                timeZone: TimeZone(abbreviation: "WEST")!,
+                location: "Lisbon, Portugal",
+                statusIcon: "👨‍💻",
+                statusMessage: "Focusing on code"
+            ),
+            reducer: informationSectionReducer,
+            environment: ()
+        ))
+    }
+}
