@@ -12,10 +12,10 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-public struct UnreadScreenModel {
+public struct UnreadScreenModel: Equatable {
     let messages: OrderedDictionary<ChatID, [MessageViewModel]>
 
-    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]>) {
+    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]> = .init()) {
         self.messages = messages
     }
 

@@ -64,6 +64,7 @@ let package = Package(
                 "PreviewAssets",
                 "SharedModels",
                 // "ProseCore",
+                "TcaHelpers",
                 "UnreadFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
@@ -107,6 +108,7 @@ let package = Package(
             ]
         ),
         .target(name: "ProseCoreStub", dependencies: [
+            "SharedModels",
             .product(name: "OrderedCollections", package: "swift-collections"),
         ]),
     ]

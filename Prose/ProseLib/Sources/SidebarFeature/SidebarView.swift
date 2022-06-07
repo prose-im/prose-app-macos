@@ -22,7 +22,7 @@ public struct SidebarView: View {
     }
 
     public var body: some View {
-        SidebarContentView(store: self.store.scope(state: \State.content, action: Action.content))
+        SidebarContentView(store: self.store.scope(state: \.content, action: Action.content))
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
@@ -32,7 +32,7 @@ public struct SidebarView: View {
                     .accessibilitySortPriority(1)
             }
             .toolbar {
-                Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
+                Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
             }
     }
 }
@@ -79,18 +79,6 @@ public struct SidebarState: Equatable {
     ) {
         self.credentials = credentials
         self.content = content
-        self.footer = footer
-        self.toolbar = toolbar
-    }
-
-    public init(
-        credentials: UserCredentials,
-        route: Route,
-        footer: FooterState = .init(),
-        toolbar: ToolbarState = .init()
-    ) {
-        self.credentials = credentials
-        self.content = .init(route: route)
         self.footer = footer
         self.toolbar = toolbar
     }
