@@ -12,14 +12,14 @@ import Foundation
 public enum L10n {
     public enum Content {
         public enum MessageBar {
-            /// %@ is typing…
-            public static func composeTyping(_ p1: Any) -> String {
-                L10n.tr("Localizable", "content.message_bar.compose_typing", String(describing: p1))
+            /// %s is typing…
+            public static func composeTyping(_ p1: UnsafePointer<CChar>) -> String {
+                L10n.tr("Localizable", "content.message_bar.compose_typing", p1)
             }
 
-            /// Message %@
-            public static func fieldPlaceholder(_ p1: Any) -> String {
-                L10n.tr("Localizable", "content.message_bar.field_placeholder", String(describing: p1))
+            /// Message %s
+            public static func fieldPlaceholder(_ p1: UnsafePointer<CChar>) -> String {
+                L10n.tr("Localizable", "content.message_bar.field_placeholder", p1)
             }
         }
 
@@ -43,8 +43,11 @@ public enum L10n {
             }
 
             public enum Security {
-                /// Encrypted
-                public static let encrypted = L10n.tr("Localizable", "content.message_details.security.encrypted")
+                /// Encrypted (%s)
+                public static func encrypted(_ p1: UnsafePointer<CChar>) -> String {
+                    L10n.tr("Localizable", "content.message_details.security.encrypted", p1)
+                }
+
                 /// Identity verified
                 public static let identityVerified = L10n.tr("Localizable", "content.message_details.security.identity_verified")
                 /// Security

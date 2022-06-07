@@ -6,34 +6,9 @@
 //
 
 import PreviewAssets
+import ProseCoreStub
 import ProseUI
 import SwiftUI
-
-public struct MessageViewModel: Equatable {
-    let senderId: String
-    let senderName: String
-    let avatar: String
-    let content: String
-    public let timestamp: Date
-
-    public init(
-        senderId: String,
-        senderName: String,
-        avatar: String,
-        content: String,
-        timestamp: Date
-    ) {
-        self.senderId = senderId
-        self.senderName = senderName
-        self.avatar = avatar
-        self.content = content
-        self.timestamp = timestamp
-    }
-}
-
-extension MessageViewModel: Identifiable {
-    public var id: String { "\(self.senderId)_\(self.timestamp.ISO8601Format())" }
-}
 
 public struct MessageView: View {
     let model: MessageViewModel
@@ -66,6 +41,46 @@ public struct MessageView: View {
 
             Spacer()
         }
+    }
+}
+
+public struct MessageViewModel: Equatable {
+    let senderId: String
+    let senderName: String
+    let avatar: String
+    let content: String
+    public let timestamp: Date
+
+    public init(
+        senderId: String,
+        senderName: String,
+        avatar: String,
+        content: String,
+        timestamp: Date
+    ) {
+        self.senderId = senderId
+        self.senderName = senderName
+        self.avatar = avatar
+        self.content = content
+        self.timestamp = timestamp
+    }
+}
+
+extension MessageViewModel: Identifiable {
+    public var id: String { "\(self.senderId)_\(self.timestamp.ISO8601Format())" }
+}
+
+public extension Message {
+    var toMessageViewModel: MessageViewModel {
+        let sender = UserStore.shared.user(for: self.senderId)
+
+        return MessageViewModel(
+            senderId: self.senderId,
+            senderName: sender?.displayName ?? "Unknown",
+            avatar: sender?.avatar ?? "",
+            content: self.content,
+            timestamp: self.timestamp
+        )
     }
 }
 

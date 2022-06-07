@@ -46,7 +46,7 @@
 
 "content.message_details.security.title" = "Security";
 "content.message_details.security.identity_verified" = "Identity verified";
-"content.message_details.security.encrypted" = "Encrypted";
+"content.message_details.security.encrypted" = "Encrypted (%s)";
 
 "content.message_details.actions.title" = "Actions";
 "content.message_details.actions.shared_files" = "View shared files";
@@ -54,8 +54,8 @@
 "content.message_details.actions.remove_contact" = "Remove from contacts";
 "content.message_details.actions.block" = "Block contact";
 
-"content.message_bar.compose_typing" = "%@ is typing…";
-"content.message_bar.field_placeholder" = "Message %@";
+"content.message_bar.compose_typing" = "%s is typing…";
+"content.message_bar.field_placeholder" = "Message %s";
 
 "settings.tabs.general" = "General";
 "settings.tabs.accounts" = "Accounts";

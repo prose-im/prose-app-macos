@@ -8,6 +8,7 @@
 import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
+import ProseCoreStub
 import ProseUI
 import SwiftUI
 import UnreadFeature

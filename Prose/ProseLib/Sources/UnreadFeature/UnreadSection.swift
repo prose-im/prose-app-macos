@@ -6,6 +6,7 @@
 //
 
 import ConversationFeature
+import ProseCoreStub
 import ProseUI
 import SharedModels
 import SwiftUI

@@ -6,7 +6,9 @@
 //
 
 import ComposableArchitecture
+import ConversationInfoFeature
 import PreviewAssets
+import ProseCoreStub
 import SharedModels
 import SwiftUI
 
@@ -32,20 +34,7 @@ public struct ConversationScreen: View {
                         IfLetStore(self.store.scope(state: \State.info, action: Action.info)) { store in
                             ConversationInfoView(store: store)
                         } else: {
-                            ConversationInfoView(store: Store(
-                                initialState: ConversationInfoState(
-                                    user: User(
-                                        userId: "valerian@prose.org",
-                                        displayName: "Valerian",
-                                        fullName: "valerian Saliou",
-                                        // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
-                                        avatar: PreviewImages.Avatars.valerian.rawValue
-                                    )
-                                ),
-                                reducer: Reducer.empty,
-                                environment: ()
-                            ))
-                            .redacted(reason: .placeholder)
+                            ConversationInfoView.placeholder
                         }
                         .frame(width: 256)
                     }
@@ -89,9 +78,58 @@ public let conversationReducer: Reducer<
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
             //       trigger an asynchronous call here, to retrieve it.
             //       Use a placeholder while waiting for the data.
-            //       For now, we'll use the `User` `struct` stored at the creation of the `State`.
             if state.toolbar.isShowingInfo, state.info == nil {
-                state.info = state.toolbar.user.map(ConversationInfoState.init(user:))
+                let user: User?
+                let status: OnlineStatus?
+                let lastSeenDate: Date?
+                let timeZone: TimeZone?
+                let statusLine: (Character, String)?
+                let isIdentityVerified: Bool
+                let encryptionFingerprint: String?
+
+                switch state.chatId {
+                case let .person(userId):
+                    user = UserStore.shared.user(for: userId)
+                    status = StatusStore.shared.onlineStatus(for: userId)
+                    lastSeenDate = StatusStore.shared.lastSeenDate(for: userId)
+                    timeZone = StatusStore.shared.timeZone(for: userId)
+                    statusLine = StatusStore.shared.statusLine(for: userId)
+                    isIdentityVerified = SecurityStore.shared.isIdentityVerified(for: userId)
+                    encryptionFingerprint = SecurityStore.shared.encryptionFingerprint(for: userId)
+                case .group:
+                    print("Group info not supported yet")
+                    user = nil
+                    status = nil
+                    lastSeenDate = nil
+                    timeZone = nil
+                    statusLine = nil
+                    isIdentityVerified = false
+                    encryptionFingerprint = nil
+                }
+
+                if let user = user,
+                   let status = status,
+                   let lastSeenDate = lastSeenDate,
+                   let timeZone = timeZone,
+                   let statusLine = statusLine
+                {
+                    state.info = ConversationInfoState(
+                        identity: .init(from: user, status: status),
+                        quickActions: .init(),
+                        information: .init(
+                            from: user,
+                            lastSeenDate: lastSeenDate,
+                            timeZone: timeZone,
+                            statusIcon: statusLine.0,
+                            statusMessage: statusLine.1
+                        ),
+                        security: .init(
+                            isIdentityVerified: isIdentityVerified,
+                            encryptionFingerprint: encryptionFingerprint
+                        ),
+                        actions: .init()
+                    )
+                }
             }
 
         default:
@@ -105,21 +143,26 @@ public let conversationReducer: Reducer<
 // MARK: State
 
 public struct ConversationState: Equatable {
+    let chatId: ChatID
     var chat: ChatWithBarState
     var info: ConversationInfoState?
     var toolbar: ToolbarState
 
     init(
+        chatId: ChatID,
         chat: ChatWithBarState,
-        info: ConversationInfoState,
+        info: ConversationInfoState? = nil,
         toolbar: ToolbarState
     ) {
+        self.chatId = chatId
         self.chat = chat
         self.info = info
         self.toolbar = toolbar
     }
 
     public init(chatId: ChatID) {
+        self.chatId = chatId
+
         let messages = (MessageStore.shared.messages(for: chatId) ?? [])
             .map(\.toMessageViewModel)
         self.chat = ChatWithBarState(
@@ -131,7 +174,7 @@ public struct ConversationState: Equatable {
         let user: User?
         switch chatId {
         case let .person(userId):
-            user = UserStore.shared.user(for: userId) ?? .init(userId: "", displayName: "", fullName: "", avatar: "")
+            user = UserStore.shared.user(for: userId)
         case .group:
             print("Group info not supported yet")
             user = nil

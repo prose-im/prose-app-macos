@@ -68,6 +68,12 @@ public struct FavoritesSectionState: Equatable {
             image: PreviewImages.Avatars.alexandre.rawValue,
             count: 0
         ),
+        .init(
+            id: .chat(id: .person(id: "id-baptiste")),
+            title: "Baptiste",
+            image: PreviewImages.Avatars.baptiste.rawValue,
+            count: 0
+        ),
     ]
 
     public init() {}
