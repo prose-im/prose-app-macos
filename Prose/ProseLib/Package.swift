@@ -18,6 +18,7 @@ let package = Package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .upToNextMajor(from: "0.33.1")
         ),
+        .package(url: "https://github.com/pointfreeco/swift-parsing", .upToNextMajor(from: "0.9.2")),
     ],
     targets: [
         .target(
