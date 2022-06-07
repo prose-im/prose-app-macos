@@ -5,14 +5,21 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
+import ComposableArchitecture
 import PreviewAssets
 import ProseCoreStub
 import ProseUI
 import SharedModels
 import SwiftUI
 
+// MARK: - View
+
 struct IdentitySection: View {
-    let model: IdentitySectionModel
+    typealias State = IdentitySectionState
+    typealias Action = IdentitySectionAction
+
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
@@ -22,30 +29,46 @@ struct IdentitySection: View {
                 .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
 
             VStack(spacing: 4) {
-                ContentCommonNameStatusComponent(
-                    name: model.fullName,
-                    status: model.status
-                )
+                WithViewStore(self.store) { viewStore in
+                    ContentCommonNameStatusComponent(
+                        name: viewStore.fullName,
+                        status: viewStore.status
+                    )
 
-                Text("\(model.jobTitle) at \(model.company)")
-                    .font(.system(size: 11.5))
-                    .foregroundColor(.textSecondary)
+                    Text("\(viewStore.jobTitle) at \(viewStore.company)")
+                        .font(.system(size: 11.5))
+                        .foregroundColor(.textSecondary)
+                }
             }
         }
     }
 
     @ViewBuilder
     private func avatar() -> some View {
-        if let imageName = model.avatar {
-            Image(imageName)
-                .resizable()
-        } else {
-            Image(systemName: "person.fill")
+        WithViewStore(self.store.scope(state: \State.avatar)) { avatar in
+            if let imageName = avatar.state {
+                Image(imageName)
+                    .resizable()
+            } else {
+                Image(systemName: "person.fill")
+            }
         }
     }
 }
 
-public struct IdentitySectionModel: Equatable {
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let identitySectionReducer: Reducer<
+    IdentitySectionState,
+    IdentitySectionAction,
+    Void
+> = Reducer.empty
+
+// MARK: State
+
+public struct IdentitySectionState: Equatable {
     let avatar: String?
     let fullName: String
     let status: OnlineStatus
@@ -67,7 +90,7 @@ public struct IdentitySectionModel: Equatable {
     }
 }
 
-public extension IdentitySectionModel {
+public extension IdentitySectionState {
     init(
         from user: User,
         status: OnlineStatus
@@ -82,13 +105,13 @@ public extension IdentitySectionModel {
     }
 }
 
-extension IdentitySectionModel {
+extension IdentitySectionState {
     static var placeholder: Self {
         Self(from: .placeholder, status: .offline)
     }
 }
 
-extension IdentitySectionModel {
+extension IdentitySectionState {
     /// Only for previews
     static var valerian: Self {
         Self(
@@ -101,8 +124,26 @@ extension IdentitySectionModel {
     }
 }
 
+// MARK: Actions
+
+public enum IdentitySectionAction: Equatable {}
+
+// MARK: - Previews
+
 struct IdentitySection_Previews: PreviewProvider {
+    private struct Preview: View {
+        let state: IdentitySectionState
+
+        var body: some View {
+            IdentitySection(store: Store(
+                initialState: state,
+                reducer: identitySectionReducer,
+                environment: ()
+            ))
+        }
+    }
+
     static var previews: some View {
-        IdentitySection(model: .valerian)
+        Preview(state: .valerian)
     }
 }

@@ -26,9 +26,7 @@ public struct ConversationInfoView: View {
         ScrollView(.vertical) {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
-                    WithViewStore(self.store.scope(state: \State.identity)) { identity in
-                        IdentitySection(model: identity.state)
-                    }
+                    IdentitySection(store: self.store.scope(state: \State.identity, action: Action.identity))
                     QuickActionsSection(store: self.store.scope(state: \State.quickActions, action: Action.quickActions))
                 }
                 .padding(.horizontal)
@@ -72,6 +70,11 @@ public let conversationInfoReducer: Reducer<
     ConversationInfoAction,
     Void
 > = Reducer.combine([
+    identitySectionReducer.pullback(
+        state: \ConversationInfoState.identity,
+        action: /ConversationInfoAction.identity,
+        environment: { $0 }
+    ),
     quickActionsSectionReducer.pullback(
         state: \ConversationInfoState.quickActions,
         action: /ConversationInfoAction.quickActions,
@@ -92,14 +95,14 @@ public let conversationInfoReducer: Reducer<
 // MARK: State
 
 public struct ConversationInfoState: Equatable {
-    let identity: IdentitySectionModel
+    var identity: IdentitySectionState
     var quickActions: QuickActionsSectionState
     let information: InformationSectionModel
     var security: SecuritySectionState
     var actions: ActionsSectionState
 
     public init(
-        identity: IdentitySectionModel,
+        identity: IdentitySectionState,
         quickActions: QuickActionsSectionState,
         information: InformationSectionModel,
         security: SecuritySectionState,
@@ -116,6 +119,7 @@ public struct ConversationInfoState: Equatable {
 // MARK: Actions
 
 public enum ConversationInfoAction: Equatable {
+    case identity(IdentitySectionAction)
     case quickActions(QuickActionsSectionAction)
     case security(SecuritySectionAction)
     case actions(ActionsSectionAction)

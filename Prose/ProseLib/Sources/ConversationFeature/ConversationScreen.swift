@@ -114,16 +114,16 @@ public let conversationReducer: Reducer<
                    let statusLine = statusLine
                 {
                     state.info = ConversationInfoState(
-                        identity: IdentitySectionModel(from: user, status: status),
-                        quickActions: QuickActionsSectionState(),
-                        information: InformationSectionModel(
+                        identity: .init(from: user, status: status),
+                        quickActions: .init(),
+                        information: .init(
                             from: user,
                             lastSeenDate: lastSeenDate,
                             timeZone: timeZone,
                             statusIcon: statusLine.0,
                             statusMessage: statusLine.1
                         ),
-                        security: SecuritySectionState(
+                        security: .init(
                             isIdentityVerified: isIdentityVerified,
                             encryptionFingerprint: encryptionFingerprint
                         ),
