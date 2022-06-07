@@ -8,6 +8,7 @@
 import PreviewAssets
 import ProseCoreStub
 import ProseUI
+import SharedModels
 import SwiftUI
 
 public struct MessageView: View {
@@ -45,14 +46,14 @@ public struct MessageView: View {
 }
 
 public struct MessageViewModel: Equatable {
-    let senderId: String
+    let senderId: JID
     let senderName: String
     let avatar: String
     let content: String
     public let timestamp: Date
 
     public init(
-        senderId: String,
+        senderId: JID,
         senderName: String,
         avatar: String,
         content: String,
@@ -88,14 +89,14 @@ struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             MessageView(model: .init(
-                senderId: "id-valerian",
+                senderId: "valerian@crisp.chat",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: "Hello world, this is a message content!",
                 timestamp: .now - 10_000
             ))
             MessageView(model: .init(
-                senderId: "id-valerian",
+                senderId: "valerian@crisp.chat",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
@@ -103,7 +104,7 @@ struct MessageView_Previews: PreviewProvider {
             ))
             .frame(width: 500)
             MessageView(model: .init(
-                senderId: "id-unknown",
+                senderId: "unknown@prose.org",
                 senderName: "Unknown",
                 avatar: "",
                 content: "Unknown",
@@ -111,7 +112,7 @@ struct MessageView_Previews: PreviewProvider {
             ))
             .preferredColorScheme(.light)
             MessageView(model: .init(
-                senderId: "id-unknown",
+                senderId: "unknown@prose.org",
                 senderName: "Unknown",
                 avatar: "",
                 content: "Unknown",

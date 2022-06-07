@@ -7,11 +7,12 @@
 //
 
 import PreviewAssets
+import SharedModels
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 /// It more or less represents a vCard.
 public struct User: Equatable {
-    public let userId: String
+    public let jid: JID
     public let displayName: String
     public let fullName: String
     public let avatar: String
@@ -22,7 +23,7 @@ public struct User: Equatable {
     public let location: String
 
     public init(
-        userId: String,
+        jid: JID,
         displayName: String,
         fullName: String,
         avatar: String,
@@ -32,7 +33,7 @@ public struct User: Equatable {
         phoneNumber: String,
         location: String
     ) {
-        self.userId = userId
+        self.jid = jid
         self.displayName = displayName
         self.fullName = fullName
         self.avatar = avatar
@@ -47,7 +48,7 @@ public struct User: Equatable {
 public extension User {
     static var placeholder: User {
         User(
-            userId: "valerian@prose.org",
+            jid: "valerian@prose.org",
             displayName: "Valerian",
             fullName: "valerian Saliou",
             // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
@@ -66,9 +67,9 @@ public extension User {
 public final class UserStore {
     public static let shared = UserStore()
 
-    private let users: [String: User] = [
-        "id-alexandre": User(
-            userId: "id-alexandre",
+    private let users: [JID: User] = [
+        "alexandre@crisp.chat": User(
+            jid: "alexandre@crisp.chat",
             displayName: "Alexandre",
             fullName: "Alexandre",
             avatar: PreviewImages.Avatars.alexandre.rawValue,
@@ -78,8 +79,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Somewhere"
         ),
-        "id-antoine": User(
-            userId: "id-antoine",
+        "antoine@crisp.chat": User(
+            jid: "antoine@crisp.chat",
             displayName: "Antoine",
             fullName: "Antoine Goret",
             avatar: PreviewImages.Avatars.antoine.rawValue,
@@ -89,8 +90,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Somewhere"
         ),
-        "id-baptiste": User(
-            userId: "id-baptiste",
+        "baptiste@crisp.chat": User(
+            jid: "baptiste@crisp.chat",
             displayName: "Baptiste",
             fullName: "Baptiste Jamin",
             avatar: PreviewImages.Avatars.baptiste.rawValue,
@@ -100,8 +101,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Nantes, France"
         ),
-        "id-camille": User(
-            userId: "id-camille",
+        "camille@crisp.chat": User(
+            jid: "camille@crisp.chat",
             displayName: "Camille",
             fullName: "Camille LB",
             avatar: PreviewImages.Avatars.camille.rawValue,
@@ -111,8 +112,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Somewhere"
         ),
-        "id-constellation-health": User(
-            userId: "id-constellation-health",
+        "constellation-health@crisp.chat": User(
+            jid: "constellation-health@crisp.chat",
             displayName: "constellation-health",
             fullName: "constellation-health",
             avatar: PreviewImages.Avatars.constellationHealth.rawValue,
@@ -122,8 +123,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Around the globe"
         ),
-        "id-eliott": User(
-            userId: "id-eliott",
+        "eliott@crisp.chat": User(
+            jid: "eliott@crisp.chat",
             displayName: "Eliott",
             fullName: "Eliott Vincent",
             avatar: PreviewImages.Avatars.eliott.rawValue,
@@ -133,8 +134,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Somewhere"
         ),
-        "id-julien": User(
-            userId: "id-julien",
+        "julien@thefamily.com": User(
+            jid: "julien@thefamily.com",
             displayName: "Julien",
             fullName: "Julien Le Coupanec",
             avatar: PreviewImages.Avatars.julien.rawValue,
@@ -144,8 +145,8 @@ public final class UserStore {
             phoneNumber: "+33 6 12 34 56",
             location: "Somewhere"
         ),
-        "id-valerian": User(
-            userId: "id-valerian",
+        "valerian@crisp.chat": User(
+            jid: "valerian@crisp.chat",
             displayName: "Valerian",
             fullName: "Valerian Saliou",
             avatar: PreviewImages.Avatars.valerian.rawValue,
@@ -159,7 +160,7 @@ public final class UserStore {
 
     private init() {}
 
-    public func user(for userId: String) -> User? {
-        self.users[userId]
+    public func user(for jid: JID) -> User? {
+        self.users[jid]
     }
 }

@@ -56,6 +56,6 @@ struct NavigationDestinationView: View {
 
 struct NavigationDestinationView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationDestinationView(selection: .chat(id: .person(id: "id-valerian")))
+        NavigationDestinationView(selection: .chat(id: .person(id: "valerian@crisp.chat")))
     }
 }

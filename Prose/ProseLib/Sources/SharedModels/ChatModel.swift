@@ -7,8 +7,8 @@
 //
 
 public enum ChatID: Hashable {
-    case person(id: String)
-    case group(id: String)
+    case person(id: JID)
+    case group(id: JID)
 
     public var icon: Icon {
         switch self {

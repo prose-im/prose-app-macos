@@ -84,7 +84,7 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
         }
         .map {
             MessageViewModel(
-                senderId: "id-valerian",
+                senderId: "valerian@crisp.chat",
                 senderName: "Valerian",
                 avatar: PreviewImages.Avatars.valerian.rawValue,
                 content: $0.1,

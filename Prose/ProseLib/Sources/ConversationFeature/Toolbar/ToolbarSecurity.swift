@@ -5,11 +5,12 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import SharedModels
 import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.
 struct ToolbarSecurity: View {
-    let jid: String
+    let jid: JID
     let isVerified: Bool
 
     var body: some View {
@@ -23,7 +24,7 @@ struct ToolbarSecurity: View {
                     .accessibilitySortPriority(1)
             }
 
-            Text(verbatim: jid)
+            Text(verbatim: String(describing: jid))
                 .foregroundColor(.textSecondary)
                 .accessibilitySortPriority(2)
         }

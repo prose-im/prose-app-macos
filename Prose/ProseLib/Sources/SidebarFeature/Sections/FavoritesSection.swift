@@ -57,19 +57,19 @@ let favoritesSectionReducer: Reducer<
 public struct FavoritesSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(id: .person(id: "id-valerian")),
+            id: .chat(id: .person(id: "valerian@crisp.chat")),
             title: "Valerian",
             image: PreviewImages.Avatars.valerian.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .person(id: "id-alexandre")),
+            id: .chat(id: .person(id: "alexandre@crisp.chat")),
             title: "Alexandre",
             image: PreviewImages.Avatars.alexandre.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .person(id: "id-baptiste")),
+            id: .chat(id: .person(id: "baptiste@crisp.chat")),
             title: "Baptiste",
             image: PreviewImages.Avatars.baptiste.rawValue,
             count: 0

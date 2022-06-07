@@ -36,7 +36,10 @@ let package = Package(
         .target(name: "AppLocalization", resources: [.process("Resources")]),
         .target(name: "PreviewAssets"),
         .target(name: "ProseUI", dependencies: ["Assets", "PreviewAssets", "SharedModels"]),
-        .target(name: "SharedModels"),
+        .target(name: "SharedModels", dependencies: [
+            .product(name: "Parsing", package: "swift-parsing"),
+        ]),
+        .testTarget(name: "SharedModelsTests", dependencies: ["SharedModels"]),
         .target(
             name: "TcaHelpers",
             dependencies: [

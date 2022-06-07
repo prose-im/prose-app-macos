@@ -62,10 +62,10 @@ struct UnreadSection: View {
 
     private func label(for chatId: ChatID) -> String {
         switch chatId {
-        case let .person(id: userId):
-            return UserStore.shared.user(for: userId)?.fullName ?? "Unknown"
+        case let .person(id: jid):
+            return UserStore.shared.user(for: jid)?.fullName ?? "Unknown"
         case let .group(id: groupId):
-            return groupId
+            return String(describing: groupId)
         }
     }
 }

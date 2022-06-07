@@ -13,34 +13,34 @@ import SharedModels
 public final class SecurityStore {
     public static let shared = SecurityStore()
 
-    private let isIdentityVerified: [String: Bool] = [
-        "id-alexandre": true,
-        "id-antoine": true,
-        "id-baptiste": true,
-        "id-camille": true,
-        "id-constellation-health": true,
-        "id-eliott": true,
-        "id-julien": false,
-        "id-valerian": true,
+    private let isIdentityVerified: [JID: Bool] = [
+        "alexandre@crisp.chat": true,
+        "antoine@crisp.chat": true,
+        "baptiste@crisp.chat": true,
+        "camille@crisp.chat": true,
+        "constellation-health@crisp.chat": true,
+        "eliott@crisp.chat": true,
+        "julien@thefamily.com": false,
+        "valerian@crisp.chat": true,
     ]
-    private let encryptionFingerprints: [String: String] = [
-        "id-alexandre": "JUOF2",
-        "id-antoine": "Q2DZO",
-        "id-baptiste": "WQC7S",
-        "id-camille": "25UJQ",
-        "id-constellation-health": "W064L",
-        "id-eliott": "W5Z43",
-        "id-julien": "Q48PT",
-        "id-valerian": "1HHHW",
+    private let encryptionFingerprints: [JID: String] = [
+        "alexandre@crisp.chat": "JUOF2",
+        "antoine@crisp.chat": "Q2DZO",
+        "baptiste@crisp.chat": "WQC7S",
+        "camille@crisp.chat": "25UJQ",
+        "constellation-health@crisp.chat": "W064L",
+        "eliott@crisp.chat": "W5Z43",
+        "julien@thefamily.com": "Q48PT",
+        "valerian@crisp.chat": "1HHHW",
     ]
 
     private init() {}
 
-    public func isIdentityVerified(for userId: String) -> Bool {
-        self.isIdentityVerified[userId, default: false]
+    public func isIdentityVerified(for jid: JID) -> Bool {
+        self.isIdentityVerified[jid, default: false]
     }
 
-    public func encryptionFingerprint(for userId: String) -> String? {
-        self.encryptionFingerprints[userId]
+    public func encryptionFingerprint(for jid: JID) -> String? {
+        self.encryptionFingerprints[jid]
     }
 }
