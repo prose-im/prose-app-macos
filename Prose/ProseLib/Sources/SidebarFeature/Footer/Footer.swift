@@ -49,7 +49,7 @@ struct Footer: View {
                 .layoutPriority(1)
 
                 // Quick actions button
-                FooterActionMenu(store: self.store.scope(state: \State.0.actionButton, action: Action.actionButton))
+                FooterActionMenu(store: self.store.scope(state: \.0.actionButton, action: Action.actionButton))
             }
             .padding(.leading, 20.0)
             .padding(.trailing, 14.0)

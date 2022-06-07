@@ -21,14 +21,17 @@ struct GroupsSection: View {
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-    @Binding var route: Route?
+    @Binding var route: SidebarRoute?
 
     var body: some View {
         Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
-                        NavigationDestinationView(selection: item.id)
+                        IfLetStore(
+                            self.store.scope(state: \State.route, action: Action.destination),
+                            then: NavigationDestinationView.init(store:)
+                        )
                     } label: {
                         NavigationRow(
                             title: item.title,
@@ -55,60 +58,77 @@ let groupsSectionReducer: Reducer<
     GroupsSectionState,
     GroupsSectionAction,
     Void
-> = Reducer { _, action, _ in
-    switch action {
-    case .addGroupTapped:
-        // TODO: [Rémi Bardon] Handle action
-        print("Add group tapped")
-    }
+> = Reducer.combine([
+    navigationDestinationReducer.optional().pullback(
+        state: \GroupsSectionState.route,
+        action: /GroupsSectionAction.destination,
+        environment: { _ in NavigationDestinationEnvironment() }
+    ),
+    Reducer { _, action, _ in
+        switch action {
+        case .addGroupTapped:
+            // TODO: [Rémi Bardon] Handle action
+            print("Add group tapped")
 
-    return .none
-}
+        case .navigate, .destination:
+            break
+        }
+
+        return .none
+    },
+])
 
 // MARK: State
 
 public struct GroupsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(id: .group(id: "bugs@crisp.chat")),
+            id: .chat(.init(chatId: .group(id: "bugs@crisp.chat"))),
             title: "bugs",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .group(id: "constellation@crisp.chat")),
+            id: .chat(.init(chatId: .group(id: "constellation@crisp.chat"))),
             title: "constellation",
             image: Icon.group.rawValue,
             count: 7
         ),
         .init(
-            id: .chat(id: .group(id: "general@crisp.chat")),
+            id: .chat(.init(chatId: .group(id: "general@crisp.chat"))),
             title: "general",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(id: .group(id: "support@crisp.chat")),
+            id: .chat(.init(chatId: .group(id: "support@crisp.chat"))),
             title: "support",
             image: Icon.group.rawValue,
             count: 0
         ),
     ]
+    var route: SidebarRoute?
 
-    public init() {}
+    public init(
+        route: SidebarRoute? = nil
+    ) {
+        self.route = route
+    }
 }
 
 // MARK: Actions
 
 public enum GroupsSectionAction: Equatable {
     case addGroupTapped
+    case navigate(SidebarRoute?)
+    case destination(NavigationDestinationAction)
 }
 
 // MARK: - Previews
 
 struct GroupsSection_Previews: PreviewProvider {
     private struct Preview: View {
-        @State var route: Route?
+        @State var route: SidebarRoute?
 
         var body: some View {
             NavigationView {

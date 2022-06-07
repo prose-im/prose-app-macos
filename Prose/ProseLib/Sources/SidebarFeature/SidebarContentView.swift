@@ -79,7 +79,22 @@ public let sidebarContentReducer: Reducer<
         action: /SidebarContentAction.groups,
         environment: { $0 }
     ),
-    Reducer.empty.binding(),
+    Reducer { state, action, _ in
+        switch action {
+        case .binding(\.$route):
+            let route = state.route
+            state.spotlight.route = route
+            state.favorites.route = route
+            state.teamMembers.route = route
+            state.otherContacts.route = route
+            state.groups.route = route
+
+        default:
+            break
+        }
+
+        return .none
+    }.binding(),
 ])
 
 // MARK: State
@@ -91,22 +106,22 @@ public struct SidebarContentState: Equatable {
     var otherContacts: OtherContactsSectionState
     var groups: GroupsSectionState
 
-    @BindableState var route: Route?
+    @BindableState var route: SidebarRoute?
 
     public init(
-        route: Route? = .unread,
-        spotlight: SpotlightSectionState = .init(),
-        favorites: FavoritesSectionState = .init(),
-        teamMembers: TeamMembersSectionState = .init(),
-        otherContacts: OtherContactsSectionState = .init(),
-        groups: GroupsSectionState = .init()
+        route: SidebarRoute? = .unread(.init()),
+        spotlight: SpotlightSectionState? = nil,
+        favorites: FavoritesSectionState? = nil,
+        teamMembers: TeamMembersSectionState? = nil,
+        otherContacts: OtherContactsSectionState? = nil,
+        groups: GroupsSectionState? = nil
     ) {
         self.route = route
-        self.spotlight = spotlight
-        self.favorites = favorites
-        self.teamMembers = teamMembers
-        self.otherContacts = otherContacts
-        self.groups = groups
+        self.spotlight = spotlight ?? .init(route: route)
+        self.favorites = favorites ?? .init(route: route)
+        self.teamMembers = teamMembers ?? .init(route: route)
+        self.otherContacts = otherContacts ?? .init(route: route)
+        self.groups = groups ?? .init(route: route)
     }
 }
 
