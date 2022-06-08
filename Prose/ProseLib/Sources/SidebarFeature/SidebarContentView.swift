@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import ProseCoreStub
 import SwiftUI
+import TcaHelpers
 
 struct SidebarContentView: View {
     typealias State = SidebarContentState
@@ -21,23 +22,23 @@ struct SidebarContentView: View {
             WithViewStore(self.store) { viewStore in
                 let routeBinding = viewStore.binding(\State.$route)
                 SpotlightSection(
-                    store: self.store.scope(state: \State.spotlight, action: Action.spotlight),
+                    store: self.store.scope(state: \.spotlight, action: Action.spotlight),
                     route: routeBinding
                 )
                 FavoritesSection(
-                    store: self.store.scope(state: \State.favorites, action: Action.favorites),
+                    store: self.store.scope(state: \.favorites, action: Action.favorites),
                     route: routeBinding
                 )
                 TeamMembersSection(
-                    store: self.store.scope(state: \State.teamMembers, action: Action.teamMembers),
+                    store: self.store.scope(state: \.teamMembers, action: Action.teamMembers),
                     route: routeBinding
                 )
                 OtherContactsSection(
-                    store: self.store.scope(state: \State.otherContacts, action: Action.otherContacts),
+                    store: self.store.scope(state: \.otherContacts, action: Action.otherContacts),
                     route: routeBinding
                 )
                 GroupsSection(
-                    store: self.store.scope(state: \State.groups, action: Action.groups),
+                    store: self.store.scope(state: \.groups, action: Action.groups),
                     route: routeBinding
                 )
             }
@@ -99,22 +100,15 @@ public let sidebarContentReducer: Reducer<
                 case .newMessage:
                     fatalError("Impossible")
                 }
+                print("Created a new `NavigationDestinationState`")
                 return destination
             }
             if let route = state.route {
                 let destination = state.states[route, default: createState(for: route)]
                 state.states[route] = destination
-                state.spotlight.destination = destination
-                state.favorites.destination = destination
-                state.teamMembers.destination = destination
-                state.otherContacts.destination = destination
-                state.groups.destination = destination
+                state.destination.wrappedValue = destination
             } else {
-                state.spotlight.destination = nil
-                state.favorites.destination = nil
-                state.teamMembers.destination = nil
-                state.otherContacts.destination = nil
-                state.groups.destination = nil
+                state.destination.wrappedValue = nil
             }
 
         default:
@@ -135,6 +129,7 @@ public struct SidebarContentState: Equatable {
     var groups: GroupsSectionState
 
     var states: [SidebarRoute: NavigationDestinationState]
+    var destination: Box<NavigationDestinationState?>
 
     @BindableState var route: SidebarRoute?
 
@@ -153,7 +148,8 @@ public struct SidebarContentState: Equatable {
         ]
         self.states = states
 
-        let destination = route.flatMap { states[$0] }
+        let destination = Box(route.flatMap { states[$0] })
+        self.destination = destination
         self.spotlight = spotlight ?? .init(destination: destination)
         self.favorites = favorites ?? .init(destination: destination)
         self.teamMembers = teamMembers ?? .init(destination: destination)

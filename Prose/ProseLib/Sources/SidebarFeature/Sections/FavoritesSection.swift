@@ -9,6 +9,7 @@ import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Sidebar.Favorites.self
 
@@ -29,7 +30,7 @@ struct FavoritesSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.destination, action: Action.destination),
+                            self.store.scope(state: \.destination.wrappedValue, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -54,7 +55,7 @@ let favoritesSectionReducer: Reducer<
     FavoritesSectionAction,
     SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
-    state: \FavoritesSectionState.destination,
+    state: \FavoritesSectionState.destination.wrappedValue,
     action: /FavoritesSectionAction.destination,
     environment: {
         NavigationDestinationEnvironment(
@@ -86,10 +87,10 @@ public struct FavoritesSectionState: Equatable {
             count: 0
         ),
     ]
-    var destination: NavigationDestinationState?
+    var destination: Box<NavigationDestinationState?>
 
     public init(
-        destination: NavigationDestinationState? = nil
+        destination: Box<NavigationDestinationState?> = Box()
     ) {
         self.destination = destination
     }

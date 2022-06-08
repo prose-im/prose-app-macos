@@ -10,6 +10,7 @@ import ComposableArchitecture
 import ProseCoreStub
 import SharedModels
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Sidebar.Spotlight.self
 
@@ -30,7 +31,7 @@ struct SpotlightSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.destination, action: Action.destination),
+                            self.store.scope(state: \.destination.wrappedValue, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -55,7 +56,7 @@ let spotlightSectionReducer: Reducer<
     SpotlightSectionAction,
     SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
-    state: \SpotlightSectionState.destination,
+    state: \SpotlightSectionState.destination.wrappedValue,
     action: /SpotlightSectionAction.destination,
     environment: {
         NavigationDestinationEnvironment(
@@ -73,10 +74,10 @@ public struct SpotlightSectionState: Equatable {
         .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
         .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
     ]
-    var destination: NavigationDestinationState?
+    var destination: Box<NavigationDestinationState?>
 
     public init(
-        destination: NavigationDestinationState? = nil
+        destination: Box<NavigationDestinationState?> = Box()
     ) {
         self.destination = destination
     }

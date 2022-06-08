@@ -9,6 +9,7 @@ import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Sidebar.TeamMembers.self
 
@@ -29,7 +30,7 @@ struct TeamMembersSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.destination, action: Action.destination),
+                            self.store.scope(state: \.destination.wrappedValue, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -60,7 +61,7 @@ let teamMembersSectionReducer: Reducer<
     SidebarEnvironment
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
-        state: \TeamMembersSectionState.destination,
+        state: \TeamMembersSectionState.destination.wrappedValue,
         action: /TeamMembersSectionAction.destination,
         environment: {
             NavigationDestinationEnvironment(
@@ -105,10 +106,10 @@ public struct TeamMembersSectionState: Equatable {
             count: 2
         ),
     ]
-    var destination: NavigationDestinationState?
+    var destination: Box<NavigationDestinationState?>
 
     public init(
-        destination: NavigationDestinationState? = nil
+        destination: Box<NavigationDestinationState?> = Box()
     ) {
         self.destination = destination
     }
