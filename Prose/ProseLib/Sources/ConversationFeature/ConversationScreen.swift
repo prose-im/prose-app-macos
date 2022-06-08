@@ -99,7 +99,7 @@ public let conversationReducer: Reducer<
 
             if state.chat?.chat.messages.isEmpty != false {
                 effects.append(Effect.task(priority: .high) {
-                    let messages = (environment.messageStore.messages(for: chatId) ?? [])
+                    let messages = (environment.messageStore.messages(chatId) ?? [])
                         .map { $0.toMessageViewModel(userStore: environment.userStore) }
                     return .didLoadMessages(messages)
                 }
@@ -112,7 +112,7 @@ public let conversationReducer: Reducer<
                     let user: User?
                     switch chatId {
                     case let .person(jid):
-                        user = environment.userStore.user(for: jid)
+                        user = environment.userStore.user(jid)
                     case .group:
                         print("Group info not supported yet")
                         user = nil
@@ -152,13 +152,13 @@ public let conversationReducer: Reducer<
 
                 switch state.chatId {
                 case let .person(jid):
-                    user = environment.userStore.user(for: jid)
-                    status = environment.statusStore.onlineStatus(for: jid)
-                    lastSeenDate = environment.statusStore.lastSeenDate(for: jid)
-                    timeZone = environment.statusStore.timeZone(for: jid)
-                    statusLine = environment.statusStore.statusLine(for: jid)
-                    isIdentityVerified = environment.securityStore.isIdentityVerified(for: jid)
-                    encryptionFingerprint = environment.securityStore.encryptionFingerprint(for: jid)
+                    user = environment.userStore.user(jid)
+                    status = environment.statusStore.onlineStatus(jid)
+                    lastSeenDate = environment.statusStore.lastSeenDate(jid)
+                    timeZone = environment.statusStore.timeZone(jid)
+                    statusLine = environment.statusStore.statusLine(jid)
+                    isIdentityVerified = environment.securityStore.isIdentityVerified(jid)
+                    encryptionFingerprint = environment.securityStore.encryptionFingerprint(jid)
                 case .group:
                     print("Group info not supported yet")
                     user = nil

@@ -73,7 +73,7 @@ extension MessageViewModel: Identifiable {
 
 public extension Message {
     func toMessageViewModel(userStore: UserStore) -> MessageViewModel {
-        let sender = userStore.user(for: self.senderId)
+        let sender = userStore.user(self.senderId)
 
         return MessageViewModel(
             senderId: self.senderId,

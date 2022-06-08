@@ -18,23 +18,15 @@ public struct Message {
 }
 
 public struct MessageStore {
-    private let _messages: (_ chatId: ChatID) -> [Message]?
-    private let _unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
-
-    public func messages(for chatId: ChatID) -> [Message]? {
-        self._messages(chatId)
-    }
-
-    public func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
-        self._unreadMessages()
-    }
+    public let messages: (_ chatId: ChatID) -> [Message]?
+    public let unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
 }
 
 public extension MessageStore {
     static var stub: Self {
         Self(
-            _messages: StubMessageStore.shared.messages(for:),
-            _unreadMessages: StubMessageStore.shared.unreadMessages
+            messages: StubMessageStore.shared.messages(for:),
+            unreadMessages: StubMessageStore.shared.unreadMessages
         )
     }
 }

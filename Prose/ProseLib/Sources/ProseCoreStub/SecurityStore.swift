@@ -9,24 +9,15 @@ import Foundation
 import SharedModels
 
 public struct SecurityStore {
-    
-    private let _isIdentityVerified: (_ jid: JID) -> Bool
-    private let _encryptionFingerprint: (_ jid: JID) -> String?
-    
-    public func isIdentityVerified(for jid: JID) -> Bool {
-        self._isIdentityVerified(jid)
-    }
-    
-    public func encryptionFingerprint(for jid: JID) -> String? {
-        self._encryptionFingerprint(jid)
-    }
+    public let isIdentityVerified: (_ jid: JID) -> Bool
+    public let encryptionFingerprint: (_ jid: JID) -> String?
 }
 
 public extension SecurityStore {
     static var stub: Self {
         Self(
-            _isIdentityVerified: StubSecurityStore.shared.isIdentityVerified(for:),
-            _encryptionFingerprint: StubSecurityStore.shared.encryptionFingerprint(for:)
+            isIdentityVerified: StubSecurityStore.shared.isIdentityVerified(for:),
+            encryptionFingerprint: StubSecurityStore.shared.encryptionFingerprint(for:)
         )
     }
 }
@@ -36,7 +27,7 @@ public extension SecurityStore {
 fileprivate final class StubSecurityStore {
     fileprivate static let shared = StubSecurityStore()
     
-    private let _isIdentityVerified: [JID: Bool] = [
+    let _isIdentityVerified: [JID: Bool] = [
         "alexandre@crisp.chat": true,
         "antoine@crisp.chat": true,
         "baptiste@crisp.chat": true,
@@ -46,7 +37,7 @@ fileprivate final class StubSecurityStore {
         "julien@thefamily.com": false,
         "valerian@crisp.chat": true,
     ]
-    private let _encryptionFingerprints: [JID: String] = [
+    let _encryptionFingerprints: [JID: String] = [
         "alexandre@crisp.chat": "JUOF2",
         "antoine@crisp.chat": "Q2DZO",
         "baptiste@crisp.chat": "WQC7S",

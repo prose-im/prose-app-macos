@@ -9,32 +9,19 @@ import Foundation
 import SharedModels
 
 public struct StatusStore {
-    private var _onlineStatus: (_ jid: JID) -> OnlineStatus?
-    private var _lastSeenDate: (_ jid: JID) -> Date?
-    private var _timeZone: (_ jid: JID) -> TimeZone?
-    private var _statusLine: (_ jid: JID) -> (Character, String)?
-    
-    public func onlineStatus(for jid: JID) -> OnlineStatus? {
-        self._onlineStatus(jid)
-    }
-    public func lastSeenDate(for jid: JID) -> Date? {
-        self._lastSeenDate(jid)
-    }
-    public func timeZone(for jid: JID) -> TimeZone? {
-        self._timeZone(jid)
-    }
-    public func statusLine(for jid: JID) -> (Character, String)? {
-        self._statusLine(jid)
-    }
+    public let onlineStatus: (_ jid: JID) -> OnlineStatus?
+    public let lastSeenDate: (_ jid: JID) -> Date?
+    public let timeZone: (_ jid: JID) -> TimeZone?
+    public let statusLine: (_ jid: JID) -> (Character, String)?
 }
 
 public extension StatusStore {
     static var stub: Self {
         Self(
-            _onlineStatus: StubStatusStore.shared.onlineStatus(for:),
-            _lastSeenDate: StubStatusStore.shared.lastSeenDate(for:),
-            _timeZone: StubStatusStore.shared.timeZone(for:),
-            _statusLine: StubStatusStore.shared.statusLine(for:)
+            onlineStatus: StubStatusStore.shared.onlineStatus(for:),
+            lastSeenDate: StubStatusStore.shared.lastSeenDate(for:),
+            timeZone: StubStatusStore.shared.timeZone(for:),
+            statusLine: StubStatusStore.shared.statusLine(for:)
         )
     }
 }

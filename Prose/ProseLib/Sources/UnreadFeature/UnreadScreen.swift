@@ -87,7 +87,7 @@ public let unreadReducer: Reducer<
                     let chatTitle: String
                     switch chatId {
                     case let .person(id: jid):
-                        chatTitle = environment.userStore.user(for: jid)?.fullName ?? "Unknown"
+                        chatTitle = environment.userStore.user(jid)?.fullName ?? "Unknown"
                     case let .group(id: groupId):
                         chatTitle = String(describing: groupId)
                     }

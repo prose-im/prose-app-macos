@@ -63,17 +63,13 @@ public extension User {
 }
 
 public struct UserStore {
-    private let _user: (_ jid: JID) -> User?
-    
-    public func user(for jid: JID) -> User? {
-        self._user(jid)
-    }
+    public let user: (_ jid: JID) -> User?
 }
 
 public extension UserStore {
     static var stub: Self {
         Self(
-            _user: StubUserStore.shared.user(for:)
+            user: StubUserStore.shared.user(for:)
         )
     }
 }
