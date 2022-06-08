@@ -176,7 +176,7 @@ struct UnreadScreen_Previews: PreviewProvider {
                         senderId: "baptiste@crisp.chat",
                         senderName: "Baptiste",
                         avatar: PreviewImages.Avatars.baptiste.rawValue,
-                        content: "⚠️ I'm performing a change of the server IP definitions. Slight outage espected.",
+                        content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
                         timestamp: Date() - 90_000
                     ),
                     MessageViewModel(

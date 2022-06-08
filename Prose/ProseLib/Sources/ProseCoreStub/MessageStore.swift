@@ -109,7 +109,7 @@ private final class StubMessageStore {
             (ChatID.group(id: "constellation"), [
                 Message(
                     senderId: "baptiste@crisp.chat",
-                    content: "⚠️ I'm performing a change of the server IP definitions. Slight outage espected.",
+                    content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
                     timestamp: Date() - 90_000
                 ),
                 Message(
