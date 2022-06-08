@@ -82,6 +82,13 @@ public let sidebarContentReducer: Reducer<
         environment: { $0 }
     ),
     Reducer { state, action, _ in
+        // Before route is updated, save the current state
+        if case .binding(\.$route) = action, let route = state.route {
+            state.states[route] = state.destination.wrappedValue
+        }
+        return .none
+    },
+    Reducer { state, action, _ in
         switch action {
         case .binding(\.$route):
             func createState(for route: SidebarRoute) -> NavigationDestinationState {
