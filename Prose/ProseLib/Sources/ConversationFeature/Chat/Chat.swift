@@ -77,6 +77,15 @@ public struct ChatState: Equatable {
     }
 }
 
+public extension ChatState {
+    static var placeholder: Self {
+        // TODO: [Rémi Bardon] Add messages here, but find a way to make the creation of messages not computer-intensive
+        Self(
+            messages: OrderedDictionary()
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum ChatAction: Equatable {}

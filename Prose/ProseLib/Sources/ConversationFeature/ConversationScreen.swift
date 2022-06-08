@@ -26,7 +26,8 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
+        chat()
+            .onAppear { actions.send(.onAppear) }
             .safeAreaInset(edge: .trailing, spacing: 0) {
                 WithViewStore(self.store.scope(state: \State.toolbar.isShowingInfo)) { showingInfo in
                     HStack(spacing: 0) {
@@ -42,9 +43,26 @@ public struct ConversationScreen: View {
                     .clipped()
                 }
             }
-            .toolbar {
-                Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
-            }
+            .toolbar(content: toolbar)
+    }
+
+    @ViewBuilder
+    private func chat() -> some View {
+        IfLetStore(self.store.scope(state: \State.chat, action: Action.chat)) {
+            ChatWithMessageBar(store: $0)
+        } else: {
+            ChatWithMessageBar(store: Store(
+                initialState: .placeholder,
+                reducer: .empty,
+                environment: ()
+            ))
+            .redacted(reason: .placeholder)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private func toolbar() -> some ToolbarContent {
+        Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
     }
 }
 
@@ -57,7 +75,7 @@ public let conversationReducer: Reducer<
     ConversationAction,
     ConversationEnvironment
 > = Reducer.combine([
-    chatWithBarReducer.pullback(
+    chatWithBarReducer.optional().pullback(
         state: \ConversationState.chat,
         action: /ConversationAction.chat,
         environment: { _ in () }
@@ -72,13 +90,51 @@ public let conversationReducer: Reducer<
         action: /ConversationAction.toolbar,
         environment: { _ in () }
     ),
-    Reducer { state, action, _ in
+    Reducer { state, action, environment in
         switch action {
+        case .onAppear:
+            let chatId = state.chatId
+
+            return Effect.merge([
+                Effect.task(priority: .high) {
+                    let messages = (environment.messageStore.messages(for: chatId) ?? [])
+                        .map(\.toMessageViewModel)
+                    return .didLoadMessages(messages)
+                }
+                .receive(on: RunLoop.main)
+                .eraseToEffect(),
+                Effect.task(priority: .high) {
+                    let user: User?
+                    switch chatId {
+                    case let .person(jid):
+                        user = UserStore.shared.user(for: jid)
+                    case .group:
+                        print("Group info not supported yet")
+                        user = nil
+                    }
+
+                    return .didLoadUser(user)
+                }
+                .receive(on: RunLoop.main)
+                .eraseToEffect(),
+            ])
+
+        case let .didLoadMessages(messages):
+            state.chat = ChatWithBarState(
+                chat: ChatState(messages: messages),
+                // TODO: Make this dynamic
+                messageBar: MessageBarState(firstName: "Valerian")
+            )
+
+        case let .didLoadUser(.some(user)):
+            // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
+            state.toolbar = ToolbarState(user: user, showingInfo: false)
+
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
             //       trigger an asynchronous call here, to retrieve it.
             //       Use a placeholder while waiting for the data.
-            if state.toolbar.isShowingInfo, state.info == nil {
+            if state.toolbar.isShowingInfo == true, state.info == nil {
                 let user: User?
                 let status: OnlineStatus?
                 let lastSeenDate: Date?
@@ -144,52 +200,37 @@ public let conversationReducer: Reducer<
 
 public struct ConversationState: Equatable {
     public let chatId: ChatID
-    var chat: ChatWithBarState
+    var chat: ChatWithBarState?
     var info: ConversationInfoState?
     var toolbar: ToolbarState
 
-    init(
+    public init(
         chatId: ChatID,
-        chat: ChatWithBarState,
+        chat: ChatWithBarState? = nil,
         info: ConversationInfoState? = nil,
-        toolbar: ToolbarState
+        toolbar: ToolbarState? = nil
     ) {
         self.chatId = chatId
         self.chat = chat
         self.info = info
-        self.toolbar = toolbar
+        self.toolbar = toolbar ?? .init(user: nil)
     }
+}
 
-    public init(chatId: ChatID) {
-        self.chatId = chatId
-
-        let messages = (MessageStore.shared.messages(for: chatId) ?? [])
-            .map(\.toMessageViewModel)
-        self.chat = ChatWithBarState(
-            chat: ChatState(messages: messages),
-            // TODO: Make this dynamic
-            messageBar: MessageBarState(firstName: "Valerian")
+public extension ConversationState {
+    static var placeholder: Self {
+        Self(
+            chatId: .person(id: "placeholder@prose.org")
         )
-
-        let user: User?
-        switch chatId {
-        case let .person(jid):
-            user = UserStore.shared.user(for: jid)
-        case .group:
-            print("Group info not supported yet")
-            user = nil
-        }
-
-        self.info = nil
-
-        // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
-        self.toolbar = ToolbarState(user: user, showingInfo: false)
     }
 }
 
 // MARK: Actions
 
 public enum ConversationAction: Equatable {
+    case onAppear
+    case didLoadMessages([MessageViewModel])
+    case didLoadUser(User?)
     case chat(ChatWithBarAction)
     case info(ConversationInfoAction)
     case toolbar(ToolbarAction)
@@ -197,8 +238,14 @@ public enum ConversationAction: Equatable {
 
 // MARK: Environment
 
-public struct ConversationEnvironment: Equatable {
-    public init() {}
+public struct ConversationEnvironment {
+    let messageStore: MessageStore
+
+    public init(
+        messageStore: MessageStore
+    ) {
+        self.messageStore = messageStore
+    }
 }
 
 // MARK: - Previews
@@ -208,7 +255,9 @@ struct ConversationScreen_Previews: PreviewProvider {
         ConversationScreen(store: Store(
             initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
             reducer: conversationReducer,
-            environment: ConversationEnvironment()
+            environment: ConversationEnvironment(
+                messageStore: .stub
+            )
         ))
     }
 }

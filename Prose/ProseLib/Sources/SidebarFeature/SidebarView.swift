@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProseCoreStub
 import SwiftUI
 
 // MARK: - View
@@ -49,7 +50,7 @@ public let sidebarReducer: Reducer<
     sidebarContentReducer.pullback(
         state: \SidebarState.content,
         action: /SidebarAction.content,
-        environment: { _ in () }
+        environment: { $0 }
     ),
     footerReducer.pullback(
         state: \SidebarState.footer,
@@ -95,6 +96,12 @@ public enum SidebarAction: Equatable, BindableAction {
 
 // MARK: Environment
 
-public struct SidebarEnvironment: Equatable {
-    public init() {}
+public struct SidebarEnvironment {
+    let messageStore: MessageStore
+
+    public init(
+        messageStore: MessageStore
+    ) {
+        self.messageStore = messageStore
+    }
 }

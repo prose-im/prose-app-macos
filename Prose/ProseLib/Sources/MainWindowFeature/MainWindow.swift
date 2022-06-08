@@ -69,11 +69,11 @@ public enum MainWindowAction: Equatable {
 
 // MARK: Environment
 
-public struct MainWindowEnvironment: Equatable {
+public struct MainWindowEnvironment {
     var sidebar: SidebarEnvironment
 
     public init(
-        sidebar: SidebarEnvironment = .init()
+        sidebar: SidebarEnvironment
     ) {
         self.sidebar = sidebar
     }
@@ -88,7 +88,9 @@ internal struct MainWindow_Previews: PreviewProvider {
                 sidebar: .init(credentials: UserCredentials(jid: "preview@prose.org"))
             ),
             reducer: mainWindowReducer,
-            environment: MainWindowEnvironment()
+            environment: MainWindowEnvironment(
+                sidebar: .init(messageStore: .stub)
+            )
         ))
     }
 }

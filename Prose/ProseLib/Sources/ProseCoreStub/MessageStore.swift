@@ -17,10 +17,32 @@ public struct Message {
     public let timestamp: Date
 }
 
+public struct MessageStore {
+    private var _messages: (_ chatId: ChatID) -> [Message]?
+    private var _unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
+
+    public func messages(for chatId: ChatID) -> [Message]? {
+        self._messages(chatId)
+    }
+
+    public func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
+        self._unreadMessages()
+    }
+}
+
+public extension MessageStore {
+    static var stub: Self {
+        Self(
+            _messages: StubMessageStore.shared.messages(for:),
+            _unreadMessages: StubMessageStore.shared.unreadMessages
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class MessageStore {
-    public static let shared = MessageStore()
+private final class StubMessageStore {
+    static let shared = StubMessageStore()
 
     private lazy var messages: [ChatID: [Message]] = [
         .person(id: "valerian@crisp.chat"): (1...21).map {
@@ -96,5 +118,11 @@ public final class MessageStore {
                     timestamp: Date() - 100_000
                 ),
             ]))
+    }
+}
+
+extension StubMessageStore: Equatable {
+    static func == (lhs: StubMessageStore, rhs: StubMessageStore) -> Bool {
+        lhs === rhs
     }
 }

@@ -64,6 +64,15 @@ public struct ChatWithBarState: Equatable {
     }
 }
 
+public extension ChatWithBarState {
+    static var placeholder: Self {
+        Self(
+            chat: .placeholder,
+            messageBar: .placeholder
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum ChatWithBarAction: Equatable {

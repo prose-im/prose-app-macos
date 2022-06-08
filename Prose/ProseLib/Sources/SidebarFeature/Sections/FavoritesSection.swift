@@ -52,11 +52,15 @@ struct FavoritesSection: View {
 let favoritesSectionReducer: Reducer<
     FavoritesSectionState,
     FavoritesSectionAction,
-    Void
+    SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
     state: \FavoritesSectionState.destination,
     action: /FavoritesSectionAction.destination,
-    environment: { _ in NavigationDestinationEnvironment() }
+    environment: {
+        NavigationDestinationEnvironment(
+            messageStore: $0.messageStore
+        )
+    }
 )
 
 // MARK: State
@@ -111,7 +115,9 @@ internal struct FavoritesSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: favoritesSectionReducer,
-                            environment: ()
+                            environment: .init(
+                                messageStore: .stub
+                            )
                         ),
                         route: $route
                     )

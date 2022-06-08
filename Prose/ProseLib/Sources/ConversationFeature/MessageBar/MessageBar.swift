@@ -105,6 +105,14 @@ public struct MessageBarState: Equatable {
     }
 }
 
+public extension MessageBarState {
+    static var placeholder: Self {
+        Self(
+            firstName: "Valerian Saliou"
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum MessageBarAction: Equatable, BindableAction {

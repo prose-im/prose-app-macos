@@ -57,12 +57,16 @@ struct OtherContactsSection: View {
 let otherContactsSectionReducer: Reducer<
     OtherContactsSectionState,
     OtherContactsSectionAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
         state: \OtherContactsSectionState.destination,
         action: /OtherContactsSectionAction.destination,
-        environment: { _ in NavigationDestinationEnvironment() }
+        environment: {
+            NavigationDestinationEnvironment(
+                messageStore: $0.messageStore
+            )
+        }
     ),
     Reducer { _, action, _ in
         switch action {
@@ -119,7 +123,9 @@ struct OtherContactsSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: otherContactsSectionReducer,
-                            environment: ()
+                            environment: .init(
+                                messageStore: .stub
+                            )
                         ),
                         route: $route
                     )

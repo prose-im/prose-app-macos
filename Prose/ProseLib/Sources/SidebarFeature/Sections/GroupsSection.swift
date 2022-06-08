@@ -57,12 +57,16 @@ struct GroupsSection: View {
 let groupsSectionReducer: Reducer<
     GroupsSectionState,
     GroupsSectionAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
         state: \GroupsSectionState.destination,
         action: /GroupsSectionAction.destination,
-        environment: { _ in NavigationDestinationEnvironment() }
+        environment: {
+            NavigationDestinationEnvironment(
+                messageStore: $0.messageStore
+            )
+        }
     ),
     Reducer { _, action, _ in
         switch action {
@@ -137,7 +141,9 @@ struct GroupsSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: groupsSectionReducer,
-                            environment: ()
+                            environment: .init(
+                                messageStore: .stub
+                            )
                         ),
                         route: $route
                     )

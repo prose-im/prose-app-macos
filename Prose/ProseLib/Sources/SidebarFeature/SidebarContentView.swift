@@ -53,7 +53,7 @@ struct SidebarContentView: View {
 public let sidebarContentReducer: Reducer<
     SidebarContentState,
     SidebarContentAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     spotlightSectionReducer.pullback(
         state: \SidebarContentState.spotlight,
@@ -87,10 +87,7 @@ public let sidebarContentReducer: Reducer<
                 let destination: NavigationDestinationState
                 switch route {
                 case .unread:
-                    destination = NavigationDestinationState.unread(.init(
-                        // TODO: [Rémi Bardon] Make this lazy
-                        messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
-                    ))
+                    destination = NavigationDestinationState.unread(.init())
                 case .replies:
                     destination = NavigationDestinationState.replies
                 case .directMessages:
@@ -152,10 +149,7 @@ public struct SidebarContentState: Equatable {
         self.route = route
 
         let states: [SidebarRoute: NavigationDestinationState] = [
-            .unread: NavigationDestinationState.unread(.init(
-                // TODO: [Rémi Bardon] Make this lazy
-                messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
-            )),
+            .unread: NavigationDestinationState.unread(.init()),
         ]
         self.states = states
 
@@ -185,7 +179,7 @@ struct SidebarContent_Previews: PreviewProvider {
             SidebarContentView(store: Store(
                 initialState: .init(),
                 reducer: sidebarContentReducer,
-                environment: ()
+                environment: .init(messageStore: .stub)
             ))
             .frame(width: 256)
         }

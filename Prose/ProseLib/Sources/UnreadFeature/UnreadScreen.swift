@@ -90,6 +90,10 @@ public struct UnreadState: Equatable {
             chatId: chatId,
             messages: self.messages[chatId]!
         )
+//        .init(
+//            // TODO: [Rémi Bardon] Make this lazy
+//            messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
+//        )
     }
 }
 

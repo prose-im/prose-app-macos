@@ -103,6 +103,7 @@ public let toolbarReducer: Reducer<
 
 public struct ToolbarState: Equatable {
     let user: User?
+
     @BindableState var isShowingInfo: Bool
 
     public init(

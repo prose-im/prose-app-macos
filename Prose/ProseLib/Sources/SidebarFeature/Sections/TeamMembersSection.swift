@@ -57,12 +57,16 @@ struct TeamMembersSection: View {
 let teamMembersSectionReducer: Reducer<
     TeamMembersSectionState,
     TeamMembersSectionAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
         state: \TeamMembersSectionState.destination,
         action: /TeamMembersSectionAction.destination,
-        environment: { _ in NavigationDestinationEnvironment() }
+        environment: {
+            NavigationDestinationEnvironment(
+                messageStore: $0.messageStore
+            )
+        }
     ),
     Reducer { _, action, _ in
         switch action {
@@ -131,7 +135,9 @@ struct TeamMembersSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: teamMembersSectionReducer,
-                            environment: ()
+                            environment: .init(
+                                messageStore: .stub
+                            )
                         ),
                         route: $route
                     )

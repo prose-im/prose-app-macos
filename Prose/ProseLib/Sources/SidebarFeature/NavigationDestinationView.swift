@@ -67,7 +67,11 @@ public let navigationDestinationReducer: Reducer<
     conversationReducer.pullback(
         state: /NavigationDestinationState.chat,
         action: /NavigationDestinationAction.chat,
-        environment: { _ in ConversationEnvironment() }
+        environment: {
+            ConversationEnvironment(
+                messageStore: $0.messageStore
+            )
+        }
     ),
     unreadReducer.pullback(
         state: /NavigationDestinationState.unread,
@@ -93,7 +97,13 @@ public enum NavigationDestinationAction: Equatable {
 // MARK: Environment
 
 public struct NavigationDestinationEnvironment {
-    public init() {}
+    let messageStore: MessageStore
+
+    public init(
+        messageStore: MessageStore
+    ) {
+        self.messageStore = messageStore
+    }
 }
 
 // MARK: - Previews
@@ -103,7 +113,9 @@ struct NavigationDestinationView_Previews: PreviewProvider {
         NavigationDestinationView(store: Store(
             initialState: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             reducer: navigationDestinationReducer,
-            environment: NavigationDestinationEnvironment()
+            environment: NavigationDestinationEnvironment(
+                messageStore: .stub
+            )
         ))
     }
 }
