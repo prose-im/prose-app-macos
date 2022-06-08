@@ -69,7 +69,10 @@ public let navigationDestinationReducer: Reducer<
         action: /NavigationDestinationAction.chat,
         environment: {
             ConversationEnvironment(
-                messageStore: $0.messageStore
+                userStore: $0.userStore,
+                messageStore: $0.messageStore,
+                statusStore: $0.statusStore,
+                securityStore: $0.securityStore
             )
         }
     ),
@@ -78,6 +81,7 @@ public let navigationDestinationReducer: Reducer<
         action: /NavigationDestinationAction.unread,
         environment: {
             UnreadEnvironment(
+                userStore: $0.userStore,
                 messageStore: $0.messageStore
             )
         }
@@ -101,12 +105,43 @@ public enum NavigationDestinationAction: Equatable {
 // MARK: Environment
 
 public struct NavigationDestinationEnvironment {
+    let userStore: UserStore
     let messageStore: MessageStore
-
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+    
     public init(
-        messageStore: MessageStore
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
     ) {
+        self.userStore = userStore
         self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+extension NavigationDestinationEnvironment {
+    public static var stub: Self {
+        Self(
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
+        )
+    }
+}
+
+extension SidebarEnvironment {
+    public var destination: NavigationDestinationEnvironment {
+        NavigationDestinationEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
+        )
     }
 }
 
@@ -117,9 +152,7 @@ struct NavigationDestinationView_Previews: PreviewProvider {
         NavigationDestinationView(store: Store(
             initialState: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             reducer: navigationDestinationReducer,
-            environment: NavigationDestinationEnvironment(
-                messageStore: .stub
-            )
+            environment: .stub
         ))
     }
 }

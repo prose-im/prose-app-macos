@@ -8,12 +8,35 @@
 import Foundation
 import SharedModels
 
+public struct SecurityStore {
+    
+    private let _isIdentityVerified: (_ jid: JID) -> Bool
+    private let _encryptionFingerprint: (_ jid: JID) -> String?
+    
+    public func isIdentityVerified(for jid: JID) -> Bool {
+        self._isIdentityVerified(jid)
+    }
+    
+    public func encryptionFingerprint(for jid: JID) -> String? {
+        self._encryptionFingerprint(jid)
+    }
+}
+
+public extension SecurityStore {
+    static var stub: Self {
+        Self(
+            _isIdentityVerified: StubSecurityStore.shared.isIdentityVerified(for:),
+            _encryptionFingerprint: StubSecurityStore.shared.encryptionFingerprint(for:)
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class SecurityStore {
-    public static let shared = SecurityStore()
-
-    private let isIdentityVerified: [JID: Bool] = [
+fileprivate final class StubSecurityStore {
+    fileprivate static let shared = StubSecurityStore()
+    
+    private let _isIdentityVerified: [JID: Bool] = [
         "alexandre@crisp.chat": true,
         "antoine@crisp.chat": true,
         "baptiste@crisp.chat": true,
@@ -23,7 +46,7 @@ public final class SecurityStore {
         "julien@thefamily.com": false,
         "valerian@crisp.chat": true,
     ]
-    private let encryptionFingerprints: [JID: String] = [
+    private let _encryptionFingerprints: [JID: String] = [
         "alexandre@crisp.chat": "JUOF2",
         "antoine@crisp.chat": "Q2DZO",
         "baptiste@crisp.chat": "WQC7S",
@@ -33,14 +56,15 @@ public final class SecurityStore {
         "julien@thefamily.com": "Q48PT",
         "valerian@crisp.chat": "1HHHW",
     ]
-
+    
     private init() {}
-
-    public func isIdentityVerified(for jid: JID) -> Bool {
-        self.isIdentityVerified[jid, default: false]
+    
+    func isIdentityVerified(for jid: JID) -> Bool {
+        self._isIdentityVerified[jid, default: false]
     }
-
-    public func encryptionFingerprint(for jid: JID) -> String? {
-        self.encryptionFingerprints[jid]
+    
+    func encryptionFingerprint(for jid: JID) -> String? {
+        self._encryptionFingerprints[jid]
     }
+    
 }

@@ -18,8 +18,8 @@ public struct Message {
 }
 
 public struct MessageStore {
-    private var _messages: (_ chatId: ChatID) -> [Message]?
-    private var _unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
+    private let _messages: (_ chatId: ChatID) -> [Message]?
+    private let _unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
 
     public func messages(for chatId: ChatID) -> [Message]? {
         self._messages(chatId)
@@ -42,9 +42,9 @@ public extension MessageStore {
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 private final class StubMessageStore {
-    static let shared = StubMessageStore()
-
-    private lazy var messages: [ChatID: [Message]] = [
+    fileprivate static let shared = StubMessageStore()
+    
+    private lazy var _messages: [ChatID: [Message]] = [
         .person(id: "valerian@crisp.chat"): (1...21).map {
             Message(
                 senderId: "valerian@crisp.chat",
@@ -73,15 +73,8 @@ private final class StubMessageStore {
             }
             .reversed(),
     ]
-
-    private init() {}
-
-    public func messages(for chatId: ChatID) -> [Message]? {
-        self.messages[chatId]
-    }
-
-    public func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
-        OrderedDictionary(dictionaryLiteral:
+    private lazy var _unreadMessages = OrderedDictionary(
+        dictionaryLiteral:
             (ChatID.person(id: "valerian@crisp.chat"), [
                 Message(
                     senderId: "baptiste@crisp.chat",
@@ -117,7 +110,17 @@ private final class StubMessageStore {
                     content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
                     timestamp: Date() - 100_000
                 ),
-            ]))
+            ])
+    )
+    
+    private init() {}
+
+    func messages(for chatId: ChatID) -> [Message]? {
+        self._messages[chatId]
+    }
+
+    func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
+        self._unreadMessages
     }
 }
 

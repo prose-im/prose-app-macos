@@ -63,11 +63,7 @@ let groupsSectionReducer: Reducer<
     navigationDestinationReducer.optional().pullback(
         state: \GroupsSectionState.destination.wrappedValue,
         action: /GroupsSectionAction.destination,
-        environment: {
-            NavigationDestinationEnvironment(
-                messageStore: $0.messageStore
-            )
-        }
+        environment: { $0.destination }
     ),
     Reducer { _, action, _ in
         switch action {
@@ -142,9 +138,7 @@ struct GroupsSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: groupsSectionReducer,
-                            environment: .init(
-                                messageStore: .stub
-                            )
+                            environment: .stub
                         ),
                         route: $route
                     )

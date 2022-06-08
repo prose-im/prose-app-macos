@@ -89,7 +89,7 @@ internal struct MainWindow_Previews: PreviewProvider {
             ),
             reducer: mainWindowReducer,
             environment: MainWindowEnvironment(
-                sidebar: .init(messageStore: .stub)
+                sidebar: .stub
             )
         ))
     }

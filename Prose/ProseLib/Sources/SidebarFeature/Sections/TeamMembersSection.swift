@@ -63,11 +63,7 @@ let teamMembersSectionReducer: Reducer<
     navigationDestinationReducer.optional().pullback(
         state: \TeamMembersSectionState.destination.wrappedValue,
         action: /TeamMembersSectionAction.destination,
-        environment: {
-            NavigationDestinationEnvironment(
-                messageStore: $0.messageStore
-            )
-        }
+        environment: { $0.destination }
     ),
     Reducer { _, action, _ in
         switch action {
@@ -136,9 +132,7 @@ struct TeamMembersSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: teamMembersSectionReducer,
-                            environment: .init(
-                                messageStore: .stub
-                            )
+                            environment: .stub
                         ),
                         route: $route
                     )

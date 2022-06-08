@@ -58,9 +58,7 @@ public struct UnreadScreen: View {
         ScrollView {
             VStack(spacing: 24) {
                 WithViewStore(self.store) { viewStore in
-                    ForEach(viewStore.state.messages.keys, id: \.self) { chatId in
-                        UnreadSection(model: viewStore.state.scope(for: chatId))
-                    }
+                    ForEach(viewStore.state.messages, id: \.chatId, content: UnreadSection.init(model:))
                 }
             }
             .padding(24)
@@ -83,8 +81,24 @@ public let unreadReducer: Reducer<
 
         return Effect.task(priority: .high) {
             let messages = environment.messageStore.unreadMessages()
-                .mapValues { $0.map(\.toMessageViewModel) }
-
+                .map { (chatId, messages) -> UnreadSectionModel in
+                    let messages = messages.map { $0.toMessageViewModel(userStore: environment.userStore) }
+                    
+                    let chatTitle: String
+                    switch chatId {
+                    case let .person(id: jid):
+                        chatTitle = environment.userStore.user(for: jid)?.fullName ?? "Unknown"
+                    case let .group(id: groupId):
+                        chatTitle = String(describing: groupId)
+                    }
+                    
+                    return UnreadSectionModel(
+                        chatId: chatId,
+                        chatTitle: chatTitle,
+                        messages: messages
+                    )
+                }
+            
             return .didLoadMessages(messages)
         }
         .receive(on: RunLoop.main)
@@ -100,17 +114,10 @@ public let unreadReducer: Reducer<
 // MARK: State
 
 public struct UnreadState: Equatable {
-    var messages: OrderedDictionary<ChatID, [MessageViewModel]>
+    var messages: [UnreadSectionModel]
 
-    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]> = .init()) {
+    public init(messages: [UnreadSectionModel] = []) {
         self.messages = messages
-    }
-
-    func scope(for chatId: ChatID) -> UnreadSectionModel {
-        UnreadSectionModel(
-            chatId: chatId,
-            messages: self.messages[chatId]!
-        )
     }
 }
 
@@ -118,17 +125,20 @@ public struct UnreadState: Equatable {
 
 public enum UnreadAction: Equatable {
     case onAppear
-    case didLoadMessages(OrderedDictionary<ChatID, [MessageViewModel]>)
+    case didLoadMessages([UnreadSectionModel])
 }
 
 // MARK: Environment
 
 public struct UnreadEnvironment {
+    let userStore: UserStore
     let messageStore: MessageStore
 
     public init(
+        userStore: UserStore,
         messageStore: MessageStore
     ) {
+        self.userStore = userStore
         self.messageStore = messageStore
     }
 }
@@ -138,56 +148,69 @@ public struct UnreadEnvironment {
 struct UnreadScreen_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            content(state: .init(messages: OrderedDictionary(dictionaryLiteral:
-                (ChatID.person(id: "valerian@crisp.chat"), [
-                    MessageViewModel(
-                        senderId: "baptiste@crisp.chat",
-                        senderName: "Baptiste",
-                        avatar: PreviewImages.Avatars.baptiste.rawValue,
-                        content: "They forgot to ship the package.",
-                        timestamp: Date() - 2_800
-                    ),
-                    MessageViewModel(
-                        senderId: "valerian@crisp.chat",
-                        senderName: "Valerian",
-                        avatar: PreviewImages.Avatars.valerian.rawValue,
-                        content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
-                        timestamp: Date() - 3_000
-                    ),
-                ]),
-                (ChatID.person(id: "julien@thefamily.com"), [
-                    MessageViewModel(
-                        senderId: "baptiste@crisp.chat",
-                        senderName: "Baptiste",
-                        avatar: PreviewImages.Avatars.baptiste.rawValue,
-                        content: "Can I initiate a deployment of the Vue app?",
-                        timestamp: Date() - 9_000
-                    ),
-                    MessageViewModel(
-                        senderId: "julien@thefamily.com",
-                        senderName: "Julien",
-                        avatar: PreviewImages.Avatars.julien.rawValue,
-                        content: "Yes, it's ready. 3 new features are shipping! 😀",
-                        timestamp: Date() - 10_000
-                    ),
-                ]),
-                (ChatID.group(id: "constellation"), [
-                    MessageViewModel(
-                        senderId: "baptiste@crisp.chat",
-                        senderName: "Baptiste",
-                        avatar: PreviewImages.Avatars.baptiste.rawValue,
-                        content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
-                        timestamp: Date() - 90_000
-                    ),
-                    MessageViewModel(
-                        senderId: "constellation-health@crisp.chat",
-                        senderName: "constellation-health",
-                        avatar: PreviewImages.Avatars.constellationHealth.rawValue,
-                        content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
-                        timestamp: Date() - 100_000
-                    ),
-                ]))))
-            content(state: .init(messages: .init()))
+            content(state: .init(messages: [
+                .init(
+                    chatId: .person(id: "valerian@crisp.chat"),
+                    chatTitle: "Valerian",
+                    messages: [
+                        MessageViewModel(
+                            senderId: "baptiste@crisp.chat",
+                            senderName: "Baptiste",
+                            avatar: PreviewImages.Avatars.baptiste.rawValue,
+                            content: "They forgot to ship the package.",
+                            timestamp: Date() - 2_800
+                        ),
+                        MessageViewModel(
+                            senderId: "valerian@crisp.chat",
+                            senderName: "Valerian",
+                            avatar: PreviewImages.Avatars.valerian.rawValue,
+                            content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
+                            timestamp: Date() - 3_000
+                        ),
+                    ]
+                ),
+                .init(
+                    chatId: .person(id: "julien@thefamily.com"),
+                    chatTitle: "Julien",
+                    messages: [
+                        MessageViewModel(
+                            senderId: "baptiste@crisp.chat",
+                            senderName: "Baptiste",
+                            avatar: PreviewImages.Avatars.baptiste.rawValue,
+                            content: "Can I initiate a deployment of the Vue app?",
+                            timestamp: Date() - 9_000
+                        ),
+                        MessageViewModel(
+                            senderId: "julien@thefamily.com",
+                            senderName: "Julien",
+                            avatar: PreviewImages.Avatars.julien.rawValue,
+                            content: "Yes, it's ready. 3 new features are shipping! 😀",
+                            timestamp: Date() - 10_000
+                        ),
+                    ]
+                ),
+                .init(
+                    chatId: .group(id: "constellation"),
+                    chatTitle: "Julien",
+                    messages: [
+                        MessageViewModel(
+                            senderId: "baptiste@crisp.chat",
+                            senderName: "Baptiste",
+                            avatar: PreviewImages.Avatars.baptiste.rawValue,
+                            content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
+                            timestamp: Date() - 90_000
+                        ),
+                        MessageViewModel(
+                            senderId: "constellation-health@crisp.chat",
+                            senderName: "constellation-health",
+                            avatar: PreviewImages.Avatars.constellationHealth.rawValue,
+                            content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
+                            timestamp: Date() - 100_000
+                        ),
+                    ]
+                )
+            ]))
+            content(state: .init(messages: []))
         }
 
         @ViewBuilder
@@ -195,7 +218,10 @@ struct UnreadScreen_Previews: PreviewProvider {
             UnreadScreen(store: Store(
                 initialState: state,
                 reducer: unreadReducer,
-                environment: UnreadEnvironment(messageStore: .stub)
+                environment: UnreadEnvironment(
+                    userStore: .stub,
+                    messageStore: .stub
+                )
             ))
         }
     }

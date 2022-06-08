@@ -58,11 +58,7 @@ let spotlightSectionReducer: Reducer<
 > = navigationDestinationReducer.optional().pullback(
     state: \SpotlightSectionState.destination.wrappedValue,
     action: /SpotlightSectionAction.destination,
-    environment: {
-        NavigationDestinationEnvironment(
-            messageStore: $0.messageStore
-        )
-    }
+    environment: { $0.destination }
 )
 
 // MARK: State
@@ -103,9 +99,7 @@ struct SpotlightSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: spotlightSectionReducer,
-                            environment: .init(
-                                messageStore: .stub
-                            )
+                            environment: .stub
                         ),
                         route: $route
                     )

@@ -97,11 +97,31 @@ public enum SidebarAction: Equatable, BindableAction {
 // MARK: Environment
 
 public struct SidebarEnvironment {
+    let userStore: UserStore
     let messageStore: MessageStore
-
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+    
     public init(
-        messageStore: MessageStore
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
     ) {
+        self.userStore = userStore
         self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+extension SidebarEnvironment {
+    public static var stub: Self {
+        Self(
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
+        )
     }
 }

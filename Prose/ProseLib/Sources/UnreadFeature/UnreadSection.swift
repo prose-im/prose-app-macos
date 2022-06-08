@@ -11,9 +11,20 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-struct UnreadSectionModel {
+public struct UnreadSectionModel: Equatable {
     let chatId: ChatID
+    let chatTitle: String
     let messages: [MessageViewModel]
+    
+    public init(
+        chatId: ChatID,
+        chatTitle: String,
+        messages: [MessageViewModel]
+    ) {
+        self.chatId = chatId
+        self.chatTitle = chatTitle
+        self.messages = messages
+    }
 }
 
 struct UnreadSection: View {
@@ -50,22 +61,13 @@ struct UnreadSection: View {
             }
         } label: {
             HStack {
-                Label(label(for: model.chatId), systemImage: model.chatId.icon.rawValue)
+                Label(model.chatTitle, systemImage: model.chatId.icon.rawValue)
                     .labelStyle(.coloredIcon)
                     .font(.title3.bold())
                 Spacer()
                 Text(model.messages.last!.timestamp, format: .relative(presentation: .named))
                     .foregroundColor(.secondary)
             }
-        }
-    }
-
-    private func label(for chatId: ChatID) -> String {
-        switch chatId {
-        case let .person(id: jid):
-            return UserStore.shared.user(for: jid)?.fullName ?? "Unknown"
-        case let .group(id: groupId):
-            return String(describing: groupId)
         }
     }
 }

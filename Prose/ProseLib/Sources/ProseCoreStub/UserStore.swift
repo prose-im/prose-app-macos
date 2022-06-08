@@ -62,12 +62,28 @@ public extension User {
     }
 }
 
+public struct UserStore {
+    private let _user: (_ jid: JID) -> User?
+    
+    public func user(for jid: JID) -> User? {
+        self._user(jid)
+    }
+}
+
+public extension UserStore {
+    static var stub: Self {
+        Self(
+            _user: StubUserStore.shared.user(for:)
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class UserStore {
-    public static let shared = UserStore()
+fileprivate final class StubUserStore {
+    fileprivate static let shared = StubUserStore()
 
-    private let users: [JID: User] = [
+    private lazy var users: [JID: User] = [
         "alexandre@crisp.chat": User(
             jid: "alexandre@crisp.chat",
             displayName: "Alexandre",
@@ -160,7 +176,7 @@ public final class UserStore {
 
     private init() {}
 
-    public func user(for jid: JID) -> User? {
+    fileprivate func user(for jid: JID) -> User? {
         self.users[jid]
     }
 }

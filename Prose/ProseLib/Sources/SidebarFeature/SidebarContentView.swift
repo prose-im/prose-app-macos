@@ -182,7 +182,7 @@ struct SidebarContent_Previews: PreviewProvider {
             SidebarContentView(store: Store(
                 initialState: .init(),
                 reducer: sidebarContentReducer,
-                environment: .init(messageStore: .stub)
+                environment: .stub
             ))
             .frame(width: 256)
         }

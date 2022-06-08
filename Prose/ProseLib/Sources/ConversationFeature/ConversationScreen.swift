@@ -100,7 +100,7 @@ public let conversationReducer: Reducer<
             if state.chat?.chat.messages.isEmpty != false {
                 effects.append(Effect.task(priority: .high) {
                     let messages = (environment.messageStore.messages(for: chatId) ?? [])
-                        .map(\.toMessageViewModel)
+                        .map { $0.toMessageViewModel(userStore: environment.userStore) }
                     return .didLoadMessages(messages)
                 }
                 .receive(on: RunLoop.main)
@@ -112,7 +112,7 @@ public let conversationReducer: Reducer<
                     let user: User?
                     switch chatId {
                     case let .person(jid):
-                        user = UserStore.shared.user(for: jid)
+                        user = environment.userStore.user(for: jid)
                     case .group:
                         print("Group info not supported yet")
                         user = nil
@@ -152,13 +152,13 @@ public let conversationReducer: Reducer<
 
                 switch state.chatId {
                 case let .person(jid):
-                    user = UserStore.shared.user(for: jid)
-                    status = StatusStore.shared.onlineStatus(for: jid)
-                    lastSeenDate = StatusStore.shared.lastSeenDate(for: jid)
-                    timeZone = StatusStore.shared.timeZone(for: jid)
-                    statusLine = StatusStore.shared.statusLine(for: jid)
-                    isIdentityVerified = SecurityStore.shared.isIdentityVerified(for: jid)
-                    encryptionFingerprint = SecurityStore.shared.encryptionFingerprint(for: jid)
+                    user = environment.userStore.user(for: jid)
+                    status = environment.statusStore.onlineStatus(for: jid)
+                    lastSeenDate = environment.statusStore.lastSeenDate(for: jid)
+                    timeZone = environment.statusStore.timeZone(for: jid)
+                    statusLine = environment.statusStore.statusLine(for: jid)
+                    isIdentityVerified = environment.securityStore.isIdentityVerified(for: jid)
+                    encryptionFingerprint = environment.securityStore.encryptionFingerprint(for: jid)
                 case .group:
                     print("Group info not supported yet")
                     user = nil
@@ -246,12 +246,32 @@ public enum ConversationAction: Equatable {
 // MARK: Environment
 
 public struct ConversationEnvironment {
+    let userStore: UserStore
     let messageStore: MessageStore
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
 
     public init(
-        messageStore: MessageStore
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
     ) {
+        self.userStore = userStore
         self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+extension ConversationEnvironment {
+    public static var stub: Self {
+        Self(
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
+        )
     }
 }
 
@@ -262,9 +282,7 @@ struct ConversationScreen_Previews: PreviewProvider {
         ConversationScreen(store: Store(
             initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
             reducer: conversationReducer,
-            environment: ConversationEnvironment(
-                messageStore: .stub
-            )
+            environment: .stub
         ))
     }
 }
