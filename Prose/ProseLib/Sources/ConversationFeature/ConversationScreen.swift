@@ -93,17 +93,22 @@ public let conversationReducer: Reducer<
     Reducer { state, action, environment in
         switch action {
         case .onAppear:
+            var effects: [Effect<ConversationAction, Never>] = []
+            
             let chatId = state.chatId
-
-            return Effect.merge([
-                Effect.task(priority: .high) {
+            
+            if state.chat?.chat.messages.isEmpty != false {
+                effects.append(Effect.task(priority: .high) {
                     let messages = (environment.messageStore.messages(for: chatId) ?? [])
                         .map(\.toMessageViewModel)
                     return .didLoadMessages(messages)
                 }
                 .receive(on: RunLoop.main)
-                .eraseToEffect(),
-                Effect.task(priority: .high) {
+                .eraseToEffect())
+            }
+            
+            if state.toolbar.user == nil {
+                effects.append(Effect.task(priority: .high) {
                     let user: User?
                     switch chatId {
                     case let .person(jid):
@@ -112,12 +117,14 @@ public let conversationReducer: Reducer<
                         print("Group info not supported yet")
                         user = nil
                     }
-
+                    
                     return .didLoadUser(user)
                 }
                 .receive(on: RunLoop.main)
-                .eraseToEffect(),
-            ])
+                .eraseToEffect())
+            }
+
+            return Effect.merge(effects)
 
         case let .didLoadMessages(messages):
             state.chat = ChatWithBarState(
