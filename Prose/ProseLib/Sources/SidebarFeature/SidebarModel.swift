@@ -11,51 +11,9 @@ import SharedModels
 import UnreadFeature
 
 public enum SidebarRoute: Hashable {
-    case unread(UnreadScreenModel), replies, directMessages, peopleAndGroups
-    case chat(ConversationState)
+    case unread, replies, directMessages, peopleAndGroups
+    case chat(id: ChatID)
     case newMessage
-
-    public func hash(into hasher: inout Hasher) {
-        switch self {
-        case .unread:
-            hasher.combine(0)
-        case .replies:
-            hasher.combine(1)
-        case .directMessages:
-            hasher.combine(2)
-        case .peopleAndGroups:
-            hasher.combine(3)
-        case .chat:
-            hasher.combine(10)
-        case .newMessage:
-            hasher.combine(20)
-        }
-    }
-
-    public static func caseEqual(lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-        case (.unread, .unread),
-             (.replies, .replies),
-             (.directMessages, .directMessages),
-             (.peopleAndGroups, .peopleAndGroups),
-             (.chat, .chat),
-             (.newMessage, .newMessage):
-            return true
-        default:
-            return false
-        }
-    }
-
-    public static func caseEqual(lhs: Self?, rhs: Self?) -> Bool {
-        switch (lhs, rhs) {
-        case (.none, .none):
-            return true
-        case let (.some(lhs), .some(rhs)):
-            return self.caseEqual(lhs: lhs, rhs: rhs)
-        default:
-            return false
-        }
-    }
 }
 
 struct SidebarItem: Equatable, Identifiable {

@@ -29,7 +29,7 @@ struct TeamMembersSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.route, action: Action.destination),
+                            self.store.scope(state: \State.destination, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -60,7 +60,7 @@ let teamMembersSectionReducer: Reducer<
     Void
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
-        state: \TeamMembersSectionState.route,
+        state: \TeamMembersSectionState.destination,
         action: /TeamMembersSectionAction.destination,
         environment: { _ in NavigationDestinationEnvironment() }
     ),
@@ -83,30 +83,30 @@ let teamMembersSectionReducer: Reducer<
 public struct TeamMembersSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(.init(chatId: .person(id: "antoine@crisp.chat"))),
+            id: .chat(id: .person(id: "antoine@crisp.chat")),
             title: "Antoine",
             image: PreviewImages.Avatars.antoine.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(.init(chatId: .person(id: "eliott@crisp.chat"))),
+            id: .chat(id: .person(id: "eliott@crisp.chat")),
             title: "Eliott",
             image: PreviewImages.Avatars.eliott.rawValue,
             count: 3
         ),
         .init(
-            id: .chat(.init(chatId: .person(id: "camille@crisp.chat"))),
+            id: .chat(id: .person(id: "camille@crisp.chat")),
             title: "Camille",
             image: PreviewImages.Avatars.camille.rawValue,
             count: 2
         ),
     ]
-    var route: SidebarRoute?
+    var destination: NavigationDestinationState?
 
     public init(
-        route: SidebarRoute? = nil
+        destination: NavigationDestinationState? = nil
     ) {
-        self.route = route
+        self.destination = destination
     }
 }
 

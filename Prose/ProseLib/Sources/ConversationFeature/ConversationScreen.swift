@@ -143,7 +143,7 @@ public let conversationReducer: Reducer<
 // MARK: State
 
 public struct ConversationState: Equatable {
-    let chatId: ChatID
+    public let chatId: ChatID
     var chat: ChatWithBarState
     var info: ConversationInfoState?
     var toolbar: ToolbarState

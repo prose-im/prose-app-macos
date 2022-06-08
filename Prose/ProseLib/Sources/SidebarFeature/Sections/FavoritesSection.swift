@@ -29,7 +29,7 @@ struct FavoritesSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.route, action: Action.destination),
+                            self.store.scope(state: \State.destination, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -54,7 +54,7 @@ let favoritesSectionReducer: Reducer<
     FavoritesSectionAction,
     Void
 > = navigationDestinationReducer.optional().pullback(
-    state: \FavoritesSectionState.route,
+    state: \FavoritesSectionState.destination,
     action: /FavoritesSectionAction.destination,
     environment: { _ in NavigationDestinationEnvironment() }
 )
@@ -64,30 +64,30 @@ let favoritesSectionReducer: Reducer<
 public struct FavoritesSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
+            id: .chat(id: .person(id: "valerian@crisp.chat")),
             title: "Valerian",
             image: PreviewImages.Avatars.valerian.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(.init(chatId: .person(id: "alexandre@crisp.chat"))),
+            id: .chat(id: .person(id: "alexandre@crisp.chat")),
             title: "Alexandre",
             image: PreviewImages.Avatars.alexandre.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(.init(chatId: .person(id: "baptiste@crisp.chat"))),
+            id: .chat(id: .person(id: "baptiste@crisp.chat")),
             title: "Baptiste",
             image: PreviewImages.Avatars.baptiste.rawValue,
             count: 0
         ),
     ]
-    var route: SidebarRoute?
+    var destination: NavigationDestinationState?
 
     public init(
-        route: SidebarRoute? = nil
+        destination: NavigationDestinationState? = nil
     ) {
-        self.route = route
+        self.destination = destination
     }
 }
 

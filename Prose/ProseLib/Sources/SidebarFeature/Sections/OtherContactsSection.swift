@@ -29,7 +29,7 @@ struct OtherContactsSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.route, action: Action.destination),
+                            self.store.scope(state: \State.destination, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -60,7 +60,7 @@ let otherContactsSectionReducer: Reducer<
     Void
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
-        state: \OtherContactsSectionState.route,
+        state: \OtherContactsSectionState.destination,
         action: /OtherContactsSectionAction.destination,
         environment: { _ in NavigationDestinationEnvironment() }
     ),
@@ -83,18 +83,18 @@ let otherContactsSectionReducer: Reducer<
 public struct OtherContactsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(.init(chatId: .person(id: "julien@thefamily.com"))),
+            id: .chat(id: .person(id: "julien@thefamily.com")),
             title: "Julien",
             image: PreviewImages.Avatars.julien.rawValue,
             count: 2
         ),
     ]
-    var route: SidebarRoute?
+    var destination: NavigationDestinationState?
 
     public init(
-        route: SidebarRoute? = nil
+        destination: NavigationDestinationState? = nil
     ) {
-        self.route = route
+        self.destination = destination
     }
 }
 

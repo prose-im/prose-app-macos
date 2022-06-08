@@ -5,6 +5,7 @@
 //  Created by Rémi Bardon on 27/03/2022.
 //
 
+import ComposableArchitecture
 import ConversationFeature
 import OrderedCollections
 import PreviewAssets
@@ -12,26 +13,17 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-public struct UnreadScreenModel: Equatable {
-    let messages: OrderedDictionary<ChatID, [MessageViewModel]>
-
-    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]> = .init()) {
-        self.messages = messages
-    }
-
-    func scope(for chatId: ChatID) -> UnreadSectionModel {
-        UnreadSectionModel(
-            chatId: chatId,
-            messages: self.messages[chatId]!
-        )
-    }
-}
+// MARK: - View
 
 public struct UnreadScreen: View {
-    public let model: UnreadScreenModel
+    public typealias State = UnreadState
+    public typealias Action = UnreadAction
 
-    public init(model: UnreadScreenModel) {
-        self.model = model
+    public let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+
+    public init(store: Store<State, Action>) {
+        self.store = store
     }
 
     public var body: some View {
@@ -42,10 +34,12 @@ public struct UnreadScreen: View {
 
     @ViewBuilder
     private func content() -> some View {
-        if self.model.messages.isEmpty {
-            self.nothing()
-        } else {
-            self.list()
+        WithViewStore(self.store.scope(state: \State.messages.isEmpty)) { noMessage in
+            if noMessage.state {
+                self.nothing()
+            } else {
+                self.list()
+            }
         }
     }
 
@@ -61,8 +55,10 @@ public struct UnreadScreen: View {
     private func list() -> some View {
         ScrollView {
             VStack(spacing: 24) {
-                ForEach(model.messages.keys, id: \.self) { chatId in
-                    UnreadSection(model: model.scope(for: chatId))
+                WithViewStore(self.store) { viewStore in
+                    ForEach(viewStore.state.messages.keys, id: \.self) { chatId in
+                        UnreadSection(model: viewStore.state.scope(for: chatId))
+                    }
                 }
             }
             .padding(24)
@@ -70,10 +66,49 @@ public struct UnreadScreen: View {
     }
 }
 
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let unreadReducer: Reducer<
+    UnreadState,
+    UnreadAction,
+    UnreadEnvironment
+> = Reducer.empty
+
+// MARK: State
+
+public struct UnreadState: Equatable {
+    let messages: OrderedDictionary<ChatID, [MessageViewModel]>
+
+    public init(messages: OrderedDictionary<ChatID, [MessageViewModel]> = .init()) {
+        self.messages = messages
+    }
+
+    func scope(for chatId: ChatID) -> UnreadSectionModel {
+        UnreadSectionModel(
+            chatId: chatId,
+            messages: self.messages[chatId]!
+        )
+    }
+}
+
+// MARK: Actions
+
+public enum UnreadAction: Equatable {}
+
+// MARK: Environment
+
+public struct UnreadEnvironment: Equatable {
+    public init() {}
+}
+
+// MARK: - Previews
+
 struct UnreadScreen_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            UnreadScreen(model: .init(messages: OrderedDictionary(dictionaryLiteral:
+            content(state: .init(messages: OrderedDictionary(dictionaryLiteral:
                 (ChatID.person(id: "valerian@crisp.chat"), [
                     MessageViewModel(
                         senderId: "baptiste@crisp.chat",
@@ -122,7 +157,16 @@ struct UnreadScreen_Previews: PreviewProvider {
                         timestamp: Date() - 100_000
                     ),
                 ]))))
-            UnreadScreen(model: .init(messages: .init()))
+            content(state: .init(messages: .init()))
+        }
+
+        @ViewBuilder
+        private func content(state: UnreadState) -> some View {
+            UnreadScreen(store: Store(
+                initialState: state,
+                reducer: unreadReducer,
+                environment: UnreadEnvironment()
+            ))
         }
     }
 

@@ -17,7 +17,7 @@ import UnreadFeature
 
 /// The view displayed in the middle of the screen when a row is selected in the left sidebar.
 struct NavigationDestinationView: View {
-    typealias State = SidebarRoute
+    typealias State = NavigationDestinationState
     typealias Action = NavigationDestinationAction
 
     let store: Store<State, Action>
@@ -33,17 +33,16 @@ struct NavigationDestinationView: View {
     private func content() -> some View {
         SwitchStore(self.store) {
             CaseLet(state: /State.chat, action: Action.chat, then: ConversationScreen.init(store:))
+            CaseLet(state: /State.unread, action: Action.unread) { store in
+                UnreadScreen(store: store)
+                    .groupBoxStyle(.spotlight)
+            }
             Default {
                 WithViewStore(self.store) { viewStore in
                     switch viewStore.state {
-                    case .chat:
+                    case .chat, .unread:
                         // Already supported
                         EmptyView()
-                    case .unread:
-                        UnreadScreen(model: .init(
-                            messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
-                        ))
-                        .groupBoxStyle(.spotlight)
                     case .peopleAndGroups:
                         AddressBookScreen()
                     case let value:
@@ -61,19 +60,34 @@ struct NavigationDestinationView: View {
 // MARK: Reducer
 
 public let navigationDestinationReducer: Reducer<
-    SidebarRoute,
+    NavigationDestinationState,
     NavigationDestinationAction,
     NavigationDestinationEnvironment
-> = conversationReducer.pullback(
-    state: /SidebarRoute.chat,
-    action: /NavigationDestinationAction.chat,
-    environment: { _ in ConversationEnvironment() }
-)
+> = Reducer.combine([
+    conversationReducer.pullback(
+        state: /NavigationDestinationState.chat,
+        action: /NavigationDestinationAction.chat,
+        environment: { _ in ConversationEnvironment() }
+    ),
+    unreadReducer.pullback(
+        state: /NavigationDestinationState.unread,
+        action: /NavigationDestinationAction.unread,
+        environment: { _ in UnreadEnvironment() }
+    ),
+])
+
+// MARK: State
+
+public enum NavigationDestinationState: Equatable {
+    case unread(UnreadState), replies, directMessages, peopleAndGroups
+    case chat(ConversationState)
+}
 
 // MARK: Actions
 
 public enum NavigationDestinationAction: Equatable {
     case chat(ConversationAction)
+    case unread(UnreadAction)
 }
 
 // MARK: Environment

@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProseCoreStub
 import SwiftUI
 
 struct SidebarContentView: View {
@@ -82,12 +83,42 @@ public let sidebarContentReducer: Reducer<
     Reducer { state, action, _ in
         switch action {
         case .binding(\.$route):
-            let route = state.route
-            state.spotlight.route = route
-            state.favorites.route = route
-            state.teamMembers.route = route
-            state.otherContacts.route = route
-            state.groups.route = route
+            func createState(for route: SidebarRoute) -> NavigationDestinationState {
+                let destination: NavigationDestinationState
+                switch route {
+                case .unread:
+                    destination = NavigationDestinationState.unread(.init(
+                        // TODO: [Rémi Bardon] Make this lazy
+                        messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
+                    ))
+                case .replies:
+                    destination = NavigationDestinationState.replies
+                case .directMessages:
+                    destination = NavigationDestinationState.directMessages
+                case .peopleAndGroups:
+                    destination = NavigationDestinationState.peopleAndGroups
+                case let .chat(id):
+                    destination = NavigationDestinationState.chat(.init(chatId: id))
+                case .newMessage:
+                    fatalError("Impossible")
+                }
+                return destination
+            }
+            if let route = state.route {
+                let destination = state.states[route, default: createState(for: route)]
+                state.states[route] = destination
+                state.spotlight.destination = destination
+                state.favorites.destination = destination
+                state.teamMembers.destination = destination
+                state.otherContacts.destination = destination
+                state.groups.destination = destination
+            } else {
+                state.spotlight.destination = nil
+                state.favorites.destination = nil
+                state.teamMembers.destination = nil
+                state.otherContacts.destination = nil
+                state.groups.destination = nil
+            }
 
         default:
             break
@@ -106,10 +137,12 @@ public struct SidebarContentState: Equatable {
     var otherContacts: OtherContactsSectionState
     var groups: GroupsSectionState
 
+    var states: [SidebarRoute: NavigationDestinationState]
+
     @BindableState var route: SidebarRoute?
 
     public init(
-        route: SidebarRoute? = .unread(.init()),
+        route: SidebarRoute? = .unread,
         spotlight: SpotlightSectionState? = nil,
         favorites: FavoritesSectionState? = nil,
         teamMembers: TeamMembersSectionState? = nil,
@@ -117,11 +150,21 @@ public struct SidebarContentState: Equatable {
         groups: GroupsSectionState? = nil
     ) {
         self.route = route
-        self.spotlight = spotlight ?? .init(route: route)
-        self.favorites = favorites ?? .init(route: route)
-        self.teamMembers = teamMembers ?? .init(route: route)
-        self.otherContacts = otherContacts ?? .init(route: route)
-        self.groups = groups ?? .init(route: route)
+
+        let states: [SidebarRoute: NavigationDestinationState] = [
+            .unread: NavigationDestinationState.unread(.init(
+                // TODO: [Rémi Bardon] Make this lazy
+                messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
+            )),
+        ]
+        self.states = states
+
+        let destination = route.flatMap { states[$0] }
+        self.spotlight = spotlight ?? .init(destination: destination)
+        self.favorites = favorites ?? .init(destination: destination)
+        self.teamMembers = teamMembers ?? .init(destination: destination)
+        self.otherContacts = otherContacts ?? .init(destination: destination)
+        self.groups = groups ?? .init(destination: destination)
     }
 }
 

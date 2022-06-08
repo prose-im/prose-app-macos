@@ -7,6 +7,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import ProseCoreStub
 import SharedModels
 import SwiftUI
 
@@ -29,7 +30,7 @@ struct SpotlightSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.route, action: Action.destination),
+                            self.store.scope(state: \State.destination, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -54,7 +55,7 @@ let spotlightSectionReducer: Reducer<
     SpotlightSectionAction,
     Void
 > = navigationDestinationReducer.optional().pullback(
-    state: \SpotlightSectionState.route,
+    state: \SpotlightSectionState.destination,
     action: /SpotlightSectionAction.destination,
     environment: { _ in NavigationDestinationEnvironment() }
 )
@@ -63,17 +64,17 @@ let spotlightSectionReducer: Reducer<
 
 public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
-        .init(id: .unread(.init()), title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
+        .init(id: .unread, title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
         .init(id: .replies, title: l10n.replies, image: Icon.reply.rawValue, count: 5),
         .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
         .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
     ]
-    var route: SidebarRoute?
+    var destination: NavigationDestinationState?
 
     public init(
-        route: SidebarRoute? = nil
+        destination: NavigationDestinationState? = nil
     ) {
-        self.route = route
+        self.destination = destination
     }
 }
 

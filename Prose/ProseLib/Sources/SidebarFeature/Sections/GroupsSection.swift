@@ -29,7 +29,7 @@ struct GroupsSection: View {
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
                         IfLetStore(
-                            self.store.scope(state: \State.route, action: Action.destination),
+                            self.store.scope(state: \State.destination, action: Action.destination),
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
@@ -60,7 +60,7 @@ let groupsSectionReducer: Reducer<
     Void
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
-        state: \GroupsSectionState.route,
+        state: \GroupsSectionState.destination,
         action: /GroupsSectionAction.destination,
         environment: { _ in NavigationDestinationEnvironment() }
     ),
@@ -83,36 +83,36 @@ let groupsSectionReducer: Reducer<
 public struct GroupsSectionState: Equatable {
     let items: [SidebarItem] = [
         .init(
-            id: .chat(.init(chatId: .group(id: "bugs@crisp.chat"))),
+            id: .chat(id: .group(id: "bugs@crisp.chat")),
             title: "bugs",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(.init(chatId: .group(id: "constellation@crisp.chat"))),
+            id: .chat(id: .group(id: "constellation@crisp.chat")),
             title: "constellation",
             image: Icon.group.rawValue,
             count: 7
         ),
         .init(
-            id: .chat(.init(chatId: .group(id: "general@crisp.chat"))),
+            id: .chat(id: .group(id: "general@crisp.chat")),
             title: "general",
             image: Icon.group.rawValue,
             count: 0
         ),
         .init(
-            id: .chat(.init(chatId: .group(id: "support@crisp.chat"))),
+            id: .chat(id: .group(id: "support@crisp.chat")),
             title: "support",
             image: Icon.group.rawValue,
             count: 0
         ),
     ]
-    var route: SidebarRoute?
+    var destination: NavigationDestinationState?
 
     public init(
-        route: SidebarRoute? = nil
+        destination: NavigationDestinationState? = nil
     ) {
-        self.route = route
+        self.destination = destination
     }
 }
 
