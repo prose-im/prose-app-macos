@@ -81,9 +81,9 @@ public let unreadReducer: Reducer<
 
         return Effect.task(priority: .high) {
             let messages = environment.messageStore.unreadMessages()
-                .map { (chatId, messages) -> UnreadSectionModel in
+                .map { chatId, messages -> UnreadSectionModel in
                     let messages = messages.map { $0.toMessageViewModel(userStore: environment.userStore) }
-                    
+
                     let chatTitle: String
                     switch chatId {
                     case let .person(id: jid):
@@ -91,14 +91,14 @@ public let unreadReducer: Reducer<
                     case let .group(id: groupId):
                         chatTitle = String(describing: groupId)
                     }
-                    
+
                     return UnreadSectionModel(
                         chatId: chatId,
                         chatTitle: chatTitle,
                         messages: messages
                     )
                 }
-            
+
             return .didLoadMessages(messages)
         }
         .receive(on: RunLoop.main)
@@ -208,7 +208,7 @@ struct UnreadScreen_Previews: PreviewProvider {
                             timestamp: Date() - 100_000
                         ),
                     ]
-                )
+                ),
             ]))
             content(state: .init(messages: []))
         }

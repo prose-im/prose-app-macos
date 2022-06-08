@@ -28,7 +28,7 @@ public extension StatusStore {
 
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-fileprivate final class StubStatusStore {
+private final class StubStatusStore {
     fileprivate static let shared = StubStatusStore()
 
     private lazy var _onlineStatuses: [JID: OnlineStatus] = [

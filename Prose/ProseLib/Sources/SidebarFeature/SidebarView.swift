@@ -101,7 +101,7 @@ public struct SidebarEnvironment {
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
-    
+
     public init(
         userStore: UserStore,
         messageStore: MessageStore,
@@ -115,8 +115,8 @@ public struct SidebarEnvironment {
     }
 }
 
-extension SidebarEnvironment {
-    public static var stub: Self {
+public extension SidebarEnvironment {
+    static var stub: Self {
         Self(
             userStore: .stub,
             messageStore: .stub,

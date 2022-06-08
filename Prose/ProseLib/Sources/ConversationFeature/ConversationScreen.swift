@@ -264,8 +264,8 @@ public struct ConversationEnvironment {
     }
 }
 
-extension ConversationEnvironment {
-    public static var stub: Self {
+public extension ConversationEnvironment {
+    static var stub: Self {
         Self(
             userStore: .stub,
             messageStore: .stub,

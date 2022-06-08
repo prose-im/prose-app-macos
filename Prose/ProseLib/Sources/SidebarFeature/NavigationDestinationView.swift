@@ -109,7 +109,7 @@ public struct NavigationDestinationEnvironment {
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
-    
+
     public init(
         userStore: UserStore,
         messageStore: MessageStore,
@@ -123,8 +123,8 @@ public struct NavigationDestinationEnvironment {
     }
 }
 
-extension NavigationDestinationEnvironment {
-    public static var stub: Self {
+public extension NavigationDestinationEnvironment {
+    static var stub: Self {
         Self(
             userStore: .stub,
             messageStore: .stub,
@@ -134,8 +134,8 @@ extension NavigationDestinationEnvironment {
     }
 }
 
-extension SidebarEnvironment {
-    public var destination: NavigationDestinationEnvironment {
+public extension SidebarEnvironment {
+    var destination: NavigationDestinationEnvironment {
         NavigationDestinationEnvironment(
             userStore: self.userStore,
             messageStore: self.messageStore,

@@ -15,7 +15,7 @@ public struct UnreadSectionModel: Equatable {
     let chatId: ChatID
     let chatTitle: String
     let messages: [MessageViewModel]
-    
+
     public init(
         chatId: ChatID,
         chatTitle: String,

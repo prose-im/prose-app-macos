@@ -35,7 +35,7 @@ public extension MessageStore {
 /// It should not go into production, it's intended to dynamise the (currently static) app.
 private final class StubMessageStore {
     fileprivate static let shared = StubMessageStore()
-    
+
     private lazy var _messages: [ChatID: [Message]] = [
         .person(id: "valerian@crisp.chat"): (1...21).map {
             Message(
@@ -67,44 +67,44 @@ private final class StubMessageStore {
     ]
     private lazy var _unreadMessages = OrderedDictionary(
         dictionaryLiteral:
-            (ChatID.person(id: "valerian@crisp.chat"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "They forgot to ship the package.",
-                    timestamp: Date() - 2_800
-                ),
-                Message(
-                    senderId: "valerian@crisp.chat",
-                    content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
-                    timestamp: Date() - 3_000
-                ),
-            ]),
-            (ChatID.person(id: "julien@thefamily.com"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "Can I initiate a deployment of the Vue app?",
-                    timestamp: Date() - 9_000
-                ),
-                Message(
-                    senderId: "julien@thefamily.com",
-                    content: "Yes, it's ready. 3 new features are shipping! 😀",
-                    timestamp: Date() - 10_000
-                ),
-            ]),
-            (ChatID.group(id: "constellation"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
-                    timestamp: Date() - 90_000
-                ),
-                Message(
-                    senderId: "constellation-health@crisp.chat",
-                    content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
-                    timestamp: Date() - 100_000
-                ),
-            ])
+        (ChatID.person(id: "valerian@crisp.chat"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "They forgot to ship the package.",
+                timestamp: Date() - 2_800
+            ),
+            Message(
+                senderId: "valerian@crisp.chat",
+                content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
+                timestamp: Date() - 3_000
+            ),
+        ]),
+        (ChatID.person(id: "julien@thefamily.com"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "Can I initiate a deployment of the Vue app?",
+                timestamp: Date() - 9_000
+            ),
+            Message(
+                senderId: "julien@thefamily.com",
+                content: "Yes, it's ready. 3 new features are shipping! 😀",
+                timestamp: Date() - 10_000
+            ),
+        ]),
+        (ChatID.group(id: "constellation"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
+                timestamp: Date() - 90_000
+            ),
+            Message(
+                senderId: "constellation-health@crisp.chat",
+                content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
+                timestamp: Date() - 100_000
+            ),
+        ])
     )
-    
+
     private init() {}
 
     func messages(for chatId: ChatID) -> [Message]? {

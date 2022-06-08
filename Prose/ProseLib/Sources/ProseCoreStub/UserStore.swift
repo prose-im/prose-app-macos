@@ -76,7 +76,7 @@ public extension UserStore {
 
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-fileprivate final class StubUserStore {
+private final class StubUserStore {
     fileprivate static let shared = StubUserStore()
 
     private lazy var users: [JID: User] = [

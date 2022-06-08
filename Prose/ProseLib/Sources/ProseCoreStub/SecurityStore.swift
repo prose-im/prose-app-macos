@@ -24,9 +24,9 @@ public extension SecurityStore {
 
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-fileprivate final class StubSecurityStore {
+private final class StubSecurityStore {
     fileprivate static let shared = StubSecurityStore()
-    
+
     let _isIdentityVerified: [JID: Bool] = [
         "alexandre@crisp.chat": true,
         "antoine@crisp.chat": true,
@@ -47,15 +47,14 @@ fileprivate final class StubSecurityStore {
         "julien@thefamily.com": "Q48PT",
         "valerian@crisp.chat": "1HHHW",
     ]
-    
+
     private init() {}
-    
+
     func isIdentityVerified(for jid: JID) -> Bool {
         self._isIdentityVerified[jid, default: false]
     }
-    
+
     func encryptionFingerprint(for jid: JID) -> String? {
         self._encryptionFingerprints[jid]
     }
-    
 }
