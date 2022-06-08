@@ -76,7 +76,11 @@ public let navigationDestinationReducer: Reducer<
     unreadReducer.pullback(
         state: /NavigationDestinationState.unread,
         action: /NavigationDestinationAction.unread,
-        environment: { _ in UnreadEnvironment() }
+        environment: {
+            UnreadEnvironment(
+                messageStore: $0.messageStore
+            )
+        }
     ),
 ])
 

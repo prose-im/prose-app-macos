@@ -9,6 +9,7 @@ import ComposableArchitecture
 import ConversationFeature
 import OrderedCollections
 import PreviewAssets
+import ProseCoreStub
 import ProseUI
 import SharedModels
 import SwiftUI
@@ -30,6 +31,7 @@ public struct UnreadScreen: View {
         content()
             .background(Color.backgroundMessage)
             .toolbar(content: Toolbar.init)
+            .onAppear { actions.send(.onAppear) }
     }
 
     @ViewBuilder
@@ -74,12 +76,31 @@ public let unreadReducer: Reducer<
     UnreadState,
     UnreadAction,
     UnreadEnvironment
-> = Reducer.empty
+> = Reducer { state, action, environment in
+    switch action {
+    case .onAppear:
+        guard state.messages.isEmpty else { return .none }
+
+        return Effect.task(priority: .high) {
+            let messages = environment.messageStore.unreadMessages()
+                .mapValues { $0.map(\.toMessageViewModel) }
+
+            return .didLoadMessages(messages)
+        }
+        .receive(on: RunLoop.main)
+        .eraseToEffect()
+
+    case let .didLoadMessages(messages):
+        state.messages = messages
+    }
+
+    return .none
+}
 
 // MARK: State
 
 public struct UnreadState: Equatable {
-    let messages: OrderedDictionary<ChatID, [MessageViewModel]>
+    var messages: OrderedDictionary<ChatID, [MessageViewModel]>
 
     public init(messages: OrderedDictionary<ChatID, [MessageViewModel]> = .init()) {
         self.messages = messages
@@ -90,21 +111,26 @@ public struct UnreadState: Equatable {
             chatId: chatId,
             messages: self.messages[chatId]!
         )
-//        .init(
-//            // TODO: [Rémi Bardon] Make this lazy
-//            messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
-//        )
     }
 }
 
 // MARK: Actions
 
-public enum UnreadAction: Equatable {}
+public enum UnreadAction: Equatable {
+    case onAppear
+    case didLoadMessages(OrderedDictionary<ChatID, [MessageViewModel]>)
+}
 
 // MARK: Environment
 
-public struct UnreadEnvironment: Equatable {
-    public init() {}
+public struct UnreadEnvironment {
+    let messageStore: MessageStore
+
+    public init(
+        messageStore: MessageStore
+    ) {
+        self.messageStore = messageStore
+    }
 }
 
 // MARK: - Previews
@@ -169,7 +195,7 @@ struct UnreadScreen_Previews: PreviewProvider {
             UnreadScreen(store: Store(
                 initialState: state,
                 reducer: unreadReducer,
-                environment: UnreadEnvironment()
+                environment: UnreadEnvironment(messageStore: .stub)
             ))
         }
     }

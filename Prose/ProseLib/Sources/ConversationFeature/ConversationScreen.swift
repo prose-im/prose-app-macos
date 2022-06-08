@@ -94,9 +94,9 @@ public let conversationReducer: Reducer<
         switch action {
         case .onAppear:
             var effects: [Effect<ConversationAction, Never>] = []
-            
+
             let chatId = state.chatId
-            
+
             if state.chat?.chat.messages.isEmpty != false {
                 effects.append(Effect.task(priority: .high) {
                     let messages = (environment.messageStore.messages(for: chatId) ?? [])
@@ -106,7 +106,7 @@ public let conversationReducer: Reducer<
                 .receive(on: RunLoop.main)
                 .eraseToEffect())
             }
-            
+
             if state.toolbar.user == nil {
                 effects.append(Effect.task(priority: .high) {
                     let user: User?
@@ -117,7 +117,7 @@ public let conversationReducer: Reducer<
                         print("Group info not supported yet")
                         user = nil
                     }
-                    
+
                     return .didLoadUser(user)
                 }
                 .receive(on: RunLoop.main)
