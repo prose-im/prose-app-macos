@@ -11,9 +11,17 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-struct UnreadSectionModel {
+public struct UnreadSectionModel: Equatable {
     let chatId: ChatID
-    let messages: [MessageViewModel]
+    var messages: [MessageViewModel]
+
+    public init(
+        chatId: ChatID,
+        messages: [MessageViewModel]
+    ) {
+        self.chatId = chatId
+        self.messages = messages
+    }
 }
 
 struct UnreadSection: View {
