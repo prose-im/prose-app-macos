@@ -10,5 +10,20 @@ import MainWindowFeature
 
 public enum AppRoute: Equatable {
     case auth(AuthenticationState)
-    case main(MainWindowState)
+    case main(MainScreenState)
+}
+
+public extension AppRoute {
+    enum Tag {
+        case auth, main
+    }
+
+    var tag: Tag {
+        switch self {
+        case .auth:
+            return .auth
+        case .main:
+            return .main
+        }
+    }
 }

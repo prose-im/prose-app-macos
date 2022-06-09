@@ -1,5 +1,5 @@
 //
-//  MainWindow.swift
+//  MainScreen.swift
 //  Prose
 //
 //  Created by Rémi Bardon on 01/06/2022.
@@ -12,9 +12,9 @@ import TcaHelpers
 
 // MARK: - View
 
-public struct MainWindow: View {
-    public typealias State = MainWindowState
-    public typealias Action = MainWindowAction
+public struct MainScreen: View {
+    public typealias State = MainScreenState
+    public typealias Action = MainScreenAction
 
     private let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -40,18 +40,18 @@ public struct MainWindow: View {
 // MARK: Reducer
 
 public let mainWindowReducer: Reducer<
-    MainWindowState,
-    MainWindowAction,
-    MainWindowEnvironment
+    MainScreenState,
+    MainScreenAction,
+    MainScreenEnvironment
 > = sidebarReducer._pullback(
-    state: \MainWindowState.sidebar,
-    action: /MainWindowAction.sidebar,
-    environment: \MainWindowEnvironment.sidebar
+    state: \MainScreenState.sidebar,
+    action: /MainScreenAction.sidebar,
+    environment: \MainScreenEnvironment.sidebar
 )
 
 // MARK: State
 
-public struct MainWindowState: Equatable {
+public struct MainScreenState: Equatable {
     var sidebar: SidebarState
 
     public init(
@@ -63,13 +63,13 @@ public struct MainWindowState: Equatable {
 
 // MARK: Actions
 
-public enum MainWindowAction: Equatable {
+public enum MainScreenAction: Equatable {
     case sidebar(SidebarAction)
 }
 
 // MARK: Environment
 
-public struct MainWindowEnvironment {
+public struct MainScreenEnvironment {
     var sidebar: SidebarEnvironment
 
     public init(
@@ -81,14 +81,14 @@ public struct MainWindowEnvironment {
 
 // MARK: - Previews
 
-internal struct MainWindow_Previews: PreviewProvider {
+internal struct MainScreen_Previews: PreviewProvider {
     static var previews: some View {
-        MainWindow(store: Store(
-            initialState: MainWindowState(
+        MainScreen(store: Store(
+            initialState: MainScreenState(
                 sidebar: .init(credentials: UserCredentials(jid: "preview@prose.org"))
             ),
             reducer: mainWindowReducer,
-            environment: MainWindowEnvironment(
+            environment: MainScreenEnvironment(
                 sidebar: .stub
             )
         ))

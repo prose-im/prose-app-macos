@@ -1,59 +1,95 @@
-// import Combine
-// import ComposableArchitecture
-// import Foundation
-//// import ProseCore
-// import SharedModels
 //
-// public struct AuthenticationState: Equatable {
-//    @BindableState var jid = "hello@prose.org"
-//    @BindableState var password = "password"
+//  AuthenticationReducer.swift
+//  Prose
 //
-//    var alert: AlertState<AuthenticationAction>?
-//    var isFormValid = true
+//  Created by Marc Bauer on 01/04/2022.
 //
-//    public init() {}
-// }
-//
-// public enum AuthenticationAction: BindableAction, Equatable {
-//    case binding(BindingAction<AuthenticationState>)
-//    case alertDismissed
-//    case loginButtonTapped
+
+import AppKit
+import Combine
+import ComposableArchitecture
+import Foundation
+// import ProseCore
+import SharedModels
+
+// MARK: - The Composable Architecture
+
+// MARK: State
+
+public struct AuthenticationState: Equatable {
+    @BindableState var jid: String
+    @BindableState var password: String
+
+    var isFormValid: Bool {
+        !self.jid.isEmpty && !self.password.isEmpty
+    }
+
+    public init(
+        jid: String = "",
+        password: String = ""
+    ) {
+        self.jid = jid
+        self.password = password
+    }
+}
+
+// MARK: Actions
+
+public enum AuthenticationAction: Equatable, BindableAction {
+    case loginButtonTapped
 //    case loginResult(Result<UserCredentials, EquatableError>)
-// }
-//
-// public struct AuthenticationEnvironment: Equatable {
+    case loginResult(Result<String, AuthenticationError>)
+    case binding(BindingAction<AuthenticationState>)
+}
+
+// MARK: Environment
+
+public struct AuthenticationEnvironment: Equatable {
 //    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
-//
+
+    public init() {}
+
 //    public init(login: @escaping (String, String, ClientOrigin)
 //        -> Effect<Result<UserCredentials, EquatableError>, Never>)
 //    {
 //        self.login = login
 //    }
-// }
-//
-// public let authenticationReducer = Reducer<
-//    AuthenticationState,
-//    AuthenticationAction,
-//    AuthenticationEnvironment
-// > { state, action, environment in
-//    switch action {
-//    case .binding:
-//        state.isFormValid = !state.jid.isEmpty && !state.password.isEmpty
-//        return .none
-//
-//    case .alertDismissed:
-//        state.alert = nil
-//        return .none
-//
-//    case .loginButtonTapped:
+}
+
+// MARK: Reducer
+
+public let authenticationReducer = Reducer<
+    AuthenticationState,
+    AuthenticationAction,
+    AuthenticationEnvironment
+> { state, action, _ in
+    switch action {
+    case .loginButtonTapped:
+        print("Log in button tapped")
+        if state.isFormValid {
+            return Effect(value: .loginResult(.success(state.jid)))
+        } else {
+            return Effect(value: .loginResult(.failure(.badCredentials)))
+        }
 //        return environment.login(state.jid, state.password, .proseAppMacOs)
 //            .map(AuthenticationAction.loginResult)
-//
+
+    case let .loginResult(.success(jid)):
+        print("Login success: \(jid)")
+
+    case let .loginResult(.failure(reason)):
+        print("Login failure: \(reason)")
+
 //    case let .loginResult(.success(credentials)):
 //        return .none
 //
 //    case let .loginResult(.failure(error)):
 //        state.alert = .init(title: .init(error.localizedDescription))
 //        return .none
-//    }
-// }.binding()
+
+    case .binding:
+        break
+    }
+
+    return .none
+}.binding()
