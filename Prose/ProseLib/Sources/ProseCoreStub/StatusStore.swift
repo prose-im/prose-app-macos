@@ -8,12 +8,30 @@
 import Foundation
 import SharedModels
 
+public struct StatusStore {
+    public let onlineStatus: (_ jid: JID) -> OnlineStatus?
+    public let lastSeenDate: (_ jid: JID) -> Date?
+    public let timeZone: (_ jid: JID) -> TimeZone?
+    public let statusLine: (_ jid: JID) -> (Character, String)?
+}
+
+public extension StatusStore {
+    static var stub: Self {
+        Self(
+            onlineStatus: StubStatusStore.shared.onlineStatus(for:),
+            lastSeenDate: StubStatusStore.shared.lastSeenDate(for:),
+            timeZone: StubStatusStore.shared.timeZone(for:),
+            statusLine: StubStatusStore.shared.statusLine(for:)
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class StatusStore {
-    public static let shared = StatusStore()
+private final class StubStatusStore {
+    fileprivate static let shared = StubStatusStore()
 
-    private let onlineStatuses: [JID: OnlineStatus] = [
+    private lazy var _onlineStatuses: [JID: OnlineStatus] = [
         "alexandre@crisp.chat": .offline,
         "antoine@crisp.chat": .online,
         "baptiste@crisp.chat": .online,
@@ -23,7 +41,7 @@ public final class StatusStore {
         "julien@thefamily.com": .offline,
         "valerian@crisp.chat": .online,
     ]
-    private let lastSeenDates: [JID: Date] = [
+    private lazy var _lastSeenDates: [JID: Date] = [
         "alexandre@crisp.chat": Date.now - 10_000,
         "antoine@crisp.chat": Date.now - 1_000,
         "baptiste@crisp.chat": Date.now - 30,
@@ -33,7 +51,7 @@ public final class StatusStore {
         "julien@thefamily.com": Date.now - 5_000,
         "valerian@crisp.chat": Date.now - 100,
     ]
-    private let timeZones: [JID: TimeZone] = [
+    private lazy var _timeZones: [JID: TimeZone] = [
         "alexandre@crisp.chat": TimeZone(abbreviation: "WEST")!,
         "antoine@crisp.chat": TimeZone(abbreviation: "WEST")!,
         "baptiste@crisp.chat": TimeZone(abbreviation: "WEST")!,
@@ -43,7 +61,7 @@ public final class StatusStore {
         "julien@thefamily.com": TimeZone(abbreviation: "WEST")!,
         "valerian@crisp.chat": TimeZone(abbreviation: "WEST")!,
     ]
-    private let statusLines: [JID: (Character, String)] = [
+    private lazy var _statusLines: [JID: (Character, String)] = [
         "alexandre@crisp.chat": ("👨‍💻", "Working"),
         "antoine@crisp.chat": ("👨‍💻", "Working"),
         "baptiste@crisp.chat": ("🚀", "Building new features"),
@@ -56,19 +74,19 @@ public final class StatusStore {
 
     private init() {}
 
-    public func onlineStatus(for jid: JID) -> OnlineStatus? {
-        self.onlineStatuses[jid]
+    fileprivate func onlineStatus(for jid: JID) -> OnlineStatus? {
+        self._onlineStatuses[jid]
     }
 
-    public func lastSeenDate(for jid: JID) -> Date? {
-        self.lastSeenDates[jid]
+    fileprivate func lastSeenDate(for jid: JID) -> Date? {
+        self._lastSeenDates[jid]
     }
 
-    public func timeZone(for jid: JID) -> TimeZone? {
-        self.timeZones[jid]
+    fileprivate func timeZone(for jid: JID) -> TimeZone? {
+        self._timeZones[jid]
     }
 
-    public func statusLine(for jid: JID) -> (Character, String)? {
-        self.statusLines[jid]
+    fileprivate func statusLine(for jid: JID) -> (Character, String)? {
+        self._statusLines[jid]
     }
 }

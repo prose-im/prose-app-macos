@@ -63,7 +63,7 @@ public let chatReducer: Reducer<
     switch action {
     case .onAppear:
         let chatId = state.chatId
-        state.messages = ChatState.sectioned((environment.messageStore.messages(for: chatId) ?? [])
+        state.messages = ChatState.sectioned((environment.messageStore.messages(chatId) ?? [])
             .map { $0.toMessageViewModel(userStore: environment.userStore) })
     }
 
@@ -136,7 +136,7 @@ struct Chat_Previews: PreviewProvider {
                 messages: Self.messages
             ),
             reducer: chatReducer,
-            environment: .shared
+            environment: .stub
         ))
     }
 }

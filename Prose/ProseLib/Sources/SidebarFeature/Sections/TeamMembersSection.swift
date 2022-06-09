@@ -131,7 +131,7 @@ struct TeamMembersSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: teamMembersSectionReducer,
-                            environment: .shared
+                            environment: .stub
                         ),
                         route: $route
                     )

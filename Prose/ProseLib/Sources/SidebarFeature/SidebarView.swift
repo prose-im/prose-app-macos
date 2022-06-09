@@ -116,12 +116,12 @@ public struct SidebarEnvironment {
 }
 
 public extension SidebarEnvironment {
-    static var shared: Self {
+    static var stub: Self {
         Self(
-            userStore: .shared,
-            messageStore: .shared,
-            statusStore: .shared,
-            securityStore: .shared
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
         )
     }
 }

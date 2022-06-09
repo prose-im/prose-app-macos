@@ -105,12 +105,12 @@ public struct NavigationDestinationEnvironment {
 }
 
 public extension NavigationDestinationEnvironment {
-    static var shared: Self {
+    static var stub: Self {
         Self(
-            userStore: .shared,
-            messageStore: .shared,
-            statusStore: .shared,
-            securityStore: .shared
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
         )
     }
 }
@@ -140,7 +140,7 @@ struct NavigationDestinationView_Previews: PreviewProvider {
         NavigationDestinationView(store: Store(
             initialState: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             reducer: navigationDestinationReducer,
-            environment: .shared
+            environment: .stub
         ))
     }
 }

@@ -97,7 +97,7 @@ struct SpotlightSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: spotlightSectionReducer,
-                            environment: .shared
+                            environment: .stub
                         ),
                         route: $route
                     )

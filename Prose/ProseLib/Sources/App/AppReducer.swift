@@ -72,7 +72,7 @@ public struct AppEnvironment {
 //                .catchToEffect()
 //            }),
             main: .init(
-                sidebar: .shared
+                sidebar: .stub
             )
         )
     }
