@@ -49,7 +49,7 @@ public enum AppAction: Equatable {
 
 // MARK: Environment
 
-public struct AppEnvironment: Equatable {
+public struct AppEnvironment {
     var auth: AuthenticationEnvironment
     var main: MainWindowEnvironment
 
@@ -71,7 +71,9 @@ public struct AppEnvironment: Equatable {
 //                .mapError(EquatableError.init)
 //                .catchToEffect()
 //            }),
-            main: .init()
+            main: .init(
+                sidebar: .shared
+            )
         )
     }
 }

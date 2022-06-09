@@ -35,7 +35,7 @@ struct ChatWithMessageBar: View {
 public let chatWithBarReducer: Reducer<
     ChatWithBarState,
     ChatWithBarAction,
-    Void
+    ConversationEnvironment
 > = Reducer.combine([
     chatReducer.pullback(
         state: \ChatWithBarState.chat,
@@ -45,7 +45,7 @@ public let chatWithBarReducer: Reducer<
     messageBarReducer.pullback(
         state: \ChatWithBarState.messageBar,
         action: /ChatWithBarAction.messageBar,
-        environment: { $0 }
+        environment: { _ in () }
     ),
 ])
 
@@ -102,7 +102,7 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
                 messageBar: MessageBarState(firstName: "Valerian")
             ),
             reducer: chatWithBarReducer,
-            environment: ()
+            environment: .shared
         ))
     }
 }

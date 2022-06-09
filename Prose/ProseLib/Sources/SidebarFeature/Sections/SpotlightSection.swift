@@ -52,11 +52,11 @@ struct SpotlightSection: View {
 let spotlightSectionReducer: Reducer<
     SpotlightSectionState,
     SpotlightSectionAction,
-    Void
+    SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
     state: \SpotlightSectionState.route,
     action: /SpotlightSectionAction.destination,
-    environment: { _ in NavigationDestinationEnvironment() }
+    environment: { $0.destination }
 )
 
 // MARK: State
@@ -97,7 +97,7 @@ struct SpotlightSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: spotlightSectionReducer,
-                            environment: ()
+                            environment: .shared
                         ),
                         route: $route
                     )

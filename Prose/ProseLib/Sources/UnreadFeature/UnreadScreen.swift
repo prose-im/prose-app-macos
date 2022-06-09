@@ -73,19 +73,19 @@ public let unreadReducer: Reducer<
     UnreadState,
     UnreadAction,
     UnreadEnvironment
-> = Reducer { state, action, _ in
+> = Reducer { state, action, environment in
     switch action {
     case .onAppear:
         guard state.messages.isEmpty else { return .none }
 
-        state.messages = MessageStore.shared.unreadMessages()
+        state.messages = environment.messageStore.unreadMessages()
             .map { chatId, messages in
-                let messages = messages.map { $0.toMessageViewModel(userStore: UserStore.shared) }
+                let messages = messages.map { $0.toMessageViewModel(userStore: environment.userStore) }
 
                 let chatTitle: String
                 switch chatId {
                 case let .person(id: jid):
-                    chatTitle = UserStore.shared.user(for: jid)?.fullName ?? "Unknown"
+                    chatTitle = environment.userStore.user(for: jid)?.fullName ?? "Unknown"
                 case let .group(id: groupId):
                     chatTitle = String(describing: groupId)
                 }
@@ -122,7 +122,25 @@ public enum UnreadAction: Equatable {
 // MARK: Environment
 
 public struct UnreadEnvironment {
-    public init() {}
+    let userStore: UserStore
+    let messageStore: MessageStore
+
+    public init(
+        userStore: UserStore,
+        messageStore: MessageStore
+    ) {
+        self.userStore = userStore
+        self.messageStore = messageStore
+    }
+}
+
+public extension UnreadEnvironment {
+    static var shared: Self {
+        Self(
+            userStore: .shared,
+            messageStore: .shared
+        )
+    }
 }
 
 // MARK: - Previews
@@ -200,7 +218,7 @@ struct UnreadScreen_Previews: PreviewProvider {
             UnreadScreen(store: Store(
                 initialState: state,
                 reducer: unreadReducer,
-                environment: UnreadEnvironment()
+                environment: .shared
             ))
         }
     }
