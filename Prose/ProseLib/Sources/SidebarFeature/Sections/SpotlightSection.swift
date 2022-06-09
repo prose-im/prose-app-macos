@@ -21,14 +21,17 @@ struct SpotlightSection: View {
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-    @Binding var route: Route?
+    @Binding var route: SidebarRoute?
 
     var body: some View {
         Section(l10n.title) {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
-                        NavigationDestinationView(selection: item.id)
+                        IfLetStore(
+                            self.store.scope(state: \State.route, action: Action.destination),
+                            then: NavigationDestinationView.init(store:)
+                        )
                     } label: {
                         NavigationRow(
                             title: item.title,
@@ -50,30 +53,42 @@ let spotlightSectionReducer: Reducer<
     SpotlightSectionState,
     SpotlightSectionAction,
     Void
-> = Reducer.empty
+> = navigationDestinationReducer.optional().pullback(
+    state: \SpotlightSectionState.route,
+    action: /SpotlightSectionAction.destination,
+    environment: { _ in NavigationDestinationEnvironment() }
+)
 
 // MARK: State
 
 public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
-        .init(id: .unread, title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
+        .init(id: .unread(.init()), title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
         .init(id: .replies, title: l10n.replies, image: Icon.reply.rawValue, count: 5),
         .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
         .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
     ]
+    var route: SidebarRoute?
 
-    public init() {}
+    public init(
+        route: SidebarRoute? = nil
+    ) {
+        self.route = route
+    }
 }
 
 // MARK: Actions
 
-public enum SpotlightSectionAction: Equatable {}
+public enum SpotlightSectionAction: Equatable {
+    case navigate(SidebarRoute?)
+    case destination(NavigationDestinationAction)
+}
 
 // MARK: - Previews
 
 struct SpotlightSection_Previews: PreviewProvider {
     private struct Preview: View {
-        @State var route: Route?
+        @State var route: SidebarRoute?
 
         var body: some View {
             NavigationView {
