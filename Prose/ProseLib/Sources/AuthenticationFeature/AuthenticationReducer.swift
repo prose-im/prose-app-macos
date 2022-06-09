@@ -17,26 +17,50 @@ import SharedModels
 // MARK: State
 
 public struct AuthenticationState: Equatable {
+    public enum Field: String, Hashable {
+        case address, password
+    }
+
+    public enum Popover: String, Hashable {
+        case chatAddress, noAccount, passwordLost
+    }
+
     @BindableState var jid: String
     @BindableState var password: String
+    @BindableState var focusedField: Field?
+    @BindableState var popover: Popover?
 
-    var isFormValid: Bool {
-        !self.jid.isEmpty && !self.password.isEmpty
-    }
+    var isLoading: Bool
+    var alert: AlertState<AuthenticationAction>?
+
+    var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
+    var isAddressValid: Bool { !self.jid.isEmpty }
+    var isPasswordValid: Bool { !self.password.isEmpty }
 
     public init(
         jid: String = "",
-        password: String = ""
+        password: String = "",
+        focusedField: Field? = nil,
+        popover: Popover? = nil,
+        isLoading: Bool = false,
+        alert: AlertState<AuthenticationAction>? = nil
     ) {
         self.jid = jid
         self.password = password
+        self.focusedField = focusedField
+        self.popover = popover
+        self.isLoading = isLoading
+        self.alert = alert
     }
 }
 
 // MARK: Actions
 
 public enum AuthenticationAction: Equatable, BindableAction {
-    case loginButtonTapped
+    case alertDismissed
+    case loginButtonTapped, showPopoverTapped(AuthenticationState.Popover)
+    case submitTapped(AuthenticationState.Field), cancelLogInTapped
+    case logIn
 //    case loginResult(Result<UserCredentials, EquatableError>)
     case loginResult(Result<String, AuthenticationError>)
     case binding(BindingAction<AuthenticationState>)
@@ -44,10 +68,15 @@ public enum AuthenticationAction: Equatable, BindableAction {
 
 // MARK: Environment
 
-public struct AuthenticationEnvironment: Equatable {
+public struct AuthenticationEnvironment {
 //    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
+    var mainQueue: AnySchedulerOf<DispatchQueue>
 
-    public init() {}
+    public init(
+        mainQueue: AnySchedulerOf<DispatchQueue>
+    ) {
+        self.mainQueue = mainQueue
+    }
 
 //    public init(login: @escaping (String, String, ClientOrigin)
 //        -> Effect<Result<UserCredentials, EquatableError>, Never>)
@@ -62,30 +91,77 @@ public let authenticationReducer = Reducer<
     AuthenticationState,
     AuthenticationAction,
     AuthenticationEnvironment
-> { state, action, _ in
+> { state, action, environment in
+    struct CancelId: Hashable {}
+
     switch action {
+    case .alertDismissed:
+        state.alert = nil
+
     case .loginButtonTapped:
         print("Log in button tapped")
-        if state.isFormValid {
-            return Effect(value: .loginResult(.success(state.jid)))
-        } else {
-            return Effect(value: .loginResult(.failure(.badCredentials)))
+        return Effect(value: .logIn)
+
+    case .logIn:
+        state.focusedField = nil
+        state.isLoading = true
+
+        let isFormValid = state.isFormValid
+        let jid = state.jid
+        return Effect.task {
+            if isFormValid, !jid.starts(with: "error") {
+                return .loginResult(.success(jid))
+            } else {
+                return .loginResult(.failure(.badCredentials))
+            }
         }
+        .delay(for: .seconds(1), scheduler: environment.mainQueue)
+        .eraseToEffect()
+        .cancellable(id: CancelId())
 //        return environment.login(state.jid, state.password, .proseAppMacOs)
 //            .map(AuthenticationAction.loginResult)
 
+    case let .showPopoverTapped(popover):
+        state.focusedField = nil
+        state.popover = popover
+
+    case .submitTapped(.address):
+        if state.isAddressValid {
+            state.focusedField = .password
+        } else {
+            state.alert = AlertState(
+                title: TextState("Invalid chat address"),
+                message: TextState("Your chat address must not be empty")
+            )
+        }
+
+    case .submitTapped(.password):
+        if state.isPasswordValid {
+            return Effect(value: .logIn)
+        } else {
+            state.alert = AlertState(
+                title: TextState("Invalid password"),
+                message: TextState("Password must not be empty")
+            )
+        }
+
+    case .cancelLogInTapped:
+        state.isLoading = false
+        return Effect.cancel(id: CancelId())
+
     case let .loginResult(.success(jid)):
+//    case let .loginResult(.success(credentials)):
         print("Login success: \(jid)")
+        state.isLoading = false
 
     case let .loginResult(.failure(reason)):
-        print("Login failure: \(reason)")
+        print("Login failure: \(String(reflecting: reason))")
+        state.isLoading = false
 
-//    case let .loginResult(.success(credentials)):
-//        return .none
-//
-//    case let .loginResult(.failure(error)):
-//        state.alert = .init(title: .init(error.localizedDescription))
-//        return .none
+        state.alert = .init(
+            title: TextState("Login failure"),
+            message: TextState(reason.localizedDescription)
+        )
 
     case .binding:
         break

@@ -10,3 +10,12 @@ import Foundation
 public enum AuthenticationError: Error, Equatable {
     case badCredentials
 }
+
+extension AuthenticationError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .badCredentials:
+            return "Bad credentials"
+        }
+    }
+}
