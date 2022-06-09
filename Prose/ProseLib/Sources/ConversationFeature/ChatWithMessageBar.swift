@@ -95,7 +95,10 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
     static var previews: some View {
         ChatWithMessageBar(store: Store(
             initialState: ChatWithBarState(
-                chat: ChatState(messages: Self.messages),
+                chat: ChatState(
+                    chatId: .person(id: "valerian@crisp.chat"),
+                    messages: Self.messages
+                ),
                 messageBar: MessageBarState(firstName: "Valerian")
             ),
             reducer: chatWithBarReducer,

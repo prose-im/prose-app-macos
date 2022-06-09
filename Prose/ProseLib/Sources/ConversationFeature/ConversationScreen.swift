@@ -27,6 +27,7 @@ public struct ConversationScreen: View {
 
     public var body: some View {
         ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
+            .onAppear { actions.send(.onAppear) }
             .safeAreaInset(edge: .trailing, spacing: 0) {
                 WithViewStore(self.store.scope(state: \State.toolbar.isShowingInfo)) { showingInfo in
                     HStack(spacing: 0) {
@@ -74,6 +75,21 @@ public let conversationReducer: Reducer<
     ),
     Reducer { state, action, _ in
         switch action {
+        case .onAppear:
+            guard state.toolbar.user == nil else { return .none }
+
+            let user: User?
+            switch state.chatId {
+            case let .person(jid):
+                user = UserStore.shared.user(for: jid)
+            case .group:
+                print("Group info not supported yet")
+                user = nil
+            }
+
+            // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
+            state.toolbar = ToolbarState(user: user, showingInfo: false)
+
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
             //       trigger an asynchronous call here, to retrieve it.
@@ -148,48 +164,27 @@ public struct ConversationState: Equatable {
     var info: ConversationInfoState?
     var toolbar: ToolbarState
 
-    init(
+    public init(
         chatId: ChatID,
-        chat: ChatWithBarState,
+        chat: ChatWithBarState? = nil,
         info: ConversationInfoState? = nil,
-        toolbar: ToolbarState
+        toolbar: ToolbarState? = nil
     ) {
         self.chatId = chatId
-        self.chat = chat
-        self.info = info
-        self.toolbar = toolbar
-    }
-
-    public init(chatId: ChatID) {
-        self.chatId = chatId
-
-        let messages = (MessageStore.shared.messages(for: chatId) ?? [])
-            .map(\.toMessageViewModel)
-        self.chat = ChatWithBarState(
-            chat: ChatState(messages: messages),
+        self.chat = chat ?? ChatWithBarState(
+            chat: ChatState(chatId: chatId),
             // TODO: Make this dynamic
             messageBar: MessageBarState(firstName: "Valerian")
         )
-
-        let user: User?
-        switch chatId {
-        case let .person(jid):
-            user = UserStore.shared.user(for: jid)
-        case .group:
-            print("Group info not supported yet")
-            user = nil
-        }
-
-        self.info = nil
-
-        // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
-        self.toolbar = ToolbarState(user: user, showingInfo: false)
+        self.info = info
+        self.toolbar = toolbar ?? .init(user: nil)
     }
 }
 
 // MARK: Actions
 
 public enum ConversationAction: Equatable {
+    case onAppear
     case chat(ChatWithBarAction)
     case info(ConversationInfoAction)
     case toolbar(ToolbarAction)

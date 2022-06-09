@@ -72,8 +72,8 @@ extension MessageViewModel: Identifiable {
 }
 
 public extension Message {
-    var toMessageViewModel: MessageViewModel {
-        let sender = UserStore.shared.user(for: self.senderId)
+    func toMessageViewModel(userStore: UserStore) -> MessageViewModel {
+        let sender = userStore.user(for: self.senderId)
 
         return MessageViewModel(
             senderId: self.senderId,
