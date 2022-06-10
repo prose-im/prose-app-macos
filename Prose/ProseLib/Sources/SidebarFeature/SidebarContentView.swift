@@ -52,7 +52,7 @@ struct SidebarContentView: View {
 public let sidebarContentReducer: Reducer<
     SidebarContentState,
     SidebarContentAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     spotlightSectionReducer.pullback(
         state: \SidebarContentState.spotlight,
@@ -142,7 +142,7 @@ struct SidebarContent_Previews: PreviewProvider {
             SidebarContentView(store: Store(
                 initialState: .init(),
                 reducer: sidebarContentReducer,
-                environment: ()
+                environment: .shared
             ))
             .frame(width: 256)
         }

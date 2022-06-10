@@ -25,35 +25,11 @@ public enum SidebarRoute: Hashable {
             hasher.combine(2)
         case .peopleAndGroups:
             hasher.combine(3)
-        case .chat:
+        case let .chat(state):
             hasher.combine(10)
+            hasher.combine(state.chatId)
         case .newMessage:
             hasher.combine(20)
-        }
-    }
-
-    public static func caseEqual(lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-        case (.unread, .unread),
-             (.replies, .replies),
-             (.directMessages, .directMessages),
-             (.peopleAndGroups, .peopleAndGroups),
-             (.chat, .chat),
-             (.newMessage, .newMessage):
-            return true
-        default:
-            return false
-        }
-    }
-
-    public static func caseEqual(lhs: Self?, rhs: Self?) -> Bool {
-        switch (lhs, rhs) {
-        case (.none, .none):
-            return true
-        case let (.some(lhs), .some(rhs)):
-            return self.caseEqual(lhs: lhs, rhs: rhs)
-        default:
-            return false
         }
     }
 }

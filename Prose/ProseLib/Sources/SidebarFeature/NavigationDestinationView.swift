@@ -67,12 +67,12 @@ public let navigationDestinationReducer: Reducer<
     unreadReducer.pullback(
         state: /SidebarRoute.unread,
         action: /NavigationDestinationAction.unread,
-        environment: { _ in UnreadEnvironment() }
+        environment: { $0.unread }
     ),
     conversationReducer.pullback(
         state: /SidebarRoute.chat,
         action: /NavigationDestinationAction.chat,
-        environment: { _ in ConversationEnvironment() }
+        environment: { $0.chat }
     ),
 ])
 
@@ -86,7 +86,51 @@ public enum NavigationDestinationAction: Equatable {
 // MARK: Environment
 
 public struct NavigationDestinationEnvironment {
-    public init() {}
+    let userStore: UserStore
+    let messageStore: MessageStore
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+
+    public init(
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
+    ) {
+        self.userStore = userStore
+        self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+public extension NavigationDestinationEnvironment {
+    static var shared: Self {
+        Self(
+            userStore: .shared,
+            messageStore: .shared,
+            statusStore: .shared,
+            securityStore: .shared
+        )
+    }
+}
+
+public extension NavigationDestinationEnvironment {
+    var chat: ConversationEnvironment {
+        ConversationEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
+        )
+    }
+
+    var unread: UnreadEnvironment {
+        UnreadEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore
+        )
+    }
 }
 
 // MARK: - Previews
@@ -96,7 +140,7 @@ struct NavigationDestinationView_Previews: PreviewProvider {
         NavigationDestinationView(store: Store(
             initialState: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             reducer: navigationDestinationReducer,
-            environment: NavigationDestinationEnvironment()
+            environment: .shared
         ))
     }
 }
