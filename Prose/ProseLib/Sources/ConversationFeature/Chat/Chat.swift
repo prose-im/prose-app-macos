@@ -8,6 +8,8 @@
 
 import ComposableArchitecture
 import OrderedCollections
+import ProseCoreStub
+import SharedModels
 import SwiftUI
 
 // MARK: - View
@@ -44,6 +46,7 @@ struct Chat: View {
                 }
             }
             .background(Color.backgroundMessage)
+            .onAppear { actions.send(.onAppear) }
         }
     }
 }
@@ -56,30 +59,53 @@ public let chatReducer: Reducer<
     ChatState,
     ChatAction,
     Void
-> = Reducer.empty
+> = Reducer { state, action, _ in
+    switch action {
+    case .onAppear:
+        let chatId = state.chatId
+        state.messages = ChatState.sectioned((MessageStore.shared.messages(for: chatId) ?? [])
+            .map { $0.toMessageViewModel(userStore: UserStore.shared) })
+    }
+
+    return .none
+}
 
 // MARK: State
 
 public struct ChatState: Equatable {
-    let messages: OrderedDictionary<Date, [MessageViewModel]>
+    let chatId: ChatID
+    var messages: OrderedDictionary<Date, [MessageViewModel]>
 
-    public init(messages: OrderedDictionary<Date, [MessageViewModel]>) {
+    public init(chatId: ChatID, messages: OrderedDictionary<Date, [MessageViewModel]>) {
+        self.chatId = chatId
         self.messages = messages
     }
 
-    public init(messages: [Date: [MessageViewModel]]) {
-        self.init(messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values))
+    public init(chatId: ChatID, messages: [Date: [MessageViewModel]]) {
+        self.init(
+            chatId: chatId,
+            messages: OrderedDictionary(uniqueKeys: messages.keys, values: messages.values)
+        )
     }
 
-    public init(messages: [MessageViewModel]) {
+    public init(chatId: ChatID, messages: [MessageViewModel] = []) {
+        self.init(
+            chatId: chatId,
+            messages: Self.sectioned(messages)
+        )
+    }
+
+    static func sectioned(_ messages: [MessageViewModel]) -> OrderedDictionary<Date, [MessageViewModel]> {
         let calendar = Calendar.current
-        self.init(messages: OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) }))
+        return OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) })
     }
 }
 
 // MARK: Actions
 
-public enum ChatAction: Equatable {}
+public enum ChatAction: Equatable {
+    case onAppear
+}
 
 // MARK: - Previews
 
@@ -105,7 +131,10 @@ struct Chat_Previews: PreviewProvider {
 
     static var previews: some View {
         Chat(store: Store(
-            initialState: ChatState(messages: Self.messages),
+            initialState: ChatState(
+                chatId: .person(id: "valerian@crisp.chat"),
+                messages: Self.messages
+            ),
             reducer: chatReducer,
             environment: ()
         ))

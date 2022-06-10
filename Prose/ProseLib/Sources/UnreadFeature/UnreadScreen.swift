@@ -80,9 +80,20 @@ public let unreadReducer: Reducer<
 
         state.messages = MessageStore.shared.unreadMessages()
             .map { chatId, messages in
-                UnreadSectionModel(
+                let messages = messages.map { $0.toMessageViewModel(userStore: UserStore.shared) }
+
+                let chatTitle: String
+                switch chatId {
+                case let .person(id: jid):
+                    chatTitle = UserStore.shared.user(for: jid)?.fullName ?? "Unknown"
+                case let .group(id: groupId):
+                    chatTitle = String(describing: groupId)
+                }
+
+                return UnreadSectionModel(
                     chatId: chatId,
-                    messages: messages.map(\.toMessageViewModel)
+                    chatTitle: chatTitle,
+                    messages: messages
                 )
             }
     }
@@ -122,6 +133,7 @@ struct UnreadScreen_Previews: PreviewProvider {
             content(state: .init(messages: [
                 .init(
                     chatId: .person(id: "valerian@crisp.chat"),
+                    chatTitle: "Valerian",
                     messages: [
                         MessageViewModel(
                             senderId: "baptiste@crisp.chat",
@@ -141,6 +153,7 @@ struct UnreadScreen_Previews: PreviewProvider {
                 ),
                 .init(
                     chatId: .person(id: "julien@thefamily.com"),
+                    chatTitle: "Julien",
                     messages: [
                         MessageViewModel(
                             senderId: "baptiste@crisp.chat",
@@ -160,6 +173,7 @@ struct UnreadScreen_Previews: PreviewProvider {
                 ),
                 .init(
                     chatId: .group(id: "constellation"),
+                    chatTitle: "Julien",
                     messages: [
                         MessageViewModel(
                             senderId: "baptiste@crisp.chat",
