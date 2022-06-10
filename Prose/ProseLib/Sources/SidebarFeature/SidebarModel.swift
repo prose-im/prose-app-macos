@@ -11,7 +11,7 @@ import SharedModels
 import UnreadFeature
 
 public enum SidebarRoute: Hashable {
-    case unread(UnreadScreenModel), replies, directMessages, peopleAndGroups
+    case unread(UnreadState), replies, directMessages, peopleAndGroups
     case chat(ConversationState)
     case newMessage
 

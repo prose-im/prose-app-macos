@@ -33,17 +33,16 @@ struct NavigationDestinationView: View {
     private func content() -> some View {
         SwitchStore(self.store) {
             CaseLet(state: /State.chat, action: Action.chat, then: ConversationScreen.init(store:))
+            CaseLet(state: /State.unread, action: Action.unread) { store in
+                UnreadScreen(store: store)
+                    .groupBoxStyle(.spotlight)
+            }
             Default {
                 WithViewStore(self.store) { viewStore in
                     switch viewStore.state {
-                    case .chat:
+                    case .chat, .unread:
                         // Already supported
                         EmptyView()
-                    case .unread:
-                        UnreadScreen(model: .init(
-                            messages: MessageStore.shared.unreadMessages().mapValues { $0.map(\.toMessageViewModel) }
-                        ))
-                        .groupBoxStyle(.spotlight)
                     case .peopleAndGroups:
                         AddressBookScreen()
                     case let value:
@@ -64,15 +63,23 @@ public let navigationDestinationReducer: Reducer<
     SidebarRoute,
     NavigationDestinationAction,
     NavigationDestinationEnvironment
-> = conversationReducer.pullback(
-    state: /SidebarRoute.chat,
-    action: /NavigationDestinationAction.chat,
-    environment: { _ in ConversationEnvironment() }
-)
+> = Reducer.combine([
+    unreadReducer.pullback(
+        state: /SidebarRoute.unread,
+        action: /NavigationDestinationAction.unread,
+        environment: { _ in UnreadEnvironment() }
+    ),
+    conversationReducer.pullback(
+        state: /SidebarRoute.chat,
+        action: /NavigationDestinationAction.chat,
+        environment: { _ in ConversationEnvironment() }
+    ),
+])
 
 // MARK: Actions
 
 public enum NavigationDestinationAction: Equatable {
+    case unread(UnreadAction)
     case chat(ConversationAction)
 }
 
