@@ -137,7 +137,7 @@ struct GroupsSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: groupsSectionReducer,
-                            environment: .shared
+                            environment: .stub
                         ),
                         route: $route
                     )

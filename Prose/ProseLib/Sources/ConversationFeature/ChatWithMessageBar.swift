@@ -102,7 +102,7 @@ struct ChatWithMessageBar_Previews: PreviewProvider {
                 messageBar: MessageBarState(firstName: "Valerian")
             ),
             reducer: chatWithBarReducer,
-            environment: .shared
+            environment: .stub
         ))
     }
 }

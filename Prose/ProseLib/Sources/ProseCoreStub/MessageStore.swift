@@ -17,12 +17,26 @@ public struct Message {
     public let timestamp: Date
 }
 
+public struct MessageStore {
+    public var messages: (_ chatId: ChatID) -> [Message]?
+    public var unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
+}
+
+public extension MessageStore {
+    static var stub: Self {
+        Self(
+            messages: StubMessageStore.shared.messages(for:),
+            unreadMessages: StubMessageStore.shared.unreadMessages
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class MessageStore {
-    public static let shared = MessageStore()
+private final class StubMessageStore {
+    fileprivate static let shared = StubMessageStore()
 
-    private lazy var messages: [ChatID: [Message]] = [
+    private lazy var _messages: [ChatID: [Message]] = [
         .person(id: "valerian@crisp.chat"): (1...21).map {
             Message(
                 senderId: "valerian@crisp.chat",
@@ -51,50 +65,53 @@ public final class MessageStore {
             }
             .reversed(),
     ]
+    private lazy var _unreadMessages = OrderedDictionary(
+        dictionaryLiteral:
+        (ChatID.person(id: "valerian@crisp.chat"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "They forgot to ship the package.",
+                timestamp: Date() - 2_800
+            ),
+            Message(
+                senderId: "valerian@crisp.chat",
+                content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
+                timestamp: Date() - 3_000
+            ),
+        ]),
+        (ChatID.person(id: "julien@thefamily.com"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "Can I initiate a deployment of the Vue app?",
+                timestamp: Date() - 9_000
+            ),
+            Message(
+                senderId: "julien@thefamily.com",
+                content: "Yes, it's ready. 3 new features are shipping! 😀",
+                timestamp: Date() - 10_000
+            ),
+        ]),
+        (ChatID.group(id: "constellation"), [
+            Message(
+                senderId: "baptiste@crisp.chat",
+                content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
+                timestamp: Date() - 90_000
+            ),
+            Message(
+                senderId: "constellation-health@crisp.chat",
+                content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
+                timestamp: Date() - 100_000
+            ),
+        ])
+    )
 
     private init() {}
 
-    public func messages(for chatId: ChatID) -> [Message]? {
-        self.messages[chatId]
+    func messages(for chatId: ChatID) -> [Message]? {
+        self._messages[chatId]
     }
 
-    public func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
-        OrderedDictionary(dictionaryLiteral:
-            (ChatID.person(id: "valerian@crisp.chat"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "They forgot to ship the package.",
-                    timestamp: Date() - 2_800
-                ),
-                Message(
-                    senderId: "valerian@crisp.chat",
-                    content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
-                    timestamp: Date() - 3_000
-                ),
-            ]),
-            (ChatID.person(id: "julien@thefamily.com"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "Can I initiate a deployment of the Vue app?",
-                    timestamp: Date() - 9_000
-                ),
-                Message(
-                    senderId: "julien@thefamily.com",
-                    content: "Yes, it's ready. 3 new features are shipping! 😀",
-                    timestamp: Date() - 10_000
-                ),
-            ]),
-            (ChatID.group(id: "constellation"), [
-                Message(
-                    senderId: "baptiste@crisp.chat",
-                    content: "⚠️ I'm performing a change of the server IP definitions. Slight outage espected.",
-                    timestamp: Date() - 90_000
-                ),
-                Message(
-                    senderId: "constellation-health@crisp.chat",
-                    content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
-                    timestamp: Date() - 100_000
-                ),
-            ]))
+    func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
+        self._unreadMessages
     }
 }

@@ -119,7 +119,7 @@ struct OtherContactsSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: otherContactsSectionReducer,
-                            environment: .shared
+                            environment: .stub
                         ),
                         route: $route
                     )

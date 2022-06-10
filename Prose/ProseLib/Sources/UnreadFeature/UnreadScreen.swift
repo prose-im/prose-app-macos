@@ -85,7 +85,7 @@ public let unreadReducer: Reducer<
                 let chatTitle: String
                 switch chatId {
                 case let .person(id: jid):
-                    chatTitle = environment.userStore.user(for: jid)?.fullName ?? "Unknown"
+                    chatTitle = environment.userStore.user(jid)?.fullName ?? "Unknown"
                 case let .group(id: groupId):
                     chatTitle = String(describing: groupId)
                 }
@@ -135,10 +135,10 @@ public struct UnreadEnvironment {
 }
 
 public extension UnreadEnvironment {
-    static var shared: Self {
+    static var stub: Self {
         Self(
-            userStore: .shared,
-            messageStore: .shared
+            userStore: .stub,
+            messageStore: .stub
         )
     }
 }
@@ -218,7 +218,7 @@ struct UnreadScreen_Previews: PreviewProvider {
             UnreadScreen(store: Store(
                 initialState: state,
                 reducer: unreadReducer,
-                environment: .shared
+                environment: .stub
             ))
         }
     }

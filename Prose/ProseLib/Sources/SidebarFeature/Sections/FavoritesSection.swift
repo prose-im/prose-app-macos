@@ -111,7 +111,7 @@ internal struct FavoritesSection_Previews: PreviewProvider {
                         store: Store(
                             initialState: .init(),
                             reducer: favoritesSectionReducer,
-                            environment: .shared
+                            environment: .stub
                         ),
                         route: $route
                     )

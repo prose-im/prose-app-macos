@@ -8,12 +8,26 @@
 import Foundation
 import SharedModels
 
+public struct SecurityStore {
+    public let isIdentityVerified: (_ jid: JID) -> Bool
+    public let encryptionFingerprint: (_ jid: JID) -> String?
+}
+
+public extension SecurityStore {
+    static var stub: Self {
+        Self(
+            isIdentityVerified: StubSecurityStore.shared.isIdentityVerified(for:),
+            encryptionFingerprint: StubSecurityStore.shared.encryptionFingerprint(for:)
+        )
+    }
+}
+
 /// This is just a simple store sending fake data.
 /// It should not go into production, it's intended to dynamise the (currently static) app.
-public final class SecurityStore {
-    public static let shared = SecurityStore()
+private final class StubSecurityStore {
+    fileprivate static let shared = StubSecurityStore()
 
-    private let isIdentityVerified: [JID: Bool] = [
+    let _isIdentityVerified: [JID: Bool] = [
         "alexandre@crisp.chat": true,
         "antoine@crisp.chat": true,
         "baptiste@crisp.chat": true,
@@ -23,7 +37,7 @@ public final class SecurityStore {
         "julien@thefamily.com": false,
         "valerian@crisp.chat": true,
     ]
-    private let encryptionFingerprints: [JID: String] = [
+    let _encryptionFingerprints: [JID: String] = [
         "alexandre@crisp.chat": "JUOF2",
         "antoine@crisp.chat": "Q2DZO",
         "baptiste@crisp.chat": "WQC7S",
@@ -36,11 +50,11 @@ public final class SecurityStore {
 
     private init() {}
 
-    public func isIdentityVerified(for jid: JID) -> Bool {
-        self.isIdentityVerified[jid, default: false]
+    func isIdentityVerified(for jid: JID) -> Bool {
+        self._isIdentityVerified[jid, default: false]
     }
 
-    public func encryptionFingerprint(for jid: JID) -> String? {
-        self.encryptionFingerprints[jid]
+    func encryptionFingerprint(for jid: JID) -> String? {
+        self._encryptionFingerprints[jid]
     }
 }
