@@ -1,5 +1,5 @@
 //
-//  AuthenticationReducer.swift
+//  LogInReducer.swift
 //  Prose
 //
 //  Created by Marc Bauer on 01/04/2022.
@@ -16,7 +16,7 @@ import SharedModels
 
 // MARK: State
 
-public struct AuthenticationState: Equatable {
+public struct LogInState: Equatable {
     public enum Field: String, Hashable {
         case address, password
     }
@@ -31,7 +31,7 @@ public struct AuthenticationState: Equatable {
     @BindableState var popover: Popover?
 
     var isLoading: Bool
-    var alert: AlertState<AuthenticationAction>?
+    var alert: AlertState<LogInAction>?
 
     var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
     var isAddressValid: Bool { !self.jid.isEmpty }
@@ -47,7 +47,7 @@ public struct AuthenticationState: Equatable {
         focusedField: Field? = nil,
         popover: Popover? = nil,
         isLoading: Bool = false,
-        alert: AlertState<AuthenticationAction>? = nil
+        alert: AlertState<LogInAction>? = nil
     ) {
         self.jid = jid
         self.password = password
@@ -60,40 +60,21 @@ public struct AuthenticationState: Equatable {
 
 // MARK: Actions
 
-public enum AuthenticationAction: Equatable, BindableAction {
+public enum LogInAction: Equatable, BindableAction {
     case alertDismissed
-    case loginButtonTapped, showPopoverTapped(AuthenticationState.Popover)
-    case submitTapped(AuthenticationState.Field), cancelLogInTapped
+    case loginButtonTapped, showPopoverTapped(LogInState.Popover)
+    case submitTapped(LogInState.Field), cancelLogInTapped
     case logIn
 //    case loginResult(Result<UserCredentials, EquatableError>)
-    case loginResult(Result<String, AuthenticationError>)
-    case binding(BindingAction<AuthenticationState>)
-}
-
-// MARK: Environment
-
-public struct AuthenticationEnvironment {
-//    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
-    var mainQueue: AnySchedulerOf<DispatchQueue>
-
-    public init(
-        mainQueue: AnySchedulerOf<DispatchQueue>
-    ) {
-        self.mainQueue = mainQueue
-    }
-
-//    public init(login: @escaping (String, String, ClientOrigin)
-//        -> Effect<Result<UserCredentials, EquatableError>, Never>)
-//    {
-//        self.login = login
-//    }
+    case loginResult(Result<String, LogInError>)
+    case binding(BindingAction<LogInState>)
 }
 
 // MARK: Reducer
 
-public let authenticationReducer = Reducer<
-    AuthenticationState,
-    AuthenticationAction,
+public let logInReducer = Reducer<
+    LogInState,
+    LogInAction,
     AuthenticationEnvironment
 > { state, action, environment in
     struct CancelId: Hashable {}
@@ -122,7 +103,7 @@ public let authenticationReducer = Reducer<
         .eraseToEffect()
         .cancellable(id: CancelId())
 //        return environment.login(state.jid, state.password, .proseAppMacOs)
-//            .map(AuthenticationAction.loginResult)
+//            .map(LogInAction.loginResult)
 
     case let .showPopoverTapped(popover):
         state.focusedField = nil
