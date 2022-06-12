@@ -111,32 +111,32 @@ public enum ChatAction: Equatable {
 
 #if DEBUG
     import PreviewAssets
-#endif
 
-struct Chat_Previews: PreviewProvider {
-    static let messages: [MessageViewModel] = (1...21)
-        .map { (n: Int) -> (Int, String) in
-            (n, (["A"] + Array(repeating: "long", count: (n - 1) * 4) + ["message."])
-                .joined(separator: " "))
-        }
-        .map {
-            MessageViewModel(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
-                content: $0.1,
-                timestamp: .now - Double($0.0) * 1_000
-            )
-        }
+    struct Chat_Previews: PreviewProvider {
+        static let messages: [MessageViewModel] = (1...21)
+            .map { (n: Int) -> (Int, String) in
+                (n, (["A"] + Array(repeating: "long", count: (n - 1) * 4) + ["message."])
+                    .joined(separator: " "))
+            }
+            .map {
+                MessageViewModel(
+                    senderId: "valerian@crisp.chat",
+                    senderName: "Valerian",
+                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    content: $0.1,
+                    timestamp: .now - Double($0.0) * 1_000
+                )
+            }
 
-    static var previews: some View {
-        Chat(store: Store(
-            initialState: ChatState(
-                chatId: .person(id: "valerian@crisp.chat"),
-                messages: Self.messages
-            ),
-            reducer: chatReducer,
-            environment: .stub
-        ))
+        static var previews: some View {
+            Chat(store: Store(
+                initialState: ChatState(
+                    chatId: .person(id: "valerian@crisp.chat"),
+                    messages: Self.messages
+                ),
+                reducer: chatReducer,
+                environment: .stub
+            ))
+        }
     }
-}
+#endif

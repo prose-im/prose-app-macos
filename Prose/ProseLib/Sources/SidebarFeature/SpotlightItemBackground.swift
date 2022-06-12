@@ -27,18 +27,18 @@ struct SpotlightItemBackground: ViewModifier {
 #if DEBUG
     import ConversationFeature
     import PreviewAssets
-#endif
 
-struct SpotlightItemBackground_Previews: PreviewProvider {
-    static var previews: some View {
-        MessageView(model: .init(
-            senderId: "valerian@crisp.chat",
-            senderName: "Valerian",
-            avatar: PreviewImages.Avatars.valerian.rawValue,
-            content: "Message from Valerian",
-            timestamp: Date() - 10_000
-        ))
-        .modifier(SpotlightItemBackground())
-        .padding()
+    struct SpotlightItemBackground_Previews: PreviewProvider {
+        static var previews: some View {
+            MessageView(model: .init(
+                senderId: "valerian@crisp.chat",
+                senderName: "Valerian",
+                avatar: PreviewImages.Avatars.valerian.rawValue,
+                content: "Message from Valerian",
+                timestamp: Date() - 10_000
+            ))
+            .modifier(SpotlightItemBackground())
+            .padding()
+        }
     }
-}
+#endif

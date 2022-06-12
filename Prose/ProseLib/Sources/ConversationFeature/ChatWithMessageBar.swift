@@ -75,34 +75,34 @@ public enum ChatWithBarAction: Equatable {
 
 #if DEBUG
     import PreviewAssets
-#endif
 
-struct ChatWithMessageBar_Previews: PreviewProvider {
-    static let messages: [MessageViewModel] = (1...21)
-        .map { (n: Int) -> (Int, String) in
-            (n, "Message \(n)")
-        }
-        .map {
-            MessageViewModel(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
-                content: $0.1,
-                timestamp: .now - Double($0.0) * 1_000
-            )
-        }
+    struct ChatWithMessageBar_Previews: PreviewProvider {
+        static let messages: [MessageViewModel] = (1...21)
+            .map { (n: Int) -> (Int, String) in
+                (n, "Message \(n)")
+            }
+            .map {
+                MessageViewModel(
+                    senderId: "valerian@crisp.chat",
+                    senderName: "Valerian",
+                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    content: $0.1,
+                    timestamp: .now - Double($0.0) * 1_000
+                )
+            }
 
-    static var previews: some View {
-        ChatWithMessageBar(store: Store(
-            initialState: ChatWithBarState(
-                chat: ChatState(
-                    chatId: .person(id: "valerian@crisp.chat"),
-                    messages: Self.messages
+        static var previews: some View {
+            ChatWithMessageBar(store: Store(
+                initialState: ChatWithBarState(
+                    chat: ChatState(
+                        chatId: .person(id: "valerian@crisp.chat"),
+                        messages: Self.messages
+                    ),
+                    messageBar: MessageBarState(firstName: "Valerian")
                 ),
-                messageBar: MessageBarState(firstName: "Valerian")
-            ),
-            reducer: chatWithBarReducer,
-            environment: .stub
-        ))
+                reducer: chatWithBarReducer,
+                environment: .stub
+            ))
+        }
     }
-}
+#endif
