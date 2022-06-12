@@ -1,11 +1,12 @@
 # ################ Assets ################
 
-assets: strings
+assets: strings format
 
 strings:
-	# Check that swiftgen is installed
-	which swiftgen > /dev/null 2>&1 || (echo 'You need to install `swiftgen`. Check out <https://github.com/SwiftGen/SwiftGen#installation> for installation steps.' && exit 1)
-	cd Prose/ProseLib && swiftgen
+	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftgen config run --config ./swiftgen.yml)
+
+format:
+	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftformat ..)
 
 # ################ FFIs ################
 
