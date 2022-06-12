@@ -3,9 +3,8 @@
 # In case your config entries all use a common input/output parent directory, you can specify those here.
 #   Every input/output paths in the rest of the config will then be expressed relative to these.
 #   Those two top-level keys are optional and default to "." (the directory of the config file).
-input_dir: Sources/AppLocalization/Resources
-output_dir: Sources/AppLocalization/Generated
-
+input_dir: ../Prose/ProseLib/Sources/AppLocalization/Resources
+output_dir: ../Prose/ProseLib/Sources/AppLocalization/Generated
 
 # Generate constants for your localized strings.
 #   Be sure that SwiftGen only parses ONE locale (typically Base.lproj, or en.lproj, or whichever your development region is); otherwise it will generate the same keys multiple times.
@@ -18,8 +17,6 @@ strings:
     params:
       bundle: Bundle.fixedModule
       publicAccess: true
-
-
 ## Generate constants for your Assets Catalogs, including constants for images, colors, ARKit resources, etc.
 ##   This example also shows how to provide additional parameters to your template to customize the output.
 ##   - Especially the `forceProvidesNamespaces: true` param forces to create sub-namespace for each folder/group used in your Asset Catalogs, even the ones without "Provides Namespace". Without this param, SwiftGen only generates sub-namespaces for folders/groups which have the "Provides Namespace" box checked in the Inspector pane.
@@ -33,7 +30,6 @@ strings:
 #       params:
 #         forceProvidesNamespaces: true
 #       output: XCAssets+Generated.swift
-
 
 # For more info, use `swiftgen config doc` to open the full documentation on GitHub.
 # https://github.com/SwiftGen/SwiftGen/tree/6.5.1/Documentation/
