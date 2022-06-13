@@ -5,10 +5,13 @@
 //  Created by Marc Bauer on 01/04/2022.
 //
 
+import AppLocalization
 import ComposableArchitecture
 import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
+
+fileprivate let l10n = L10n.Authentication.LogIn.self
 
 public struct AuthenticationScreen: View {
     public typealias State = AuthenticationState
@@ -49,9 +52,9 @@ public struct AuthenticationScreen: View {
             Text("👋")
                 .font(.system(size: 64))
                 .padding(.bottom, 20)
-            Text("Welcome!")
+            Text(l10n.Header.title)
                 .font(.system(size: 24, weight: .bold))
-            Text("Sign in to your chat account")
+            Text(l10n.Header.subtitle)
                 .foregroundColor(.secondary)
                 .font(.system(size: 16))
         }
@@ -61,7 +64,7 @@ public struct AuthenticationScreen: View {
         WithViewStore(self.store, removeDuplicates: { $0.isLoading == $1.isLoading }) { viewStore in
             VStack {
                 WithViewStore(self.store, removeDuplicates: { $0.jid == $1.jid }) { viewStore in
-                    TextField("Enter your chat address", text: viewStore.binding(\.$jid))
+                    TextField(l10n.Form.ChatAddress.placeholder, text: viewStore.binding(\.$jid))
                         .onSubmit { actions.send(.submitTapped(.address)) }
                         .textContentType(.username)
                         .disableAutocorrection(true)
@@ -72,7 +75,7 @@ public struct AuthenticationScreen: View {
                         }
                 }
                 WithViewStore(self.store, removeDuplicates: { $0.password == $1.password }) { viewStore in
-                    SecureField("Enter your password…", text: viewStore.binding(\.$password))
+                    SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
                         .onSubmit { actions.send(.submitTapped(.password)) }
                         .textContentType(.password)
                         .disableAutocorrection(true)
@@ -103,12 +106,12 @@ public struct AuthenticationScreen: View {
     private func logInButton() -> some View {
         WithViewStore(
             self.store,
-            removeDuplicates: { $0.isFormValid == $1.isFormValid && $0.isLoading == $1.isLoading }
+            removeDuplicates: { $0.isActionButtonEnabled == $1.isActionButtonEnabled }
         ) { viewStore in
             Button {
                 actions.send(viewStore.isLoading ? .cancelLogInTapped : .loginButtonTapped)
             } label: {
-                Text(viewStore.isLoading ? "Cancel" : "Log into your account")
+                Text(viewStore.isLoading ? l10n.Cancel.Action.title : l10n.LogIn.Action.title)
                     .frame(minWidth: 196)
             }
             .overlay(alignment: .leading) {
@@ -117,7 +120,7 @@ public struct AuthenticationScreen: View {
                         .scaleEffect(0.5, anchor: .center)
                 }
             }
-            .disabled(!viewStore.isFormValid && !viewStore.isLoading)
+            .disabled(!viewStore.isActionButtonEnabled)
         }
     }
 
@@ -127,14 +130,14 @@ public struct AuthenticationScreen: View {
                 self.store,
                 removeDuplicates: { $0.popover == $1.popover }
             ) { viewStore in
-                Button("Lost your password?") { actions.send(.showPopoverTapped(.passwordLost)) }
+                Button(l10n.PasswordLost.Action.title) { actions.send(.showPopoverTapped(.passwordLost)) }
                     .popover(
                         unwrapping: viewStore.binding(\.$popover),
                         case: /State.Popover.passwordLost,
                         content: { _ in Self.passwordLostPopover() }
                     )
                 Divider().frame(height: 18)
-                Button("No account yet?") { actions.send(.showPopoverTapped(.noAccount)) }
+                Button(l10n.NoAccount.Action.title) { actions.send(.showPopoverTapped(.noAccount)) }
                     .popover(
                         unwrapping: viewStore.binding(\.$popover),
                         case: /State.Popover.noAccount,
@@ -146,40 +149,22 @@ public struct AuthenticationScreen: View {
     }
 
     private static func chatAddressPopover() -> some View {
-        GroupBox("What is my chat address? (XMPP address)") {
-            Text("""
-            A chat address is not an email address, but it is very likely
-            the same as your professional email address.
-            """)
-            Text("**It might be:** [your username] @ [your company domain].")
+        GroupBox(l10n.ChatAddress.Popover.title) {
+            Text(l10n.ChatAddress.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
     }
 
     private static func passwordLostPopover() -> some View {
-        GroupBox("Lost your password?") {
-            // TODO: [Rémi Bardon] Change URL
-            Text("""
-            Please open this link to our website
-            to [recover your password](https://prose.org).
-            """)
+        GroupBox(l10n.PasswordLost.Popover.title) {
+            Text(l10n.PasswordLost.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
     }
 
     private static func noAccountPopover() -> some View {
-        GroupBox("How do I create a new account? (XMPP address)") {
-            // TODO: [Rémi Bardon] Change guide URL
-            Text("""
-            Chat accounts are hosted on your organization chat server.
-            If you are a server administrator, and you are not yet running
-            a chat server, please [read this guide](https://prose.org). You will be able to
-            invite all your team members afterwards.
-            """)
-            Text("""
-            If you are a team member, ask for an administrator in your
-            team to email you an invitation to create your chat account.
-            """)
+        GroupBox(l10n.NoAccount.Popover.title) {
+            Text(l10n.NoAccount.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
     }
@@ -207,7 +192,7 @@ private struct CircleButtonStyle: ButtonStyle {
 
 private struct PopoverGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
             configuration.label
                 .font(.headline)
             configuration.content

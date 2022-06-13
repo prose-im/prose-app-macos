@@ -92,6 +92,7 @@ let package = Package(
         .target(
             name: "AuthenticationFeature",
             dependencies: [
+                "AppLocalization",
                 // "ProseCore",
                 "SharedModels",
                 "TcaHelpers",

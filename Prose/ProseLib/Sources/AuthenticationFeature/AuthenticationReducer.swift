@@ -36,6 +36,10 @@ public struct AuthenticationState: Equatable {
     var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
     var isAddressValid: Bool { !self.jid.isEmpty }
     var isPasswordValid: Bool { !self.password.isEmpty }
+    var isLogInButtonEnabled: Bool { self.isFormValid }
+    /// The action button is shown either when the form is valid or when the login request is in flight
+    /// (for cancellation).
+    var isActionButtonEnabled: Bool { self.isLogInButtonEnabled || self.isLoading }
 
     public init(
         jid: String = "",
@@ -126,23 +130,11 @@ public let authenticationReducer = Reducer<
         state.popover = popover
 
     case .submitTapped(.address):
-        if state.isAddressValid {
-            state.focusedField = .password
-        } else {
-            state.alert = AlertState(
-                title: TextState("Invalid chat address"),
-                message: TextState("Your chat address must not be empty")
-            )
-        }
+        state.focusedField = .password
 
     case .submitTapped(.password):
-        if state.isPasswordValid {
+        if state.isLogInButtonEnabled {
             return Effect(value: .logIn)
-        } else {
-            state.alert = AlertState(
-                title: TextState("Invalid password"),
-                message: TextState("Password must not be empty")
-            )
         }
 
     case .cancelLogInTapped:
