@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-extension String {
-    
+public extension String {
     /// Convert a `String` to a Markdown `AttributedString`.
     ///
     /// SwiftUI automatically renders Markdown, but only for static strings used in the `Text` initializer.
@@ -18,7 +17,7 @@ extension String {
     /// ```swift
     /// Text(L10n.myString.asMarkdown)
     /// ```
-    public var asMarkdown: AttributedString {
+    var asMarkdown: AttributedString {
         do {
             return try AttributedString(
                 markdown: self,
@@ -32,5 +31,4 @@ extension String {
             return AttributedString(self)
         }
     }
-    
 }

@@ -11,7 +11,7 @@ import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
 
-fileprivate let l10n = L10n.Authentication.LogIn.self
+private let l10n = L10n.Authentication.LogIn.self
 
 public struct AuthenticationScreen: View {
     public typealias State = AuthenticationState
@@ -29,12 +29,10 @@ public struct AuthenticationScreen: View {
     public var body: some View {
         WithViewStore(self.store) { viewStore in
             VStack(spacing: 32) {
-                Spacer()
                 Self.header()
                 fields(viewStore: viewStore)
                 logInButton(viewStore: viewStore)
                 footer(viewStore: viewStore)
-                Spacer()
             }
             .multilineTextAlignment(.center)
             .controlSize(.large)
