@@ -27,13 +27,13 @@ public struct AuthenticationScreen: View {
     }
 
     public var body: some View {
-        WithViewStore(self.store, removeDuplicates: { $0.focusedField == $1.focusedField }) { viewStore in
+        WithViewStore(self.store) { viewStore in
             VStack(spacing: 32) {
                 Spacer()
                 Self.header()
-                fields()
-                logInButton()
-                footer()
+                fields(viewStore: viewStore)
+                logInButton(viewStore: viewStore)
+                footer(viewStore: viewStore)
                 Spacer()
             }
             .multilineTextAlignment(.center)
@@ -60,90 +60,69 @@ public struct AuthenticationScreen: View {
         }
     }
 
-    private func fields() -> some View {
-        WithViewStore(self.store, removeDuplicates: { $0.isLoading == $1.isLoading }) { viewStore in
-            VStack {
-                WithViewStore(self.store, removeDuplicates: { $0.jid == $1.jid }) { viewStore in
-                    TextField(l10n.Form.ChatAddress.placeholder, text: viewStore.binding(\.$jid))
-                        .onSubmit { actions.send(.submitTapped(.address)) }
-                        .textContentType(.username)
-                        .disableAutocorrection(true)
-                        .focused($focusedField, equals: .address)
-                        .overlay(alignment: .trailing) {
-                            chatAddressHelpButton()
-                                .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
-                        }
+    private func fields(viewStore: ViewStore<State, Action>) -> some View {
+        VStack {
+            TextField(l10n.Form.ChatAddress.placeholder, text: viewStore.binding(\.$jid))
+                .onSubmit { actions.send(.submitTapped(.address)) }
+                .textContentType(.username)
+                .disableAutocorrection(true)
+                .focused($focusedField, equals: .address)
+                .overlay(alignment: .trailing) {
+                    chatAddressHelpButton(viewStore: viewStore)
+                        .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
                 }
-                WithViewStore(self.store, removeDuplicates: { $0.password == $1.password }) { viewStore in
-                    SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
-                        .onSubmit { actions.send(.submitTapped(.password)) }
-                        .textContentType(.password)
-                        .disableAutocorrection(true)
-                        .focused($focusedField, equals: .password)
-                }
-            }
-            .disabled(viewStore.isLoading)
+            SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
+                .onSubmit { actions.send(.submitTapped(.password)) }
+                .textContentType(.password)
+                .disableAutocorrection(true)
+                .focused($focusedField, equals: .password)
         }
+        .disabled(viewStore.isLoading)
     }
 
-    private func chatAddressHelpButton() -> some View {
-        WithViewStore(
-            self.store,
-            removeDuplicates: { $0.popover == $1.popover }
-        ) { viewStore in
-            Button { actions.send(.showPopoverTapped(.chatAddress)) } label: {
-                Image(systemName: "questionmark")
-            }
-            .buttonStyle(CircleButtonStyle())
-            .popover(
-                unwrapping: viewStore.binding(\.$popover),
-                case: /State.Popover.chatAddress,
-                content: { _ in Self.chatAddressPopover() }
-            )
+    private func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
+        Button { actions.send(.showPopoverTapped(.chatAddress)) } label: {
+            Image(systemName: "questionmark")
         }
+        .buttonStyle(CircleButtonStyle())
+        .popover(
+            unwrapping: viewStore.binding(\.$popover),
+            case: /State.Popover.chatAddress,
+            content: { _ in Self.chatAddressPopover() }
+        )
     }
 
-    private func logInButton() -> some View {
-        WithViewStore(
-            self.store,
-            removeDuplicates: { $0.isActionButtonEnabled == $1.isActionButtonEnabled }
-        ) { viewStore in
-            Button {
-                actions.send(viewStore.isLoading ? .cancelLogInTapped : .loginButtonTapped)
-            } label: {
-                Text(viewStore.isLoading ? l10n.Cancel.Action.title : l10n.LogIn.Action.title)
-                    .frame(minWidth: 196)
-            }
-            .overlay(alignment: .leading) {
-                if viewStore.isLoading {
-                    ProgressView()
-                        .scaleEffect(0.5, anchor: .center)
-                }
-            }
-            .disabled(!viewStore.isActionButtonEnabled)
+    private func logInButton(viewStore: ViewStore<State, Action>) -> some View {
+        Button {
+            actions.send(viewStore.isLoading ? .cancelLogInTapped : .loginButtonTapped)
+        } label: {
+            Text(viewStore.isLoading ? l10n.Cancel.Action.title : l10n.LogIn.Action.title)
+                .frame(minWidth: 196)
         }
+        .overlay(alignment: .leading) {
+            if viewStore.isLoading {
+                ProgressView()
+                    .scaleEffect(0.5, anchor: .center)
+            }
+        }
+        .disabled(!viewStore.isActionButtonEnabled)
     }
 
-    private func footer() -> some View {
+    private func footer(viewStore: ViewStore<State, Action>) -> some View {
         HStack(spacing: 16) {
-            WithViewStore(
-                self.store,
-                removeDuplicates: { $0.popover == $1.popover }
-            ) { viewStore in
-                Button(l10n.PasswordLost.Action.title) { actions.send(.showPopoverTapped(.passwordLost)) }
-                    .popover(
-                        unwrapping: viewStore.binding(\.$popover),
-                        case: /State.Popover.passwordLost,
-                        content: { _ in Self.passwordLostPopover() }
-                    )
-                Divider().frame(height: 18)
-                Button(l10n.NoAccount.Action.title) { actions.send(.showPopoverTapped(.noAccount)) }
-                    .popover(
-                        unwrapping: viewStore.binding(\.$popover),
-                        case: /State.Popover.noAccount,
-                        content: { _ in Self.noAccountPopover() }
-                    )
-            }
+            Button(l10n.PasswordLost.Action.title) { actions.send(.showPopoverTapped(.passwordLost)) }
+                .popover(
+                    unwrapping: viewStore.binding(\.$popover),
+                    case: /State.Popover.passwordLost,
+                    content: { _ in Self.passwordLostPopover() }
+                )
+            Divider().frame(height: 18)
+            Button(l10n.NoAccount.Action.title) { actions.send(.showPopoverTapped(.noAccount)) }
+                .popover(
+                    unwrapping: viewStore.binding(\.$popover),
+                    case: /State.Popover.noAccount,
+                    content: { _ in Self.noAccountPopover() }
+                )
         }
         .buttonStyle(.link)
     }
