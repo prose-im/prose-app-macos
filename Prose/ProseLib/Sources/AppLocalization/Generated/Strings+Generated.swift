@@ -40,10 +40,15 @@ public enum L10n {
                 }
             }
 
+            public enum Error {
+                /// Login failure
+                public static let title = L10n.tr("Localizable", "authentication.log_in.error.title")
+            }
+
             public enum Form {
                 public enum ChatAddress {
                     /// Enter your chat address
-                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.chatAddress.placeholder")
+                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.chat_address.placeholder")
                 }
 
                 public enum Password {
@@ -57,10 +62,6 @@ public enum L10n {
                 public static let subtitle = L10n.tr("Localizable", "authentication.log_in.header.subtitle")
                 /// Welcome!
                 public static let title = L10n.tr("Localizable", "authentication.log_in.header.title")
-                public enum Action {
-                    /// Cancel
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.header.action.title")
-                }
             }
 
             public enum LogIn {
@@ -103,6 +104,46 @@ public enum L10n {
                     /// Lost your password?
                     public static let title = L10n.tr("Localizable", "authentication.log_in.password_lost.popover.title")
                 }
+            }
+        }
+
+        public enum Mfa {
+            public enum ConfirmButton {
+                /// Confirm login code
+                public static let title = L10n.tr("Localizable", "authentication.mfa.confirm_button.title")
+            }
+
+            public enum Error {
+                /// Multi factor authentication failure
+                public static let title = L10n.tr("Localizable", "authentication.mfa.error.title")
+            }
+
+            public enum Footer {
+                public enum CannotGenerateCode {
+                    // TODO:
+                    public static let content = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.content")
+                    /// Cannot generate code?
+                    public static let title = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.title")
+                }
+
+                public enum NoAccount {
+                    /// No account yet?
+                    public static let title = L10n.tr("Localizable", "authentication.mfa.footer.no_account.title")
+                }
+            }
+
+            public enum Form {
+                public enum OneTimeCode {
+                    /// One time code
+                    public static let placeholder = L10n.tr("Localizable", "authentication.mfa.form.one_time_code.placeholder")
+                }
+            }
+
+            public enum Header {
+                /// Enter your 6-digit access code
+                public static let subtitle = L10n.tr("Localizable", "authentication.mfa.header.subtitle")
+                /// One more step…
+                public static let title = L10n.tr("Localizable", "authentication.mfa.header.title")
             }
         }
     }

@@ -35,7 +35,7 @@ public let appReducer: Reducer<
                 sidebar: .init(credentials: .init(jid: jid))
             ))
 
-        case let .auth(.didLogIn(jid)):
+        case let .auth(.didLogIn(jid, _)):
             let url = URL(staticString: "prose://main")
             return environment.openURL(url, .init())
                 .receive(on: environment.mainQueue)

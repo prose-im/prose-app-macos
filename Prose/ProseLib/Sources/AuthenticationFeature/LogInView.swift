@@ -40,8 +40,8 @@ public struct LogInView: View {
             .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
         }
     }
-    
-    private static func header() -> some View {
+
+    static func header() -> some View {
         VStack(spacing: 4) {
             Text("👋")
                 .font(.system(size: 64))
@@ -52,10 +52,11 @@ public struct LogInView: View {
                 .foregroundColor(.secondary)
                 .font(.system(size: 16))
         }
+        .accessibilityElement()
+        .accessibilityLabel(l10n.Header.subtitle)
     }
 
-    
-    private func fields(viewStore: ViewStore<State, Action>) -> some View {
+    func fields(viewStore: ViewStore<State, Action>) -> some View {
         VStack {
             TextField(l10n.Form.ChatAddress.placeholder, text: viewStore.binding(\.$jid))
                 .onSubmit { actions.send(.submitTapped(.address)) }
@@ -74,8 +75,8 @@ public struct LogInView: View {
         }
         .disabled(viewStore.isLoading)
     }
-    
-    private func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
+
+    func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
         Button { actions.send(.showPopoverTapped(.chatAddress)) } label: {
             Image(systemName: "questionmark")
         }
@@ -86,8 +87,8 @@ public struct LogInView: View {
             content: { _ in Self.chatAddressPopover() }
         )
     }
-    
-    private func logInButton(viewStore: ViewStore<State, Action>) -> some View {
+
+    func logInButton(viewStore: ViewStore<State, Action>) -> some View {
         Button {
             actions.send(viewStore.isLoading ? .cancelLogInTapped : .loginButtonTapped)
         } label: {
@@ -102,8 +103,8 @@ public struct LogInView: View {
         }
         .disabled(!viewStore.isActionButtonEnabled)
     }
-    
-    private func footer(viewStore: ViewStore<State, Action>) -> some View {
+
+    func footer(viewStore: ViewStore<State, Action>) -> some View {
         HStack(spacing: 16) {
             Button(l10n.PasswordLost.Action.title) { actions.send(.showPopoverTapped(.passwordLost)) }
                 .popover(
@@ -121,22 +122,22 @@ public struct LogInView: View {
         }
         .buttonStyle(.link)
     }
-    
-    private static func chatAddressPopover() -> some View {
+
+    static func chatAddressPopover() -> some View {
         GroupBox(l10n.ChatAddress.Popover.title) {
             Text(l10n.ChatAddress.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
     }
-    
-    private static func passwordLostPopover() -> some View {
+
+    static func passwordLostPopover() -> some View {
         GroupBox(l10n.PasswordLost.Popover.title) {
             Text(l10n.PasswordLost.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
     }
-    
-    private static func noAccountPopover() -> some View {
+
+    static func noAccountPopover() -> some View {
         GroupBox(l10n.NoAccount.Popover.title) {
             Text(l10n.NoAccount.Popover.content.asMarkdown)
         }
@@ -164,7 +165,7 @@ private struct CircleButtonStyle: ButtonStyle {
     }
 }
 
-private struct PopoverGroupBoxStyle: GroupBoxStyle {
+struct PopoverGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             configuration.label

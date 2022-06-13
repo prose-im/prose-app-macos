@@ -6,11 +6,14 @@
 //
 
 import AppKit
+import AppLocalization
 import Combine
 import ComposableArchitecture
 import Foundation
 // import ProseCore
 import SharedModels
+
+private let l10n = L10n.Authentication.LogIn.self
 
 // MARK: - The Composable Architecture
 
@@ -66,7 +69,8 @@ public enum LogInAction: Equatable, BindableAction {
     case submitTapped(LogInState.Field), cancelLogInTapped
     case logIn
 //    case loginResult(Result<UserCredentials, EquatableError>)
-    case loginResult(Result<String, LogInError>)
+    case loginResult(Result<AuthRoute, LogInError>)
+    case didPassChallenge(next: AuthRoute)
     case binding(BindingAction<LogInState>)
 }
 
@@ -94,7 +98,13 @@ public let logInReducer = Reducer<
         let jid = state.jid
         return Effect.task {
             if isFormValid, !jid.starts(with: "error") {
-                return .loginResult(.success(jid))
+                if jid.starts(with: "mfa") {
+                    return .loginResult(.success(.mfa(.sixDigits(MFA6DigitsState(jid: jid)))))
+                } else {
+                    // NOTE: [Rémi Bardon] This is just a placeholder
+                    let token = UUID().uuidString
+                    return .loginResult(.success(.success(jid: jid, token: token)))
+                }
             } else {
                 return .loginResult(.failure(.badCredentials))
             }
@@ -121,21 +131,23 @@ public let logInReducer = Reducer<
         state.isLoading = false
         return Effect.cancel(id: CancelId())
 
-    case let .loginResult(.success(jid)):
+    case let .loginResult(.success(route)):
 //    case let .loginResult(.success(credentials)):
-        print("Login success: \(jid)")
+        print("Login success: \(route)")
         state.isLoading = false
+
+        return Effect(value: .didPassChallenge(next: route))
 
     case let .loginResult(.failure(reason)):
         print("Login failure: \(String(reflecting: reason))")
         state.isLoading = false
 
         state.alert = .init(
-            title: TextState("Login failure"),
+            title: TextState(l10n.Error.title),
             message: TextState(reason.localizedDescription)
         )
 
-    case .binding:
+    case .didPassChallenge, .binding:
         break
     }
 

@@ -6,11 +6,11 @@
 //
 
 "authentication.basic_auth.alert.bad_credentials.title" = "Bad credentials";
-"authentication.log_in.header.action.title" = "Cancel";
 "authentication.log_in.cancel.action.title" = "Cancel";
 "authentication.log_in.chat_address.popover.content" = "A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain].";
 "authentication.log_in.chat_address.popover.title" = "What is my chat address? (XMPP address)";
-"authentication.log_in.form.chatAddress.placeholder" = "Enter your chat address";
+"authentication.log_in.error.title" = "Login failure";
+"authentication.log_in.form.chat_address.placeholder" = "Enter your chat address";
 "authentication.log_in.form.password.placeholder" = "Enter your password…";
 "authentication.log_in.header.title" = "Welcome!";
 "authentication.log_in.header.subtitle" = "Sign in to your chat account";
@@ -23,6 +23,16 @@
 // TODO: [Rémi Bardon] Change URL
 "authentication.log_in.password_lost.popover.content" = "Please open this link to our website\nto [recover your password](https://prose.org).";
 "authentication.log_in.password_lost.popover.title" = "Lost your password?";
+
+"authentication.mfa.confirm_button.title" = "Confirm login code";
+"authentication.mfa.header.title" = "One more step…";
+"authentication.mfa.header.subtitle" = "Enter your 6-digit access code";
+"authentication.mfa.error.title" = "Multi factor authentication failure";
+"authentication.mfa.footer.cannot_generate_code.title" = "Cannot generate code?";
+// TODO: [Rémi Bardon] Add text
+"authentication.mfa.footer.cannot_generate_code.content" = "TODO";
+"authentication.mfa.footer.no_account.title" = "No account yet?";
+"authentication.mfa.form.one_time_code.placeholder" = "One time code";
 
 "sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";

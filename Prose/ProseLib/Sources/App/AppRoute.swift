@@ -9,7 +9,7 @@ import AuthenticationFeature
 import MainWindowFeature
 
 public enum AppRoute: Equatable {
-    case auth(AuthenticationState)
+    case auth(AuthRoute)
     case main(MainScreenState)
 }
 

@@ -20,3 +20,16 @@ extension LogInError: LocalizedError {
         }
     }
 }
+
+public enum MFAError: Error, Equatable {
+    case badCode
+}
+
+extension MFAError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .badCode:
+            return "Bad code"
+        }
+    }
+}

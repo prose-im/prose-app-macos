@@ -12,7 +12,7 @@ import SwiftUI
 // MARK: - View
 
 public struct AuthenticationScreen: View {
-    public typealias State = AuthenticationState
+    public typealias State = AuthRoute
     public typealias Action = AuthenticationAction
 
     private let store: Store<State, Action>
@@ -25,6 +25,7 @@ public struct AuthenticationScreen: View {
     public var body: some View {
         SwitchStore(self.store) {
             CaseLet(state: /State.logIn, action: Action.logIn, then: LogInView.init(store:))
+            CaseLet(state: /State.mfa, action: Action.mfa, then: MFAView.init(store:))
         }
     }
 }
@@ -34,19 +35,29 @@ public struct AuthenticationScreen: View {
 // MARK: Reducer
 
 public let authenticationReducer: Reducer<
-    AuthenticationState,
+    AuthRoute,
     AuthenticationAction,
     AuthenticationEnvironment
 > = Reducer.combine([
     logInReducer.pullback(
-        state: /AuthenticationState.logIn,
+        state: /AuthRoute.logIn,
         action: /AuthenticationAction.logIn,
         environment: { $0 }
     ),
-    Reducer { _, action, _ in
+    mfaReducer.pullback(
+        state: /AuthRoute.mfa,
+        action: /AuthenticationAction.mfa,
+        environment: { $0 }
+    ),
+    Reducer { state, action, _ in
         switch action {
-        case let .logIn(.loginResult(.success(jid))):
-            return Effect(value: .didLogIn(jid))
+        case let .logIn(.didPassChallenge(.success(jid, token))),
+             let .mfa(.didPassChallenge(.success(jid, token))):
+            return Effect(value: .didLogIn(jid: jid, token: token))
+
+        case let .logIn(.didPassChallenge(route)),
+             let .mfa(.didPassChallenge(route)):
+            state = route
 
         default:
             break
@@ -58,15 +69,18 @@ public let authenticationReducer: Reducer<
 
 // MARK: State
 
-public enum AuthenticationState: Equatable {
+public enum AuthRoute: Equatable {
     case logIn(LogInState)
+    case mfa(MFAState)
+    case success(jid: String, token: String)
 }
 
 // MARK: Actions
 
 public enum AuthenticationAction: Equatable {
-    case didLogIn(String)
+    case didLogIn(jid: String, token: String)
     case logIn(LogInAction)
+    case mfa(MFAAction)
 }
 
 // MARK: Environment
@@ -80,7 +94,6 @@ public struct AuthenticationEnvironment {
     ) {
         self.mainQueue = mainQueue
     }
-
 
 //    public init(login: @escaping (String, String, ClientOrigin)
 //        -> Effect<Result<UserCredentials, EquatableError>, Never>)
