@@ -24,7 +24,7 @@ public struct AuthenticationScreen: View {
 
     public var body: some View {
         SwitchStore(self.store) {
-            CaseLet(state: /State.logIn, action: Action.logIn, then: LogInView.init(store:))
+            CaseLet(state: /State.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
             CaseLet(state: /State.mfa, action: Action.mfa, then: MFAView.init(store:))
         }
     }
@@ -39,9 +39,9 @@ public let authenticationReducer: Reducer<
     AuthenticationAction,
     AuthenticationEnvironment
 > = Reducer.combine([
-    logInReducer.pullback(
-        state: /AuthRoute.logIn,
-        action: /AuthenticationAction.logIn,
+    basicAuthReducer.pullback(
+        state: /AuthRoute.basicAuth,
+        action: /AuthenticationAction.basicAuth,
         environment: { $0 }
     ),
     mfaReducer.pullback(
@@ -51,11 +51,11 @@ public let authenticationReducer: Reducer<
     ),
     Reducer { state, action, _ in
         switch action {
-        case let .logIn(.didPassChallenge(.success(jid, token))),
+        case let .basicAuth(.didPassChallenge(.success(jid, token))),
              let .mfa(.didPassChallenge(.success(jid, token))):
             return Effect(value: .didLogIn(jid: jid, token: token))
 
-        case let .logIn(.didPassChallenge(route)),
+        case let .basicAuth(.didPassChallenge(route)),
              let .mfa(.didPassChallenge(route)):
             state = route
 
@@ -70,7 +70,7 @@ public let authenticationReducer: Reducer<
 // MARK: State
 
 public enum AuthRoute: Equatable {
-    case logIn(LogInState)
+    case basicAuth(BasicAuthState)
     case mfa(MFAState)
     case success(jid: String, token: String)
 }
@@ -79,7 +79,7 @@ public enum AuthRoute: Equatable {
 
 public enum AuthenticationAction: Equatable {
     case didLogIn(jid: String, token: String)
-    case logIn(LogInAction)
+    case basicAuth(BasicAuthAction)
     case mfa(MFAAction)
 }
 
@@ -107,7 +107,7 @@ public struct AuthenticationEnvironment {
 internal struct AuthenticationScreen_Previews: PreviewProvider {
     static var previews: some View {
         AuthenticationScreen(store: Store(
-            initialState: .logIn(.init()),
+            initialState: .basicAuth(.init()),
             reducer: authenticationReducer,
             environment: AuthenticationEnvironment(
                 mainQueue: .main

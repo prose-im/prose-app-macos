@@ -1,5 +1,5 @@
 //
-//  LogInView.swift
+//  BasicAuthView.swift
 //  Prose
 //
 //  Created by Marc Bauer on 01/04/2022.
@@ -11,18 +11,18 @@ import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
 
-private let l10n = L10n.Authentication.LogIn.self
+private let l10n = L10n.Authentication.BasicAuth.self
 
-public struct LogInView: View {
-    typealias State = LogInState
-    typealias Action = LogInAction
+struct BasicAuthView: View {
+    typealias State = BasicAuthState
+    typealias Action = BasicAuthAction
 
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     @FocusState private var focusedField: State.Field?
 
-    public var body: some View {
+    var body: some View {
         WithViewStore(self.store) { viewStore in
             VStack(spacing: 32) {
                 Self.header()
@@ -179,14 +179,14 @@ struct PopoverGroupBoxStyle: GroupBoxStyle {
     }
 }
 
-struct LogInView_Previews: PreviewProvider {
+struct BasicAuthView_Previews: PreviewProvider {
     private struct Preview: View {
-        let state: LogInView.State
+        let state: BasicAuthView.State
 
         var body: some View {
-            LogInView(store: Store(
+            BasicAuthView(store: Store(
                 initialState: state,
-                reducer: logInReducer,
+                reducer: basicAuthReducer,
                 environment: AuthenticationEnvironment(
                     mainQueue: .main
                 )

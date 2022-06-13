@@ -1,5 +1,5 @@
 //
-//  LogInReducer.swift
+//  BasicAuthReducer.swift
 //  Prose
 //
 //  Created by Marc Bauer on 01/04/2022.
@@ -13,13 +13,13 @@ import Foundation
 // import ProseCore
 import SharedModels
 
-private let l10n = L10n.Authentication.LogIn.self
+private let l10n = L10n.Authentication.BasicAuth.self
 
 // MARK: - The Composable Architecture
 
 // MARK: State
 
-public struct LogInState: Equatable {
+public struct BasicAuthState: Equatable {
     public enum Field: String, Hashable {
         case address, password
     }
@@ -34,7 +34,7 @@ public struct LogInState: Equatable {
     @BindableState var popover: Popover?
 
     var isLoading: Bool
-    var alert: AlertState<LogInAction>?
+    var alert: AlertState<BasicAuthAction>?
 
     var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
     var isAddressValid: Bool { !self.jid.isEmpty }
@@ -50,7 +50,7 @@ public struct LogInState: Equatable {
         focusedField: Field? = nil,
         popover: Popover? = nil,
         isLoading: Bool = false,
-        alert: AlertState<LogInAction>? = nil
+        alert: AlertState<BasicAuthAction>? = nil
     ) {
         self.jid = jid
         self.password = password
@@ -63,22 +63,22 @@ public struct LogInState: Equatable {
 
 // MARK: Actions
 
-public enum LogInAction: Equatable, BindableAction {
+public enum BasicAuthAction: Equatable, BindableAction {
     case alertDismissed
-    case loginButtonTapped, showPopoverTapped(LogInState.Popover)
-    case submitTapped(LogInState.Field), cancelLogInTapped
+    case loginButtonTapped, showPopoverTapped(BasicAuthState.Popover)
+    case submitTapped(BasicAuthState.Field), cancelLogInTapped
     case logIn
 //    case loginResult(Result<UserCredentials, EquatableError>)
-    case loginResult(Result<AuthRoute, LogInError>)
+    case loginResult(Result<AuthRoute, BasicAuthError>)
     case didPassChallenge(next: AuthRoute)
-    case binding(BindingAction<LogInState>)
+    case binding(BindingAction<BasicAuthState>)
 }
 
 // MARK: Reducer
 
-public let logInReducer = Reducer<
-    LogInState,
-    LogInAction,
+public let basicAuthReducer = Reducer<
+    BasicAuthState,
+    BasicAuthAction,
     AuthenticationEnvironment
 > { state, action, environment in
     struct CancelId: Hashable {}
@@ -113,7 +113,7 @@ public let logInReducer = Reducer<
         .eraseToEffect()
         .cancellable(id: CancelId())
 //        return environment.login(state.jid, state.password, .proseAppMacOs)
-//            .map(LogInAction.loginResult)
+//            .map(BasicAuthAction.loginResult)
 
     case let .showPopoverTapped(popover):
         state.focusedField = nil

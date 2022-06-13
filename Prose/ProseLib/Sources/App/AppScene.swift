@@ -27,7 +27,7 @@ public struct AppScene: Scene {
     public init() {
         self.init(store: Store(
             initialState: AppState(
-                route: .auth(.logIn(.init()))
+                route: .auth(.basicAuth(.init()))
             ),
             reducer: appReducer,
             environment: AppEnvironment.live

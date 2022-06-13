@@ -120,7 +120,7 @@ public struct MFA6DigitsView: View {
                 .popover(
                     unwrapping: viewStore.binding(\.$popover),
                     case: /State.Popover.noAccount,
-                    content: { _ in LogInView.noAccountPopover() }
+                    content: { _ in BasicAuthView.noAccountPopover() }
                 )
         }
         .buttonStyle(.link)

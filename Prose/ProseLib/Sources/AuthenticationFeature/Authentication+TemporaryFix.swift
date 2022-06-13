@@ -8,11 +8,11 @@
 import AppLocalization
 import Foundation
 
-public enum LogInError: Error, Equatable {
+public enum BasicAuthError: Error, Equatable {
     case badCredentials
 }
 
-extension LogInError: LocalizedError {
+extension BasicAuthError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .badCredentials:
