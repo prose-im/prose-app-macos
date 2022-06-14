@@ -75,7 +75,7 @@ public struct SidebarState: Equatable {
     public init(
         credentials: UserCredentials,
         content: SidebarContentState = .init(),
-        footer: FooterState = .init(),
+        footer: FooterState,
         toolbar: ToolbarState = .init()
     ) {
         self.credentials = credentials
