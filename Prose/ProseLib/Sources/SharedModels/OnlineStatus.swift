@@ -1,7 +1,3 @@
-#if canImport(SwiftUI)
-    import SwiftUI
-#endif
-
 public enum OnlineStatus: Hashable, CaseIterable {
     case offline, online
 }
@@ -30,15 +26,4 @@ public extension Availability {
             return "Do not disturb"
         }
     }
-
-    #if canImport(SwiftUI)
-        var color: Color {
-            switch self {
-            case .available:
-                return .green
-            case .doNotDisturb:
-                return .orange
-            }
-        }
-    #endif
 }

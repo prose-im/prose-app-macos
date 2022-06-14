@@ -26,12 +26,12 @@ struct FooterAvatar: View {
     var body: some View {
         WithViewStore(self.store) { viewStore in
             Button(action: { actions.send(.avatarTapped) }) {
-                Avatar(viewStore.avatar, size: viewStore.size)
+                Avatar(viewStore.avatar, size: 32)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(l10n.label)
             .overlay(alignment: .bottomTrailing) {
-                statusIndicator(viewStore: viewStore)
+                AvailabilityIndicator(availability: viewStore.availability)
                     // Offset of half the size minus 2 points (otherwise it looks odd)
                     .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
                     .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
@@ -40,102 +40,95 @@ struct FooterAvatar: View {
         }
     }
 
-    @ViewBuilder
-    private func statusIndicator(viewStore: ViewStore<State, Action>) -> some View {
-        if viewStore.status != .offline {
-            OnlineStatusIndicator(status: viewStore.status)
-                .padding(2)
-                .background {
-                    Circle()
-                        .fill(Color.white)
-                }
-        }
-    }
-
     private func popover() -> some View {
         Self.popover(store: self.store)
     }
 
-    @ViewBuilder
     fileprivate static func popover(store: Store<State, Action>) -> some View {
-        let actions: ViewStore<Void, Action> = ViewStore(store.stateless)
-        VStack(alignment: .leading, spacing: 16) {
-            // TODO: [Rémi Bardon] Refactor this view out
-            HStack {
-                // TODO: [Rémi Bardon] Change this to Crisp icon
-                Avatar(PreviewImages.Avatars.baptiste.rawValue, size: 32)
-                VStack(alignment: .leading) {
-                    Text(verbatim: "Baptiste Jamin")
-                        .font(.headline)
-                    Text(verbatim: "baptiste@crisp.chat")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .foregroundColor(.primary)
-            }
-            // Make hit box full width
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Baptiste Jamin (baptiste@crisp.chat)")
-
-            GroupBox {
-                Button { actions.send(.updateMoodTapped) } label: {
-                    HStack(spacing: 4) {
-                        Text("🚀")
-                        Text(verbatim: "Update mood")
+        WithViewStore(store) { viewStore in
+            VStack(alignment: .leading, spacing: 16) {
+                // TODO: [Rémi Bardon] Refactor this view out
+                HStack {
+                    // TODO: [Rémi Bardon] Change this to Crisp icon
+                    Avatar(PreviewImages.Avatars.baptiste.rawValue, size: 32)
+                    VStack(alignment: .leading) {
+                        Text(verbatim: viewStore.fullName)
+                            .font(.headline)
+                        Text(verbatim: viewStore.jid)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
+                    .foregroundColor(.primary)
+                }
+                // Make hit box full width
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(viewStore.fullName) (\(viewStore.jid))")
+
+                GroupBox {
+                    Button { viewStore.send(.updateMoodTapped) } label: {
+                        HStack(spacing: 4) {
+                            Text(String(viewStore.statusIcon))
+                            Text(verbatim: "Update mood")
+                        }
+                        .disclosureIndicator()
+                    }
+                    Menu("Change availability") {
+                        Self.availabilityMenu(store: store)
+                    }
+                    // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
+                    .padding(.leading, -3)
+                    // NOTE: [Rémi Bardon] Having the disclosure indicator outside the menu label
+                    //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
+                    //       places the `Image` on the leading edge.
                     .disclosureIndicator()
+                    Button { viewStore.send(.pauseNotificationsTapped) } label: {
+                        Text(verbatim: "Pause notifications")
+                            .disclosureIndicator()
+                    }
                 }
-//                .accessibilityElement(children: .ignore)
-//                .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
-                Menu("Change availability") {
-                    Self.availabilityMenu(store: store)
+                GroupBox {
+                    Button("Edit profile") { viewStore.send(.editProfileTapped) }
+                    Button("Account settings") { viewStore.send(.accountSettingsTapped) }
                 }
-                // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
-                .padding(.leading, -3)
-                // NOTE: [Rémi Bardon] Having the disclosure indicator outside the menu label
-                //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
-                //       places the `Image` on the leading edge.
-                .disclosureIndicator()
-                Button { actions.send(.pauseNotificationsTapped) } label: {
-                    Text(verbatim: "Pause notifications")
-                        .disclosureIndicator()
+                GroupBox {
+                    Button { viewStore.send(.offlineModeTapped) } label: {
+                        Text(verbatim: "Offline mode")
+                            .disclosureIndicator()
+                    }
                 }
-            }
-            GroupBox {
-                Button("Edit profile") { actions.send(.editProfileTapped) }
-                Button("Account settings") { actions.send(.accountSettingsTapped) }
-            }
-            GroupBox {
-                Button { actions.send(.offlineModeTapped) } label: {
-                    Text(verbatim: "Offline mode")
-                        .disclosureIndicator()
+                GroupBox {
+                    Button("Sign me out", role: .destructive) { viewStore.send(.signOutTapped) }
                 }
             }
-            GroupBox {
-                Button("Sign me out", role: .destructive) { actions.send(.signOutTapped) }
-            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .buttonStyle(SidebarFooterPopoverButtonStyle())
+            .groupBoxStyle(VStackGroupBoxStyle(alignment: .leading, spacing: 6))
+            .multilineTextAlignment(.leading)
+            .padding(12)
+            .frame(width: 196)
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .buttonStyle(SidebarFooterPopoverButtonStyle())
-        .groupBoxStyle(VStackGroupBoxStyle(alignment: .leading, spacing: 6))
-        .multilineTextAlignment(.leading)
-        .padding(12)
-        .frame(width: 196)
     }
 
-    @ViewBuilder
     static func availabilityMenu(store: Store<State, Action>) -> some View {
-        let actions: ViewStore<Void, Action> = ViewStore(store.stateless)
-        ForEach(Availability.allCases, id: \.self) { availability in
-            Button { actions.send(.changeAvailabilityTapped(availability)) } label: {
-                // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
-                //       to add the colored dot, but `Menu`s don't display it.
-                Text(availability.localizedDescription)
+        WithViewStore(store) { viewStore in
+            ForEach(Availability.allCases, id: \.self) { availability in
+                Button { viewStore.send(.changeAvailabilityTapped(availability)) } label: {
+                    HStack {
+                        // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
+                        //       to add the colored dot, but `Menu`s don't display it.
+                        Text(availability.localizedDescription)
+                        if viewStore.availability == availability {
+                            Spacer()
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+                .tag(availability)
+                .disabled(viewStore.availability == availability)
             }
-            .tag(availability)
         }
     }
 }
@@ -180,8 +173,6 @@ extension View {
             Image(systemName: "chevron.forward")
                 .padding(.trailing, 2)
         }
-//        // Allow hits in the transparent areas
-//        .contentShape(Rectangle())
     }
 }
 
@@ -197,6 +188,9 @@ public let footerAvatarReducer: Reducer<
     switch action {
     case .avatarTapped:
         state.showingPopover = true
+        
+    case .changeAvailabilityTapped(let availability):
+        state.availability = availability
 
     case .binding:
         break
@@ -212,21 +206,31 @@ public let footerAvatarReducer: Reducer<
 // MARK: State
 
 public struct FooterAvatarState: Equatable {
-    let avatar: String
-    let status: OnlineStatus
-    let size: CGFloat
+    var avatar: String
+    var availability: Availability
+    var fullName: String
+    var jid: String
+    var statusIcon: Character
+    var statusMessage: String
 
     @BindableState var showingPopover: Bool
 
     public init(
         avatar: String,
-        status: OnlineStatus = .offline,
-        size: CGFloat = 32,
+        availability: Availability = .available,
+        fullName: String = "Baptiste Jamin",
+        jid: String = "baptiste@crisp.chat",
+        statusIcon: Character = "🚀",
+        statusMessage: String = "Building new features.",
         showingPopover: Bool = false
     ) {
         self.avatar = avatar
-        self.status = status
-        self.size = size
+        self.availability = availability
+        self.showingPopover = showingPopover
+        self.fullName = fullName
+        self.jid = jid
+        self.statusIcon = statusIcon
+        self.statusMessage = statusMessage
         self.showingPopover = showingPopover
     }
 }
@@ -254,10 +258,10 @@ public enum FooterAvatarAction: Equatable, BindableAction {
         private struct Preview: View {
             var body: some View {
                 HStack {
-                    ForEach(OnlineStatus.allCases, id: \.self) { status in
+                    ForEach(Availability.allCases, id: \.self) { availability in
                         content(state: FooterAvatarState(
                             avatar: PreviewImages.Avatars.valerian.rawValue,
-                            status: status
+                            availability: availability
                         ))
                     }
                 }
@@ -265,7 +269,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                 let store = Store(
                     initialState: FooterAvatarState(
                         avatar: PreviewImages.Avatars.valerian.rawValue,
-                        status: .online
+                        availability: .available
                     ),
                     reducer: footerAvatarReducer,
                     environment: ()
