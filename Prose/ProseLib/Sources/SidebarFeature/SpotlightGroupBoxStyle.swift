@@ -28,35 +28,35 @@ extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
 #if DEBUG
     import ConversationFeature
     import PreviewAssets
-#endif
 
-struct SpotlightGroupBoxStyle_Previews: PreviewProvider {
-    static var previews: some View {
-        GroupBox {
-            MessageView(model: .init(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
-                content: "Message from Valerian",
-                timestamp: Date() - 10_000
-            ))
-            MessageView(model: .init(
-                senderId: "baptiste@crisp.chat",
-                senderName: "Baptiste",
-                avatar: PreviewImages.Avatars.baptiste.rawValue,
-                content: "Message from Baptiste",
-                timestamp: Date() - 15_000
-            ))
-        } label: {
-            HStack {
-                Label("support", systemImage: Icon.group.rawValue)
-                    .labelStyle(.coloredIcon)
-                    .font(.title2.bold())
-                Spacer()
-                Text("dummy")
-                    .foregroundColor(.secondary)
+    struct SpotlightGroupBoxStyle_Previews: PreviewProvider {
+        static var previews: some View {
+            GroupBox {
+                MessageView(model: .init(
+                    senderId: "valerian@crisp.chat",
+                    senderName: "Valerian",
+                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    content: "Message from Valerian",
+                    timestamp: Date() - 10_000
+                ))
+                MessageView(model: .init(
+                    senderId: "baptiste@crisp.chat",
+                    senderName: "Baptiste",
+                    avatar: PreviewImages.Avatars.baptiste.rawValue,
+                    content: "Message from Baptiste",
+                    timestamp: Date() - 15_000
+                ))
+            } label: {
+                HStack {
+                    Label("support", systemImage: Icon.group.rawValue)
+                        .labelStyle(.coloredIcon)
+                        .font(.title2.bold())
+                    Spacer()
+                    Text("dummy")
+                        .foregroundColor(.secondary)
+                }
             }
+            .groupBoxStyle(.spotlight)
         }
-        .groupBoxStyle(.spotlight)
     }
-}
+#endif

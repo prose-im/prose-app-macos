@@ -128,49 +128,49 @@ public enum ConversationInfoAction: Equatable {
 
 #if DEBUG
     import PreviewAssets
-#endif
 
-internal struct ConversationInfoView_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            ConversationInfoView(store: Store(
-                initialState: ConversationInfoState(
-                    identity: .init(
-                        avatar: PreviewImages.Avatars.valerian.rawValue,
-                        fullName: "Valerian Saliou",
-                        status: .online,
-                        jobTitle: "CTO",
-                        company: "Crisp"
+    internal struct ConversationInfoView_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                ConversationInfoView(store: Store(
+                    initialState: ConversationInfoState(
+                        identity: .init(
+                            avatar: PreviewImages.Avatars.valerian.rawValue,
+                            fullName: "Valerian Saliou",
+                            status: .online,
+                            jobTitle: "CTO",
+                            company: "Crisp"
+                        ),
+                        quickActions: .init(),
+                        information: .init(
+                            emailAddress: "valerian@crisp.chat",
+                            phoneNumber: "+33 6 12 34 56",
+                            lastSeenDate: Date.now - 1_000,
+                            timeZone: TimeZone(identifier: "WEST")!,
+                            location: "Lisbon, Portugal",
+                            statusIcon: "👨‍💻",
+                            statusMessage: "Focusing on code"
+                        ),
+                        security: .init(
+                            isIdentityVerified: true,
+                            encryptionFingerprint: "V5I92"
+                        ),
+                        actions: .init()
                     ),
-                    quickActions: .init(),
-                    information: .init(
-                        emailAddress: "valerian@crisp.chat",
-                        phoneNumber: "+33 6 12 34 56",
-                        lastSeenDate: Date.now - 1_000,
-                        timeZone: TimeZone(identifier: "WEST")!,
-                        location: "Lisbon, Portugal",
-                        statusIcon: "👨‍💻",
-                        statusMessage: "Focusing on code"
-                    ),
-                    security: .init(
-                        isIdentityVerified: true,
-                        encryptionFingerprint: "V5I92"
-                    ),
-                    actions: .init()
-                ),
-                reducer: conversationInfoReducer,
-                environment: ()
-            ))
-            .frame(width: 220, height: 720)
+                    reducer: conversationInfoReducer,
+                    environment: ()
+                ))
+                .frame(width: 220, height: 720)
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+                .previewDisplayName("Normal")
+            Preview()
+                .previewDisplayName("Real placeholder")
+            ConversationInfoView.placeholder
+                .previewDisplayName("Simple placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-            .previewDisplayName("Normal")
-        Preview()
-            .previewDisplayName("Real placeholder")
-        ConversationInfoView.placeholder
-            .previewDisplayName("Simple placeholder")
-    }
-}
+#endif
