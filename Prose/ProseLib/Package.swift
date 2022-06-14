@@ -26,6 +26,7 @@ let package = Package(
                 "MainWindowFeature",
                 "SettingsFeature",
                 "AuthenticationFeature",
+                "SidebarFeature",
                 "TcaHelpers",
                 // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

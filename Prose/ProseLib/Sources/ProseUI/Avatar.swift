@@ -26,6 +26,10 @@ public struct Avatar: View {
             .frame(width: size, height: size)
             .background(Color.borderSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay {
+                RoundedRectangle(cornerRadius: 4)
+                    .strokeBorder(Color(nsColor: .separatorColor))
+            }
     }
 }
 
