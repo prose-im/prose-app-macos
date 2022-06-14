@@ -81,16 +81,25 @@ public struct MainWindowEnvironment {
 
 // MARK: - Previews
 
-internal struct MainWindow_Previews: PreviewProvider {
-    static var previews: some View {
-        MainWindow(store: Store(
-            initialState: MainWindowState(
-                sidebar: .init(credentials: UserCredentials(jid: "preview@prose.org"))
-            ),
-            reducer: mainWindowReducer,
-            environment: MainWindowEnvironment(
-                sidebar: .stub
-            )
-        ))
+#if DEBUG
+    import PreviewAssets
+
+    internal struct MainWindow_Previews: PreviewProvider {
+        static var previews: some View {
+            MainWindow(store: Store(
+                initialState: MainWindowState(
+                    sidebar: .init(
+                        credentials: UserCredentials(jid: "preview@prose.org"),
+                        footer: FooterState(
+                            avatar: .init(avatar: PreviewImages.Avatars.valerian.rawValue)
+                        )
+                    )
+                ),
+                reducer: mainWindowReducer,
+                environment: MainWindowEnvironment(
+                    sidebar: .stub
+                )
+            ))
+        }
     }
-}
+#endif

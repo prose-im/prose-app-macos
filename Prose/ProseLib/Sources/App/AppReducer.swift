@@ -33,7 +33,11 @@ public struct AppState: Equatable {
 
     public init(
         route: AppRoute = .main(MainWindowState(
-            sidebar: .init(credentials: .init(jid: "example@prose.org"))
+            // FIXME: [Rémi Bardon] Remove this fake data
+            sidebar: .init(
+                credentials: .init(jid: "example@prose.org"),
+                footer: .init(avatar: .init(avatar: "avatars/valerian"))
+            )
         ))
     ) {
         self.route = route

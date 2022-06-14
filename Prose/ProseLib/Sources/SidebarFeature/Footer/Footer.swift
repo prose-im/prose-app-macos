@@ -30,13 +30,8 @@ struct Footer: View {
             Divider()
 
             HStack(spacing: 12) {
-                WithViewStore(self.store.scope(state: \State.0)) { viewStore in
-                    // User avatar
-                    FooterAvatar(
-                        avatar: viewStore.avatar,
-                        status: viewStore.status
-                    )
-                }
+                // User avatar
+                FooterAvatar(store: self.store.scope(state: \State.0.avatar, action: Action.avatar))
 
                 WithViewStore(self.store, removeDuplicates: ==) { viewStore in
                     // Team name + user status
@@ -75,44 +70,34 @@ public let footerReducer: Reducer<
         action: /FooterAction.actionButton,
         environment: { $0 }
     ),
-    Reducer { _, action, _ in
-        switch action {
-        case .actionButton:
-            break
-
-        default:
-            // TODO: [Rémi Bardon] Handle actions
-            assertionFailure("Received unhandled action: \(String(describing: action))")
-        }
-
-        return .none
-    },
+    footerAvatarReducer.pullback(
+        state: \FooterState.avatar,
+        action: /FooterAction.avatar,
+        environment: { $0 }
+    ),
 ])
 
 // MARK: State
 
 public struct FooterState: Equatable {
-    let avatar: String
-    let status: OnlineStatus
     let teamName: String
     let statusIcon: Character
     let statusMessage: String
 
+    var avatar: FooterAvatarState
     var actionButton: FooterActionMenuState
 
     public init(
-        avatar: String = PreviewImages.Avatars.valerian.rawValue,
-        status: OnlineStatus = .online,
         teamName: String = "Crisp",
         statusIcon: Character = "🚀",
         statusMessage: String = "Building new features.",
+        avatar: FooterAvatarState,
         actionButton: FooterActionMenuState = .init()
     ) {
-        self.avatar = avatar
-        self.status = status
         self.teamName = teamName
         self.statusIcon = statusIcon
         self.statusMessage = statusMessage
+        self.avatar = avatar
         self.actionButton = actionButton
     }
 }
@@ -120,14 +105,6 @@ public struct FooterState: Equatable {
 // MARK: Actions
 
 public enum FooterAction: Equatable {
-    // Avatar
-    case updateMoodTapped
-    case changeAvailabilityTapped(Availability)
-    case pauseNotificationsTapped
-    case editProfileTapped
-    case accountSettingsTapped
-    case offlineModeTapped
-    case signOutTapped
-    // Action button
+    case avatar(FooterAvatarAction)
     case actionButton(FooterActionMenuAction)
 }
