@@ -52,7 +52,7 @@ private extension OnlineStatus {
     }
 }
 
-struct StatusIndicator_Previews: PreviewProvider {
+struct OnlineStatusIndicator_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
             HStack {
