@@ -29,8 +29,8 @@
 "authentication.mfa.header.subtitle" = "Enter your 6-digit access code";
 "authentication.mfa.error.title" = "Multi factor authentication failure";
 "authentication.mfa.footer.cannot_generate_code.title" = "Cannot generate code?";
-// TODO: [Rémi Bardon] Add text
-"authentication.mfa.footer.cannot_generate_code.content" = "TODO";
+// TODO: [Rémi Bardon] Add real help text
+"authentication.mfa.footer.cannot_generate_code.content" = "Not implemented yet.";
 "authentication.mfa.footer.no_account.title" = "No account yet?";
 "authentication.mfa.form.one_time_code.placeholder" = "One time code";
 

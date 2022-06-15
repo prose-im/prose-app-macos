@@ -118,7 +118,7 @@ public enum L10n {
 
             public enum Footer {
                 public enum CannotGenerateCode {
-                    // TODO:
+                    /// Not implemented yet.
                     public static let content = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.content")
                     /// Cannot generate code?
                     public static let title = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.title")
