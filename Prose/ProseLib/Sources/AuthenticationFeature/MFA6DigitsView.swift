@@ -9,6 +9,7 @@ import AppLocalization
 import Combine
 import ComposableArchitecture
 import ProseUI
+import SharedModels
 import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
@@ -163,11 +164,10 @@ public let mfa6DigitsReducer: Reducer<
         let isFormValid = state.isFormValid
         let code = state.filteredCode
         let jid = state.jid
+        let password = state.password
         return Effect.task {
             if isFormValid, code != "000000" {
-                // NOTE: [Rémi Bardon] This is just a placeholder
-                let token = UUID().uuidString
-                return .verifyOneTimeCodeResult(.success(.success(jid: jid, token: token)))
+                return .verifyOneTimeCodeResult(.success(.success(jid: jid, password: password)))
             } else {
                 return .verifyOneTimeCodeResult(.failure(.badCode))
             }
@@ -244,7 +244,9 @@ public struct MFA6DigitsState: Equatable {
         case cannotGenerateCode, noAccount
     }
 
-    let jid: String
+    let jid: JID
+    /// - Note: [Rémi Bardon] This should only be temporary
+    let password: String
 
     @BindableState var rawCode: String
     @BindableState var filteredCode: String
@@ -258,7 +260,8 @@ public struct MFA6DigitsState: Equatable {
     var isMainButtonEnabled: Bool { self.isFormValid && !self.isLoading }
 
     public init(
-        jid: String,
+        jid: JID,
+        password: String,
         code: String = "",
         isLoading: Bool = false,
         alert: AlertState<MFA6DigitsAction>? = nil,
@@ -266,6 +269,7 @@ public struct MFA6DigitsState: Equatable {
         popover: Popover? = nil
     ) {
         self.jid = jid
+        self.password = password
         self.rawCode = code
         self.filteredCode = code
         self.isLoading = isLoading
@@ -294,9 +298,10 @@ public enum MFA6DigitsAction: Equatable, BindableAction {
 internal struct MFA6DigitsView_Previews: PreviewProvider {
     static var previews: some View {
         MFA6DigitsView(store: Store(
-            initialState: MFA6DigitsState(jid: "remi@prose.org"),
+            initialState: MFA6DigitsState(jid: "remi@prose.org", password: "prose"),
             reducer: mfa6DigitsReducer,
             environment: AuthenticationEnvironment(
+                credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
                 mainQueue: .main
             )
         ))

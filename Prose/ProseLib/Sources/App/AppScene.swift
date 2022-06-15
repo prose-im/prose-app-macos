@@ -35,6 +35,7 @@ public struct AppScene: Scene {
     }
 
     public var body: some Scene {
+        let _ = actions.send(.onAppear)
         WithViewStore(self.store.scope(state: \.route.tag)) { viewStore in
             Group {
                 login()

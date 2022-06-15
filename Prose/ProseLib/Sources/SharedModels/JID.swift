@@ -14,15 +14,41 @@ public struct JID: Hashable {
     public let resource: String?
 }
 
-extension JID: CustomStringConvertible {
-    public var description: String {
+public extension JID {
+    var jidString: String {
         Self.print(self)
+    }
+}
+
+extension JID: CustomStringConvertible {
+    public var description: String { self.jidString }
+}
+
+extension JID: RawRepresentable {
+    public var rawValue: String { self.jidString }
+    public init(rawValue: String) {
+        self = Self.parse(rawValue)
     }
 }
 
 extension JID: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self = Self.parse(value)
+    }
+}
+
+extension JID: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(Self.print(self))
+    }
+}
+
+extension JID: Decodable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let string = try container.decode(String.self)
+        self = Self.parse(string)
     }
 }
 

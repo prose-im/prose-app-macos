@@ -42,9 +42,9 @@ struct SidebarItem: Equatable, Identifiable {
 }
 
 public struct UserCredentials: Equatable {
-    public var jid: String
+    public var jid: JID
 
-    public init(jid: String) {
+    public init(jid: JID) {
         self.jid = jid
     }
 }

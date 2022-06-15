@@ -36,7 +36,7 @@ struct Footer: View {
                 WithViewStore(self.store, removeDuplicates: ==) { viewStore in
                     // Team name + user status
                     FooterDetails(
-                        teamName: viewStore.1.jid,
+                        teamName: viewStore.1.jid.jidString,
                         statusIcon: viewStore.0.statusIcon,
                         statusMessage: viewStore.0.statusMessage
                     )
