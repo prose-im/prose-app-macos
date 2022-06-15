@@ -64,17 +64,18 @@ struct FooterAvatar: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(viewStore.fullName) (\(viewStore.jid))")
+                .accessibilityLabel(l10n.Header.label(viewStore.fullName, viewStore.jid))
 
                 GroupBox {
                     Button { viewStore.send(.updateMoodTapped) } label: {
                         HStack(spacing: 4) {
                             Text(String(viewStore.statusIcon))
-                            Text(verbatim: "Update mood")
+                                .accessibilityHidden(true)
+                            Text(verbatim: l10n.UpdateMood.title)
                         }
                         .disclosureIndicator()
                     }
-                    Menu("Change availability") {
+                    Menu(l10n.ChangeAvailability.title) {
                         Self.availabilityMenu(store: store)
                     }
                     // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
@@ -84,22 +85,22 @@ struct FooterAvatar: View {
                     //       places the `Image` on the leading edge.
                     .disclosureIndicator()
                     Button { viewStore.send(.pauseNotificationsTapped) } label: {
-                        Text(verbatim: "Pause notifications")
+                        Text(verbatim: l10n.PauseNotifications.title)
                             .disclosureIndicator()
                     }
                 }
                 GroupBox {
-                    Button("Edit profile") { viewStore.send(.editProfileTapped) }
-                    Button("Account settings") { viewStore.send(.accountSettingsTapped) }
+                    Button(l10n.EditProfile.title) { viewStore.send(.editProfileTapped) }
+                    Button(l10n.AccountSettings.title) { viewStore.send(.accountSettingsTapped) }
                 }
                 GroupBox {
                     Button { viewStore.send(.offlineModeTapped) } label: {
-                        Text(verbatim: "Offline mode")
+                        Text(verbatim: l10n.OfflineMode.title)
                             .disclosureIndicator()
                     }
                 }
                 GroupBox {
-                    Button("Sign me out", role: .destructive) { viewStore.send(.signOutTapped) }
+                    Button(l10n.SignOut.title, role: .destructive) { viewStore.send(.signOutTapped) }
                 }
             }
             .menuStyle(.borderlessButton)
@@ -188,8 +189,8 @@ public let footerAvatarReducer: Reducer<
     switch action {
     case .avatarTapped:
         state.showingPopover = true
-        
-    case .changeAvailabilityTapped(let availability):
+
+    case let .changeAvailabilityTapped(availability):
         state.availability = availability
 
     case .binding:
