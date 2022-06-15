@@ -32,7 +32,16 @@ public let appReducer: Reducer<
         switch action {
         case let .didLogIn(jid):
             state.route = .main(MainScreenState(
-                sidebar: .init(credentials: .init(jid: jid))
+                sidebar: .init(
+                    credentials: .init(jid: jid),
+                    footer: .init(
+                        avatar: .init(
+                            // TODO: Use a JID type, to avoid this parsing
+                            // TODO: Use an image stored by the user (not a preview asset)
+                            avatar: "avatars/\(jid.split(separator: "@").first ?? "valerian")"
+                        )
+                    )
+                )
             ))
 
         case let .auth(.loginResult(.success(jid))):
@@ -60,7 +69,13 @@ public struct AppState: Equatable {
     var route: AppRoute
 
     public init(
-        route: AppRoute
+        route: AppRoute = .main(MainScreenState(
+            // FIXME: [Rémi Bardon] Remove this fake data
+            sidebar: .init(
+                credentials: .init(jid: "example@prose.org"),
+                footer: .init(avatar: .init(avatar: "avatars/valerian"))
+            )
+        ))
     ) {
         self.route = route
     }
