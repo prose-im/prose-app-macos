@@ -301,6 +301,47 @@ public enum L10n {
                 public enum Account {
                     /// Account actions
                     public static let label = L10n.tr("Localizable", "sidebar.footer.actions.account.label")
+                    public enum AccountSettings {
+                        /// Account settings
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.account_settings.title")
+                    }
+
+                    public enum ChangeAvailability {
+                        /// Change availability
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.change_availability.title")
+                    }
+
+                    public enum EditProfile {
+                        /// Edit profile
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.edit_profile.title")
+                    }
+
+                    public enum Header {
+                        /// %s (%s)
+                        public static func label(_ p1: UnsafePointer<CChar>, _ p2: UnsafePointer<CChar>) -> String {
+                            L10n.tr("Localizable", "sidebar.footer.actions.account.header.label", p1, p2)
+                        }
+                    }
+
+                    public enum OfflineMode {
+                        /// Offline mode
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.offline_mode.title")
+                    }
+
+                    public enum PauseNotifications {
+                        /// Pause notifications
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.pause_notifications.title")
+                    }
+
+                    public enum SignOut {
+                        /// Sign me out
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.sign_out.title")
+                    }
+
+                    public enum UpdateMood {
+                        /// Update mood
+                        public static let title = L10n.tr("Localizable", "sidebar.footer.actions.account.update_mood.title")
+                    }
                 }
 
                 public enum Server {

@@ -26,6 +26,15 @@
 
 "sidebar.footer.actions.account.label" = "Account actions";
 
+"sidebar.footer.actions.account.account_settings.title" = "Account settings";
+"sidebar.footer.actions.account.change_availability.title" = "Change availability";
+"sidebar.footer.actions.account.edit_profile.title" = "Edit profile";
+"sidebar.footer.actions.account.header.label" = "%s (%s)";
+"sidebar.footer.actions.account.offline_mode.title" = "Offline mode";
+"sidebar.footer.actions.account.pause_notifications.title" = "Pause notifications";
+"sidebar.footer.actions.account.sign_out.title" = "Sign me out";
+"sidebar.footer.actions.account.update_mood.title" = "Update mood";
+
 "sidebar.footer.actions.server.label" = "Server actions";
 
 "sidebar.footer.actions.server.switch_account.title" = "Switch account";

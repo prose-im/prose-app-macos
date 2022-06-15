@@ -12,7 +12,7 @@ import SwiftUI
 public struct AvailabilityIndicator: View {
     private let availability: Availability
     private let size: CGFloat
-    
+
     public init(
         availability: Availability,
         size: CGFloat = 11.0
@@ -20,11 +20,11 @@ public struct AvailabilityIndicator: View {
         self.availability = availability
         self.size = size
     }
-    
+
     public init(_ availability: Availability) {
         self.init(availability: availability)
     }
-    
+
     public var body: some View {
         // Having a `ZStack` with the background circle always present allows animations.
         // Conditional views (aka `if`, `switch`…) break identity, and thus animations.
@@ -64,12 +64,12 @@ struct AvailabilityIndicator_Previews: PreviewProvider {
             .padding()
         }
     }
-    
+
     static var previews: some View {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-        
+
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
