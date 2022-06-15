@@ -103,7 +103,6 @@ public let authenticationReducer = Reducer<
         state.alert = nil
 
     case .loginButtonTapped:
-        print("Log in button tapped")
         return Effect(value: .logIn)
 
     case .logIn:

@@ -5,6 +5,7 @@
 // Created by Valerian Saliou on 11/15/21.
 //
 
+"authentication.basic_auth.alert.bad_credentials.title" = "Bad credentials";
 "authentication.log_in.header.action.title" = "Cancel";
 "authentication.log_in.cancel.action.title" = "Cancel";
 "authentication.log_in.chat_address.popover.content" = "A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain].";

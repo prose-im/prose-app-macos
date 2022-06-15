@@ -41,7 +41,7 @@ public struct AppScene: Scene {
                     .handlesExternalEvents(matching: Set(arrayLiteral: "login"))
                     .onChange(of: authWindow) { newValue in
                         guard let window = newValue else { return }
-                        
+
                         // Disable green "zoom" (show fullscreen) button
                         window.standardWindowButton(.zoomButton)?.isEnabled = false
                     }

@@ -11,6 +11,15 @@ import Foundation
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
     public enum Authentication {
+        public enum BasicAuth {
+            public enum Alert {
+                public enum BadCredentials {
+                    /// Bad credentials
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.alert.bad_credentials.title")
+                }
+            }
+        }
+
         public enum LogIn {
             public enum Cancel {
                 public enum Action {

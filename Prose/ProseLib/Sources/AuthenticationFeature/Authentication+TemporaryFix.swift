@@ -5,6 +5,7 @@
 //  Created by Rémi Bardon on 09/06/2022.
 //
 
+import AppLocalization
 import Foundation
 
 public enum AuthenticationError: Error, Equatable {
@@ -15,7 +16,7 @@ extension AuthenticationError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .badCredentials:
-            return "Bad credentials"
+            return L10n.Authentication.BasicAuth.Alert.BadCredentials.title
         }
     }
 }
