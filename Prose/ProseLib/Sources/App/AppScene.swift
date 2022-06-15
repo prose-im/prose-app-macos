@@ -39,6 +39,12 @@ public struct AppScene: Scene {
             Group {
                 login()
                     .handlesExternalEvents(matching: Set(arrayLiteral: "login"))
+                    .onChange(of: authWindow) { newValue in
+                        guard let window = newValue else { return }
+
+                        // Disable green "zoom" (show fullscreen) button
+                        window.standardWindowButton(.zoomButton)?.isEnabled = false
+                    }
                 main()
                     .handlesExternalEvents(matching: Set(arrayLiteral: "main"))
             }
@@ -76,13 +82,14 @@ public struct AppScene: Scene {
     @SceneBuilder
     private func login() -> some Scene {
         WindowGroup {
-            IfLetStore(self.store.scope(
-                state: (\AppState.route).case(/AppRoute.auth),
-                action: AppAction.auth
-            )) { store in
-                AuthenticationScreen(store: store)
-            }
-            .frame(minWidth: 440, minHeight: 440)
+            IfLetStore(
+                self.store.scope(
+                    state: (\AppState.route).case(/AppRoute.auth),
+                    action: AppAction.auth
+                ),
+                then: AuthenticationScreen.init(store:)
+            )
+            .frame(width: 440)
             .background(WindowAccessor(window: $authWindow))
         }
         .windowStyle(.hiddenTitleBar)

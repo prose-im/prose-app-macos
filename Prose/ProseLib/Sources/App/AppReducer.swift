@@ -125,7 +125,9 @@ public struct AppEnvironment {
                     #endif
                 }
             },
-            auth: .init(),
+            auth: .init(
+                mainQueue: .main
+            ),
 //            auth: .init(login: { jid, password, origin in
 //                Effect.catching {
 //                    try ProseCore.login(jid: jid, password: password, origin: origin)

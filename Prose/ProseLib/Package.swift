@@ -18,6 +18,7 @@ let package = Package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .upToNextMajor(from: "0.33.1")
         ),
+        .package(url: "https://github.com/pointfreeco/swiftui-navigation", .upToNextMajor(from: "0.1.0")),
     ],
     targets: [
         .target(
@@ -91,9 +92,12 @@ let package = Package(
         .target(
             name: "AuthenticationFeature",
             dependencies: [
+                "AppLocalization",
                 // "ProseCore",
                 "SharedModels",
+                "TcaHelpers",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
             ]
         ),
         .target(

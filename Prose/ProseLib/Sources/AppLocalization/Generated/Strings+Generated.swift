@@ -10,6 +10,103 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
+    public enum Authentication {
+        public enum BasicAuth {
+            public enum Alert {
+                public enum BadCredentials {
+                    /// Bad credentials
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.alert.bad_credentials.title")
+                }
+            }
+        }
+
+        public enum LogIn {
+            public enum Cancel {
+                public enum Action {
+                    /// Cancel
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.cancel.action.title")
+                }
+            }
+
+            public enum ChatAddress {
+                public enum Popover {
+                    /// A chat address is not an email address, but it is very likely
+                    /// the same as your professional email address.
+                    ///
+                    /// **It might be:** [your username]@[your company domain].
+                    public static let content = L10n.tr("Localizable", "authentication.log_in.chat_address.popover.content")
+                    /// What is my chat address? (XMPP address)
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.chat_address.popover.title")
+                }
+            }
+
+            public enum Form {
+                public enum ChatAddress {
+                    /// Enter your chat address
+                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.chatAddress.placeholder")
+                }
+
+                public enum Password {
+                    /// Enter your password…
+                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.password.placeholder")
+                }
+            }
+
+            public enum Header {
+                /// Sign in to your chat account
+                public static let subtitle = L10n.tr("Localizable", "authentication.log_in.header.subtitle")
+                /// Welcome!
+                public static let title = L10n.tr("Localizable", "authentication.log_in.header.title")
+                public enum Action {
+                    /// Cancel
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.header.action.title")
+                }
+            }
+
+            public enum LogIn {
+                public enum Action {
+                    /// Log into your account
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.log_in.action.title")
+                }
+            }
+
+            public enum NoAccount {
+                public enum Action {
+                    /// No account yet?
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.no_account.action.title")
+                }
+
+                public enum Popover {
+                    /// Chat accounts are hosted on your organization chat server.
+                    /// If you are a server administrator, and you are not yet running
+                    /// a chat server, please [read this guide](https://prose.org). You will be able to
+                    /// invite all your team members afterwards.
+                    ///
+                    /// If you are a team member, ask for an administrator in your
+                    /// team to email you an invitation to create your chat account.
+                    public static let content = L10n.tr("Localizable", "authentication.log_in.no_account.popover.content")
+                    /// How do I create a new account? (XMPP address)
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.no_account.popover.title")
+                }
+            }
+
+            public enum PasswordLost {
+                public enum Action {
+                    /// Lost your password?
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.password_lost.action.title")
+                }
+
+                public enum Popover {
+                    /// Please open this link to our website
+                    /// to [recover your password](https://prose.org).
+                    public static let content = L10n.tr("Localizable", "authentication.log_in.password_lost.popover.content")
+                    /// Lost your password?
+                    public static let title = L10n.tr("Localizable", "authentication.log_in.password_lost.popover.title")
+                }
+            }
+        }
+    }
+
     public enum Content {
         public enum MessageBar {
             /// %s is typing…
