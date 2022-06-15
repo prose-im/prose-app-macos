@@ -6,28 +6,11 @@
 //
 
 import App
-import SettingsFeature
 import SwiftUI
 
 @main
 struct ProseApp: App {
     var body: some Scene {
-        WindowGroup {
-            AppView()
-        }
-        .windowStyle(DefaultWindowStyle())
-        .windowToolbarStyle(UnifiedWindowToolbarStyle())
-        .commands {
-            SidebarCommands()
-
-            CommandMenu("TODO Menu") {
-                Button("Say Hello") {
-                    print("Hello!")
-                }
-                .keyboardShortcut("h")
-            }
-
-            AppSettings()
-        }
+        AppScene()
     }
 }
