@@ -23,7 +23,17 @@ private enum KeychainError: Error {
 }
 
 public extension CredentialsClient {
-    static func live(service: String) -> Self {
+    static var placeholder: CredentialsClient {
+        CredentialsClient(
+            loadCredentials: { _ in nil },
+            save: { _, _ in () },
+            deleteCredentials: { _ in () }
+        )
+    }
+}
+
+public extension CredentialsClient {
+    static func live(service: String) -> CredentialsClient {
         let deleteCredentials = { (jid: JID) in
             let query: [CFString: Any] = [
                 kSecClass: kSecClassGenericPassword,
@@ -37,7 +47,7 @@ public extension CredentialsClient {
             }
         }
 
-        return .init(
+        return CredentialsClient(
             loadCredentials: { (jid: JID) in
                 let query: [CFString: Any] = [
                     kSecClass: kSecClassGenericPassword,

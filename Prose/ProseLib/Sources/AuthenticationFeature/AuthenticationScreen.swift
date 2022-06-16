@@ -29,6 +29,7 @@ public struct AuthenticationScreen: View {
             CaseLet(state: /AuthRoute.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
             CaseLet(state: /AuthRoute.mfa, action: Action.mfa, then: MFAView.init(store:))
         }
+        .frame(minWidth: 400)
     }
 }
 
@@ -116,6 +117,15 @@ public struct AuthenticationEnvironment {
 //    {
 //        self.login = login
 //    }
+}
+
+public extension AuthenticationEnvironment {
+    static var placeholder: AuthenticationEnvironment {
+        AuthenticationEnvironment(
+            credentials: .placeholder,
+            mainQueue: .main
+        )
+    }
 }
 
 // MARK: - Previews

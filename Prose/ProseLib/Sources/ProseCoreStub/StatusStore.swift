@@ -16,8 +16,19 @@ public struct StatusStore {
 }
 
 public extension StatusStore {
-    static var stub: Self {
-        Self(
+    static var placeholder: StatusStore {
+        StatusStore(
+            onlineStatus: { _ in nil },
+            lastSeenDate: { _ in nil },
+            timeZone: { _ in nil },
+            statusLine: { _ in nil }
+        )
+    }
+}
+
+public extension StatusStore {
+    static var stub: StatusStore {
+        StatusStore(
             onlineStatus: StubStatusStore.shared.onlineStatus(for:),
             lastSeenDate: StubStatusStore.shared.lastSeenDate(for:),
             timeZone: StubStatusStore.shared.timeZone(for:),

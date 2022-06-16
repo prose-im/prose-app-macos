@@ -63,8 +63,8 @@ public struct QuickActionsSectionState: Equatable {
 }
 
 extension QuickActionsSectionState {
-    static var placeholder: Self {
-        Self()
+    static var placeholder: QuickActionsSectionState {
+        QuickActionsSectionState()
     }
 }
 

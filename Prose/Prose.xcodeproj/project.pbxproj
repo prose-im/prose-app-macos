@@ -18,7 +18,6 @@
 		2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C4F3D1A27F73002004B79F3 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		2C4F3D1E27F73325004B79F3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		468BE0BC285897430059FED1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		46D1758C2851D3A500C72BC0 /* ProseApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProseApp.swift; sourceTree = "<group>"; };
 		52EA116E274C23C2007DA1C5 /* Prose.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prose.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52EA117A274C23C3007DA1C5 /* Prose.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Prose.entitlements; sourceTree = "<group>"; };
@@ -82,7 +81,6 @@
 		52EA1170274C23C2007DA1C5 /* Prose */ = {
 			isa = PBXGroup;
 			children = (
-				468BE0BC285897430059FED1 /* Info.plist */,
 				2C4F3D1B27F73309004B79F3 /* Preview */,
 				2C4F3D1427F72F8B004B79F3 /* Resources */,
 				46D1758C2851D3A500C72BC0 /* ProseApp.swift */,
@@ -302,7 +300,6 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Prose/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -331,7 +328,6 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Prose/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
