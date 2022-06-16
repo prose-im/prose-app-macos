@@ -85,6 +85,32 @@ public struct SidebarState: Equatable {
     }
 }
 
+public extension SidebarState {
+    static var placeholder: SidebarState {
+        SidebarState(
+            credentials: UserCredentials(
+                jid: "valerian@prose.org"
+            ),
+            content: .placeholder,
+            footer: FooterState(
+                teamName: "Prose",
+                statusIcon: "🚀",
+                statusMessage: "Shipping new features",
+                avatar: FooterAvatarState(
+                    avatar: "avatars/valerian",
+                    availability: .available,
+                    fullName: "Valerian Saliou",
+                    jid: "valerian@prose.org",
+                    statusIcon: "🚀",
+                    statusMessage: "Shipping new features"
+                ),
+                actionButton: FooterActionMenuState()
+            ),
+            toolbar: ToolbarState()
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum SidebarAction: Equatable, BindableAction {
@@ -116,8 +142,19 @@ public struct SidebarEnvironment {
 }
 
 public extension SidebarEnvironment {
-    static var stub: Self {
-        Self(
+    static var placeholder: SidebarEnvironment {
+        SidebarEnvironment(
+            userStore: .placeholder,
+            messageStore: .placeholder,
+            statusStore: .placeholder,
+            securityStore: .placeholder
+        )
+    }
+}
+
+public extension SidebarEnvironment {
+    static var stub: SidebarEnvironment {
+        SidebarEnvironment(
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

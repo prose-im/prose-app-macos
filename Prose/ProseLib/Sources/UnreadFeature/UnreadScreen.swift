@@ -135,8 +135,8 @@ public struct UnreadEnvironment {
 }
 
 public extension UnreadEnvironment {
-    static var stub: Self {
-        Self(
+    static var stub: UnreadEnvironment {
+        UnreadEnvironment(
             userStore: .stub,
             messageStore: .stub
         )

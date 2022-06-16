@@ -106,8 +106,11 @@ public extension IdentitySectionState {
 }
 
 extension IdentitySectionState {
-    static var placeholder: Self {
-        Self(from: .placeholder, status: .offline)
+    static var placeholder: IdentitySectionState {
+        IdentitySectionState(
+            from: .placeholder,
+            status: .offline
+        )
     }
 }
 

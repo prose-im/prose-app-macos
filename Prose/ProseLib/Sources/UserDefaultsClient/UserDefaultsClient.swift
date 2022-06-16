@@ -14,6 +14,15 @@ public struct UserDefaultsClient {
 }
 
 public extension UserDefaultsClient {
+    static var placeholder: UserDefaultsClient {
+        UserDefaultsClient(
+            loadCurrentAccount: { nil },
+            saveCurrentAccount: { _ in () }
+        )
+    }
+}
+
+public extension UserDefaultsClient {
     static func live(_ defaults: UserDefaults) -> Self {
         Self(
             loadCurrentAccount: {

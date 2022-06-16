@@ -20,37 +20,42 @@ public let appReducer: Reducer<
     AppAction,
     AppEnvironment
 > = Reducer.combine([
-    authenticationReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.auth),
+    authenticationReducer.optional().pullback(
+        state: \AppState.auth,
         action: /AppAction.auth,
-        environment: \AppEnvironment.auth
+        environment: { $0.auth }
     ),
-    mainWindowReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.main),
+    mainWindowReducer.optional().pullback(
+        state: \AppState.main,
         action: /AppAction.main,
-        environment: \AppEnvironment.main
+        environment: { $0.main }
     ),
     Reducer { state, action, environment in
         switch action {
         case .onAppear:
-            guard case .auth = state.route else { return .none }
-
-            guard let jid = environment.userDefaults.loadCurrentAccount() else { return .none }
-
-            do {
-                guard let password = try environment.credentials.loadCredentials(jid) else { return .none }
-                return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
-            } catch {
-                // User might have denied access to the credentials
-                print("Error when loading credentials: \(error.localizedDescription)")
-
-                // TODO: [Rémi Bardon] Add an optional error message to the login screen,
-                //       to show why the login screen appears in case of errors like this.
-                state.route = .auth(.init(route: .basicAuth(BasicAuthState(jid: jid.jidString))))
+            if let jid = environment.userDefaults.loadCurrentAccount() {
+                do {
+                    guard let password = try environment.credentials.loadCredentials(jid) else {
+                        return Effect(value: .requireAuthentication(initialJid: jid.jidString))
+                    }
+                    return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
+                } catch {
+                    // User might have denied access to the credentials
+                    print("Error when loading credentials: \(error.localizedDescription)")
+                    
+                    // TODO: [Rémi Bardon] Add an optional error message to the login screen,
+                    //       to show why the login screen appears in case of errors like this.
+                    return Effect(value: .requireAuthentication(initialJid: jid.jidString))
+                }
+            } else {
+                return Effect(value: .requireAuthentication(initialJid: nil))
             }
 
+        case let .requireAuthentication(initialJid):
+            state.auth = .init(route: .basicAuth(.init(jid: initialJid ?? "")))
+
         case let .didLogIn(jid):
-            state.route = .main(MainScreenState(
+            state.main = MainScreenState(
                 sidebar: .init(
                     credentials: .init(jid: jid),
                     footer: .init(
@@ -61,22 +66,15 @@ public let appReducer: Reducer<
                         )
                     )
                 )
-            ))
+            )
+            state.auth = nil
 
         case let .auth(.didLogIn(jid, password)):
             do {
                 environment.userDefaults.saveCurrentAccount(jid)
                 try environment.credentials.save(jid, password)
 
-                let url = URL(staticString: "prose://main")
-                return environment.openURL(url, .init())
-                    .receive(on: environment.mainQueue)
-                    .map { AppAction.didLogIn(jid: jid) }
-                    .mapError(EquatableError.init)
-                    .catch { error -> AnyPublisher<AppAction, Never> in
-                        fatalError("Failed to open URL <\(url.absoluteString)>: \(error.localizedDescription)")
-                    }
-                    .eraseToEffect()
+                return Effect(value: AppAction.didLogIn(jid: jid))
             } catch {
                 print("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
 
@@ -95,18 +93,15 @@ public let appReducer: Reducer<
 // MARK: State
 
 public struct AppState: Equatable {
-    var route: AppRoute
+    var main: MainScreenState?
+    var auth: AuthenticationState?
 
     public init(
-        route: AppRoute = .main(MainScreenState(
-            // FIXME: [Rémi Bardon] Remove this fake data
-            sidebar: .init(
-                credentials: .init(jid: "example@prose.org"),
-                footer: .init(avatar: .init(avatar: "avatars/valerian"))
-            )
-        ))
+        main: MainScreenState? = nil,
+        auth: AuthenticationState? = nil
     ) {
-        self.route = route
+        self.main = main
+        self.auth = auth
     }
 }
 
@@ -118,6 +113,7 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
+    case requireAuthentication(initialJid: String?)
     case didLogIn(jid: JID)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
@@ -193,6 +189,19 @@ public struct AppEnvironment {
             main: .init(
                 sidebar: .stub
             )
+        )
+    }
+}
+
+public extension AppEnvironment {
+    static var placeholder: AppEnvironment {
+        AppEnvironment(
+            userDefaults: .placeholder,
+            credentials: .placeholder,
+            mainQueue: .main,
+            openURL: { _, _ in Effect(value: ()) },
+            auth: .placeholder,
+            main: .placeholder
         )
     }
 }
