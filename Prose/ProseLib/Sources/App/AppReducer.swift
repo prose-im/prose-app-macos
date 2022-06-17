@@ -33,6 +33,9 @@ public let appReducer: Reducer<
     Reducer { state, action, environment in
         switch action {
         case .onAppear:
+            guard !state.hasAppearedAtLeastOnce else { return .none }
+            state.hasAppearedAtLeastOnce = true
+
             if let jid = environment.userDefaults.loadCurrentAccount() {
                 do {
                     guard let password = try environment.credentials.loadCredentials(jid) else {
@@ -42,7 +45,7 @@ public let appReducer: Reducer<
                 } catch {
                     // User might have denied access to the credentials
                     print("Error when loading credentials: \(error.localizedDescription)")
-                    
+
                     // TODO: [Rémi Bardon] Add an optional error message to the login screen,
                     //       to show why the login screen appears in case of errors like this.
                     return Effect(value: .requireAuthentication(initialJid: jid.jidString))
@@ -93,13 +96,17 @@ public let appReducer: Reducer<
 // MARK: State
 
 public struct AppState: Equatable {
+    var hasAppearedAtLeastOnce: Bool
+
     var main: MainScreenState?
     var auth: AuthenticationState?
 
     public init(
+        hasAppearedAtLeastOnce: Bool = false,
         main: MainScreenState? = nil,
         auth: AuthenticationState? = nil
     ) {
+        self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
         self.main = main
         self.auth = auth
     }
