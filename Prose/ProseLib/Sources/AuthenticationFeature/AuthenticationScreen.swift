@@ -131,14 +131,23 @@ public extension AuthenticationEnvironment {
 // MARK: - Previews
 
 internal struct AuthenticationScreen_Previews: PreviewProvider {
+    private struct Preview: View {
+        var body: some View {
+            AuthenticationScreen(store: Store(
+                initialState: AuthenticationState(route: .basicAuth(.init())),
+                reducer: authenticationReducer,
+                environment: AuthenticationEnvironment(
+                    credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
+                    mainQueue: .main
+                )
+            ))
+        }
+    }
+
     static var previews: some View {
-        AuthenticationScreen(store: Store(
-            initialState: AuthenticationState(route: .basicAuth(.init())),
-            reducer: authenticationReducer,
-            environment: AuthenticationEnvironment(
-                credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
-                mainQueue: .main
-            )
-        ))
+        Preview()
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

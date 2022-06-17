@@ -25,12 +25,8 @@ struct NavigationRow: View {
     var body: some View {
         HStack {
             Label(title, systemImage: image)
-
-            Spacer()
-
-            Counter(
-                count: count
-            )
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Counter(count: count)
         }
     }
 }

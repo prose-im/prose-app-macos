@@ -20,6 +20,8 @@ struct FooterAvatar: View {
     typealias State = FooterAvatarState
     typealias Action = FooterAvatarAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -41,10 +43,13 @@ struct FooterAvatar: View {
     }
 
     private func popover() -> some View {
-        Self.popover(store: self.store)
+        Self.popover(store: self.store, redactionReasons: self.redactionReasons)
     }
 
-    fileprivate static func popover(store: Store<State, Action>) -> some View {
+    fileprivate static func popover(
+        store: Store<State, Action>,
+        redactionReasons: RedactionReasons
+    ) -> some View {
         WithViewStore(store) { viewStore in
             VStack(alignment: .leading, spacing: 16) {
                 // TODO: [Rémi Bardon] Refactor this view out
@@ -72,11 +77,15 @@ struct FooterAvatar: View {
                             Text(String(viewStore.statusIcon))
                                 .accessibilityHidden(true)
                             Text(verbatim: l10n.UpdateMood.title)
+                                .unredacted()
                         }
                         .disclosureIndicator()
                     }
                     Menu(l10n.ChangeAvailability.title) {
-                        Self.availabilityMenu(store: store)
+                        Self.availabilityMenu(
+                            store: store,
+                            redactionReasons: redactionReasons
+                        )
                     }
                     // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
                     .padding(.leading, -3)
@@ -84,23 +93,29 @@ struct FooterAvatar: View {
                     //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
                     //       places the `Image` on the leading edge.
                     .disclosureIndicator()
+                    .unredacted()
                     Button { viewStore.send(.pauseNotificationsTapped) } label: {
                         Text(verbatim: l10n.PauseNotifications.title)
                             .disclosureIndicator()
                     }
+                    .unredacted()
                 }
                 GroupBox {
                     Button(l10n.EditProfile.title) { viewStore.send(.editProfileTapped) }
+                        .unredacted()
                     Button(l10n.AccountSettings.title) { viewStore.send(.accountSettingsTapped) }
+                        .unredacted()
                 }
                 GroupBox {
                     Button { viewStore.send(.offlineModeTapped) } label: {
                         Text(verbatim: l10n.OfflineMode.title)
                             .disclosureIndicator()
                     }
+                    .unredacted()
                 }
                 GroupBox {
                     Button(l10n.SignOut.title, role: .destructive) { viewStore.send(.signOutTapped) }
+                        .unredacted()
                 }
             }
             .menuStyle(.borderlessButton)
@@ -110,10 +125,14 @@ struct FooterAvatar: View {
             .multilineTextAlignment(.leading)
             .padding(12)
             .frame(width: 196)
+            .disabled(redactionReasons.contains(.placeholder))
         }
     }
 
-    static func availabilityMenu(store: Store<State, Action>) -> some View {
+    static func availabilityMenu(
+        store: Store<State, Action>,
+        redactionReasons: RedactionReasons
+    ) -> some View {
         WithViewStore(store) { viewStore in
             ForEach(Availability.allCases, id: \.self) { availability in
                 Button { viewStore.send(.changeAvailabilityTapped(availability)) } label: {
@@ -131,6 +150,8 @@ struct FooterAvatar: View {
                 .disabled(viewStore.availability == availability)
             }
         }
+        .unredacted()
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 
@@ -173,6 +194,7 @@ extension View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             Image(systemName: "chevron.forward")
                 .padding(.trailing, 2)
+                .unredacted()
         }
     }
 }
@@ -257,6 +279,8 @@ public enum FooterAvatarAction: Equatable, BindableAction {
 
     struct FooterAvatar_Previews: PreviewProvider {
         private struct Preview: View {
+            @Environment(\.redactionReasons) private var redactionReasons
+
             var body: some View {
                 HStack {
                     ForEach(Availability.allCases, id: \.self) { availability in
@@ -275,9 +299,15 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                     reducer: footerAvatarReducer,
                     environment: ()
                 )
-                FooterAvatar.popover(store: store)
+                FooterAvatar.popover(
+                    store: store,
+                    redactionReasons: redactionReasons
+                )
                 VStack(alignment: .leading) {
-                    FooterAvatar.availabilityMenu(store: store)
+                    FooterAvatar.availabilityMenu(
+                        store: store,
+                        redactionReasons: redactionReasons
+                    )
                 }
                 .padding()
                 .buttonStyle(.plain)
@@ -296,10 +326,12 @@ public enum FooterAvatarAction: Equatable, BindableAction {
             Preview()
                 .preferredColorScheme(.light)
                 .previewDisplayName("Light")
-
             Preview()
                 .preferredColorScheme(.dark)
                 .previewDisplayName("Dark")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
 #endif

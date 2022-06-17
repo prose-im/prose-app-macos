@@ -35,7 +35,7 @@ struct ToolbarSecurity: View {
 
 struct ToolbarSecurity_Previews: PreviewProvider {
     static var previews: some View {
-        HStack {
+        VStack(alignment: .leading) {
             ToolbarSecurity(
                 jid: "valerian@prose.org",
                 isVerified: true
@@ -44,6 +44,13 @@ struct ToolbarSecurity_Previews: PreviewProvider {
                 jid: "valerian@prose.org",
                 isVerified: false
             )
+            ToolbarSecurity(
+                jid: "valerian@prose.org",
+                isVerified: false
+            )
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
         }
+        .previewLayout(.sizeThatFits)
     }
 }

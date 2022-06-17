@@ -17,6 +17,8 @@ struct BasicAuthView: View {
     typealias State = BasicAuthState
     typealias Action = BasicAuthAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -52,6 +54,7 @@ struct BasicAuthView: View {
                 .foregroundColor(.secondary)
                 .font(.system(size: 16))
         }
+        .unredacted()
         .accessibilityElement()
         .accessibilityLabel(l10n.Header.subtitle)
     }
@@ -73,7 +76,8 @@ struct BasicAuthView: View {
                 .disableAutocorrection(true)
                 .focused($focusedField, equals: .password)
         }
-        .disabled(viewStore.isLoading)
+        .disabled(viewStore.isLoading || self.redactionReasons.contains(.placeholder))
+        .unredacted()
     }
 
     func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
@@ -81,6 +85,8 @@ struct BasicAuthView: View {
             Image(systemName: "questionmark")
         }
         .buttonStyle(CircleButtonStyle())
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
         .popover(
             unwrapping: viewStore.binding(\.$popover),
             case: /State.Popover.chatAddress,
@@ -101,7 +107,8 @@ struct BasicAuthView: View {
                     .scaleEffect(0.5, anchor: .center)
             }
         }
-        .disabled(!viewStore.isActionButtonEnabled)
+        .disabled(!viewStore.isActionButtonEnabled || self.redactionReasons.contains(.placeholder))
+        .unredacted()
     }
 
     func footer(viewStore: ViewStore<State, Action>) -> some View {
@@ -121,6 +128,9 @@ struct BasicAuthView: View {
                 )
         }
         .buttonStyle(.link)
+        .foregroundColor(.accentColor)
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
     }
 
     static func chatAddressPopover() -> some View {
@@ -128,6 +138,7 @@ struct BasicAuthView: View {
             Text(l10n.ChatAddress.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
+        .unredacted()
     }
 
     static func passwordLostPopover() -> some View {
@@ -135,6 +146,7 @@ struct BasicAuthView: View {
             Text(l10n.PasswordLost.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
+        .unredacted()
     }
 
     static func noAccountPopover() -> some View {
@@ -142,6 +154,7 @@ struct BasicAuthView: View {
             Text(l10n.NoAccount.Popover.content.asMarkdown)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
+        .unredacted()
     }
 }
 
@@ -192,16 +205,18 @@ struct BasicAuthView_Previews: PreviewProvider {
                     mainQueue: .main
                 )
             ))
+            .previewLayout(.sizeThatFits)
         }
     }
 
     static var previews: some View {
         Preview(state: .init())
-            .previewLayout(.sizeThatFits)
         Preview(state: .init(jid: "remi@prose.org", password: "password"))
-            .previewLayout(.sizeThatFits)
         Preview(state: .init(jid: "remi@prose.org", password: "password"))
             .preferredColorScheme(.dark)
-            .previewLayout(.sizeThatFits)
+            .previewDisplayName("Dark mode")
+        Preview(state: .init())
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

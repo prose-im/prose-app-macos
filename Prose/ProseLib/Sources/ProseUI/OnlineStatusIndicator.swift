@@ -10,6 +10,8 @@ import SharedModels
 import SwiftUI
 
 public struct OnlineStatusIndicator: View {
+    @Environment(\.redactionReasons) private var redactionReasons
+
     private let status: OnlineStatus
     private let size: CGFloat
 
@@ -33,7 +35,7 @@ public struct OnlineStatusIndicator: View {
                 .strokeBorder(Color.stateGrey)
             Circle()
                 // Using `Color.clear` keeps identity, and thus animations
-                .fill(status.fillColor ?? Color.clear)
+                .fill(redactionReasons.contains(.placeholder) ? .gray : (status.fillColor ?? Color.clear))
         }
         .frame(width: size, height: size)
         .accessibilityElement(children: .ignore)
@@ -59,6 +61,7 @@ struct OnlineStatusIndicator_Previews: PreviewProvider {
                 ForEach(OnlineStatus.allCases, id: \.self, content: OnlineStatusIndicator.init(_:))
             }
             .padding()
+            .previewLayout(.sizeThatFits)
         }
     }
 
@@ -66,9 +69,11 @@ struct OnlineStatusIndicator_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }
