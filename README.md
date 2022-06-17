@@ -14,9 +14,9 @@ This decoupling makes things extremely clean, and enables common code sharing be
 
 ## Design
 
-![Prose login screen](https://prose-im.github.io/prose-app-macos/images/app/login.jpg)
+![Prose login screen](https://user-images.githubusercontent.com/1451907/174249620-53466954-c782-4c91-b276-953aa7cca491.jpg)
 
-![Prose main view](https://prose-im.github.io/prose-app-macos/images/app/messaging.jpg)
+![Prose main view](https://user-images.githubusercontent.com/1451907/174249677-d6c2f027-4a2a-4600-9186-45bc52b6095e.jpg)
 
 _👉 The Prose macOS app reference design [can be found there](https://github.com/prose-im/prose-medley/blob/master/designs/prose-app-macos.sketch)._
 
