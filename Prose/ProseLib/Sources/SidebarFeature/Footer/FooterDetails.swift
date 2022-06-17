@@ -40,6 +40,9 @@ struct FooterDetails_Previews: PreviewProvider {
                 statusIcon: "🚀",
                 statusMessage: "Building new stuff."
             )
+            .frame(maxWidth: 256)
+            .padding()
+            .previewLayout(.sizeThatFits)
         }
     }
 
@@ -47,9 +50,11 @@ struct FooterDetails_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

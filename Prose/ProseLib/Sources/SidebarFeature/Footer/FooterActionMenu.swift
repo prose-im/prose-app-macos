@@ -8,6 +8,7 @@
 import AppLocalization
 import ComposableArchitecture
 import PreviewAssets
+import ProseUI
 import SwiftUI
 
 // MARK: - View
@@ -18,6 +19,8 @@ private let l10n = L10n.Sidebar.Footer.Actions.self
 struct FooterActionMenu: View {
     typealias State = FooterActionMenuState
     typealias Action = FooterActionMenuAction
+
+    @Environment(\.redactionReasons) private var redactionReasons
 
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -35,6 +38,8 @@ struct FooterActionMenu: View {
                         .fill(Color.secondary.opacity(0.125))
                         .frame(width: 24, height: 32)
                 }
+                .unredacted()
+                .disabled(redactionReasons.contains(.placeholder))
             }
             .buttonStyle(.plain)
             .popover(isPresented: viewStore.binding(\State.$showingMenu), content: popover)
@@ -57,10 +62,7 @@ struct FooterActionMenu: View {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
                 // TODO: [Rémi Bardon] Change this to Crisp icon
-                Image(PreviewImages.Avatars.baptiste.rawValue)
-                    .resizable()
-                    .frame(width: 48, height: 48)
-                    .cornerRadius(4)
+                Avatar(PreviewImages.Avatars.baptiste.rawValue, size: 48)
                 VStack(alignment: .leading) {
                     Text("Crisp")
                         .font(.title3.bold())

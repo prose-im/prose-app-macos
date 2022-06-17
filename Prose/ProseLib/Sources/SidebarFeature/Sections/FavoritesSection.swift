@@ -24,7 +24,7 @@ struct FavoritesSection: View {
     @Binding var route: SidebarRoute?
 
     var body: some View {
-        Section(l10n.title) {
+        Section {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -41,6 +41,9 @@ struct FavoritesSection: View {
                     }
                 }
             }
+        } header: {
+            Text(l10n.title)
+                .unredacted()
         }
     }
 }
@@ -123,5 +126,8 @@ internal struct FavoritesSection_Previews: PreviewProvider {
 
     static var previews: some View {
         Preview(route: nil)
+        Preview(route: nil)
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

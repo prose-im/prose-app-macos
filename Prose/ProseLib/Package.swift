@@ -9,6 +9,18 @@ let package = Package(
     products: [
         .library(name: "App", targets: ["App"]),
         .library(name: "ProseUI", targets: ["ProseUI"]),
+        // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
+        .library(name: "Previews", targets: [
+            "AddressBookFeature",
+            "AuthenticationFeature",
+            "ConversationFeature",
+            "ConversationInfoFeature",
+            "MainWindowFeature",
+            "ProseUI",
+            "SettingsFeature",
+            "SidebarFeature",
+            "UnreadFeature",
+        ]),
     ],
     dependencies: [
         // .package(path: "../../ProseCore"),
@@ -28,7 +40,6 @@ let package = Package(
                 "SettingsFeature",
                 "AuthenticationFeature",
                 "CredentialsClient",
-                "SidebarFeature",
                 "TcaHelpers",
                 "UserDefaultsClient",
                 // "ProseCore",

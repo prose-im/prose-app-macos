@@ -22,6 +22,8 @@ public struct MFA6DigitsView: View {
     public typealias State = MFA6DigitsState
     public typealias Action = MFA6DigitsAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -59,6 +61,7 @@ public struct MFA6DigitsView: View {
                 .foregroundColor(.secondary)
                 .font(.system(size: 16))
         }
+        .unredacted()
         .accessibilityElement()
         .accessibilityLabel(l10n.Header.subtitle)
     }
@@ -79,7 +82,7 @@ public struct MFA6DigitsView: View {
                 .opacity(0)
         }
         .font(.system(size: 24))
-        .disabled(viewStore.isLoading)
+        .disabled(viewStore.isLoading || self.redactionReasons.contains(.placeholder))
         .opacity(viewStore.isLoading ? 0.5 : 1)
     }
 
@@ -89,6 +92,8 @@ public struct MFA6DigitsView: View {
                 .frame(minWidth: 196)
         }
         .disabled(!viewStore.isMainButtonEnabled)
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
     }
 
     func digit(_ digit: String, selected: Bool) -> some View {
@@ -127,6 +132,9 @@ public struct MFA6DigitsView: View {
                 )
         }
         .buttonStyle(.link)
+        .foregroundColor(.accentColor)
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
     }
 
     static func cannotGenerateCodePopover() -> some View {
@@ -134,6 +142,7 @@ public struct MFA6DigitsView: View {
             Text(l10n.Footer.CannotGenerateCode.content)
         }
         .groupBoxStyle(PopoverGroupBoxStyle())
+        .unredacted()
     }
 }
 
@@ -295,16 +304,28 @@ public enum MFA6DigitsAction: Equatable, BindableAction {
 
 // MARK: - Previews
 
-internal struct MFA6DigitsView_Previews: PreviewProvider {
+struct MFA6DigitsView_Previews: PreviewProvider {
+    private struct Preview: View {
+        var body: some View {
+            MFA6DigitsView(store: Store(
+                initialState: MFA6DigitsState(jid: "remi@prose.org", password: "prose"),
+                reducer: mfa6DigitsReducer,
+                environment: AuthenticationEnvironment(
+                    credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
+                    mainQueue: .main
+                )
+            ))
+            .previewLayout(.sizeThatFits)
+        }
+    }
+
     static var previews: some View {
-        MFA6DigitsView(store: Store(
-            initialState: MFA6DigitsState(jid: "remi@prose.org", password: "prose"),
-            reducer: mfa6DigitsReducer,
-            environment: AuthenticationEnvironment(
-                credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
-                mainQueue: .main
-            )
-        ))
-        .previewLayout(.sizeThatFits)
+        Preview()
+        Preview()
+            .preferredColorScheme(.dark)
+            .previewDisplayName("Dark mode")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

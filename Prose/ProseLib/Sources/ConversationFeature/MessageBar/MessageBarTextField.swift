@@ -11,6 +11,8 @@ import SwiftUI
 private let l10n = L10n.Content.MessageBar.self
 
 struct MessageBarTextField: View {
+    @Environment(\.redactionReasons) private var redactionReasons
+
     @State var firstName: String
     @Binding var message: String
 
@@ -31,6 +33,8 @@ struct MessageBarTextField: View {
                     .padding(3)
             }
             .buttonStyle(.plain)
+            .unredacted()
+            .disabled(redactionReasons.contains(.placeholder))
         }
         .background(
             ZStack {

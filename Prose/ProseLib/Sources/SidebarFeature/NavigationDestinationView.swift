@@ -47,6 +47,7 @@ struct NavigationDestinationView: View {
                         AddressBookScreen()
                     case let value:
                         Text("\(String(describing: value)) (not supported yet)")
+                            .unredacted()
                             .toolbar(content: CommonToolbar.init)
                     }
                 }
