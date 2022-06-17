@@ -46,7 +46,6 @@ struct InformationSection: View {
         }
     }
 
-    @ViewBuilder
     private func label(_ title: String, systemImage: String) -> some View {
         Label {
             Text(title)

@@ -23,7 +23,6 @@ struct Toolbar: ToolbarContent {
         }
     }
 
-    @ViewBuilder
     static func actions() -> some View {
         Group {
             Button { print("Add contact tapped") } label: {

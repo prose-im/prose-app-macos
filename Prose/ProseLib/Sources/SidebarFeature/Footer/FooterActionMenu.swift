@@ -50,15 +50,13 @@ struct FooterActionMenu: View {
         }
     }
 
-    @ViewBuilder
     private func popover() -> some View {
         Self.popover(store: self.store)
     }
 
-    @ViewBuilder
     fileprivate static func popover(store: Store<State, Action>) -> some View {
         let actions: ViewStore<Void, Action> = ViewStore(store.stateless)
-        VStack(alignment: .leading) {
+        return VStack(alignment: .leading) {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
                 // TODO: [Rémi Bardon] Change this to Crisp icon

@@ -43,7 +43,6 @@ struct IdentitySection: View {
         }
     }
 
-    @ViewBuilder
     private func avatar() -> some View {
         WithViewStore(self.store.scope(state: \State.avatar)) { avatar in
             if let imageName = avatar.state {
