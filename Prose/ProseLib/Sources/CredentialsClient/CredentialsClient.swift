@@ -12,8 +12,8 @@ import SharedModels
 ///         for documentation about the Keychain.
 /// - Copyright: Inspired by <https://gist.github.com/nesium/4a3da805d6000b76350cbe9c8aa35cf2>.
 public struct CredentialsClient {
-    public var loadCredentials: (_ jid: JID) throws -> String?
-    public var save: (_ jid: JID, _ password: String) throws -> Void
+    public var loadCredentials: (_ jid: JID) throws -> Credentials?
+    public var save: (_ credentials: Credentials) throws -> Void
     public var deleteCredentials: (_ jid: JID) throws -> Void
 }
 
@@ -26,7 +26,7 @@ public extension CredentialsClient {
     static var placeholder: CredentialsClient {
         CredentialsClient(
             loadCredentials: { _ in nil },
-            save: { _, _ in () },
+            save: { _ in () },
             deleteCredentials: { _ in () }
         )
     }
@@ -77,16 +77,20 @@ public extension CredentialsClient {
                     throw KeychainError.unexpectedPasswordData
                 }
 
-                return String(data: itemData, encoding: .utf8)
+                if let password = String(data: itemData, encoding: .utf8) {
+                    return Credentials(jid: jid, password: password)
+                } else {
+                    return nil
+                }
             },
-            save: { (jid: JID, password: String) in
-                try? deleteCredentials(jid)
+            save: { (credentials: Credentials) in
+                try? deleteCredentials(credentials.jid)
 
                 let query: [CFString: Any] = [
                     kSecClass: kSecClassGenericPassword,
                     kSecAttrService: service,
-                    kSecAttrAccount: jid.jidString,
-                    kSecValueData: password,
+                    kSecAttrAccount: credentials.jid.jidString,
+                    kSecValueData: credentials.password,
                     kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
                 ]
 

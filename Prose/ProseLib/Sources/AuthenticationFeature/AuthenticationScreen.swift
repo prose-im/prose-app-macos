@@ -56,7 +56,7 @@ public let authenticationReducer: Reducer<
         switch action {
         case let .basicAuth(.didPassChallenge(.success(jid, password))),
              let .mfa(.didPassChallenge(.success(jid, password))):
-            return Effect(value: .didLogIn(jid: jid, password: password))
+            return Effect(value: .didLogIn(Credentials(jid: jid, password: password)))
 
         case let .basicAuth(.didPassChallenge(route)),
              let .mfa(.didPassChallenge(route)):
@@ -91,7 +91,7 @@ public enum AuthRoute: Equatable {
 // MARK: Actions
 
 public enum AuthenticationAction: Equatable {
-    case didLogIn(jid: JID, password: String)
+    case didLogIn(Credentials)
     case basicAuth(BasicAuthAction)
     case mfa(MFAAction)
 }

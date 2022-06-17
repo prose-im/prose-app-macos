@@ -31,65 +31,73 @@ public let appReducer: Reducer<
         environment: { $0.main }
     ),
     Reducer { state, action, environment in
-        switch action {
-        case .onAppear:
-            guard !state.hasAppearedAtLeastOnce else { return .none }
-            state.hasAppearedAtLeastOnce = true
-
-            if let jid = environment.userDefaults.loadCurrentAccount() {
-                do {
-                    guard let password = try environment.credentials.loadCredentials(jid) else {
-                        return Effect(value: .requireAuthentication(initialJid: jid.jidString))
-                    }
-                    return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
-                } catch {
-                    // User might have denied access to the credentials
-                    print("Error when loading credentials: \(error.localizedDescription)")
-
-                    // TODO: [Rémi Bardon] Add an optional error message to the login screen,
-                    //       to show why the login screen appears in case of errors like this.
-                    return Effect(value: .requireAuthentication(initialJid: jid.jidString))
-                }
-            } else {
-                return Effect(value: .requireAuthentication(initialJid: nil))
-            }
-
-        case let .requireAuthentication(initialJid):
-            state.auth = .init(route: .basicAuth(.init(jid: initialJid ?? "")))
-
-        case let .didLogIn(jid):
+        func proceedToMainFlow(with credentials: Credentials) {
+            // NOTE: [@nesium] This thing here should receive a nicer initializer sometime.
             state.main = MainScreenState(
                 sidebar: .init(
-                    credentials: .init(jid: jid),
+                    credentials: .init(jid: credentials.jid),
                     footer: .init(
                         avatar: .init(
                             // TODO: Use a JID type, to avoid this parsing
                             // TODO: Use an image stored by the user (not a preview asset)
-                            avatar: "avatars/\(jid.node ?? "valerian")"
+                            avatar: "avatars/\(credentials.jid.node ?? "valerian")"
                         )
                     )
                 )
             )
             state.auth = nil
-
-        case let .auth(.didLogIn(jid, password)):
-            do {
-                environment.userDefaults.saveCurrentAccount(jid)
-                try environment.credentials.save(jid, password)
-
-                return Effect(value: AppAction.didLogIn(jid: jid))
-            } catch {
-                print("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
-
-                // NOTE: [Rémi Bardon] Let's do nothing here. For explanation,
-                //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
-            }
-
-        default:
-            break
         }
 
-        return .none
+        func proceedToLogin() {
+            state.auth = .init(
+                route: .basicAuth(.init(
+                    jid: environment.userDefaults.loadCurrentAccount()?.rawValue ?? ""
+                ))
+            )
+        }
+
+        switch action {
+        case .onAppear where !state.hasAppearedAtLeastOnce:
+            state.hasAppearedAtLeastOnce = true
+            return Effect<Credentials?, EquatableError>.result {
+                Result {
+                    try environment.userDefaults.loadCurrentAccount()
+                        .flatMap(environment.credentials.loadCredentials)
+                }.mapError(EquatableError.init)
+            }
+            .catchToEffect()
+            .map(AppAction.authenticationResult)
+
+        case let .authenticationResult(.success(.some(credentials))):
+            proceedToMainFlow(with: credentials)
+            return .none
+
+        case .authenticationResult(.success(.none)):
+            proceedToLogin()
+            return .none
+
+        case let .authenticationResult(.failure(error)):
+            print("Error when loading credentials: \(error.localizedDescription)")
+            proceedToLogin()
+            return .none
+
+        case let .auth(.didLogIn(credentials)):
+            proceedToMainFlow(with: credentials)
+            return .fireAndForget {
+                environment.userDefaults.saveCurrentAccount(credentials.jid)
+                do {
+                    try environment.credentials.save(credentials)
+                } catch {
+                    print("Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)")
+
+                    // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
+                    //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
+                }
+            }
+
+        case .onAppear, .auth, .main:
+            return .none
+        }
     },
 ])
 
@@ -120,8 +128,7 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
-    case requireAuthentication(initialJid: String?)
-    case didLogIn(jid: JID)
+    case authenticationResult(Result<Credentials?, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
