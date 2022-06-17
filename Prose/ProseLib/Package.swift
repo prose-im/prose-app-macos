@@ -27,8 +27,10 @@ let package = Package(
                 "MainWindowFeature",
                 "SettingsFeature",
                 "AuthenticationFeature",
+                "CredentialsClient",
                 "SidebarFeature",
                 "TcaHelpers",
+                "UserDefaultsClient",
                 // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
@@ -94,6 +96,7 @@ let package = Package(
             name: "AuthenticationFeature",
             dependencies: [
                 "AppLocalization",
+                "CredentialsClient",
                 // "ProseCore",
                 "ProseUI",
                 "SharedModels",
@@ -116,6 +119,16 @@ let package = Package(
         .target(name: "ProseCoreStub", dependencies: [
             "SharedModels",
             .product(name: "OrderedCollections", package: "swift-collections"),
+        ]),
+
+        // MARK: Dependencies
+
+        .target(name: "CredentialsClient", dependencies: [
+            "SharedModels",
+        ]),
+        .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
+        .target(name: "UserDefaultsClient", dependencies: [
+            "SharedModels",
         ]),
     ]
 )

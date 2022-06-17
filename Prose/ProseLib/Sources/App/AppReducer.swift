@@ -4,10 +4,12 @@
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
+import CredentialsClient
 import Foundation
 import MainWindowFeature
 // import ProseCore
 import SharedModels
+import UserDefaultsClient
 
 // MARK: - The Composable Architecture
 
@@ -30,6 +32,23 @@ public let appReducer: Reducer<
     ),
     Reducer { state, action, environment in
         switch action {
+        case .onAppear:
+            guard case .auth = state.route else { return .none }
+
+            guard let jid = environment.userDefaults.loadCurrentAccount() else { return .none }
+
+            do {
+                guard let password = try environment.credentials.loadCredentials(jid) else { return .none }
+                return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
+            } catch {
+                // User might have denied access to the credentials
+                print("Error when loading credentials: \(error.localizedDescription)")
+
+                // TODO: [Rémi Bardon] Add an optional error message to the login screen,
+                //       to show why the login screen appears in case of errors like this.
+                state.route = .auth(.basicAuth(BasicAuthState(jid: jid.jidString)))
+            }
+
         case let .didLogIn(jid):
             state.route = .main(MainScreenState(
                 sidebar: .init(
@@ -38,22 +57,32 @@ public let appReducer: Reducer<
                         avatar: .init(
                             // TODO: Use a JID type, to avoid this parsing
                             // TODO: Use an image stored by the user (not a preview asset)
-                            avatar: "avatars/\(jid.split(separator: "@").first ?? "valerian")"
+                            avatar: "avatars/\(jid.node ?? "valerian")"
                         )
                     )
                 )
             ))
 
-        case let .auth(.didLogIn(jid, _)):
-            let url = URL(staticString: "prose://main")
-            return environment.openURL(url, .init())
-                .receive(on: environment.mainQueue)
-                .map { AppAction.didLogIn(jid: jid) }
-                .mapError(EquatableError.init)
-                .catch { error -> AnyPublisher<AppAction, Never> in
-                    fatalError("Failed to open URL <\(url.absoluteString)>: \(error.localizedDescription)")
-                }
-                .eraseToEffect()
+        case let .auth(.didLogIn(jid, password)):
+            do {
+                environment.userDefaults.saveCurrentAccount(jid)
+                try environment.credentials.save(jid, password)
+
+                let url = URL(staticString: "prose://main")
+                return environment.openURL(url, .init())
+                    .receive(on: environment.mainQueue)
+                    .map { AppAction.didLogIn(jid: jid) }
+                    .mapError(EquatableError.init)
+                    .catch { error -> AnyPublisher<AppAction, Never> in
+                        fatalError("Failed to open URL <\(url.absoluteString)>: \(error.localizedDescription)")
+                    }
+                    .eraseToEffect()
+            } catch {
+                print("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
+
+                // NOTE: [Rémi Bardon] Let's do nothing here. For explanation,
+                //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
+            }
 
         default:
             break
@@ -88,8 +117,8 @@ public enum URLOpeningError: Error, Equatable {
 // MARK: Actions
 
 public enum AppAction: Equatable {
-    // TODO: [Rémi Bardon] Change this to a type-safe JID
-    case didLogIn(jid: String)
+    case onAppear
+    case didLogIn(jid: JID)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -103,6 +132,9 @@ public enum AppAction: Equatable {
 #endif
 
 public struct AppEnvironment {
+    var userDefaults: UserDefaultsClient
+    var credentials: CredentialsClient
+
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
@@ -111,11 +143,15 @@ public struct AppEnvironment {
     var main: MainScreenEnvironment
 
     private init(
+        userDefaults: UserDefaultsClient,
+        credentials: CredentialsClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
         openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>,
         auth: AuthenticationEnvironment,
         main: MainScreenEnvironment
     ) {
+        self.userDefaults = userDefaults
+        self.credentials = credentials
         self.mainQueue = mainQueue
         self.openURL = openURL
         self.auth = auth
@@ -123,7 +159,10 @@ public struct AppEnvironment {
     }
 
     public static var live: Self {
-        Self(
+        let credentialsClient = CredentialsClient.live(service: "org.prose.Prose")
+        return Self(
+            userDefaults: .live(.standard),
+            credentials: credentialsClient,
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in
@@ -141,6 +180,7 @@ public struct AppEnvironment {
                 }
             },
             auth: .init(
+                credentials: credentialsClient,
                 mainQueue: .main
             ),
 //            auth: .init(login: { jid, password, origin in

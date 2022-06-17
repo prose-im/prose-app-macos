@@ -95,15 +95,17 @@ public let basicAuthReducer = Reducer<
         state.isLoading = true
 
         let isFormValid = state.isFormValid
-        let jid = state.jid
+        let jid = JID(rawValue: state.jid)
+        let password = state.password
         return Effect.task {
-            if isFormValid, !jid.starts(with: "error") {
-                if jid.starts(with: "mfa") {
-                    return .loginResult(.success(.mfa(.sixDigits(MFA6DigitsState(jid: jid)))))
+            if isFormValid, jid.node != "error" {
+                if jid.node == "mfa" {
+                    return .loginResult(.success(.mfa(.sixDigits(MFA6DigitsState(
+                        jid: jid,
+                        password: password
+                    )))))
                 } else {
-                    // NOTE: [Rémi Bardon] This is just a placeholder
-                    let token = UUID().uuidString
-                    return .loginResult(.success(.success(jid: jid, token: token)))
+                    return .loginResult(.success(.success(jid: jid, password: password)))
                 }
             } else {
                 return .loginResult(.failure(.badCredentials))
@@ -133,7 +135,6 @@ public let basicAuthReducer = Reducer<
 
     case let .loginResult(.success(route)):
 //    case let .loginResult(.success(credentials)):
-        print("Login success: \(route)")
         state.isLoading = false
 
         return Effect(value: .didPassChallenge(next: route))

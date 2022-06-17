@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CredentialsClient
 import SharedModels
 import SwiftUI
 import TcaHelpers
@@ -52,9 +53,9 @@ public let authenticationReducer: Reducer<
     ),
     Reducer { state, action, _ in
         switch action {
-        case let .basicAuth(.didPassChallenge(.success(jid, token))),
-             let .mfa(.didPassChallenge(.success(jid, token))):
-            return Effect(value: .didLogIn(jid: jid, token: token))
+        case let .basicAuth(.didPassChallenge(.success(jid, password))),
+             let .mfa(.didPassChallenge(.success(jid, password))):
+            return Effect(value: .didLogIn(jid: jid, password: password))
 
         case let .basicAuth(.didPassChallenge(route)),
              let .mfa(.didPassChallenge(route)):
@@ -83,13 +84,13 @@ public struct AuthenticationState: Equatable {
 public enum AuthRoute: Equatable {
     case basicAuth(BasicAuthState)
     case mfa(MFAState)
-    case success(jid: String, token: String)
+    case success(jid: JID, password: String)
 }
 
 // MARK: Actions
 
 public enum AuthenticationAction: Equatable {
-    case didLogIn(jid: String, token: String)
+    case didLogIn(jid: JID, password: String)
     case basicAuth(BasicAuthAction)
     case mfa(MFAAction)
 }
@@ -97,12 +98,16 @@ public enum AuthenticationAction: Equatable {
 // MARK: Environment
 
 public struct AuthenticationEnvironment {
+    var credentials: CredentialsClient
+
 //    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     public init(
+        credentials: CredentialsClient,
         mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
+        self.credentials = credentials
         self.mainQueue = mainQueue
     }
 
@@ -121,6 +126,7 @@ internal struct AuthenticationScreen_Previews: PreviewProvider {
             initialState: AuthenticationState(route: .basicAuth(.init())),
             reducer: authenticationReducer,
             environment: AuthenticationEnvironment(
+                credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
                 mainQueue: .main
             )
         ))
