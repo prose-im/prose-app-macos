@@ -38,7 +38,6 @@ public let appReducer: Reducer<
                     credentials: .init(jid: credentials.jid),
                     footer: .init(
                         avatar: .init(
-                            // TODO: Use a JID type, to avoid this parsing
                             // TODO: Use an image stored by the user (not a preview asset)
                             avatar: "avatars/\(credentials.jid.node ?? "valerian")"
                         )
@@ -48,10 +47,10 @@ public let appReducer: Reducer<
             state.auth = nil
         }
 
-        func proceedToLogin() {
+        func proceedToLogin(jid: JID? = nil) {
             state.auth = .init(
                 route: .basicAuth(.init(
-                    jid: environment.userDefaults.loadCurrentAccount()?.rawValue ?? ""
+                    jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
                 ))
             )
         }
@@ -94,6 +93,22 @@ public let appReducer: Reducer<
                     //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
                 }
             }
+            
+        case .main(.sidebar(.footer(.avatar(.signOutTapped)))):
+            let jid = environment.userDefaults.loadCurrentAccount()
+
+            if let jid = jid {
+                do {
+                    try environment.credentials.deleteCredentials(jid)
+                } catch {
+                    fatalError("Failed to sign out: \(error.localizedDescription)")
+                }
+            }
+
+            environment.userDefaults.deleteCurrentAccount()
+
+            proceedToLogin(jid: jid)
+            return .none
 
         case .onAppear, .auth, .main:
             return .none
