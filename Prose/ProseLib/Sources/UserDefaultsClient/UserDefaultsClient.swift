@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 
 public struct UserDefaultsClient {
     public var loadCurrentAccount: () -> JID?

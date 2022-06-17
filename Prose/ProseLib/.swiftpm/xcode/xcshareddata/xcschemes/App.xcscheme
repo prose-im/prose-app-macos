@@ -34,6 +34,18 @@
             testExecutionOrdering = "random">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CredentialsClientTests"
+               BuildableName = "CredentialsClientTests"
+               BlueprintName = "CredentialsClientTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "SharedModelsTests"
                BuildableName = "SharedModelsTests"
                BlueprintName = "SharedModelsTests"

@@ -4,10 +4,12 @@
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
+import CredentialsClient
 import Foundation
 import MainWindowFeature
 // import ProseCore
 import SharedModels
+import UserDefaultsClient
 
 // MARK: - The Composable Architecture
 
@@ -39,9 +41,12 @@ public let appReducer: Reducer<
                 guard let password = try environment.credentials.loadCredentials(jid) else { return .none }
                 return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
             } catch {
-                // TODO: Handle this error, user might have denied access to the credentials
+                // User might have denied access to the credentials
                 print("Error when loading credentials: \(error.localizedDescription)")
-                return .none
+
+                // TODO: [Rémi Bardon] Add an optional error message to the login screen,
+                //       to show why the login screen appears in case of errors like this.
+                state.route = .auth(.basicAuth(BasicAuthState(jid: jid.jidString)))
             }
 
         case let .didLogIn(jid):
@@ -73,7 +78,10 @@ public let appReducer: Reducer<
                     }
                     .eraseToEffect()
             } catch {
-                fatalError("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
+                print("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
+
+                // NOTE: [Rémi Bardon] Let's do nothing here. For explanation,
+                //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
             }
 
         default:

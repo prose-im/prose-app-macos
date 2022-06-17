@@ -5,7 +5,8 @@
 //  Created by Rémi Bardon on 15/06/2022.
 //
 
-@testable import SharedModels
+@testable import CredentialsClient
+import SharedModels
 import XCTest
 
 final class CredentialsStoreTests: XCTestCase {

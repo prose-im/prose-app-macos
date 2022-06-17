@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import CredentialsClient
 import SharedModels
 import SwiftUI
 import TcaHelpers
