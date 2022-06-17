@@ -94,6 +94,7 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 // "ProseCore",
+                "ProseUI",
                 "SharedModels",
                 "TcaHelpers",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

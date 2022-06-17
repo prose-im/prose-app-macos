@@ -8,11 +8,12 @@
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
+import TcaHelpers
 
 // MARK: - View
 
 public struct AuthenticationScreen: View {
-    public typealias State = AuthRoute
+    public typealias State = AuthenticationState
     public typealias Action = AuthenticationAction
 
     private let store: Store<State, Action>
@@ -23,9 +24,9 @@ public struct AuthenticationScreen: View {
     }
 
     public var body: some View {
-        SwitchStore(self.store) {
-            CaseLet(state: /State.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
-            CaseLet(state: /State.mfa, action: Action.mfa, then: MFAView.init(store:))
+        SwitchStore(self.store.scope(state: \State.route)) {
+            CaseLet(state: /AuthRoute.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
+            CaseLet(state: /AuthRoute.mfa, action: Action.mfa, then: MFAView.init(store:))
         }
     }
 }
@@ -35,17 +36,17 @@ public struct AuthenticationScreen: View {
 // MARK: Reducer
 
 public let authenticationReducer: Reducer<
-    AuthRoute,
+    AuthenticationState,
     AuthenticationAction,
     AuthenticationEnvironment
 > = Reducer.combine([
-    basicAuthReducer.pullback(
-        state: /AuthRoute.basicAuth,
+    basicAuthReducer._pullback(
+        state: (\AuthenticationState.route).case(/AuthRoute.basicAuth),
         action: /AuthenticationAction.basicAuth,
         environment: { $0 }
     ),
-    mfaReducer.pullback(
-        state: /AuthRoute.mfa,
+    mfaReducer._pullback(
+        state: (\AuthenticationState.route).case(/AuthRoute.mfa),
         action: /AuthenticationAction.mfa,
         environment: { $0 }
     ),
@@ -57,7 +58,7 @@ public let authenticationReducer: Reducer<
 
         case let .basicAuth(.didPassChallenge(route)),
              let .mfa(.didPassChallenge(route)):
-            state = route
+            state.route = route
 
         default:
             break
@@ -68,6 +69,16 @@ public let authenticationReducer: Reducer<
 ])
 
 // MARK: State
+
+public struct AuthenticationState: Equatable {
+    var route: AuthRoute
+
+    public init(
+        route: AuthRoute
+    ) {
+        self.route = route
+    }
+}
 
 public enum AuthRoute: Equatable {
     case basicAuth(BasicAuthState)
@@ -107,7 +118,7 @@ public struct AuthenticationEnvironment {
 internal struct AuthenticationScreen_Previews: PreviewProvider {
     static var previews: some View {
         AuthenticationScreen(store: Store(
-            initialState: .basicAuth(.init()),
+            initialState: AuthenticationState(route: .basicAuth(.init())),
             reducer: authenticationReducer,
             environment: AuthenticationEnvironment(
                 mainQueue: .main

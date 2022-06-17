@@ -6,7 +6,9 @@
 //
 
 import AppLocalization
+import Combine
 import ComposableArchitecture
+import ProseUI
 import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
@@ -63,14 +65,14 @@ public struct MFA6DigitsView: View {
     func fields(viewStore: ViewStore<State, Action>) -> some View {
         HStack(spacing: 4) {
             ForEach(0..<6) { n in
-                digit(viewStore.state.digit(n), selected: viewStore.code.count == n)
+                digit(viewStore.state.digit(n), selected: viewStore.filteredCode.count == n)
             }
         }
         // Hide fake fields in accessibility
         .accessibilityHidden(true)
         // Add a real `TextField` backing the interactions and accessibility
         .background {
-            TextField(l10n.Form.OneTimeCode.placeholder, text: viewStore.binding(\.$code))
+            TextField(l10n.Form.OneTimeCode.placeholder, text: viewStore.binding(\.$rawCode))
                 .focused($focusedField, equals: .textField)
                 .textContentType(.oneTimeCode)
                 .opacity(0)
@@ -81,7 +83,7 @@ public struct MFA6DigitsView: View {
     }
 
     func mainButton(viewStore: ViewStore<State, Action>) -> some View {
-        Button { actions.send(.mainButtonTapped) } label: {
+        Button { actions.send(.submitButtonTapped) } label: {
             Text(l10n.ConfirmButton.title)
                 .frame(minWidth: 196)
         }
@@ -143,11 +145,13 @@ public let mfa6DigitsReducer: Reducer<
     MFA6DigitsAction,
     AuthenticationEnvironment
 > = Reducer { state, action, environment in
+    struct CodeFilteringCancelId: Hashable {}
+
     switch action {
     case .onAppear, .onGlobalTapGesture:
         state.focusedField = .textField
 
-    case .mainButtonTapped:
+    case .submitButtonTapped:
         return Effect(value: .verifyOneTimeCode)
 
     case let .showPopoverTapped(popover):
@@ -157,7 +161,7 @@ public let mfa6DigitsReducer: Reducer<
         state.isLoading = true
 
         let isFormValid = state.isFormValid
-        let code = state.code
+        let code = state.filteredCode
         let jid = state.jid
         return Effect.task {
             if isFormValid, code != "000000" {
@@ -180,7 +184,8 @@ public let mfa6DigitsReducer: Reducer<
     case let .verifyOneTimeCodeResult(.failure(reason)):
         print("MFA failure: \(String(reflecting: reason))")
 
-        state.code = ""
+        state.rawCode = ""
+        state.filteredCode = ""
         state.isLoading = false
 
         state.alert = .init(
@@ -191,9 +196,32 @@ public let mfa6DigitsReducer: Reducer<
     case .alertDismissed:
         state.alert = nil
 
-    case .binding(\.$code):
-        state.code = String(state.code.unicodeScalars.filter(CharacterSet.decimalDigits.contains))
+    case .binding(\.$rawCode):
+        let oldRawCode = state.rawCode
+        let oldFilteredCode = state.filteredCode
 
+        let filteredCode = String(oldRawCode.unicodeScalars.filter(CharacterSet.decimalDigits.contains).prefix(6))
+
+        var effects: [Effect<MFA6DigitsAction, Never>] = []
+
+        // Raw code needs update if the user typed letters (we need to remove them)
+        let rawCodeNeedsUpdate = filteredCode != oldRawCode
+        if rawCodeNeedsUpdate {
+            effects.append(Effect(value: .binding(.set(\.$rawCode, filteredCode))))
+        }
+
+        // Filtered code needs update if the user typed numbers (we need to add them)
+        let filteredCodeNeedsUpdate = filteredCode != oldFilteredCode
+        if filteredCodeNeedsUpdate {
+            effects.append(Effect(value: .binding(.set(\.$filteredCode, filteredCode))))
+        }
+
+        return Effect.merge(effects)
+            .delay(for: .milliseconds(10), scheduler: environment.mainQueue)
+            .eraseToEffect()
+            .cancellable(id: CodeFilteringCancelId(), cancelInFlight: true)
+
+    case .binding(\.$filteredCode):
         if state.isFormValid {
             return Effect(value: .verifyOneTimeCode)
         }
@@ -218,14 +246,15 @@ public struct MFA6DigitsState: Equatable {
 
     let jid: String
 
-    @BindableState var code: String
+    @BindableState var rawCode: String
+    @BindableState var filteredCode: String
     var isLoading: Bool
     var alert: AlertState<MFA6DigitsAction>?
 
     @BindableState var focusedField: Field?
     @BindableState var popover: Popover?
 
-    var isFormValid: Bool { self.code.count == 6 }
+    var isFormValid: Bool { self.filteredCode.count == 6 }
     var isMainButtonEnabled: Bool { self.isFormValid && !self.isLoading }
 
     public init(
@@ -237,7 +266,8 @@ public struct MFA6DigitsState: Equatable {
         popover: Popover? = nil
     ) {
         self.jid = jid
-        self.code = code
+        self.rawCode = code
+        self.filteredCode = code
         self.isLoading = isLoading
         self.alert = alert
         self.focusedField = focusedField
@@ -245,7 +275,7 @@ public struct MFA6DigitsState: Equatable {
     }
 
     func digit(_ index: Int) -> String {
-        self.code.count > index ? String(Array(self.code)[index]) : ""
+        self.filteredCode.count > index ? String(Array(self.filteredCode)[index]) : ""
     }
 }
 
@@ -253,7 +283,7 @@ public struct MFA6DigitsState: Equatable {
 
 public enum MFA6DigitsAction: Equatable, BindableAction {
     case onAppear, onGlobalTapGesture
-    case mainButtonTapped, showPopoverTapped(MFA6DigitsState.Popover)
+    case submitButtonTapped, showPopoverTapped(MFA6DigitsState.Popover)
     case verifyOneTimeCode, verifyOneTimeCodeResult(Result<AuthRoute, MFAError>)
     case alertDismissed
     case binding(BindingAction<MFA6DigitsState>)
