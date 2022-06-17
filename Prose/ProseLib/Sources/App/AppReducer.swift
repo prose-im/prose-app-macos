@@ -44,7 +44,7 @@ public let appReducer: Reducer<
                 )
             ))
 
-        case let .auth(.loginResult(.success(jid))):
+        case let .auth(.didLogIn(jid, _)):
             let url = URL(staticString: "prose://main")
             return environment.openURL(url, .init())
                 .receive(on: environment.mainQueue)

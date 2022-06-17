@@ -18,13 +18,11 @@ public enum L10n {
                     public static let title = L10n.tr("Localizable", "authentication.basic_auth.alert.bad_credentials.title")
                 }
             }
-        }
 
-        public enum LogIn {
             public enum Cancel {
                 public enum Action {
                     /// Cancel
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.cancel.action.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.cancel.action.title")
                 }
             }
 
@@ -34,46 +32,47 @@ public enum L10n {
                     /// the same as your professional email address.
                     ///
                     /// **It might be:** [your username]@[your company domain].
-                    public static let content = L10n.tr("Localizable", "authentication.log_in.chat_address.popover.content")
+                    public static let content = L10n.tr("Localizable", "authentication.basic_auth.chat_address.popover.content")
                     /// What is my chat address? (XMPP address)
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.chat_address.popover.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.chat_address.popover.title")
                 }
+            }
+
+            public enum Error {
+                /// Login failure
+                public static let title = L10n.tr("Localizable", "authentication.basic_auth.error.title")
             }
 
             public enum Form {
                 public enum ChatAddress {
                     /// Enter your chat address
-                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.chatAddress.placeholder")
+                    public static let placeholder = L10n.tr("Localizable", "authentication.basic_auth.form.chat_address.placeholder")
                 }
 
                 public enum Password {
                     /// Enter your password…
-                    public static let placeholder = L10n.tr("Localizable", "authentication.log_in.form.password.placeholder")
+                    public static let placeholder = L10n.tr("Localizable", "authentication.basic_auth.form.password.placeholder")
                 }
             }
 
             public enum Header {
                 /// Sign in to your chat account
-                public static let subtitle = L10n.tr("Localizable", "authentication.log_in.header.subtitle")
+                public static let subtitle = L10n.tr("Localizable", "authentication.basic_auth.header.subtitle")
                 /// Welcome!
-                public static let title = L10n.tr("Localizable", "authentication.log_in.header.title")
-                public enum Action {
-                    /// Cancel
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.header.action.title")
-                }
+                public static let title = L10n.tr("Localizable", "authentication.basic_auth.header.title")
             }
 
             public enum LogIn {
                 public enum Action {
                     /// Log into your account
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.log_in.action.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.log_in.action.title")
                 }
             }
 
             public enum NoAccount {
                 public enum Action {
                     /// No account yet?
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.no_account.action.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.no_account.action.title")
                 }
 
                 public enum Popover {
@@ -84,25 +83,65 @@ public enum L10n {
                     ///
                     /// If you are a team member, ask for an administrator in your
                     /// team to email you an invitation to create your chat account.
-                    public static let content = L10n.tr("Localizable", "authentication.log_in.no_account.popover.content")
+                    public static let content = L10n.tr("Localizable", "authentication.basic_auth.no_account.popover.content")
                     /// How do I create a new account? (XMPP address)
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.no_account.popover.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.no_account.popover.title")
                 }
             }
 
             public enum PasswordLost {
                 public enum Action {
                     /// Lost your password?
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.password_lost.action.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.password_lost.action.title")
                 }
 
                 public enum Popover {
                     /// Please open this link to our website
                     /// to [recover your password](https://prose.org).
-                    public static let content = L10n.tr("Localizable", "authentication.log_in.password_lost.popover.content")
+                    public static let content = L10n.tr("Localizable", "authentication.basic_auth.password_lost.popover.content")
                     /// Lost your password?
-                    public static let title = L10n.tr("Localizable", "authentication.log_in.password_lost.popover.title")
+                    public static let title = L10n.tr("Localizable", "authentication.basic_auth.password_lost.popover.title")
                 }
+            }
+        }
+
+        public enum Mfa {
+            public enum ConfirmButton {
+                /// Confirm login code
+                public static let title = L10n.tr("Localizable", "authentication.mfa.confirm_button.title")
+            }
+
+            public enum Error {
+                /// Multi factor authentication failure
+                public static let title = L10n.tr("Localizable", "authentication.mfa.error.title")
+            }
+
+            public enum Footer {
+                public enum CannotGenerateCode {
+                    /// Not implemented yet.
+                    public static let content = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.content")
+                    /// Cannot generate code?
+                    public static let title = L10n.tr("Localizable", "authentication.mfa.footer.cannot_generate_code.title")
+                }
+
+                public enum NoAccount {
+                    /// No account yet?
+                    public static let title = L10n.tr("Localizable", "authentication.mfa.footer.no_account.title")
+                }
+            }
+
+            public enum Form {
+                public enum OneTimeCode {
+                    /// One time code
+                    public static let placeholder = L10n.tr("Localizable", "authentication.mfa.form.one_time_code.placeholder")
+                }
+            }
+
+            public enum Header {
+                /// Enter your 6-digit access code
+                public static let subtitle = L10n.tr("Localizable", "authentication.mfa.header.subtitle")
+                /// One more step…
+                public static let title = L10n.tr("Localizable", "authentication.mfa.header.title")
             }
         }
     }
