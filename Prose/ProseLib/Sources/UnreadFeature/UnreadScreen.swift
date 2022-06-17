@@ -34,7 +34,6 @@ public struct UnreadScreen: View {
             .onAppear { actions.send(.onAppear) }
     }
 
-    @ViewBuilder
     private func content() -> some View {
         WithViewStore(self.store.scope(state: \State.messages.isEmpty)) { noMessage in
             if noMessage.state {
@@ -45,7 +44,6 @@ public struct UnreadScreen: View {
         }
     }
 
-    @ViewBuilder
     private func nothing() -> some View {
         Text("Looks like you read everything 🎉")
             .font(.largeTitle.bold())
@@ -54,7 +52,6 @@ public struct UnreadScreen: View {
             .unredacted()
     }
 
-    @ViewBuilder
     private func list() -> some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -215,7 +212,6 @@ struct UnreadScreen_Previews: PreviewProvider {
             content(state: .init(messages: .init()))
         }
 
-        @ViewBuilder
         private func content(state: UnreadState) -> some View {
             UnreadScreen(store: Store(
                 initialState: state,

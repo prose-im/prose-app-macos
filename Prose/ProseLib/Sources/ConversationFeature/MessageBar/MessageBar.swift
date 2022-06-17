@@ -58,7 +58,6 @@ struct MessageBar: View {
         .accessibilityElement(children: .contain)
     }
 
-    @ViewBuilder
     private func leadingButtons() -> some View {
         HStack(spacing: 12) {
             Button(action: {}) {
@@ -70,7 +69,6 @@ struct MessageBar: View {
         .disabled(self.redactionReasons.contains(.placeholder))
     }
 
-    @ViewBuilder
     private func trailingButtons() -> some View {
         HStack(spacing: 12) {
             Button(action: {}) {

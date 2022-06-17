@@ -29,7 +29,6 @@ struct NavigationDestinationView: View {
             .navigationTitle("")
     }
 
-    @ViewBuilder
     private func content() -> some View {
         SwitchStore(self.store) {
             CaseLet(state: /State.chat, action: Action.chat, then: ConversationScreen.init(store:))

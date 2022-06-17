@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsFormFieldComponent<Content: View>: View {
     var label: String
-    let viewBuilder: () -> Content
+    let content: () -> Content
 
     var body: some View {
         HStack {
@@ -17,7 +17,7 @@ struct SettingsFormFieldComponent<Content: View>: View {
                 label: label
             )
 
-            viewBuilder()
+            content()
         }
     }
 }
