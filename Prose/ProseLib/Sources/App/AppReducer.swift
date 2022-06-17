@@ -20,93 +20,119 @@ public let appReducer: Reducer<
     AppAction,
     AppEnvironment
 > = Reducer.combine([
-    authenticationReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.auth),
+    authenticationReducer.optional().pullback(
+        state: \AppState.auth,
         action: /AppAction.auth,
-        environment: \AppEnvironment.auth
+        environment: { $0.auth }
     ),
-    mainWindowReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.main),
+    mainWindowReducer.pullback(
+        state: \AppState.main,
         action: /AppAction.main,
-        environment: \AppEnvironment.main
-    ),
+        environment: { $0.main }
+    ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
-        switch action {
-        case .onAppear:
-            guard case .auth = state.route else { return .none }
-
-            guard let jid = environment.userDefaults.loadCurrentAccount() else { return .none }
-
-            do {
-                guard let password = try environment.credentials.loadCredentials(jid) else { return .none }
-                return Effect(value: .auth(.didLogIn(jid: jid, password: password)))
-            } catch {
-                // User might have denied access to the credentials
-                print("Error when loading credentials: \(error.localizedDescription)")
-
-                // TODO: [Rémi Bardon] Add an optional error message to the login screen,
-                //       to show why the login screen appears in case of errors like this.
-                state.route = .auth(.init(route: .basicAuth(BasicAuthState(jid: jid.jidString))))
-            }
-
-        case let .didLogIn(jid):
-            state.route = .main(MainScreenState(
+        func proceedToMainFlow(with credentials: Credentials) {
+            // NOTE: [@nesium] This thing here should receive a nicer initializer sometime.
+            state.main = MainScreenState(
                 sidebar: .init(
-                    credentials: .init(jid: jid),
+                    credentials: .init(jid: credentials.jid),
                     footer: .init(
                         avatar: .init(
                             // TODO: Use a JID type, to avoid this parsing
                             // TODO: Use an image stored by the user (not a preview asset)
-                            avatar: "avatars/\(jid.node ?? "valerian")"
+                            avatar: "avatars/\(credentials.jid.node ?? "valerian")"
                         )
                     )
                 )
-            ))
-
-        case let .auth(.didLogIn(jid, password)):
-            do {
-                environment.userDefaults.saveCurrentAccount(jid)
-                try environment.credentials.save(jid, password)
-
-                let url = URL(staticString: "prose://main")
-                return environment.openURL(url, .init())
-                    .receive(on: environment.mainQueue)
-                    .map { AppAction.didLogIn(jid: jid) }
-                    .mapError(EquatableError.init)
-                    .catch { error -> AnyPublisher<AppAction, Never> in
-                        fatalError("Failed to open URL <\(url.absoluteString)>: \(error.localizedDescription)")
-                    }
-                    .eraseToEffect()
-            } catch {
-                print("Failed to store credentials for '\(jid)': \(error.localizedDescription)")
-
-                // NOTE: [Rémi Bardon] Let's do nothing here. For explanation,
-                //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
-            }
-
-        default:
-            break
+            )
+            state.auth = nil
         }
 
-        return .none
+        func proceedToLogin() {
+            state.auth = .init(
+                route: .basicAuth(.init(
+                    jid: environment.userDefaults.loadCurrentAccount()?.rawValue ?? ""
+                ))
+            )
+        }
+
+        switch action {
+        case .onAppear where !state.hasAppearedAtLeastOnce:
+            state.hasAppearedAtLeastOnce = true
+            return Effect<Credentials?, EquatableError>.result {
+                Result {
+                    try environment.userDefaults.loadCurrentAccount()
+                        .flatMap(environment.credentials.loadCredentials)
+                }.mapError(EquatableError.init)
+            }
+            .catchToEffect()
+            .map(AppAction.authenticationResult)
+
+        case let .authenticationResult(.success(.some(credentials))):
+            proceedToMainFlow(with: credentials)
+            return .none
+
+        case .authenticationResult(.success(.none)):
+            proceedToLogin()
+            return .none
+
+        case let .authenticationResult(.failure(error)):
+            print("Error when loading credentials: \(error.localizedDescription)")
+            proceedToLogin()
+            return .none
+
+        case let .auth(.didLogIn(credentials)):
+            proceedToMainFlow(with: credentials)
+            return .fireAndForget {
+                environment.userDefaults.saveCurrentAccount(credentials.jid)
+                do {
+                    try environment.credentials.save(credentials)
+                } catch {
+                    print("Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)")
+
+                    // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
+                    //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
+                }
+            }
+
+        case .onAppear, .auth, .main:
+            return .none
+        }
     },
 ])
+
+extension Reducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
+    func disabled(when isDisabled: @escaping (AppState) -> Bool) -> Self {
+        Reducer { state, action, environment in
+            guard !isDisabled(state) else {
+                return .none
+            }
+            return self(&state, action, environment)
+        }
+    }
+}
 
 // MARK: State
 
 public struct AppState: Equatable {
-    var route: AppRoute
+    var hasAppearedAtLeastOnce: Bool
+
+    var main: MainScreenState
+    var auth: AuthenticationState?
+
+    var isMainWindowDisabled: Bool { self.auth != nil }
+    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
+    ///         as we don't want to redact the view when the user adds a new account.
+    var isMainWindowRedacted: Bool { self.auth != nil }
 
     public init(
-        route: AppRoute = .main(MainScreenState(
-            // FIXME: [Rémi Bardon] Remove this fake data
-            sidebar: .init(
-                credentials: .init(jid: "example@prose.org"),
-                footer: .init(avatar: .init(avatar: "avatars/valerian"))
-            )
-        ))
+        hasAppearedAtLeastOnce: Bool = false,
+        main: MainScreenState = .placeholder,
+        auth: AuthenticationState? = nil
     ) {
-        self.route = route
+        self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
+        self.main = main
+        self.auth = auth
     }
 }
 
@@ -118,7 +144,7 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
-    case didLogIn(jid: JID)
+    case authenticationResult(Result<Credentials?, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -193,6 +219,19 @@ public struct AppEnvironment {
             main: .init(
                 sidebar: .stub
             )
+        )
+    }
+}
+
+public extension AppEnvironment {
+    static var placeholder: AppEnvironment {
+        AppEnvironment(
+            userDefaults: .placeholder,
+            credentials: .placeholder,
+            mainQueue: .main,
+            openURL: { _, _ in Effect(value: ()) },
+            auth: .placeholder,
+            main: .placeholder
         )
     }
 }

@@ -29,6 +29,7 @@ public struct AuthenticationScreen: View {
             CaseLet(state: /AuthRoute.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
             CaseLet(state: /AuthRoute.mfa, action: Action.mfa, then: MFAView.init(store:))
         }
+        .frame(minWidth: 400)
     }
 }
 
@@ -55,7 +56,7 @@ public let authenticationReducer: Reducer<
         switch action {
         case let .basicAuth(.didPassChallenge(.success(jid, password))),
              let .mfa(.didPassChallenge(.success(jid, password))):
-            return Effect(value: .didLogIn(jid: jid, password: password))
+            return Effect(value: .didLogIn(Credentials(jid: jid, password: password)))
 
         case let .basicAuth(.didPassChallenge(route)),
              let .mfa(.didPassChallenge(route)):
@@ -90,7 +91,7 @@ public enum AuthRoute: Equatable {
 // MARK: Actions
 
 public enum AuthenticationAction: Equatable {
-    case didLogIn(jid: JID, password: String)
+    case didLogIn(Credentials)
     case basicAuth(BasicAuthAction)
     case mfa(MFAAction)
 }
@@ -116,6 +117,15 @@ public struct AuthenticationEnvironment {
 //    {
 //        self.login = login
 //    }
+}
+
+public extension AuthenticationEnvironment {
+    static var placeholder: AuthenticationEnvironment {
+        AuthenticationEnvironment(
+            credentials: .placeholder,
+            mainQueue: .main
+        )
+    }
 }
 
 // MARK: - Previews

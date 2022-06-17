@@ -125,6 +125,14 @@ public struct SidebarContentState: Equatable {
     }
 }
 
+public extension SidebarContentState {
+    static var placeholder: SidebarContentState {
+        SidebarContentState(
+            route: .unread(.init())
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum SidebarContentAction: Equatable, BindableAction {

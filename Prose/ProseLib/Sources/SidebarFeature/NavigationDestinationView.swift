@@ -105,8 +105,8 @@ public struct NavigationDestinationEnvironment {
 }
 
 public extension NavigationDestinationEnvironment {
-    static var stub: Self {
-        Self(
+    static var stub: NavigationDestinationEnvironment {
+        NavigationDestinationEnvironment(
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

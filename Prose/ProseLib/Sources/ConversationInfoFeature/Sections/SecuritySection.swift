@@ -125,8 +125,8 @@ public struct SecuritySectionState: Equatable {
 }
 
 extension SecuritySectionState {
-    static var placeholder: Self {
-        Self(
+    static var placeholder: SecuritySectionState {
+        SecuritySectionState(
             isIdentityVerified: false,
             encryptionFingerprint: nil
         )

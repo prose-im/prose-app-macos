@@ -23,8 +23,17 @@ public struct MessageStore {
 }
 
 public extension MessageStore {
-    static var stub: Self {
-        Self(
+    static var placeholder: MessageStore {
+        MessageStore(
+            messages: { _ in nil },
+            unreadMessages: { OrderedDictionary() }
+        )
+    }
+}
+
+public extension MessageStore {
+    static var stub: MessageStore {
+        MessageStore(
             messages: StubMessageStore.shared.messages(for:),
             unreadMessages: StubMessageStore.shared.unreadMessages
         )
