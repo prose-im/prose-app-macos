@@ -28,6 +28,7 @@ public struct UnreadScreen: View {
 
     public var body: some View {
         content()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.backgroundMessage)
             .toolbar(content: Toolbar.init)
             .onAppear { actions.send(.onAppear) }
@@ -50,6 +51,7 @@ public struct UnreadScreen: View {
             .font(.largeTitle.bold())
             .foregroundColor(.secondary)
             .padding()
+            .unredacted()
     }
 
     @ViewBuilder
@@ -217,8 +219,8 @@ struct UnreadScreen_Previews: PreviewProvider {
         private func content(state: UnreadState) -> some View {
             UnreadScreen(store: Store(
                 initialState: state,
-                reducer: unreadReducer,
-                environment: .stub
+                reducer: Reducer.empty,
+                environment: UnreadEnvironment.stub
             ))
         }
     }
@@ -227,9 +229,11 @@ struct UnreadScreen_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

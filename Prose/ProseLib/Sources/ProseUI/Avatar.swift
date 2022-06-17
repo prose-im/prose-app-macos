@@ -33,14 +33,33 @@ public struct Avatar: View {
     }
 }
 
-import PreviewAssets
+// MARK: - Previews
 
-struct Avatar_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            Avatar(PreviewImages.Avatars.valerian.rawValue, size: 48)
-            Avatar(PreviewImages.Avatars.valerian.rawValue, size: 24)
+#if DEBUG
+    import PreviewAssets
+
+    struct Avatar_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                VStack {
+                    Avatar(PreviewImages.Avatars.valerian.rawValue, size: 48)
+                    Avatar(PreviewImages.Avatars.valerian.rawValue, size: 24)
+                }
+                .padding()
+                .previewLayout(.sizeThatFits)
+            }
         }
-        .padding()
+
+        static var previews: some View {
+            Preview()
+                .preferredColorScheme(.light)
+                .previewDisplayName("Light mode")
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark mode")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+        }
     }
-}
+#endif

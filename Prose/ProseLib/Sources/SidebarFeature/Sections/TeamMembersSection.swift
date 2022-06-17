@@ -18,13 +18,15 @@ struct TeamMembersSection: View {
     typealias State = TeamMembersSectionState
     typealias Action = TeamMembersSectionAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     @Binding var route: SidebarRoute?
 
     var body: some View {
-        Section(l10n.title) {
+        Section {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -46,7 +48,12 @@ struct TeamMembersSection: View {
                 title: l10n.Add.label,
                 systemImage: "plus.square.fill"
             ) { actions.send(.addTeamMemberTapped) }
+                .unredacted()
+        } header: {
+            Text(l10n.title)
+                .unredacted()
         }
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 
@@ -143,5 +150,8 @@ struct TeamMembersSection_Previews: PreviewProvider {
 
     static var previews: some View {
         Preview(route: nil)
+        Preview(route: nil)
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

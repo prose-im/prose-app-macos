@@ -28,6 +28,8 @@ public struct UnreadSectionModel: Equatable {
 }
 
 struct UnreadSection: View {
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let model: UnreadSectionModel
 
     var body: some View {
@@ -46,6 +48,7 @@ struct UnreadSection: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .foregroundColor(.accentColor)
+                        .unredacted()
                         Button {
                             print("Mark read tapped")
                         } label: {
@@ -53,6 +56,7 @@ struct UnreadSection: View {
                             Text("Mark read")
                                 .frame(maxWidth: .infinity)
                         }
+                        .unredacted()
                     }
                     .frame(width: 96)
                     .labelStyle(.vertical)
@@ -69,6 +73,7 @@ struct UnreadSection: View {
                     .foregroundColor(.secondary)
             }
         }
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 

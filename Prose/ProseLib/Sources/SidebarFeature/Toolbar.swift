@@ -17,23 +17,35 @@ struct Toolbar: ToolbarContent {
     typealias State = ToolbarState
     typealias Action = ToolbarAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: ToolbarItemPlacement.primaryAction) {
-            Button { actions.send(.startCallTapped) } label: {
+            Self.actions(store: store, redactionReasons: self.redactionReasons)
+        }
+    }
+
+    static func actions(
+        store: Store<State, Action>,
+        redactionReasons: RedactionReasons
+    ) -> some View {
+        WithViewStore(store) { viewStore in
+            Button { viewStore.send(.startCallTapped) } label: {
                 Label(l10n.Actions.StartCall.label, systemImage: "phone.bubble.left")
             }
+            .unredacted()
             .accessibilityHint(l10n.Actions.StartCall.hint)
-            WithViewStore(self.store) { viewStore in
-                Toggle(isOn: viewStore.binding(\State.$writingNewMessage)) {
-                    Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
-                }
-                .toggleStyle(.button)
-                .accessibilityHint(l10n.Actions.WriteMessage.hint)
+            Toggle(isOn: viewStore.binding(\State.$writingNewMessage)) {
+                Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
             }
+            .toggleStyle(.button)
+            .unredacted()
+            .accessibilityHint(l10n.Actions.WriteMessage.hint)
         }
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 
@@ -83,4 +95,37 @@ public struct ToolbarState: Equatable {
 public enum ToolbarAction: Equatable, BindableAction {
     case startCallTapped
     case binding(BindingAction<ToolbarState>)
+}
+
+// MARK: - Previews
+
+internal struct Toolbar_Previews: PreviewProvider {
+    private struct Preview: View {
+        @Environment(\.redactionReasons) private var redactionReasons
+
+        let state: ToolbarState
+
+        var body: some View {
+            let store = Store(
+                initialState: state,
+                reducer: toolbarReducer,
+                environment: .stub
+            )
+            HStack {
+                Toolbar.actions(
+                    store: store,
+                    redactionReasons: redactionReasons
+                )
+            }
+            .padding()
+            .previewLayout(.sizeThatFits)
+        }
+    }
+
+    static var previews: some View {
+        Preview(state: .init())
+        Preview(state: .init())
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
+    }
 }
