@@ -28,12 +28,12 @@ public struct UnreadScreen: View {
 
     public var body: some View {
         content()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.backgroundMessage)
             .toolbar(content: Toolbar.init)
             .onAppear { actions.send(.onAppear) }
     }
 
-    @ViewBuilder
     private func content() -> some View {
         WithViewStore(self.store.scope(state: \State.messages.isEmpty)) { noMessage in
             if noMessage.state {
@@ -44,15 +44,14 @@ public struct UnreadScreen: View {
         }
     }
 
-    @ViewBuilder
     private func nothing() -> some View {
         Text("Looks like you read everything 🎉")
             .font(.largeTitle.bold())
             .foregroundColor(.secondary)
             .padding()
+            .unredacted()
     }
 
-    @ViewBuilder
     private func list() -> some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -135,8 +134,8 @@ public struct UnreadEnvironment {
 }
 
 public extension UnreadEnvironment {
-    static var stub: Self {
-        Self(
+    static var stub: UnreadEnvironment {
+        UnreadEnvironment(
             userStore: .stub,
             messageStore: .stub
         )
@@ -213,12 +212,11 @@ struct UnreadScreen_Previews: PreviewProvider {
             content(state: .init(messages: .init()))
         }
 
-        @ViewBuilder
         private func content(state: UnreadState) -> some View {
             UnreadScreen(store: Store(
                 initialState: state,
-                reducer: unreadReducer,
-                environment: .stub
+                reducer: Reducer.empty,
+                environment: UnreadEnvironment.stub
             ))
         }
     }
@@ -227,9 +225,11 @@ struct UnreadScreen_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

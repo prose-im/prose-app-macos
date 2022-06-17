@@ -26,7 +26,7 @@ public struct SidebarView: View {
         SidebarContentView(store: self.store.scope(state: \.content, action: Action.content))
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Footer(store: self.store.scope(state: { ($0.footer, $0.credentials) }, action: Action.footer))
+                Footer(store: self.store.scope(state: \.footerView, action: Action.footer))
                     // Make sure accessibility frame isn't inset by the window's rounded corners
                     .contentShape(Rectangle())
                     // Make footer have a higher priority, to be accessible over the scroll view
@@ -53,7 +53,7 @@ public let sidebarReducer: Reducer<
         environment: { $0 }
     ),
     footerReducer.pullback(
-        state: \SidebarState.footer,
+        state: \SidebarState.footerView,
         action: /SidebarAction.footer,
         environment: { _ in () }
     ),
@@ -72,6 +72,14 @@ public struct SidebarState: Equatable {
     var footer: FooterState
     var toolbar: ToolbarState
 
+    var footerView: (FooterState, UserCredentials) {
+        get { (self.footer, self.credentials) }
+        set {
+            self.footer = newValue.0
+            self.credentials = newValue.1
+        }
+    }
+
     public init(
         credentials: UserCredentials,
         content: SidebarContentState = .init(),
@@ -82,6 +90,32 @@ public struct SidebarState: Equatable {
         self.content = content
         self.footer = footer
         self.toolbar = toolbar
+    }
+}
+
+public extension SidebarState {
+    static var placeholder: SidebarState {
+        SidebarState(
+            credentials: UserCredentials(
+                jid: "valerian@prose.org"
+            ),
+            content: .placeholder,
+            footer: FooterState(
+                teamName: "Prose",
+                statusIcon: "🚀",
+                statusMessage: "Shipping new features",
+                avatar: FooterAvatarState(
+                    avatar: "avatars/valerian",
+                    availability: .available,
+                    fullName: "Valerian Saliou",
+                    jid: "valerian@prose.org",
+                    statusIcon: "🚀",
+                    statusMessage: "Shipping new features"
+                ),
+                actionButton: FooterActionMenuState()
+            ),
+            toolbar: ToolbarState()
+        )
     }
 }
 
@@ -116,8 +150,19 @@ public struct SidebarEnvironment {
 }
 
 public extension SidebarEnvironment {
-    static var stub: Self {
-        Self(
+    static var placeholder: SidebarEnvironment {
+        SidebarEnvironment(
+            userStore: .placeholder,
+            messageStore: .placeholder,
+            statusStore: .placeholder,
+            securityStore: .placeholder
+        )
+    }
+}
+
+public extension SidebarEnvironment {
+    static var stub: SidebarEnvironment {
+        SidebarEnvironment(
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

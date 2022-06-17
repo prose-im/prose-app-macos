@@ -29,7 +29,6 @@ struct SecuritySection: View {
         }
     }
 
-    @ViewBuilder
     private func identityVerified() -> some View {
         HStack(spacing: 8) {
             WithViewStore(self.store.scope(state: \State.isIdentityVerified)) { isIdentityVerified in
@@ -53,7 +52,6 @@ struct SecuritySection: View {
         }
     }
 
-    @ViewBuilder
     private func encryption() -> some View {
         HStack(spacing: 8) {
             WithViewStore(self.store.scope(state: \State.encryptionFingerprint)) { fingerprint in
@@ -77,7 +75,6 @@ struct SecuritySection: View {
         }
     }
 
-    @ViewBuilder
     func infoButton(action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: "info.circle")
@@ -125,8 +122,8 @@ public struct SecuritySectionState: Equatable {
 }
 
 extension SecuritySectionState {
-    static var placeholder: Self {
-        Self(
+    static var placeholder: SecuritySectionState {
+        SecuritySectionState(
             isIdentityVerified: false,
             encryptionFingerprint: nil
         )

@@ -38,6 +38,7 @@ struct Counter_Previews: PreviewProvider {
                 ForEach(Self.values, id: \.self) { count in
                     HStack {
                         Text(count?.description ?? "nil")
+                            .unredacted()
                         Spacer()
                         Counter(count: count)
                     }
@@ -52,9 +53,11 @@ struct Counter_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

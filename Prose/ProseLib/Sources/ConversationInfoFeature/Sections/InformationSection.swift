@@ -46,7 +46,6 @@ struct InformationSection: View {
         }
     }
 
-    @ViewBuilder
     private func label(_ title: String, systemImage: String) -> some View {
         Label {
             Text(title)
@@ -125,8 +124,8 @@ public extension InformationSectionState {
 }
 
 extension InformationSectionState {
-    static var placeholder: Self {
-        Self(
+    static var placeholder: InformationSectionState {
+        InformationSectionState(
             emailAddress: "valerian@crisp.chat",
             phoneNumber: "+33 6 12 34 56",
             lastSeenDate: Date.now - 1_000,

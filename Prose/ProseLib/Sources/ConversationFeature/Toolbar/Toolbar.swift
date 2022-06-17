@@ -16,59 +16,80 @@ struct Toolbar: ToolbarContent {
     typealias State = ToolbarState
     typealias Action = ToolbarAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
-    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
-            CommonToolbarNavigation()
-
-            IfLetStore(self.store.scope(state: \State.user)) { store in
-                ToolbarDivider()
-
-                WithViewStore(store) { viewStore in
-                    ToolbarTitle(
-                        name: viewStore.fullName,
-                        // TODO: Make this dynamic
-                        status: .online
-                    )
-                }
-            }
+            Self.navigationButtons(store: self.store)
         }
 
         ToolbarItemGroup {
-            IfLetStore(self.store.scope(state: \State.user)) { store in
-                WithViewStore(store) { viewStore in
-                    ToolbarSecurity(
-                        jid: viewStore.jid,
-                        // TODO: Make this dynamic
-                        isVerified: true
-                    )
-
-                    ToolbarDivider()
-                }
-            }
-
-            actionItems()
-
-            ToolbarDivider()
-
-            CommonToolbarActions()
+            Self.otherButtons(
+                store: self.store,
+                redactionReasons: redactionReasons
+            )
         }
     }
 
     @ViewBuilder
-    private func actionItems() -> some View {
-        Button { actions.send(.startVideoCallTapped) } label: {
-            Label("Video", systemImage: "video")
+    static func navigationButtons(store: Store<State, Action>) -> some View {
+        CommonToolbarNavigation()
+
+        IfLetStore(store.scope(state: \State.user)) { store in
+            ToolbarDivider()
+
+            WithViewStore(store) { viewStore in
+                ToolbarTitle(
+                    name: viewStore.fullName,
+                    // TODO: Make this dynamic
+                    status: .online
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    static func otherButtons(
+        store: Store<State, Action>,
+        redactionReasons: RedactionReasons
+    ) -> some View {
+        IfLetStore(store.scope(state: \State.user)) { store in
+            WithViewStore(store) { viewStore in
+                ToolbarSecurity(
+                    jid: viewStore.jid,
+                    // TODO: Make this dynamic
+                    isVerified: true
+                )
+
+                ToolbarDivider()
+            }
         }
 
-        WithViewStore(self.store) { viewStore in
+        Self.actionItems(store: store, redactionReasons: redactionReasons)
+
+        ToolbarDivider()
+
+        CommonToolbarActions()
+    }
+
+    static func actionItems(
+        store: Store<State, Action>,
+        redactionReasons: RedactionReasons
+    ) -> some View {
+        WithViewStore(store) { viewStore in
+            Button { viewStore.send(.startVideoCallTapped) } label: {
+                Label("Video", systemImage: "video")
+            }
+
             Toggle(isOn: viewStore.binding(\State.$isShowingInfo).animation()) {
                 Label("Info", systemImage: "info.circle")
             }
             .disabled(viewStore.user == nil)
         }
+        .unredacted()
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 
@@ -119,4 +140,42 @@ public struct ToolbarState: Equatable {
 public enum ToolbarAction: Equatable, BindableAction {
     case startVideoCallTapped
     case binding(BindingAction<ToolbarState>)
+}
+
+// MARK: - Previews
+
+internal struct Toolbar_Previews: PreviewProvider {
+    private struct Preview: View {
+        @Environment(\.redactionReasons) private var redactionReasons
+
+        let state: ToolbarState
+
+        var body: some View {
+            let store = Store(
+                initialState: state,
+                reducer: toolbarReducer,
+                environment: ()
+            )
+            VStack(alignment: .leading) {
+                HStack {
+                    Toolbar.navigationButtons(store: store)
+                }
+                HStack {
+                    Toolbar.otherButtons(
+                        store: store,
+                        redactionReasons: redactionReasons
+                    )
+                }
+            }
+            .padding()
+            .previewLayout(.sizeThatFits)
+        }
+    }
+
+    static var previews: some View {
+        Preview(state: .init(user: nil))
+        Preview(state: .init(user: nil))
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
+    }
 }

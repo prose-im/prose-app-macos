@@ -1,22 +1,25 @@
 //
-//  AuthenticationReducer.swift
+//  BasicAuthReducer.swift
 //  Prose
 //
 //  Created by Marc Bauer on 01/04/2022.
 //
 
 import AppKit
+import AppLocalization
 import Combine
 import ComposableArchitecture
 import Foundation
 // import ProseCore
 import SharedModels
 
+private let l10n = L10n.Authentication.BasicAuth.self
+
 // MARK: - The Composable Architecture
 
 // MARK: State
 
-public struct AuthenticationState: Equatable {
+public struct BasicAuthState: Equatable {
     public enum Field: String, Hashable {
         case address, password
     }
@@ -31,7 +34,7 @@ public struct AuthenticationState: Equatable {
     @BindableState var popover: Popover?
 
     var isLoading: Bool
-    var alert: AlertState<AuthenticationAction>?
+    var alert: AlertState<BasicAuthAction>?
 
     var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
     var isAddressValid: Bool { !self.jid.isEmpty }
@@ -47,7 +50,7 @@ public struct AuthenticationState: Equatable {
         focusedField: Field? = nil,
         popover: Popover? = nil,
         isLoading: Bool = false,
-        alert: AlertState<AuthenticationAction>? = nil
+        alert: AlertState<BasicAuthAction>? = nil
     ) {
         self.jid = jid
         self.password = password
@@ -60,40 +63,22 @@ public struct AuthenticationState: Equatable {
 
 // MARK: Actions
 
-public enum AuthenticationAction: Equatable, BindableAction {
+public enum BasicAuthAction: Equatable, BindableAction {
     case alertDismissed
-    case loginButtonTapped, showPopoverTapped(AuthenticationState.Popover)
-    case submitTapped(AuthenticationState.Field), cancelLogInTapped
+    case loginButtonTapped, showPopoverTapped(BasicAuthState.Popover)
+    case submitTapped(BasicAuthState.Field), cancelLogInTapped
     case logIn
 //    case loginResult(Result<UserCredentials, EquatableError>)
-    case loginResult(Result<String, AuthenticationError>)
-    case binding(BindingAction<AuthenticationState>)
-}
-
-// MARK: Environment
-
-public struct AuthenticationEnvironment {
-//    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
-    var mainQueue: AnySchedulerOf<DispatchQueue>
-
-    public init(
-        mainQueue: AnySchedulerOf<DispatchQueue>
-    ) {
-        self.mainQueue = mainQueue
-    }
-
-//    public init(login: @escaping (String, String, ClientOrigin)
-//        -> Effect<Result<UserCredentials, EquatableError>, Never>)
-//    {
-//        self.login = login
-//    }
+    case loginResult(Result<AuthRoute, BasicAuthError>)
+    case didPassChallenge(next: AuthRoute)
+    case binding(BindingAction<BasicAuthState>)
 }
 
 // MARK: Reducer
 
-public let authenticationReducer = Reducer<
-    AuthenticationState,
-    AuthenticationAction,
+public let basicAuthReducer = Reducer<
+    BasicAuthState,
+    BasicAuthAction,
     AuthenticationEnvironment
 > { state, action, environment in
     struct CancelId: Hashable {}
@@ -110,10 +95,18 @@ public let authenticationReducer = Reducer<
         state.isLoading = true
 
         let isFormValid = state.isFormValid
-        let jid = state.jid
+        let jid = JID(rawValue: state.jid)
+        let password = state.password
         return Effect.task {
-            if isFormValid, !jid.starts(with: "error") {
-                return .loginResult(.success(jid))
+            if isFormValid, jid.node != "error" {
+                if jid.node == "mfa" {
+                    return .loginResult(.success(.mfa(.sixDigits(MFA6DigitsState(
+                        jid: jid,
+                        password: password
+                    )))))
+                } else {
+                    return .loginResult(.success(.success(jid: jid, password: password)))
+                }
             } else {
                 return .loginResult(.failure(.badCredentials))
             }
@@ -122,7 +115,7 @@ public let authenticationReducer = Reducer<
         .eraseToEffect()
         .cancellable(id: CancelId())
 //        return environment.login(state.jid, state.password, .proseAppMacOs)
-//            .map(AuthenticationAction.loginResult)
+//            .map(BasicAuthAction.loginResult)
 
     case let .showPopoverTapped(popover):
         state.focusedField = nil
@@ -140,21 +133,22 @@ public let authenticationReducer = Reducer<
         state.isLoading = false
         return Effect.cancel(id: CancelId())
 
-    case let .loginResult(.success(jid)):
+    case let .loginResult(.success(route)):
 //    case let .loginResult(.success(credentials)):
-        print("Login success: \(jid)")
         state.isLoading = false
+
+        return Effect(value: .didPassChallenge(next: route))
 
     case let .loginResult(.failure(reason)):
         print("Login failure: \(String(reflecting: reason))")
         state.isLoading = false
 
         state.alert = .init(
-            title: TextState("Login failure"),
+            title: TextState(l10n.Error.title),
             message: TextState(reason.localizedDescription)
         )
 
-    case .binding:
+    case .didPassChallenge, .binding:
         break
     }
 

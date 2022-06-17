@@ -80,8 +80,8 @@ public struct ActionsSectionState: Equatable {
 }
 
 extension ActionsSectionState {
-    static var placeholder: Self {
-        Self()
+    static var placeholder: ActionsSectionState {
+        ActionsSectionState()
     }
 }
 

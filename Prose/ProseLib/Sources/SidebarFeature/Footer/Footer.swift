@@ -7,7 +7,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import PreviewAssets
 import SharedModels
 import SwiftUI
 
@@ -23,7 +22,6 @@ struct Footer: View {
     static let height: CGFloat = 64
 
     let store: Store<State, Action>
-    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,7 +34,7 @@ struct Footer: View {
                 WithViewStore(self.store, removeDuplicates: ==) { viewStore in
                     // Team name + user status
                     FooterDetails(
-                        teamName: viewStore.1.jid,
+                        teamName: viewStore.1.jid.jidString,
                         statusIcon: viewStore.0.statusIcon,
                         statusMessage: viewStore.0.statusMessage
                     )
@@ -61,17 +59,17 @@ struct Footer: View {
 // MARK: Reducer
 
 public let footerReducer: Reducer<
-    FooterState,
+    (FooterState, UserCredentials),
     FooterAction,
     Void
 > = Reducer.combine([
     footerActionMenuReducer.pullback(
-        state: \FooterState.actionButton,
+        state: \.0.actionButton,
         action: /FooterAction.actionButton,
         environment: { $0 }
     ),
     footerAvatarReducer.pullback(
-        state: \FooterState.avatar,
+        state: \.0.avatar,
         action: /FooterAction.avatar,
         environment: { $0 }
     ),
@@ -108,3 +106,41 @@ public enum FooterAction: Equatable {
     case avatar(FooterAvatarAction)
     case actionButton(FooterActionMenuAction)
 }
+
+// MARK: - Previews
+
+#if DEBUG
+    import PreviewAssets
+
+    struct Footer_Previews: PreviewProvider {
+        private struct Preview: View {
+            let state: Footer.State
+
+            var body: some View {
+                Footer(store: Store(
+                    initialState: state,
+                    reducer: footerReducer,
+                    environment: ()
+                ))
+            }
+        }
+
+        static var previews: some View {
+            let state = (
+                FooterState(
+                    avatar: .init(avatar: PreviewImages.Avatars.valerian.rawValue)
+                ),
+                UserCredentials(jid: "valerian@crisp.chat")
+            )
+            Preview(state: state)
+                .preferredColorScheme(.light)
+                .previewDisplayName("Light")
+            Preview(state: state)
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark")
+            Preview(state: state)
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+        }
+    }
+#endif

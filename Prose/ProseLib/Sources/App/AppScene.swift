@@ -12,64 +12,45 @@ import SettingsFeature
 import SwiftUI
 
 public struct AppScene: Scene {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
     private let store: Store<AppState, AppAction>
     private var actions: ViewStore<Void, AppAction> { ViewStore(self.store.stateless) }
 
-    @SwiftUI.State var authWindow: NSWindow?
     @SwiftUI.State var mainWindow: NSWindow?
 
-    public init(store: Store<AppState, AppAction>) {
+    public init(store: Store<AppState, AppAction> = Store(
+        initialState: AppState(),
+        reducer: appReducer,
+        environment: AppEnvironment.live
+    )) {
         self.store = store
     }
 
-    public init() {
-        self.init(store: Store(
-            initialState: AppState(
-                route: .auth(.init())
-            ),
-            reducer: appReducer,
-            environment: AppEnvironment.live
-        ))
+    public var body: some Scene {
+        mainWindowGroup()
     }
 
-    public var body: some Scene {
-        WithViewStore(self.store.scope(state: \.route.tag)) { viewStore in
-            Group {
-                login()
-                    .handlesExternalEvents(matching: Set(arrayLiteral: "login"))
-                    .onChange(of: authWindow) { newValue in
-                        guard let window = newValue else { return }
+    private func mainWindowGroup() -> some Scene {
+        WindowGroup {
+            WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
+                WithViewStore(self.store.scope(state: \.isMainWindowRedacted)) { isMainWindowRedacted in
+                    MainScreen(store: self.store.scope(state: \.main, action: AppAction.main))
+                        .redacted(reason: isMainWindowRedacted.state ? .placeholder : [])
+                        .frame(minWidth: 1_280, minHeight: 720)
+                        .onAppear { actions.send(.onAppear) }
+                        .background(WindowAccessor(window: $mainWindow))
+                        .onChange(of: mainWindow) { newValue in
+                            guard let window = newValue else { return }
 
-                        // Disable green "zoom" (show fullscreen) button
-                        window.standardWindowButton(.zoomButton)?.isEnabled = false
-                    }
-                main()
-                    .handlesExternalEvents(matching: Set(arrayLiteral: "main"))
-            }
-            .onChange(of: viewStore.state) { newRoute in
-                switch newRoute {
-                case .auth:
-                    mainWindow?.close()
-                case .main:
-                    authWindow?.close()
+                            window.makeKeyAndOrderFront(nil)
+                        }
+                        .sheet(unwrapping: .constant(authViewStore.state)) { $state in
+                            AuthenticationScreen(store: self.store.scope(
+                                state: { _ in $state.wrappedValue },
+                                action: AppAction.auth
+                            ))
+                        }
                 }
             }
-        }
-    }
-
-    @SceneBuilder
-    private func main() -> some Scene {
-        WindowGroup {
-            IfLetStore(self.store.scope(
-                state: (\AppState.route).case(/AppRoute.main),
-                action: AppAction.main
-            )) { store in
-                MainScreen(store: store)
-            }
-            .frame(minWidth: 1_280, minHeight: 720)
-            .background(WindowAccessor(window: $mainWindow))
         }
         .windowStyle(DefaultWindowStyle())
         .windowToolbarStyle(UnifiedWindowToolbarStyle())
@@ -77,21 +58,5 @@ public struct AppScene: Scene {
             SidebarCommands()
             AppSettings()
         }
-    }
-
-    @SceneBuilder
-    private func login() -> some Scene {
-        WindowGroup {
-            IfLetStore(
-                self.store.scope(
-                    state: (\AppState.route).case(/AppRoute.auth),
-                    action: AppAction.auth
-                ),
-                then: AuthenticationScreen.init(store:)
-            )
-            .frame(width: 440)
-            .background(WindowAccessor(window: $authWindow))
-        }
-        .windowStyle(.hiddenTitleBar)
     }
 }

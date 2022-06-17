@@ -125,6 +125,14 @@ public struct SidebarContentState: Equatable {
     }
 }
 
+public extension SidebarContentState {
+    static var placeholder: SidebarContentState {
+        SidebarContentState(
+            route: .unread(.init())
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum SidebarContentAction: Equatable, BindableAction {
@@ -137,14 +145,29 @@ public enum SidebarContentAction: Equatable, BindableAction {
 }
 
 struct SidebarContent_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            SidebarContentView(store: Store(
-                initialState: .init(),
-                reducer: sidebarContentReducer,
-                environment: .stub
-            ))
-            .frame(width: 256)
+    private struct Preview: View {
+        var body: some View {
+            NavigationView {
+                SidebarContentView(store: Store(
+                    initialState: .init(),
+                    reducer: sidebarContentReducer,
+                    environment: .stub
+                ))
+                .frame(width: 200)
+            }
+            .frame(width: 700)
         }
+    }
+
+    static var previews: some View {
+        Preview()
+            .preferredColorScheme(.light)
+            .previewDisplayName("Light")
+        Preview()
+            .preferredColorScheme(.dark)
+            .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

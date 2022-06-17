@@ -212,8 +212,8 @@ public struct ConversationEnvironment {
 }
 
 public extension ConversationEnvironment {
-    static var stub: Self {
-        Self(
+    static var stub: ConversationEnvironment {
+        ConversationEnvironment(
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,
@@ -225,11 +225,24 @@ public extension ConversationEnvironment {
 // MARK: - Previews
 
 struct ConversationScreen_Previews: PreviewProvider {
+    private struct Preview: View {
+        var body: some View {
+            ConversationScreen(store: Store(
+                initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
+                reducer: conversationReducer,
+                environment: .stub
+            ))
+            .previewLayout(.sizeThatFits)
+        }
+    }
+
     static var previews: some View {
-        ConversationScreen(store: Store(
-            initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
-            reducer: conversationReducer,
-            environment: .stub
-        ))
+        Preview()
+        Preview()
+            .preferredColorScheme(.dark)
+            .previewDisplayName("Dark mode")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

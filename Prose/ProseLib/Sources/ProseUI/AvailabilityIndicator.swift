@@ -10,6 +10,8 @@ import SharedModels
 import SwiftUI
 
 public struct AvailabilityIndicator: View {
+    @Environment(\.redactionReasons) private var redactionReasons
+
     private let availability: Availability
     private let size: CGFloat
 
@@ -32,7 +34,7 @@ public struct AvailabilityIndicator: View {
             Circle()
                 .fill(Color.white)
             Circle()
-                .fill(availability.fillColor)
+                .fill(redactionReasons.contains(.placeholder) ? .gray : availability.fillColor)
                 .padding(2)
             Circle()
                 .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5)
@@ -62,6 +64,7 @@ struct AvailabilityIndicator_Previews: PreviewProvider {
                 ForEach(Availability.allCases, id: \.self, content: AvailabilityIndicator.init(_:))
             }
             .padding()
+            .previewLayout(.sizeThatFits)
         }
     }
 
@@ -69,9 +72,11 @@ struct AvailabilityIndicator_Previews: PreviewProvider {
         Preview()
             .preferredColorScheme(.light)
             .previewDisplayName("Light")
-
         Preview()
             .preferredColorScheme(.dark)
             .previewDisplayName("Dark")
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

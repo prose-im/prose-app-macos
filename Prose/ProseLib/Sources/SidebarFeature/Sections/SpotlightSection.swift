@@ -18,13 +18,15 @@ struct SpotlightSection: View {
     typealias State = SpotlightSectionState
     typealias Action = SpotlightSectionAction
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     @Binding var route: SidebarRoute?
 
     var body: some View {
-        Section(l10n.title) {
+        Section {
             WithViewStore(self.store.scope(state: \State.items)) { items in
                 ForEach(items.state) { item in
                     NavigationLink(tag: item.id, selection: $route) {
@@ -33,15 +35,20 @@ struct SpotlightSection: View {
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
-                        NavigationRow(
-                            title: item.title,
-                            image: item.image,
-                            count: item.count
-                        )
+                        HStack {
+                            Label(item.title, systemImage: item.image)
+                                .unredacted()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Counter(count: item.count)
+                        }
                     }
                 }
             }
+        } header: {
+            Text(l10n.title)
+                .unredacted()
         }
+        .disabled(redactionReasons.contains(.placeholder))
     }
 }
 
@@ -109,5 +116,8 @@ struct SpotlightSection_Previews: PreviewProvider {
 
     static var previews: some View {
         Preview(route: nil)
+        Preview(route: nil)
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }

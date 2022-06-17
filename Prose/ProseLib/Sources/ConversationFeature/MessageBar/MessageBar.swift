@@ -16,6 +16,8 @@ struct MessageBar: View {
 
     static let height: CGFloat = 64
 
+    @Environment(\.redactionReasons) private var redactionReasons
+
     let store: Store<State, Action>
     private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -56,7 +58,6 @@ struct MessageBar: View {
         .accessibilityElement(children: .contain)
     }
 
-    @ViewBuilder
     private func leadingButtons() -> some View {
         HStack(spacing: 12) {
             Button(action: {}) {
@@ -64,9 +65,10 @@ struct MessageBar: View {
             }
         }
         .buttonStyle(.plain)
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
     }
 
-    @ViewBuilder
     private func trailingButtons() -> some View {
         HStack(spacing: 12) {
             Button(action: {}) {
@@ -77,6 +79,8 @@ struct MessageBar: View {
             }
         }
         .buttonStyle(.plain)
+        .unredacted()
+        .disabled(self.redactionReasons.contains(.placeholder))
     }
 }
 
@@ -146,6 +150,11 @@ internal struct MessageBar_Previews: PreviewProvider {
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background")
+            Preview(
+                firstName: "Valerian"
+            )
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
         }
         .preferredColorScheme(.light)
         Group {
@@ -163,6 +172,11 @@ internal struct MessageBar_Previews: PreviewProvider {
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background / Dark")
+            Preview(
+                firstName: "Valerian"
+            )
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder / Dark")
         }
         .preferredColorScheme(.dark)
     }

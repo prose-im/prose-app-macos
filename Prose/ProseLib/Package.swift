@@ -9,6 +9,18 @@ let package = Package(
     products: [
         .library(name: "App", targets: ["App"]),
         .library(name: "ProseUI", targets: ["ProseUI"]),
+        // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
+        .library(name: "Previews", targets: [
+            "AddressBookFeature",
+            "AuthenticationFeature",
+            "ConversationFeature",
+            "ConversationInfoFeature",
+            "MainWindowFeature",
+            "ProseUI",
+            "SettingsFeature",
+            "SidebarFeature",
+            "UnreadFeature",
+        ]),
     ],
     dependencies: [
         // .package(path: "../../ProseCore"),
@@ -27,8 +39,9 @@ let package = Package(
                 "MainWindowFeature",
                 "SettingsFeature",
                 "AuthenticationFeature",
-                "SidebarFeature",
+                "CredentialsClient",
                 "TcaHelpers",
+                "UserDefaultsClient",
                 // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
@@ -94,7 +107,9 @@ let package = Package(
             name: "AuthenticationFeature",
             dependencies: [
                 "AppLocalization",
+                "CredentialsClient",
                 // "ProseCore",
+                "ProseUI",
                 "SharedModels",
                 "TcaHelpers",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -115,6 +130,16 @@ let package = Package(
         .target(name: "ProseCoreStub", dependencies: [
             "SharedModels",
             .product(name: "OrderedCollections", package: "swift-collections"),
+        ]),
+
+        // MARK: Dependencies
+
+        .target(name: "CredentialsClient", dependencies: [
+            "SharedModels",
+        ]),
+        .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
+        .target(name: "UserDefaultsClient", dependencies: [
+            "SharedModels",
         ]),
     ]
 )

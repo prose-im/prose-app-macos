@@ -30,9 +30,18 @@ struct ToolbarTitle: View {
 
 struct ToolbarTitle_Previews: PreviewProvider {
     static var previews: some View {
-        ToolbarTitle(
-            name: "Valerian Saliou",
-            status: .online
-        )
+        VStack(alignment: .leading) {
+            ToolbarTitle(
+                name: "Valerian Saliou",
+                status: .online
+            )
+            ToolbarTitle(
+                name: "Valerian Saliou",
+                status: .online
+            )
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
+        }
+        .previewLayout(.sizeThatFits)
     }
 }

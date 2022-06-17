@@ -61,6 +61,14 @@ public struct MainScreenState: Equatable {
     }
 }
 
+public extension MainScreenState {
+    static var placeholder: MainScreenState {
+        MainScreenState(
+            sidebar: .placeholder
+        )
+    }
+}
+
 // MARK: Actions
 
 public enum MainScreenAction: Equatable {
@@ -76,6 +84,14 @@ public struct MainScreenEnvironment {
         sidebar: SidebarEnvironment
     ) {
         self.sidebar = sidebar
+    }
+}
+
+public extension MainScreenEnvironment {
+    static var placeholder: MainScreenEnvironment {
+        MainScreenEnvironment(
+            sidebar: .placeholder
+        )
     }
 }
 

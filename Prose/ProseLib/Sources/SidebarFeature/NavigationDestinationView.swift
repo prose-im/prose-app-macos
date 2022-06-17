@@ -29,7 +29,6 @@ struct NavigationDestinationView: View {
             .navigationTitle("")
     }
 
-    @ViewBuilder
     private func content() -> some View {
         SwitchStore(self.store) {
             CaseLet(state: /State.chat, action: Action.chat, then: ConversationScreen.init(store:))
@@ -47,6 +46,7 @@ struct NavigationDestinationView: View {
                         AddressBookScreen()
                     case let value:
                         Text("\(String(describing: value)) (not supported yet)")
+                            .unredacted()
                             .toolbar(content: CommonToolbar.init)
                     }
                 }
@@ -105,8 +105,8 @@ public struct NavigationDestinationEnvironment {
 }
 
 public extension NavigationDestinationEnvironment {
-    static var stub: Self {
-        Self(
+    static var stub: NavigationDestinationEnvironment {
+        NavigationDestinationEnvironment(
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

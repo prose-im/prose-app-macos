@@ -4,10 +4,12 @@
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
+import CredentialsClient
 import Foundation
 import MainWindowFeature
 // import ProseCore
 import SharedModels
+import UserDefaultsClient
 
 // MARK: - The Composable Architecture
 
@@ -18,66 +20,134 @@ public let appReducer: Reducer<
     AppAction,
     AppEnvironment
 > = Reducer.combine([
-    authenticationReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.auth),
+    authenticationReducer.optional().pullback(
+        state: \AppState.auth,
         action: /AppAction.auth,
-        environment: \AppEnvironment.auth
+        environment: { $0.auth }
     ),
-    mainWindowReducer._pullback(
-        state: (\AppState.route).case(/AppRoute.main),
+    mainWindowReducer.pullback(
+        state: \AppState.main,
         action: /AppAction.main,
-        environment: \AppEnvironment.main
-    ),
+        environment: { $0.main }
+    ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
-        switch action {
-        case let .didLogIn(jid):
-            state.route = .main(MainScreenState(
+        func proceedToMainFlow(with credentials: Credentials) {
+            // NOTE: [@nesium] This thing here should receive a nicer initializer sometime.
+            state.main = MainScreenState(
                 sidebar: .init(
-                    credentials: .init(jid: jid),
+                    credentials: .init(jid: credentials.jid),
                     footer: .init(
                         avatar: .init(
-                            // TODO: Use a JID type, to avoid this parsing
                             // TODO: Use an image stored by the user (not a preview asset)
-                            avatar: "avatars/\(jid.split(separator: "@").first ?? "valerian")"
+                            avatar: "avatars/\(credentials.jid.node ?? "valerian")"
                         )
                     )
                 )
-            ))
-
-        case let .auth(.loginResult(.success(jid))):
-            let url = URL(staticString: "prose://main")
-            return environment.openURL(url, .init())
-                .receive(on: environment.mainQueue)
-                .map { AppAction.didLogIn(jid: jid) }
-                .mapError(EquatableError.init)
-                .catch { error -> AnyPublisher<AppAction, Never> in
-                    fatalError("Failed to open URL <\(url.absoluteString)>: \(error.localizedDescription)")
-                }
-                .eraseToEffect()
-
-        default:
-            break
+            )
+            state.auth = nil
         }
 
-        return .none
+        func proceedToLogin(jid: JID? = nil) {
+            state.auth = .init(
+                route: .basicAuth(.init(
+                    jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
+                ))
+            )
+        }
+
+        switch action {
+        case .onAppear where !state.hasAppearedAtLeastOnce:
+            state.hasAppearedAtLeastOnce = true
+            return Effect<Credentials?, EquatableError>.result {
+                Result {
+                    try environment.userDefaults.loadCurrentAccount()
+                        .flatMap(environment.credentials.loadCredentials)
+                }.mapError(EquatableError.init)
+            }
+            .catchToEffect()
+            .map(AppAction.authenticationResult)
+
+        case let .authenticationResult(.success(.some(credentials))):
+            proceedToMainFlow(with: credentials)
+            return .none
+
+        case .authenticationResult(.success(.none)):
+            proceedToLogin()
+            return .none
+
+        case let .authenticationResult(.failure(error)):
+            print("Error when loading credentials: \(error.localizedDescription)")
+            proceedToLogin()
+            return .none
+
+        case let .auth(.didLogIn(credentials)):
+            proceedToMainFlow(with: credentials)
+            return .fireAndForget {
+                environment.userDefaults.saveCurrentAccount(credentials.jid)
+                do {
+                    try environment.credentials.save(credentials)
+                } catch {
+                    print("Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)")
+
+                    // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
+                    //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
+                }
+            }
+            
+        case .main(.sidebar(.footer(.avatar(.signOutTapped)))):
+            let jid = environment.userDefaults.loadCurrentAccount()
+
+            if let jid = jid {
+                do {
+                    try environment.credentials.deleteCredentials(jid)
+                } catch {
+                    fatalError("Failed to sign out: \(error.localizedDescription)")
+                }
+            }
+
+            environment.userDefaults.deleteCurrentAccount()
+
+            proceedToLogin(jid: jid)
+            return .none
+
+        case .onAppear, .auth, .main:
+            return .none
+        }
     },
 ])
+
+extension Reducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
+    func disabled(when isDisabled: @escaping (AppState) -> Bool) -> Self {
+        Reducer { state, action, environment in
+            guard !isDisabled(state) else {
+                return .none
+            }
+            return self(&state, action, environment)
+        }
+    }
+}
 
 // MARK: State
 
 public struct AppState: Equatable {
-    var route: AppRoute
+    var hasAppearedAtLeastOnce: Bool
+
+    var main: MainScreenState
+    var auth: AuthenticationState?
+
+    var isMainWindowDisabled: Bool { self.auth != nil }
+    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
+    ///         as we don't want to redact the view when the user adds a new account.
+    var isMainWindowRedacted: Bool { self.auth != nil }
 
     public init(
-        route: AppRoute = .main(MainScreenState(
-            // FIXME: [Rémi Bardon] Remove this fake data
-            sidebar: .init(
-                credentials: .init(jid: "example@prose.org"),
-                footer: .init(avatar: .init(avatar: "avatars/valerian"))
-            )
-        ))
+        hasAppearedAtLeastOnce: Bool = false,
+        main: MainScreenState = .placeholder,
+        auth: AuthenticationState? = nil
     ) {
-        self.route = route
+        self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
+        self.main = main
+        self.auth = auth
     }
 }
 
@@ -88,8 +158,8 @@ public enum URLOpeningError: Error, Equatable {
 // MARK: Actions
 
 public enum AppAction: Equatable {
-    // TODO: [Rémi Bardon] Change this to a type-safe JID
-    case didLogIn(jid: String)
+    case onAppear
+    case authenticationResult(Result<Credentials?, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -103,6 +173,9 @@ public enum AppAction: Equatable {
 #endif
 
 public struct AppEnvironment {
+    var userDefaults: UserDefaultsClient
+    var credentials: CredentialsClient
+
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
@@ -111,11 +184,15 @@ public struct AppEnvironment {
     var main: MainScreenEnvironment
 
     private init(
+        userDefaults: UserDefaultsClient,
+        credentials: CredentialsClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
         openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>,
         auth: AuthenticationEnvironment,
         main: MainScreenEnvironment
     ) {
+        self.userDefaults = userDefaults
+        self.credentials = credentials
         self.mainQueue = mainQueue
         self.openURL = openURL
         self.auth = auth
@@ -123,7 +200,10 @@ public struct AppEnvironment {
     }
 
     public static var live: Self {
-        Self(
+        let credentialsClient = CredentialsClient.live(service: "org.prose.Prose")
+        return Self(
+            userDefaults: .live(.standard),
+            credentials: credentialsClient,
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in
@@ -141,6 +221,7 @@ public struct AppEnvironment {
                 }
             },
             auth: .init(
+                credentials: credentialsClient,
                 mainQueue: .main
             ),
 //            auth: .init(login: { jid, password, origin in
@@ -153,6 +234,19 @@ public struct AppEnvironment {
             main: .init(
                 sidebar: .stub
             )
+        )
+    }
+}
+
+public extension AppEnvironment {
+    static var placeholder: AppEnvironment {
+        AppEnvironment(
+            userDefaults: .placeholder,
+            credentials: .placeholder,
+            mainQueue: .main,
+            openURL: { _, _ in Effect(value: ()) },
+            auth: .placeholder,
+            main: .placeholder
         )
     }
 }

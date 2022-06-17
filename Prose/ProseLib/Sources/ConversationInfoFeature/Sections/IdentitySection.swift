@@ -43,7 +43,6 @@ struct IdentitySection: View {
         }
     }
 
-    @ViewBuilder
     private func avatar() -> some View {
         WithViewStore(self.store.scope(state: \State.avatar)) { avatar in
             if let imageName = avatar.state {
@@ -106,8 +105,11 @@ public extension IdentitySectionState {
 }
 
 extension IdentitySectionState {
-    static var placeholder: Self {
-        Self(from: .placeholder, status: .offline)
+    static var placeholder: IdentitySectionState {
+        IdentitySectionState(
+            from: .placeholder,
+            status: .offline
+        )
     }
 }
 

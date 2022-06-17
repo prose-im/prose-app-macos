@@ -14,8 +14,17 @@ public struct SecurityStore {
 }
 
 public extension SecurityStore {
-    static var stub: Self {
-        Self(
+    static var placeholder: SecurityStore {
+        SecurityStore(
+            isIdentityVerified: { _ in false },
+            encryptionFingerprint: { _ in nil }
+        )
+    }
+}
+
+public extension SecurityStore {
+    static var stub: SecurityStore {
+        SecurityStore(
             isIdentityVerified: StubSecurityStore.shared.isIdentityVerified(for:),
             encryptionFingerprint: StubSecurityStore.shared.encryptionFingerprint(for:)
         )

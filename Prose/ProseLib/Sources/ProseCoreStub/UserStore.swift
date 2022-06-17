@@ -67,8 +67,16 @@ public struct UserStore {
 }
 
 public extension UserStore {
-    static var stub: Self {
-        Self(
+    static var placeholder: UserStore {
+        UserStore(
+            user: { _ in nil }
+        )
+    }
+}
+
+public extension UserStore {
+    static var stub: UserStore {
+        UserStore(
             user: StubUserStore.shared.user(for:)
         )
     }

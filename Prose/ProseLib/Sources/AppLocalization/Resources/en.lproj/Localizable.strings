@@ -6,23 +6,33 @@
 //
 
 "authentication.basic_auth.alert.bad_credentials.title" = "Bad credentials";
-"authentication.log_in.header.action.title" = "Cancel";
-"authentication.log_in.cancel.action.title" = "Cancel";
-"authentication.log_in.chat_address.popover.content" = "A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain].";
-"authentication.log_in.chat_address.popover.title" = "What is my chat address? (XMPP address)";
-"authentication.log_in.form.chatAddress.placeholder" = "Enter your chat address";
-"authentication.log_in.form.password.placeholder" = "Enter your password…";
-"authentication.log_in.header.title" = "Welcome!";
-"authentication.log_in.header.subtitle" = "Sign in to your chat account";
-"authentication.log_in.log_in.action.title" = "Log into your account";
-"authentication.log_in.no_account.action.title" = "No account yet?";
+"authentication.basic_auth.cancel.action.title" = "Cancel";
+"authentication.basic_auth.chat_address.popover.content" = "A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain].";
+"authentication.basic_auth.chat_address.popover.title" = "What is my chat address? (XMPP address)";
+"authentication.basic_auth.error.title" = "Login failure";
+"authentication.basic_auth.form.chat_address.placeholder" = "Enter your chat address";
+"authentication.basic_auth.form.password.placeholder" = "Enter your password…";
+"authentication.basic_auth.header.title" = "Welcome!";
+"authentication.basic_auth.header.subtitle" = "Sign in to your chat account";
+"authentication.basic_auth.log_in.action.title" = "Log into your account";
+"authentication.basic_auth.no_account.action.title" = "No account yet?";
 // TODO: [Rémi Bardon] Change guide URL
-"authentication.log_in.no_account.popover.content" = "Chat accounts are hosted on your organization chat server.\nIf you are a server administrator, and you are not yet running\na chat server, please [read this guide](https://prose.org). You will be able to\ninvite all your team members afterwards.\n\nIf you are a team member, ask for an administrator in your\nteam to email you an invitation to create your chat account.";
-"authentication.log_in.no_account.popover.title" = "How do I create a new account? (XMPP address)";
-"authentication.log_in.password_lost.action.title" = "Lost your password?";
+"authentication.basic_auth.no_account.popover.content" = "Chat accounts are hosted on your organization chat server.\nIf you are a server administrator, and you are not yet running\na chat server, please [read this guide](https://prose.org). You will be able to\ninvite all your team members afterwards.\n\nIf you are a team member, ask for an administrator in your\nteam to email you an invitation to create your chat account.";
+"authentication.basic_auth.no_account.popover.title" = "How do I create a new account? (XMPP address)";
+"authentication.basic_auth.password_lost.action.title" = "Lost your password?";
 // TODO: [Rémi Bardon] Change URL
-"authentication.log_in.password_lost.popover.content" = "Please open this link to our website\nto [recover your password](https://prose.org).";
-"authentication.log_in.password_lost.popover.title" = "Lost your password?";
+"authentication.basic_auth.password_lost.popover.content" = "Please open this link to our website\nto [recover your password](https://prose.org).";
+"authentication.basic_auth.password_lost.popover.title" = "Lost your password?";
+
+"authentication.mfa.confirm_button.title" = "Confirm login code";
+"authentication.mfa.header.title" = "One more step…";
+"authentication.mfa.header.subtitle" = "Enter your 6-digit access code";
+"authentication.mfa.error.title" = "Multi factor authentication failure";
+"authentication.mfa.footer.cannot_generate_code.title" = "Cannot generate code?";
+// TODO: [Rémi Bardon] Add real help text
+"authentication.mfa.footer.cannot_generate_code.content" = "Not implemented yet.";
+"authentication.mfa.footer.no_account.title" = "No account yet?";
+"authentication.mfa.form.one_time_code.placeholder" = "One time code";
 
 "sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";

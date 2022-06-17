@@ -13,12 +13,25 @@ public struct AddressBookScreen: View {
     public var body: some View {
         Text("Address book")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .unredacted()
             .toolbar(content: Toolbar.init)
     }
 }
 
-struct AddressBookScreen_Previews: PreviewProvider {
+internal struct AddressBookScreen_Previews: PreviewProvider {
+    private struct Preview: View {
+        var body: some View {
+            NavigationView {
+                Text("Test")
+                AddressBookScreen()
+            }
+        }
+    }
+
     static var previews: some View {
-        AddressBookScreen()
+        Preview()
+        Preview()
+            .redacted(reason: .placeholder)
+            .previewDisplayName("Placeholder")
     }
 }
