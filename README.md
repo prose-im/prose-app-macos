@@ -4,6 +4,8 @@
 
 _Tested at Swift version: `5.5.2` and Xcode version: `13.2`._
 
+Copyright 2022, Prose Foundation.
+
 ## Architecture
 
 The Prose macOS app consists mostly of SwiftUI views, bound to core libraries, the [client](https://github.com/prose-im/prose-core-client) and the [views](https://github.com/prose-im/prose-core-views), that are common to all platforms Prose runs on.
