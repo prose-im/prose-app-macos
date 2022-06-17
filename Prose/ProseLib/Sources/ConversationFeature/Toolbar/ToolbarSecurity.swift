@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import Assets
 import SharedModels
 import SwiftUI
 
@@ -18,14 +19,14 @@ struct ToolbarSecurity: View {
             if isVerified {
                 Image(systemName: "checkmark.seal.fill")
                     .renderingMode(.template)
-                    .foregroundColor(.stateGreen)
+                    .foregroundColor(Asset.Color.State.green.swiftUIColor)
                     .accessibilityElement()
                     .accessibilityLabel("Verified")
                     .accessibilitySortPriority(1)
             }
 
             Text(verbatim: String(describing: jid))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
                 .accessibilitySortPriority(2)
         }
         .padding(.horizontal, 8)

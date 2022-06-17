@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import ComposableArchitecture
 import SwiftUI
 
@@ -37,7 +38,7 @@ struct SecuritySection: View {
                         Text("Identity verified")
                     } icon: {
                         Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.stateGreen)
+                            .foregroundColor(Asset.Color.State.green.swiftUIColor)
                     }
                 } else {
                     Label {
@@ -60,7 +61,7 @@ struct SecuritySection: View {
                         Text("Encrypted (\(fingerprint))")
                     } icon: {
                         Image(systemName: "lock.fill")
-                            .foregroundColor(.stateBlue)
+                            .foregroundColor(Asset.Color.State.blue.swiftUIColor)
                     }
                 } else {
                     Label {

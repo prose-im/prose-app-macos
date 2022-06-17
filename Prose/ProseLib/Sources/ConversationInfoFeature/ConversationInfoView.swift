@@ -135,7 +135,7 @@ public enum ConversationInfoAction: Equatable {
                 ConversationInfoView(store: Store(
                     initialState: ConversationInfoState(
                         identity: .init(
-                            avatar: PreviewImages.Avatars.valerian.rawValue,
+                            avatar: PreviewAsset.Avatars.valerian.name,
                             fullName: "Valerian Saliou",
                             status: .online,
                             jobTitle: "CTO",

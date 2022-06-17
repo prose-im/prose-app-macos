@@ -92,7 +92,7 @@ public struct OtherContactsSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "julien@thefamily.com"))),
             title: "Julien",
-            image: PreviewImages.Avatars.julien.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.julien.image),
             count: 2
         ),
     ]

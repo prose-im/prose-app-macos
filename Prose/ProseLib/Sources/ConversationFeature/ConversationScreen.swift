@@ -7,7 +7,6 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
-import PreviewAssets
 import ProseCoreStub
 import SharedModels
 import SwiftUI

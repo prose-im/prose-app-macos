@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import ComposableArchitecture
 import PreviewAssets
 import ProseUI
@@ -32,7 +33,7 @@ struct FooterActionMenu: View {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
 
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(Color.secondary.opacity(0.125))
@@ -60,7 +61,7 @@ struct FooterActionMenu: View {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
                 // TODO: [Rémi Bardon] Change this to Crisp icon
-                Avatar(PreviewImages.Avatars.baptiste.rawValue, size: 48)
+                Avatar(.nsImage(PreviewAsset.Avatars.baptiste.image), size: 48)
                 VStack(alignment: .leading) {
                     Text("Crisp")
                         .font(.title3.bold())
@@ -90,7 +91,7 @@ struct FooterActionMenu: View {
                                 .padding(.horizontal, 4)
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to Crisp icon
-                            Image(PreviewImages.Avatars.baptiste.rawValue)
+                            Image(PreviewAsset.Avatars.baptiste.name)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 24, height: 24)
@@ -111,7 +112,7 @@ struct FooterActionMenu: View {
                             }
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to MakAir icon
-                            Image(PreviewImages.Avatars.baptiste.rawValue)
+                            Image(PreviewAsset.Avatars.baptiste.name)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 24, height: 24)

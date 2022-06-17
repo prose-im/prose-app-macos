@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -36,7 +37,7 @@ struct SpotlightSection: View {
                         )
                     } label: {
                         HStack {
-                            Label(item.title, systemImage: item.image)
+                            Label { Text(item.title) } icon: { item.image.image }
                                 .unredacted()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Counter(count: item.count)
@@ -70,10 +71,10 @@ let spotlightSectionReducer: Reducer<
 
 public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
-        .init(id: .unread(.init()), title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
-        .init(id: .replies, title: l10n.replies, image: Icon.reply.rawValue, count: 5),
-        .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
-        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
+        .init(id: .unread(.init()), title: l10n.unreadStack, image: .symbol(Icon.unread.rawValue), count: 0),
+        .init(id: .replies, title: l10n.replies, image: .symbol(Icon.reply.rawValue), count: 5),
+        .init(id: .directMessages, title: l10n.directMessages, image: .symbol(Icon.directMessage.rawValue), count: 0),
+        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: .symbol(Icon.group.rawValue), count: 2),
     ]
     var route: SidebarRoute?
 

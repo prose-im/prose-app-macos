@@ -1,9 +1,10 @@
 //
 //  Bundle+Fix.swift
-//  MySubLibrary
+//  Prose
 //
 //  Created by Rémi Bardon on 05/02/2021.
 //
+
 import Foundation
 
 // This workaround comes from <https://github.com/RemiBardon/xcode-preview-spm-resources-bug/blob/workaround/MySubLibrary/Sources/MySubLibrary/Bundle%2BFix.swift>,
@@ -19,8 +20,7 @@ private let targetName: String = "AppLocalization"
 extension Foundation.Bundle {
     /// Returns the resource bundle associated with the current Swift module.
     ///
-    /// # Notes: #
-    /// 1. This is inspired by the `Bundle.module` declaration
+    /// - Note: This is inspired by the `Bundle.module` declaration
     static var fixedModule: Bundle = {
         // The name of your local package, prepended by "LocalPackages_" for iOS and "PackageName_" for macOS
         // You may have same PackageName and TargetName

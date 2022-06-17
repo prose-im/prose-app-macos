@@ -92,25 +92,25 @@ public struct GroupsSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .group(id: "bugs@crisp.chat"))),
             title: "bugs",
-            image: Icon.group.rawValue,
+            image: .symbol(Icon.group.rawValue),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .group(id: "constellation@crisp.chat"))),
             title: "constellation",
-            image: Icon.group.rawValue,
+            image: .symbol(Icon.group.rawValue),
             count: 7
         ),
         .init(
             id: .chat(.init(chatId: .group(id: "general@crisp.chat"))),
             title: "general",
-            image: Icon.group.rawValue,
+            image: .symbol(Icon.group.rawValue),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .group(id: "support@crisp.chat"))),
             title: "support",
-            image: Icon.group.rawValue,
+            image: .symbol(Icon.group.rawValue),
             count: 0
         ),
     ]

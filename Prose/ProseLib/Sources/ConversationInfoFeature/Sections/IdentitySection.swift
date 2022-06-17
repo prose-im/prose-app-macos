@@ -5,8 +5,8 @@
 //  Created by Valerian Saliou on 11/23/21.
 //
 
+import Assets
 import ComposableArchitecture
-import PreviewAssets
 import ProseCoreStub
 import ProseUI
 import SharedModels
@@ -37,7 +37,7 @@ struct IdentitySection: View {
 
                     Text("\(viewStore.jobTitle) at \(viewStore.company)")
                         .font(.system(size: 11.5))
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
                 }
             }
         }
@@ -117,7 +117,7 @@ extension IdentitySectionState {
     /// Only for previews
     static var valerian: Self {
         Self(
-            avatar: PreviewImages.Avatars.valerian.rawValue,
+            avatar: "avatars/valerian",
             fullName: "Valerian Saliou",
             status: .online,
             jobTitle: "CTO",

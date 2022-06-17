@@ -5,6 +5,7 @@
 //  Created by Rémi Bardon on 03/06/2022.
 //
 
+import Assets
 import SwiftUI
 
 struct EntryRowLabelStyle: LabelStyle {
@@ -13,11 +14,11 @@ struct EntryRowLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             configuration.icon
-                .foregroundColor(.stateGrey)
+                .foregroundColor(Asset.Color.State.grey.swiftUIColor)
                 .frame(width: Self.iconFrameMinWidth, alignment: .center)
 
             configuration.title
-                .foregroundColor(.textPrimaryLight)
+                .foregroundColor(Asset.Color.Text.primaryLight.swiftUIColor)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

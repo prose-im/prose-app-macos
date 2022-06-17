@@ -54,8 +54,12 @@ struct FooterAvatar: View {
             VStack(alignment: .leading, spacing: 16) {
                 // TODO: [Rémi Bardon] Refactor this view out
                 HStack {
-                    // TODO: [Rémi Bardon] Change this to Crisp icon
-                    Avatar(PreviewImages.Avatars.baptiste.rawValue, size: 32)
+                    #if DEBUG
+                        // TODO: [Rémi Bardon] Change this to Crisp icon
+                        Avatar(.nsImage(PreviewAsset.Avatars.baptiste.image), size: 32)
+                    #else
+                        Avatar(.placeholder, size: 32)
+                    #endif
                     VStack(alignment: .leading) {
                         Text(verbatim: viewStore.fullName)
                             .font(.headline)
@@ -232,7 +236,7 @@ public let footerAvatarReducer: Reducer<
 // MARK: State
 
 public struct FooterAvatarState: Equatable {
-    var avatar: String
+    var avatar: ImageSource
     var availability: Availability
     var fullName: String
     var jid: String
@@ -242,7 +246,7 @@ public struct FooterAvatarState: Equatable {
     @BindableState var showingPopover: Bool
 
     public init(
-        avatar: String,
+        avatar: ImageSource,
         availability: Availability = .available,
         fullName: String = "Baptiste Jamin",
         jid: String = "baptiste@crisp.chat",
@@ -288,7 +292,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                 HStack {
                     ForEach(Availability.allCases, id: \.self) { availability in
                         content(state: FooterAvatarState(
-                            avatar: PreviewImages.Avatars.valerian.rawValue,
+                            avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
                             availability: availability
                         ))
                     }
@@ -296,7 +300,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                 .padding()
                 let store = Store(
                     initialState: FooterAvatarState(
-                        avatar: PreviewImages.Avatars.valerian.rawValue,
+                        avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
                         availability: .available
                     ),
                     reducer: footerAvatarReducer,

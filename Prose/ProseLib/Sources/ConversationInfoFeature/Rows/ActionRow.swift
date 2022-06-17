@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 12/1/21.
 //
 
+import Assets
 import SwiftUI
 
 struct ActionRow: View {
@@ -23,7 +24,7 @@ struct ActionRow: View {
                 if self.deployTo {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10))
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
                 }
             }
             // Make hit box full width

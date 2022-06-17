@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 12/11/21.
 //
 
+import Assets
 import SwiftUI
 
 enum ConnectionStatus: Hashable, CaseIterable {
@@ -13,9 +14,9 @@ enum ConnectionStatus: Hashable, CaseIterable {
     var fillColor: Color {
         switch self {
         case .connected:
-            return .stateGreenLight
+            return Asset.Color.State.greenLight.swiftUIColor
         case .disconnected:
-            return .stateGreyLight
+            return Asset.Color.State.greyLight.swiftUIColor
         }
     }
 }

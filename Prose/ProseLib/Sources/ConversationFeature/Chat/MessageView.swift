@@ -5,7 +5,7 @@
 //  Created by Valerian Saliou on 11/21/21.
 //
 
-import PreviewAssets
+import Assets
 import ProseCoreStub
 import ProseUI
 import SharedModels
@@ -26,17 +26,17 @@ public struct MessageView: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text(model.senderName)
                         .font(.system(size: 13).bold())
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
 
                     Text(model.timestamp, format: .relative(presentation: .numeric))
                         .font(.system(size: 11.5))
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
                 }
 
                 Text(model.content)
                     .font(.system(size: 12.5))
                     .fontWeight(.regular)
-                    .foregroundColor(.textPrimary)
+                    .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
             }
             .textSelection(.enabled)
 
@@ -48,14 +48,14 @@ public struct MessageView: View {
 public struct MessageViewModel: Equatable {
     let senderId: JID
     let senderName: String
-    let avatar: String
+    let avatar: ImageSource
     let content: String
     public let timestamp: Date
 
     public init(
         senderId: JID,
         senderName: String,
-        avatar: String,
+        avatar: ImageSource,
         content: String,
         timestamp: Date
     ) {
@@ -75,52 +75,62 @@ public extension Message {
     func toMessageViewModel(userStore: UserStore) -> MessageViewModel {
         let sender = userStore.user(self.senderId)
 
+        #if DEBUG
+            let avatar = ImageSource.asset(sender?.avatar ?? "", bundle: PreviewAssets.localBundle)
+        #else
+            let avatar = Image(nsImage: .init())
+        #endif
+
         return MessageViewModel(
             senderId: self.senderId,
             senderName: sender?.displayName ?? "Unknown",
-            avatar: sender?.avatar ?? "",
+            avatar: avatar,
             content: self.content,
             timestamp: self.timestamp
         )
     }
 }
 
-struct MessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            MessageView(model: .init(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
-                content: "Hello world, this is a message content!",
-                timestamp: .now - 10_000
-            ))
-            MessageView(model: .init(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
-                content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
-                timestamp: .now - 1_000
-            ))
-            .frame(width: 500)
-            MessageView(model: .init(
-                senderId: "unknown@prose.org",
-                senderName: "Unknown",
-                avatar: "",
-                content: "Unknown",
-                timestamp: .now - 500
-            ))
-            .preferredColorScheme(.light)
-            MessageView(model: .init(
-                senderId: "unknown@prose.org",
-                senderName: "Unknown",
-                avatar: "",
-                content: "Unknown",
-                timestamp: .now - 50
-            ))
-            .preferredColorScheme(.dark)
+#if DEBUG
+    import PreviewAssets
+
+    struct MessageView_Previews: PreviewProvider {
+        static var previews: some View {
+            Group {
+                MessageView(model: .init(
+                    senderId: "valerian@crisp.chat",
+                    senderName: "Valerian",
+                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                    content: "Hello world, this is a message content!",
+                    timestamp: .now - 10_000
+                ))
+                MessageView(model: .init(
+                    senderId: "valerian@crisp.chat",
+                    senderName: "Valerian",
+                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                    content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
+                    timestamp: .now - 1_000
+                ))
+                .frame(width: 500)
+                MessageView(model: .init(
+                    senderId: "unknown@prose.org",
+                    senderName: "Unknown",
+                    avatar: .placeholder,
+                    content: "Unknown",
+                    timestamp: .now - 500
+                ))
+                .preferredColorScheme(.light)
+                MessageView(model: .init(
+                    senderId: "unknown@prose.org",
+                    senderName: "Unknown",
+                    avatar: .placeholder,
+                    content: "Unknown",
+                    timestamp: .now - 50
+                ))
+                .preferredColorScheme(.dark)
+            }
+            //            .border(Color.green)
+            .padding()
         }
-//            .border(Color.green)
-        .padding()
     }
-}
+#endif

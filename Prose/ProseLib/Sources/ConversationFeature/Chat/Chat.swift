@@ -6,6 +6,7 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
+import Assets
 import ComposableArchitecture
 import OrderedCollections
 import ProseCoreStub
@@ -45,7 +46,7 @@ struct Chat: View {
                     }
                 }
             }
-            .background(Color.backgroundMessage)
+            .background(Asset.Color.Background.message.swiftUIColor)
             .onAppear { actions.send(.onAppear) }
         }
     }
@@ -122,7 +123,7 @@ public enum ChatAction: Equatable {
                 MessageViewModel(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
                     content: $0.1,
                     timestamp: .now - Double($0.0) * 1_000
                 )

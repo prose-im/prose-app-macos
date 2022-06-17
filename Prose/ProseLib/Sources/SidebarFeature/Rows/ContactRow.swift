@@ -7,11 +7,12 @@
 
 import PreviewAssets
 import ProseUI
+import SharedModels
 import SwiftUI
 
 struct ContactRow: View {
     var title: String
-    var avatar: String
+    var avatar: ImageSource
     var count: UInt16? = 0
 
     var body: some View {
@@ -36,7 +37,7 @@ struct ContactRow_Previews: PreviewProvider {
         var body: some View {
             ContactRow(
                 title: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
+                avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
                 count: 3
             )
             .frame(width: 196)

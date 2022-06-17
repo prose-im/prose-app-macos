@@ -8,23 +8,23 @@
 
 import Assets
 import Foundation
+import SharedModels
 import SwiftUI
 
 public struct Avatar: View {
-    private let imageName: String
+    private let imageSource: ImageSource
     private let size: CGFloat
 
-    public init(_ imageName: String, size: CGFloat) {
-        self.imageName = imageName
+    public init(_ imageSource: ImageSource, size: CGFloat) {
+        self.imageSource = imageSource
         self.size = size
     }
 
     public var body: some View {
-        Image(imageName)
-            .resizable()
+        self.imageSource.resizableImage
             .scaledToFill()
             .frame(width: size, height: size)
-            .background(Color.borderSecondary)
+            .background(Asset.Color.Border.secondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .overlay {
                 RoundedRectangle(cornerRadius: 4)
@@ -42,8 +42,8 @@ public struct Avatar: View {
         private struct Preview: View {
             var body: some View {
                 VStack {
-                    Avatar(PreviewImages.Avatars.valerian.rawValue, size: 48)
-                    Avatar(PreviewImages.Avatars.valerian.rawValue, size: 24)
+                    Avatar(.nsImage(PreviewAsset.Avatars.valerian.image), size: 48)
+                    Avatar(.nsImage(PreviewAsset.Avatars.valerian.image), size: 24)
                 }
                 .padding()
                 .previewLayout(.sizeThatFits)

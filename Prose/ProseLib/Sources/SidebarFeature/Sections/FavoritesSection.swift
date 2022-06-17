@@ -69,19 +69,19 @@ public struct FavoritesSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             title: "Valerian",
-            image: PreviewImages.Avatars.valerian.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.valerian.image),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "alexandre@crisp.chat"))),
             title: "Alexandre",
-            image: PreviewImages.Avatars.alexandre.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.alexandre.image),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "baptiste@crisp.chat"))),
             title: "Baptiste",
-            image: PreviewImages.Avatars.baptiste.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.baptiste.image),
             count: 0
         ),
     ]

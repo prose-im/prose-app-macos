@@ -92,19 +92,19 @@ public struct TeamMembersSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "antoine@crisp.chat"))),
             title: "Antoine",
-            image: PreviewImages.Avatars.antoine.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.antoine.image),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "eliott@crisp.chat"))),
             title: "Eliott",
-            image: PreviewImages.Avatars.eliott.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.eliott.image),
             count: 3
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "camille@crisp.chat"))),
             title: "Camille",
-            image: PreviewImages.Avatars.camille.rawValue,
+            image: .nsImage(PreviewAsset.Avatars.camille.image),
             count: 2
         ),
     ]

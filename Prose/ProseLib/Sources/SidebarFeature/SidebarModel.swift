@@ -37,7 +37,7 @@ public enum SidebarRoute: Hashable {
 struct SidebarItem: Equatable, Identifiable {
     let id: SidebarRoute
     let title: String
-    let image: String
+    let image: ImageSource
     let count: UInt16
 }
 

@@ -38,7 +38,7 @@ struct InformationSection: View {
                 label(viewStore.location, systemImage: "location.fill")
                 Label {
                     Text("“\(viewStore.statusMessage)”")
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
                 } icon: {
                     Text(String(viewStore.statusIcon))
                 }
