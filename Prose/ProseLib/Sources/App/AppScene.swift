@@ -32,29 +32,23 @@ public struct AppScene: Scene {
     private func mainWindowGroup() -> some Scene {
         WindowGroup {
             WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
-                IfLetStore(self.store.scope(state: \.main, action: AppAction.main)) { store in
-                    MainScreen(store: store)
-                } else: {
-                    MainScreen(store: Store(
-                        initialState: .placeholder,
-                        reducer: Reducer.empty,
-                        environment: MainScreenEnvironment.placeholder
-                    ))
-                    .redacted(reason: .placeholder)
-                }
-                .frame(minWidth: 1_280, minHeight: 720)
-                .onAppear { actions.send(.onAppear) }
-                .background(WindowAccessor(window: $mainWindow))
-                .onChange(of: mainWindow) { newValue in
-                    guard let window = newValue else { return }
+                WithViewStore(self.store.scope(state: \.isMainWindowRedacted)) { isMainWindowRedacted in
+                    MainScreen(store: self.store.scope(state: \.main, action: AppAction.main))
+                        .redacted(reason: isMainWindowRedacted.state ? .placeholder : [])
+                        .frame(minWidth: 1_280, minHeight: 720)
+                        .onAppear { actions.send(.onAppear) }
+                        .background(WindowAccessor(window: $mainWindow))
+                        .onChange(of: mainWindow) { newValue in
+                            guard let window = newValue else { return }
 
-                    window.makeKeyAndOrderFront(nil)
-                }
-                .sheet(unwrapping: .constant(authViewStore.state)) { $state in
-                    AuthenticationScreen(store: self.store.scope(
-                        state: { _ in $state.wrappedValue },
-                        action: AppAction.auth
-                    ))
+                            window.makeKeyAndOrderFront(nil)
+                        }
+                        .sheet(unwrapping: .constant(authViewStore.state)) { $state in
+                            AuthenticationScreen(store: self.store.scope(
+                                state: { _ in $state.wrappedValue },
+                                action: AppAction.auth
+                            ))
+                        }
                 }
             }
         }

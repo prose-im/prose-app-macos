@@ -25,11 +25,11 @@ public let appReducer: Reducer<
         action: /AppAction.auth,
         environment: { $0.auth }
     ),
-    mainWindowReducer.optional().pullback(
+    mainWindowReducer.pullback(
         state: \AppState.main,
         action: /AppAction.main,
         environment: { $0.main }
-    ),
+    ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
         func proceedToMainFlow(with credentials: Credentials) {
             // NOTE: [@nesium] This thing here should receive a nicer initializer sometime.
@@ -101,17 +101,33 @@ public let appReducer: Reducer<
     },
 ])
 
+extension Reducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
+    func disabled(when isDisabled: @escaping (AppState) -> Bool) -> Self {
+        Reducer { state, action, environment in
+            guard !isDisabled(state) else {
+                return .none
+            }
+            return self(&state, action, environment)
+        }
+    }
+}
+
 // MARK: State
 
 public struct AppState: Equatable {
     var hasAppearedAtLeastOnce: Bool
 
-    var main: MainScreenState?
+    var main: MainScreenState
     var auth: AuthenticationState?
+
+    var isMainWindowDisabled: Bool { self.auth != nil }
+    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
+    ///         as we don't want to redact the view when the user adds a new account.
+    var isMainWindowRedacted: Bool { self.auth != nil }
 
     public init(
         hasAppearedAtLeastOnce: Bool = false,
-        main: MainScreenState? = nil,
+        main: MainScreenState = .placeholder,
         auth: AuthenticationState? = nil
     ) {
         self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
