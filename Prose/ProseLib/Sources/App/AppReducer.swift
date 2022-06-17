@@ -46,7 +46,7 @@ public let appReducer: Reducer<
 
                 // TODO: [Rémi Bardon] Add an optional error message to the login screen,
                 //       to show why the login screen appears in case of errors like this.
-                state.route = .auth(.basicAuth(BasicAuthState(jid: jid.jidString)))
+                state.route = .auth(.init(route: .basicAuth(BasicAuthState(jid: jid.jidString))))
             }
 
         case let .didLogIn(jid):
