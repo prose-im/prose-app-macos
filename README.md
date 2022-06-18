@@ -2,7 +2,7 @@
 
 **Prose macOS application. Built in Swift / SwiftUI.**
 
-Copyright 2022, Prose Foundation.
+Copyright 2022, Prose Foundation - Released under the [Mozilla Public License 2.0](./LICENSE.md).
 
 _Tested at Swift version: `5.5.2` and Xcode version: `13.2`._
 
