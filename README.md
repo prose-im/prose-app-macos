@@ -20,7 +20,7 @@ This decoupling makes things extremely clean, and enables common code sharing be
 
 ![Prose main view](https://user-images.githubusercontent.com/1451907/174249677-d6c2f027-4a2a-4600-9186-45bc52b6095e.jpg)
 
-_👉 The Prose macOS app reference design [can be found there](https://github.com/prose-im/prose-medley/blob/master/designs/prose-app-macos.sketch)._
+_👉 The Prose macOS app reference design [can be found there](https://github.com/prose-im/prose-medley/blob/master/designs/app/prose-app-macos.sketch)._
 
 ## License
 
