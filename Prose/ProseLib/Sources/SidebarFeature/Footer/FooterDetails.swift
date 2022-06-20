@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import SwiftUI
 
 struct FooterDetails: View {
@@ -17,11 +18,11 @@ struct FooterDetails: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(teamName)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(Colors.Text.primary.color)
 
             Text("\(String(statusIcon)) “\(statusMessage)”")
                 .font(.system(size: 11))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(Colors.Text.secondary.color)
                 .layoutPriority(1)
         }
         // Make hit box full width

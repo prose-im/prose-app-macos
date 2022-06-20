@@ -105,7 +105,7 @@ public extension SidebarState {
                 statusIcon: "🚀",
                 statusMessage: "Shipping new features",
                 avatar: FooterAvatarState(
-                    avatar: "avatars/valerian",
+                    avatar: .placeholder,
                     availability: .available,
                     fullName: "Valerian Saliou",
                     jid: "valerian@prose.org",

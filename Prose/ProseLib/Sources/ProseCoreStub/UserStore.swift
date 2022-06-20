@@ -6,6 +6,7 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
+import Foundation
 import PreviewAssets
 import SharedModels
 
@@ -15,7 +16,7 @@ public struct User: Equatable {
     public let jid: JID
     public let displayName: String
     public let fullName: String
-    public let avatar: String
+    public let avatar: URL?
     public let jobTitle: String
     public let company: String
     public let emailAddress: String
@@ -26,7 +27,7 @@ public struct User: Equatable {
         jid: JID,
         displayName: String,
         fullName: String,
-        avatar: String,
+        avatar: URL?,
         jobTitle: String,
         company: String,
         emailAddress: String,
@@ -52,7 +53,7 @@ public extension User {
             displayName: "Valerian",
             fullName: "valerian Saliou",
             // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
-            avatar: PreviewImages.Avatars.valerian.rawValue,
+            avatar: PreviewAsset.Avatars.valerian.customURL,
             jobTitle: "CTO",
             company: "Crisp",
             emailAddress: "valerian@crisp.chat",
@@ -92,7 +93,7 @@ private final class StubUserStore {
             jid: "alexandre@crisp.chat",
             displayName: "Alexandre",
             fullName: "Alexandre",
-            avatar: PreviewImages.Avatars.alexandre.rawValue,
+            avatar: PreviewAsset.Avatars.alexandre.customURL,
             jobTitle: "Software Engineer",
             company: "Crisp",
             emailAddress: "alexandre@crisp.chat",
@@ -103,7 +104,7 @@ private final class StubUserStore {
             jid: "antoine@crisp.chat",
             displayName: "Antoine",
             fullName: "Antoine Goret",
-            avatar: PreviewImages.Avatars.antoine.rawValue,
+            avatar: PreviewAsset.Avatars.antoine.customURL,
             jobTitle: "Marketing & Sales",
             company: "Crisp",
             emailAddress: "antoine@crisp.chat",
@@ -114,7 +115,7 @@ private final class StubUserStore {
             jid: "baptiste@crisp.chat",
             displayName: "Baptiste",
             fullName: "Baptiste Jamin",
-            avatar: PreviewImages.Avatars.baptiste.rawValue,
+            avatar: PreviewAsset.Avatars.baptiste.customURL,
             jobTitle: "CEO",
             company: "Crisp",
             emailAddress: "baptiste@crisp.chat",
@@ -125,7 +126,7 @@ private final class StubUserStore {
             jid: "camille@crisp.chat",
             displayName: "Camille",
             fullName: "Camille LB",
-            avatar: PreviewImages.Avatars.camille.rawValue,
+            avatar: PreviewAsset.Avatars.camille.customURL,
             jobTitle: "Technical Support",
             company: "Crisp",
             emailAddress: "camille@crisp.chat",
@@ -136,7 +137,7 @@ private final class StubUserStore {
             jid: "constellation-health@crisp.chat",
             displayName: "constellation-health",
             fullName: "constellation-health",
-            avatar: PreviewImages.Avatars.constellationHealth.rawValue,
+            avatar: PreviewAsset.Avatars.constellationHealth.customURL,
             jobTitle: "Bot",
             company: "Crisp",
             emailAddress: "constellation@crisp.chat",
@@ -147,7 +148,7 @@ private final class StubUserStore {
             jid: "eliott@crisp.chat",
             displayName: "Eliott",
             fullName: "Eliott Vincent",
-            avatar: PreviewImages.Avatars.eliott.rawValue,
+            avatar: PreviewAsset.Avatars.eliott.customURL,
             jobTitle: "Software Engineer",
             company: "Crisp",
             emailAddress: "eliott@crisp.chat",
@@ -158,7 +159,7 @@ private final class StubUserStore {
             jid: "julien@thefamily.com",
             displayName: "Julien",
             fullName: "Julien Le Coupanec",
-            avatar: PreviewImages.Avatars.julien.rawValue,
+            avatar: PreviewAsset.Avatars.julien.customURL,
             jobTitle: "Growth Hacker",
             company: "TheFamily",
             emailAddress: "julien@thefamily.com",
@@ -169,7 +170,7 @@ private final class StubUserStore {
             jid: "valerian@crisp.chat",
             displayName: "Valerian",
             fullName: "Valerian Saliou",
-            avatar: PreviewImages.Avatars.valerian.rawValue,
+            avatar: PreviewAsset.Avatars.valerian.customURL,
             jobTitle: "CTO",
             company: "Crisp",
             emailAddress: "valerian@crisp.chat",

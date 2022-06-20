@@ -33,7 +33,7 @@ struct SpotlightItemBackground: ViewModifier {
             MessageView(model: .init(
                 senderId: "valerian@crisp.chat",
                 senderName: "Valerian",
-                avatar: PreviewImages.Avatars.valerian.rawValue,
+                avatarURL: PreviewAsset.Avatars.valerian.customURL,
                 content: "Message from Valerian",
                 timestamp: Date() - 10_000
             ))

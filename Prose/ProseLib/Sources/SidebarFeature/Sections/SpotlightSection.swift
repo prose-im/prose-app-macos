@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import ComposableArchitecture
 import SharedModels
 import SwiftUI
@@ -36,9 +37,15 @@ struct SpotlightSection: View {
                         )
                     } label: {
                         HStack {
-                            Label(item.title, systemImage: item.image)
-                                .unredacted()
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            switch item.image {
+                            case let .symbol(systemName):
+                                Label(item.title, systemImage: systemName)
+                                    .unredacted()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            default:
+                                // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                                fatalError("This case should never happen.")
+                            }
                             Counter(count: item.count)
                         }
                     }
@@ -70,10 +77,10 @@ let spotlightSectionReducer: Reducer<
 
 public struct SpotlightSectionState: Equatable {
     let items: [SidebarItem] = [
-        .init(id: .unread(.init()), title: l10n.unreadStack, image: Icon.unread.rawValue, count: 0),
-        .init(id: .replies, title: l10n.replies, image: Icon.reply.rawValue, count: 5),
-        .init(id: .directMessages, title: l10n.directMessages, image: Icon.directMessage.rawValue, count: 0),
-        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: Icon.group.rawValue, count: 2),
+        .init(id: .unread(.init()), title: l10n.unreadStack, image: .symbol(Icon.unread.rawValue), count: 0),
+        .init(id: .replies, title: l10n.replies, image: .symbol(Icon.reply.rawValue), count: 5),
+        .init(id: .directMessages, title: l10n.directMessages, image: .symbol(Icon.directMessage.rawValue), count: 0),
+        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: .symbol(Icon.group.rawValue), count: 2),
     ]
     var route: SidebarRoute?
 

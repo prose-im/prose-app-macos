@@ -107,7 +107,7 @@ public extension MainScreenEnvironment {
                     sidebar: .init(
                         credentials: UserCredentials(jid: "preview@prose.org"),
                         footer: FooterState(
-                            avatar: .init(avatar: PreviewImages.Avatars.valerian.rawValue)
+                            avatar: .init(avatar: .init(url: PreviewAsset.Avatars.valerian.customURL))
                         )
                     )
                 ),

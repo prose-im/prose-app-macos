@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
@@ -29,7 +30,7 @@ struct MessageBarTextField: View {
             Button { print("Send tapped") } label: {
                 Image(systemName: "paperplane.circle.fill")
                     .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(.buttonPrimary)
+                    .foregroundColor(Colors.Button.primary.color)
                     .padding(3)
             }
             .buttonStyle(.plain)
@@ -41,7 +42,7 @@ struct MessageBarTextField: View {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(.background)
                 RoundedRectangle(cornerRadius: 20)
-                    .strokeBorder(Color.borderSecondary)
+                    .strokeBorder(Colors.Border.secondary.color)
             }
         )
     }

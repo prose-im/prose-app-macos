@@ -85,7 +85,7 @@ public enum ChatWithBarAction: Equatable {
                 MessageViewModel(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
                     content: $0.1,
                     timestamp: .now - Double($0.0) * 1_000
                 )

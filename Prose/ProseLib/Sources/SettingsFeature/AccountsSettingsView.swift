@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import Assets
 import Preferences
 import SwiftUI
 
@@ -53,7 +54,7 @@ struct AccountsSettingsView: View {
             }
             .frame(maxWidth: 140)
             .background(.white)
-            .border(Color.borderTertiaryLight, width: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/)
+            .border(Colors.Border.tertiaryLight.color)
 
             GroupBox(
                 label: AccountsSettingsTabsComponent(

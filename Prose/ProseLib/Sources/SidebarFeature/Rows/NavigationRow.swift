@@ -5,26 +5,27 @@
 //  Created by Valerian Saliou on 11/15/21.
 //
 
+import SharedModels
 import SwiftUI
 
 struct NavigationRow: View {
     private let title: String
-    private let image: String
+    private let systemImage: String
     private let count: UInt16?
 
     init(
         title: String,
-        image: String,
+        systemImage: String,
         count: UInt16? = 0
     ) {
         self.title = title
-        self.image = image
+        self.systemImage = systemImage
         self.count = count
     }
 
     var body: some View {
         HStack {
-            Label(title, systemImage: image)
+            Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Counter(count: count)
         }
@@ -35,7 +36,7 @@ struct NavigationRow_Previews: PreviewProvider {
     static var previews: some View {
         NavigationRow(
             title: "Label",
-            image: "trash"
+            systemImage: "trash"
         )
     }
 }

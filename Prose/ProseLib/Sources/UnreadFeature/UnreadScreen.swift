@@ -5,9 +5,9 @@
 //  Created by Rémi Bardon on 27/03/2022.
 //
 
+import Assets
 import ComposableArchitecture
 import ConversationFeature
-import PreviewAssets
 import ProseCoreStub
 import ProseUI
 import SharedModels
@@ -29,7 +29,7 @@ public struct UnreadScreen: View {
     public var body: some View {
         content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.backgroundMessage)
+            .background(Colors.Background.message.color)
             .toolbar(content: Toolbar.init)
             .onAppear { actions.send(.onAppear) }
     }
@@ -144,92 +144,96 @@ public extension UnreadEnvironment {
 
 // MARK: - Previews
 
-struct UnreadScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            content(state: .init(messages: [
-                .init(
-                    chatId: .person(id: "valerian@crisp.chat"),
-                    chatTitle: "Valerian",
-                    messages: [
-                        MessageViewModel(
-                            senderId: "baptiste@crisp.chat",
-                            senderName: "Baptiste",
-                            avatar: PreviewImages.Avatars.baptiste.rawValue,
-                            content: "They forgot to ship the package.",
-                            timestamp: Date() - 2_800
-                        ),
-                        MessageViewModel(
-                            senderId: "valerian@crisp.chat",
-                            senderName: "Valerian",
-                            avatar: PreviewImages.Avatars.valerian.rawValue,
-                            content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
-                            timestamp: Date() - 3_000
-                        ),
-                    ]
-                ),
-                .init(
-                    chatId: .person(id: "julien@thefamily.com"),
-                    chatTitle: "Julien",
-                    messages: [
-                        MessageViewModel(
-                            senderId: "baptiste@crisp.chat",
-                            senderName: "Baptiste",
-                            avatar: PreviewImages.Avatars.baptiste.rawValue,
-                            content: "Can I initiate a deployment of the Vue app?",
-                            timestamp: Date() - 9_000
-                        ),
-                        MessageViewModel(
-                            senderId: "julien@thefamily.com",
-                            senderName: "Julien",
-                            avatar: PreviewImages.Avatars.julien.rawValue,
-                            content: "Yes, it's ready. 3 new features are shipping! 😀",
-                            timestamp: Date() - 10_000
-                        ),
-                    ]
-                ),
-                .init(
-                    chatId: .group(id: "constellation"),
-                    chatTitle: "Julien",
-                    messages: [
-                        MessageViewModel(
-                            senderId: "baptiste@crisp.chat",
-                            senderName: "Baptiste",
-                            avatar: PreviewImages.Avatars.baptiste.rawValue,
-                            content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
-                            timestamp: Date() - 90_000
-                        ),
-                        MessageViewModel(
-                            senderId: "constellation-health@crisp.chat",
-                            senderName: "constellation-health",
-                            avatar: PreviewImages.Avatars.constellationHealth.rawValue,
-                            content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
-                            timestamp: Date() - 100_000
-                        ),
-                    ]
-                ),
-            ]))
-            content(state: .init(messages: .init()))
+#if DEBUG
+    import PreviewAssets
+
+    struct UnreadScreen_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                content(state: .init(messages: [
+                    .init(
+                        chatId: .person(id: "valerian@crisp.chat"),
+                        chatTitle: "Valerian",
+                        messages: [
+                            MessageViewModel(
+                                senderId: "baptiste@crisp.chat",
+                                senderName: "Baptiste",
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
+                                content: "They forgot to ship the package.",
+                                timestamp: Date() - 2_800
+                            ),
+                            MessageViewModel(
+                                senderId: "valerian@crisp.chat",
+                                senderName: "Valerian",
+                                avatarURL: PreviewAsset.Avatars.valerian.customURL,
+                                content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
+                                timestamp: Date() - 3_000
+                            ),
+                        ]
+                    ),
+                    .init(
+                        chatId: .person(id: "julien@thefamily.com"),
+                        chatTitle: "Julien",
+                        messages: [
+                            MessageViewModel(
+                                senderId: "baptiste@crisp.chat",
+                                senderName: "Baptiste",
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
+                                content: "Can I initiate a deployment of the Vue app?",
+                                timestamp: Date() - 9_000
+                            ),
+                            MessageViewModel(
+                                senderId: "julien@thefamily.com",
+                                senderName: "Julien",
+                                avatarURL: PreviewAsset.Avatars.julien.customURL,
+                                content: "Yes, it's ready. 3 new features are shipping! 😀",
+                                timestamp: Date() - 10_000
+                            ),
+                        ]
+                    ),
+                    .init(
+                        chatId: .group(id: "constellation"),
+                        chatTitle: "Julien",
+                        messages: [
+                            MessageViewModel(
+                                senderId: "baptiste@crisp.chat",
+                                senderName: "Baptiste",
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
+                                content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
+                                timestamp: Date() - 90_000
+                            ),
+                            MessageViewModel(
+                                senderId: "constellation-health@crisp.chat",
+                                senderName: "constellation-health",
+                                avatarURL: PreviewAsset.Avatars.constellationHealth.customURL,
+                                content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
+                                timestamp: Date() - 100_000
+                            ),
+                        ]
+                    ),
+                ]))
+                content(state: .init(messages: .init()))
+            }
+
+            private func content(state: UnreadState) -> some View {
+                UnreadScreen(store: Store(
+                    initialState: state,
+                    reducer: Reducer.empty,
+                    environment: UnreadEnvironment.stub
+                ))
+            }
         }
 
-        private func content(state: UnreadState) -> some View {
-            UnreadScreen(store: Store(
-                initialState: state,
-                reducer: Reducer.empty,
-                environment: UnreadEnvironment.stub
-            ))
+        static var previews: some View {
+            Preview()
+                .preferredColorScheme(.light)
+                .previewDisplayName("Light")
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-            .preferredColorScheme(.light)
-            .previewDisplayName("Light")
-        Preview()
-            .preferredColorScheme(.dark)
-            .previewDisplayName("Dark")
-        Preview()
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
-}
+#endif

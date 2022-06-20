@@ -35,14 +35,14 @@ extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
                 MessageView(model: .init(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: PreviewImages.Avatars.valerian.rawValue,
+                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
                     content: "Message from Valerian",
                     timestamp: Date() - 10_000
                 ))
                 MessageView(model: .init(
                     senderId: "baptiste@crisp.chat",
                     senderName: "Baptiste",
-                    avatar: PreviewImages.Avatars.baptiste.rawValue,
+                    avatarURL: PreviewAsset.Avatars.baptiste.customURL,
                     content: "Message from Baptiste",
                     timestamp: Date() - 15_000
                 ))

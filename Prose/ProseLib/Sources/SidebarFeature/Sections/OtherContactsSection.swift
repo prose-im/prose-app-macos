@@ -35,11 +35,17 @@ struct OtherContactsSection: View {
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
-                        ContactRow(
-                            title: item.title,
-                            avatar: item.image,
-                            count: item.count
-                        )
+                        switch item.image {
+                        case let .avatar(avatar):
+                            ContactRow(
+                                title: item.title,
+                                avatar: avatar,
+                                count: item.count
+                            )
+                        default:
+                            // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                            fatalError("This case should never happen.")
+                        }
                     }
                 }
             }
@@ -92,7 +98,7 @@ public struct OtherContactsSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "julien@thefamily.com"))),
             title: "Julien",
-            image: PreviewImages.Avatars.julien.rawValue,
+            image: .avatar(.init(url: PreviewAsset.Avatars.julien.customURL)),
             count: 2
         ),
     ]

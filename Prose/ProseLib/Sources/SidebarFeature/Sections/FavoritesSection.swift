@@ -33,11 +33,17 @@ struct FavoritesSection: View {
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
-                        ContactRow(
-                            title: item.title,
-                            avatar: item.image,
-                            count: item.count
-                        )
+                        switch item.image {
+                        case let .avatar(avatar):
+                            ContactRow(
+                                title: item.title,
+                                avatar: avatar,
+                                count: item.count
+                            )
+                        default:
+                            // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                            fatalError("This case should never happen.")
+                        }
                     }
                 }
             }
@@ -69,19 +75,19 @@ public struct FavoritesSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
             title: "Valerian",
-            image: PreviewImages.Avatars.valerian.rawValue,
+            image: .avatar(.init(url: PreviewAsset.Avatars.valerian.customURL)),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "alexandre@crisp.chat"))),
             title: "Alexandre",
-            image: PreviewImages.Avatars.alexandre.rawValue,
+            image: .avatar(.init(url: PreviewAsset.Avatars.alexandre.customURL)),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "baptiste@crisp.chat"))),
             title: "Baptiste",
-            image: PreviewImages.Avatars.baptiste.rawValue,
+            image: .avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL)),
             count: 0
         ),
     ]

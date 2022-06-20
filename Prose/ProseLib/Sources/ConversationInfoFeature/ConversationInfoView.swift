@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import ProseCoreStub
+import ProseUI
 import SwiftUI
 
 // MARK: - View
@@ -135,7 +136,7 @@ public enum ConversationInfoAction: Equatable {
                 ConversationInfoView(store: Store(
                     initialState: ConversationInfoState(
                         identity: .init(
-                            avatar: PreviewImages.Avatars.valerian.rawValue,
+                            avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
                             fullName: "Valerian Saliou",
                             status: .online,
                             jobTitle: "CTO",

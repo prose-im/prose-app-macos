@@ -6,6 +6,7 @@
 //
 
 import AppLocalization
+import Assets
 import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
@@ -18,13 +19,13 @@ struct TypingIndicator: View {
             .padding(.vertical, 4.0)
             .padding(.horizontal, 16.0)
             .font(Font.system(size: 10.5, weight: .light))
-            .foregroundColor(.textSecondary)
+            .foregroundColor(Colors.Text.secondary.color)
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(.background)
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Color.borderTertiary)
+                        .strokeBorder(Colors.Border.tertiary.color)
                 }
             )
             // TODO: [Rémi Bardon] Probably remove this, as 0.025≈0

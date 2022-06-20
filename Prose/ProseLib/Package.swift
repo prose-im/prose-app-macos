@@ -46,9 +46,9 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
-        .target(name: "Assets"),
+        .target(name: "Assets", resources: [.process("Resources")]),
         .target(name: "AppLocalization", resources: [.process("Resources")]),
-        .target(name: "PreviewAssets"),
+        .target(name: "PreviewAssets", resources: [.process("Resources")]),
         .target(name: "ProseUI", dependencies: ["Assets", "PreviewAssets", "SharedModels"]),
         .target(name: "SharedModels"),
         .testTarget(name: "SharedModelsTests", dependencies: ["SharedModels"]),
@@ -67,7 +67,12 @@ let package = Package(
             "ProseUI",
             "SharedModels",
         ]),
-        .target(name: "SettingsFeature", dependencies: ["Preferences", "Assets", "ProseUI"]),
+        .target(name: "SettingsFeature", dependencies: [
+            "Preferences",
+            "AppLocalization",
+            "Assets",
+            "ProseUI",
+        ]),
         .target(
             name: "SidebarFeature",
             dependencies: [
@@ -99,6 +104,7 @@ let package = Package(
             ]
         ),
         .target(name: "ConversationInfoFeature", dependencies: [
+            "PreviewAssets",
             "ProseCoreStub",
             "SharedModels",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

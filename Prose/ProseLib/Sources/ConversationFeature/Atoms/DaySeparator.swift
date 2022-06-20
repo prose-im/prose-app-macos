@@ -6,6 +6,7 @@
 //  Copyright © 2022 Prose. All rights reserved.
 //
 
+import Assets
 import SwiftUI
 
 struct DaySeparator: View {
@@ -20,12 +21,12 @@ struct DaySeparator: View {
 
     var body: some View {
         HStack {
-            Color.borderTertiary
+            Colors.Border.tertiary.color
                 .frame(height: 1)
             Text(date, formatter: Self.formatter)
                 .layoutPriority(1)
                 .foregroundColor(.secondary)
-            Color.borderTertiary
+            Colors.Border.tertiary.color
                 .frame(height: 1)
         }
     }

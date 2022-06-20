@@ -32,7 +32,7 @@ public struct OnlineStatusIndicator: View {
         // Conditional views (aka `if`, `switch`…) break identity, and thus animations.
         ZStack {
             Circle()
-                .strokeBorder(Color.stateGrey)
+                .strokeBorder(Colors.State.grey.color)
             Circle()
                 // Using `Color.clear` keeps identity, and thus animations
                 .fill(redactionReasons.contains(.placeholder) ? .gray : (status.fillColor ?? Color.clear))
@@ -47,7 +47,7 @@ private extension OnlineStatus {
     var fillColor: Color? {
         switch self {
         case .online:
-            return .some(.stateGreen)
+            return .some(Colors.State.green.color)
         case .offline:
             return .none
         }

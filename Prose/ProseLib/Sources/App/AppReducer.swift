@@ -38,8 +38,8 @@ public let appReducer: Reducer<
                     credentials: .init(jid: credentials.jid),
                     footer: .init(
                         avatar: .init(
-                            // TODO: Use an image stored by the user (not a preview asset)
-                            avatar: "avatars/\(credentials.jid.node ?? "valerian")"
+                            // TODO: Use an image stored by the user
+                            avatar: .placeholder
                         )
                     )
                 )
