@@ -7,94 +7,148 @@
 
 import AppLocalization
 import Assets
+import ComposableArchitecture
 import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
 
+// MARK: - View
+
 struct MessageBarTextField: View {
+    typealias State = MessageBarTextFieldState
+    typealias Action = MessageBarTextFieldAction
+
     @Environment(\.redactionReasons) private var redactionReasons
 
-    @State var firstName: String
-    @Binding var message: String
+    let store: Store<State, Action>
+    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     var body: some View {
-        HStack(spacing: 0) {
-            TextField(l10n.fieldPlaceholder(firstName), text: $message)
-                .padding(.vertical, 7.0)
-                .padding(.leading, 16.0)
-                .padding(.trailing, 4.0)
-                .font(Font.system(size: 13, weight: .regular))
-                .foregroundColor(.primary)
-                .textFieldStyle(.plain)
+        WithViewStore(self.store) { viewStore in
+            HStack(spacing: 0) {
+                TextField(l10n.fieldPlaceholder(viewStore.recipient), text: viewStore.binding(\State.$message))
+                    .padding(.vertical, 7.0)
+                    .padding(.leading, 16.0)
+                    .padding(.trailing, 4.0)
+                    .font(Font.system(size: 13, weight: .regular))
+                    .foregroundColor(.primary)
+                    .textFieldStyle(.plain)
 
-            Button { print("Send tapped") } label: {
-                Image(systemName: "paperplane.circle.fill")
-                    .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(Colors.Button.primary.color)
-                    .padding(3)
+                Button { actions.send(.sendTapped) } label: {
+                    Image(systemName: "paperplane.circle.fill")
+                        .font(.system(size: 22, weight: .regular))
+                        .foregroundColor(Colors.Button.primary.color)
+                        .padding(3)
+                }
+                .buttonStyle(.plain)
+                .unredacted()
+                .disabled(redactionReasons.contains(.placeholder))
             }
-            .buttonStyle(.plain)
-            .unredacted()
-            .disabled(redactionReasons.contains(.placeholder))
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.background)
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(Colors.Border.secondary.color)
+                }
+            )
         }
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.background)
-                RoundedRectangle(cornerRadius: 20)
-                    .strokeBorder(Colors.Border.secondary.color)
-            }
-        )
     }
 }
 
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let messageBarTextFieldReducer: Reducer<
+    MessageBarTextFieldState,
+    MessageBarTextFieldAction,
+    Void
+> = Reducer.empty.binding()
+
+// MARK: State
+
+public struct MessageBarTextFieldState: Equatable {
+    var recipient: String
+    @BindableState var message: String
+
+    public init(
+        recipient: String,
+        message: String = ""
+    ) {
+        self.recipient = recipient
+        self.message = message
+    }
+}
+
+// MARK: Actions
+
+public enum MessageBarTextFieldAction: Equatable, BindableAction {
+    case sendTapped
+    case binding(BindingAction<MessageBarTextFieldState>)
+}
+
+// MARK: - Previews
+
 struct MessageBarTextField_Previews: PreviewProvider {
+    private struct Preview: View {
+        let state: MessageBarTextFieldState
+
+        var body: some View {
+            MessageBarTextField(store: Store(
+                initialState: state,
+                reducer: messageBarTextFieldReducer,
+                environment: ()
+            ))
+        }
+    }
+
     static var previews: some View {
         Group {
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("This is a message that was written.")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: "This is a message that was written."
+            ))
             .previewDisplayName("Simple message")
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written.")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
+            ))
             .previewDisplayName("Long message")
-            MessageBarTextField(
-                firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
-                message: .constant("")
-            )
+            Preview(state: .init(
+                recipient: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
+                message: ""
+            ))
             .previewDisplayName("Long username")
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: ""
+            ))
             .previewDisplayName("Empty")
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: ""
+            ))
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background")
         }
         .preferredColorScheme(.light)
         Group {
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("This is a message that was written.")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: "This is a message that was written."
+            ))
             .previewDisplayName("Simple message / Dark")
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: ""
+            ))
             .previewDisplayName("Empty / Dark")
-            MessageBarTextField(
-                firstName: "Valerian",
-                message: .constant("")
-            )
+            Preview(state: .init(
+                recipient: "Valerian",
+                message: ""
+            ))
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background / Dark")

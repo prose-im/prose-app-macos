@@ -145,7 +145,10 @@ public extension NavigationDestinationEnvironment {
 struct NavigationDestinationView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationDestinationView(store: Store(
-            initialState: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
+            initialState: .chat(.init(
+                chatId: .person(id: "valerian@crisp.chat"),
+                recipient: "Valerian"
+            )),
             reducer: navigationDestinationReducer,
             environment: .stub
         ))

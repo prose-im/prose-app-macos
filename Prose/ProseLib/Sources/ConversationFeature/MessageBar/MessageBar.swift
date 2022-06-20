@@ -29,16 +29,16 @@ struct MessageBar: View {
                 leadingButtons()
 
                 ZStack {
-                    WithViewStore(self.store) { viewStore in
-                        MessageBarTextField(
-                            firstName: viewStore.firstName,
-                            message: viewStore.binding(\State.$message)
-                        )
+                    MessageBarTextField(store: self.store.scope(
+                        state: \State.textField,
+                        action: Action.textField
+                    ))
 
-                        TypingIndicator(
-                            firstName: viewStore.firstName
-                        )
-                        .offset(y: -Self.height / 2)
+                    WithViewStore(self.store) { viewStore in
+                        if !viewStore.typing.isEmpty {
+                            TypingIndicator(typing: viewStore.typing)
+                                .offset(y: -Self.height / 2)
+                        }
                     }
                 }
 
@@ -60,7 +60,7 @@ struct MessageBar: View {
 
     private func leadingButtons() -> some View {
         HStack(spacing: 12) {
-            Button(action: {}) {
+            Button { actions.send(.textFormatTapped) } label: {
                 Image(systemName: "textformat.alt")
             }
         }
@@ -71,10 +71,10 @@ struct MessageBar: View {
 
     private func trailingButtons() -> some View {
         HStack(spacing: 12) {
-            Button(action: {}) {
+            Button { actions.send(.addAttachmentTapped) } label: {
                 Image(systemName: "paperclip")
             }
-            Button(action: {}) {
+            Button { actions.send(.showEmojisTapped) } label: {
                 Image(systemName: "face.smiling")
             }
         }
@@ -92,26 +92,35 @@ public let messageBarReducer: Reducer<
     MessageBarState,
     MessageBarAction,
     Void
-> = Reducer.empty.binding()
+> = Reducer.combine([
+    messageBarTextFieldReducer.pullback(
+        state: \MessageBarState.textField,
+        action: CasePath(MessageBarAction.textField),
+        environment: { $0 }
+    ),
+    Reducer.empty.binding(),
+])
 
 // MARK: State
 
 public struct MessageBarState: Equatable {
-    let firstName: String
-    @BindableState var message: String
+    var textField: MessageBarTextFieldState
+    var typing: [String]
 
     public init(
-        firstName: String,
-        message: String = ""
+        textField: MessageBarTextFieldState,
+        typing: [String] = []
     ) {
-        self.firstName = firstName
-        self.message = message
+        self.textField = textField
+        self.typing = typing
     }
 }
 
 // MARK: Actions
 
 public enum MessageBarAction: Equatable, BindableAction {
+    case textFormatTapped, addAttachmentTapped, showEmojisTapped
+    case textField(MessageBarTextFieldAction)
     case binding(BindingAction<MessageBarState>)
 }
 
@@ -119,11 +128,14 @@ public enum MessageBarAction: Equatable, BindableAction {
 
 internal struct MessageBar_Previews: PreviewProvider {
     private struct Preview: View {
-        let firstName: String
+        let recipient: String
 
         var body: some View {
             MessageBar(store: Store(
-                initialState: MessageBarState(firstName: firstName),
+                initialState: MessageBarState(
+                    textField: .init(recipient: recipient),
+                    typing: [recipient]
+                ),
                 reducer: messageBarReducer,
                 environment: ()
             ))
@@ -133,25 +145,25 @@ internal struct MessageBar_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .previewDisplayName("Simple username")
             Preview(
-                firstName: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
+                recipient: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
             )
             .previewDisplayName("Long username")
             Preview(
-                firstName: ""
+                recipient: ""
             )
             .previewDisplayName("Empty")
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background")
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .redacted(reason: .placeholder)
             .previewDisplayName("Placeholder")
@@ -159,21 +171,21 @@ internal struct MessageBar_Previews: PreviewProvider {
         .preferredColorScheme(.light)
         Group {
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .previewDisplayName("Simple username / Dark")
             Preview(
-                firstName: ""
+                recipient: ""
             )
             .previewDisplayName("Empty / Dark")
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .padding()
             .background(Color.pink)
             .previewDisplayName("Colorful background / Dark")
             Preview(
-                firstName: "Valerian"
+                recipient: "Valerian"
             )
             .redacted(reason: .placeholder)
             .previewDisplayName("Placeholder / Dark")

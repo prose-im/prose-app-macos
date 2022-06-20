@@ -165,15 +165,28 @@ public struct ConversationState: Equatable {
 
     public init(
         chatId: ChatID,
-        chat: ChatWithBarState? = nil,
+        chat: ChatWithBarState,
         info: ConversationInfoState? = nil,
         toolbar: ToolbarState? = nil
     ) {
         self.chatId = chatId
-        self.chat = chat ?? ChatWithBarState(
+        self.chat = chat
+        self.info = info
+        self.toolbar = toolbar ?? .init(user: nil)
+    }
+
+    public init(
+        chatId: ChatID,
+        recipient: String,
+        info: ConversationInfoState? = nil,
+        toolbar: ToolbarState? = nil
+    ) {
+        self.chatId = chatId
+        self.chat = ChatWithBarState(
             chat: ChatState(chatId: chatId),
-            // TODO: Make this dynamic
-            messageBar: MessageBarState(firstName: "Valerian")
+            messageBar: MessageBarState(
+                textField: .init(recipient: recipient)
+            )
         )
         self.info = info
         self.toolbar = toolbar ?? .init(user: nil)
@@ -227,7 +240,10 @@ struct ConversationScreen_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
             ConversationScreen(store: Store(
-                initialState: ConversationState(chatId: .person(id: "alexandre@crisp.chat")),
+                initialState: ConversationState(
+                    chatId: .person(id: "alexandre@crisp.chat"),
+                    recipient: "Alexandre"
+                ),
                 reducer: conversationReducer,
                 environment: .stub
             ))

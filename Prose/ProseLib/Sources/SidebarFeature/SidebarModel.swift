@@ -100,7 +100,7 @@ public extension SidebarItem {
         count: UInt16 = 0
     ) -> SidebarItem {
         SidebarItem(
-            id: .chat(.init(chatId: .person(id: jid))),
+            id: .chat(.init(chatId: .person(id: jid), recipient: title)),
             title: title,
             image: .avatar(image),
             count: count
@@ -111,9 +111,10 @@ public extension SidebarItem {
         _ jid: JID,
         _ count: UInt16 = 0
     ) -> SidebarItem {
-        SidebarItem(
-            id: .chat(.init(chatId: .group(id: jid))),
-            title: jid.node ?? "group",
+        let title = jid.node ?? "group"
+        return SidebarItem(
+            id: .chat(.init(chatId: .group(id: jid), recipient: title)),
+            title: title,
             image: .symbol(Icon.group.rawValue),
             count: count
         )
