@@ -98,7 +98,10 @@ public enum ChatWithBarAction: Equatable {
                         chatId: .person(id: "valerian@crisp.chat"),
                         messages: Self.messages
                     ),
-                    messageBar: MessageBarState(firstName: "Valerian")
+                    messageBar: MessageBarState(
+                        textField: .init(recipient: "Valerian"),
+                        typing: ["Valerian"]
+                    )
                 ),
                 reducer: chatWithBarReducer,
                 environment: .stub
