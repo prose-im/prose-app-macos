@@ -120,14 +120,14 @@ public struct MFA6DigitsView: View {
             Button(l10n.Footer.CannotGenerateCode.title) { actions.send(.showPopoverTapped(.cannotGenerateCode)) }
                 .popover(
                     unwrapping: viewStore.binding(\.$popover),
-                    case: /State.Popover.cannotGenerateCode,
+                    case: CasePath(State.Popover.cannotGenerateCode),
                     content: { _ in Self.cannotGenerateCodePopover() }
                 )
             Divider().frame(height: 18)
             Button(l10n.Footer.NoAccount.title) { actions.send(.showPopoverTapped(.noAccount)) }
                 .popover(
                     unwrapping: viewStore.binding(\.$popover),
-                    case: /State.Popover.noAccount,
+                    case: CasePath(State.Popover.noAccount),
                     content: { _ in BasicAuthView.noAccountPopover() }
                 )
         }

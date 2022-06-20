@@ -68,7 +68,7 @@ let otherContactsSectionReducer: Reducer<
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
         state: \OtherContactsSectionState.route,
-        action: /OtherContactsSectionAction.destination,
+        action: CasePath(OtherContactsSectionAction.destination),
         environment: { $0.destination }
     ),
     Reducer { _, action, _ in

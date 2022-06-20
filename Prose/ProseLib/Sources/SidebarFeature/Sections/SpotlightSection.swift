@@ -62,7 +62,7 @@ let spotlightSectionReducer: Reducer<
     SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
     state: \SpotlightSectionState.route,
-    action: /SpotlightSectionAction.destination,
+    action: CasePath(SpotlightSectionAction.destination),
     environment: { $0.destination }
 )
 

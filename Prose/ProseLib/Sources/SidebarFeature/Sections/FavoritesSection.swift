@@ -58,7 +58,7 @@ let favoritesSectionReducer: Reducer<
     SidebarEnvironment
 > = navigationDestinationReducer.optional().pullback(
     state: \FavoritesSectionState.route,
-    action: /FavoritesSectionAction.destination,
+    action: CasePath(FavoritesSectionAction.destination),
     environment: { $0.destination }
 )
 

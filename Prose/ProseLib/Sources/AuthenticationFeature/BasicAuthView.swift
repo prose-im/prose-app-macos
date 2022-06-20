@@ -89,7 +89,7 @@ struct BasicAuthView: View {
         .disabled(self.redactionReasons.contains(.placeholder))
         .popover(
             unwrapping: viewStore.binding(\.$popover),
-            case: /State.Popover.chatAddress,
+            case: CasePath(State.Popover.chatAddress),
             content: { _ in Self.chatAddressPopover() }
         )
     }
@@ -116,14 +116,14 @@ struct BasicAuthView: View {
             Button(l10n.PasswordLost.Action.title) { actions.send(.showPopoverTapped(.passwordLost)) }
                 .popover(
                     unwrapping: viewStore.binding(\.$popover),
-                    case: /State.Popover.passwordLost,
+                    case: CasePath(State.Popover.passwordLost),
                     content: { _ in Self.passwordLostPopover() }
                 )
             Divider().frame(height: 18)
             Button(l10n.NoAccount.Action.title) { actions.send(.showPopoverTapped(.noAccount)) }
                 .popover(
                     unwrapping: viewStore.binding(\.$popover),
-                    case: /State.Popover.noAccount,
+                    case: CasePath(State.Popover.noAccount),
                     content: { _ in Self.noAccountPopover() }
                 )
         }
