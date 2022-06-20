@@ -1,13 +1,9 @@
 # ################ Assets ################
 
-assets: strings xcassets format
+assets: swiftgen format
 
-xcassets:
-	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftgen config run --config ./swiftgen-xcassets.yml)
-	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftgen config run --config ./swiftgen-preview.yml)
-
-strings:
-	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftgen config run --config ./swiftgen-strings.yml)
+swiftgen:
+	@(cd BuildTools; SDKROOT=macosx;swift run -c release swiftgen config run --config ./swiftgen.yml)
 
 format:
 	@(cd BuildTools; SDKROOT=macosx; swift run -c release swiftformat ..)
