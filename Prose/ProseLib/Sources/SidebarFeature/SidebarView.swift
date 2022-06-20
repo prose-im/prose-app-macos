@@ -49,17 +49,17 @@ public let sidebarReducer: Reducer<
 > = Reducer.combine([
     sidebarContentReducer.pullback(
         state: \SidebarState.content,
-        action: /SidebarAction.content,
+        action: CasePath(SidebarAction.content),
         environment: { $0 }
     ),
     footerReducer.pullback(
         state: \SidebarState.footerView,
-        action: /SidebarAction.footer,
+        action: CasePath(SidebarAction.footer),
         environment: { _ in () }
     ),
     toolbarReducer.pullback(
         state: \SidebarState.toolbar,
-        action: /SidebarAction.toolbar,
+        action: CasePath(SidebarAction.toolbar),
         environment: { $0 }
     ),
 ])

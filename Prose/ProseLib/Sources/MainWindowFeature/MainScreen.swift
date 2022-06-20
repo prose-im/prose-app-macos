@@ -45,7 +45,7 @@ public let mainWindowReducer: Reducer<
     MainScreenEnvironment
 > = sidebarReducer._pullback(
     state: \MainScreenState.sidebar,
-    action: /MainScreenAction.sidebar,
+    action: CasePath(MainScreenAction.sidebar),
     environment: \MainScreenEnvironment.sidebar
 )
 

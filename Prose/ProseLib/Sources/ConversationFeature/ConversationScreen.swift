@@ -60,17 +60,17 @@ public let conversationReducer: Reducer<
 > = Reducer.combine([
     chatWithBarReducer.pullback(
         state: \ConversationState.chat,
-        action: /ConversationAction.chat,
+        action: CasePath(ConversationAction.chat),
         environment: { $0 }
     ),
     conversationInfoReducer.optional().pullback(
         state: \ConversationState.info,
-        action: /ConversationAction.info,
+        action: CasePath(ConversationAction.info),
         environment: { _ in () }
     ),
     toolbarReducer.pullback(
         state: \ConversationState.toolbar,
-        action: /ConversationAction.toolbar,
+        action: CasePath(ConversationAction.toolbar),
         environment: { _ in () }
     ),
     Reducer { state, action, environment in

@@ -159,7 +159,7 @@ public extension OptionalPath where Root == Value {
 
 public extension OptionalPath where Root == Value? {
     static var some: OptionalPath {
-        .init(/Optional.some)
+        .init(CasePath(Optional.some))
     }
 }
 

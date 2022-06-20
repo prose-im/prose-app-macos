@@ -19,7 +19,11 @@ struct MFAView: View {
 
     var body: some View {
         SwitchStore(self.store) {
-            CaseLet(state: /State.sixDigits, action: Action.sixDigits, then: MFA6DigitsView.init(store:))
+            CaseLet(
+                state: CasePath(State.sixDigits).extract(from:),
+                action: Action.sixDigits,
+                then: MFA6DigitsView.init(store:)
+            )
         }
     }
 }
@@ -34,8 +38,8 @@ public let mfaReducer: Reducer<
     AuthenticationEnvironment
 > = Reducer.combine([
     mfa6DigitsReducer.pullback(
-        state: /MFAState.sixDigits,
-        action: /MFAAction.sixDigits,
+        state: CasePath(MFAState.sixDigits),
+        action: CasePath(MFAAction.sixDigits),
         environment: { $0 }
     ),
     Reducer { _, action, _ in

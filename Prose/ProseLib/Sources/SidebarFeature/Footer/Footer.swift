@@ -65,12 +65,12 @@ public let footerReducer: Reducer<
 > = Reducer.combine([
     footerActionMenuReducer.pullback(
         state: \.0.actionButton,
-        action: /FooterAction.actionButton,
+        action: CasePath(FooterAction.actionButton),
         environment: { $0 }
     ),
     footerAvatarReducer.pullback(
         state: \.0.avatar,
-        action: /FooterAction.avatar,
+        action: CasePath(FooterAction.avatar),
         environment: { $0 }
     ),
 ])

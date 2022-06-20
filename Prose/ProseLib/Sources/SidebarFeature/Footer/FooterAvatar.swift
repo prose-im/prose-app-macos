@@ -214,7 +214,7 @@ public let footerAvatarReducer: Reducer<
 
     case let .changeAvailabilityTapped(availability):
         state.availability = availability
-        
+
     case .signOutTapped:
         state.showingPopover = false
 

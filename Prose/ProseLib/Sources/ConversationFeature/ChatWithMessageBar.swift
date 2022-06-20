@@ -39,12 +39,12 @@ public let chatWithBarReducer: Reducer<
 > = Reducer.combine([
     chatReducer.pullback(
         state: \ChatWithBarState.chat,
-        action: /ChatWithBarAction.chat,
+        action: CasePath(ChatWithBarAction.chat),
         environment: { $0 }
     ),
     messageBarReducer.pullback(
         state: \ChatWithBarState.messageBar,
-        action: /ChatWithBarAction.messageBar,
+        action: CasePath(ChatWithBarAction.messageBar),
         environment: { _ in () }
     ),
 ])

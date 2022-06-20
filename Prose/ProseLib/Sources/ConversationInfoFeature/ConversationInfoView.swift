@@ -70,22 +70,22 @@ public let conversationInfoReducer: Reducer<
 > = Reducer.combine([
     identitySectionReducer.pullback(
         state: \ConversationInfoState.identity,
-        action: /ConversationInfoAction.identity,
+        action: CasePath(ConversationInfoAction.identity),
         environment: { $0 }
     ),
     quickActionsSectionReducer.pullback(
         state: \ConversationInfoState.quickActions,
-        action: /ConversationInfoAction.quickActions,
+        action: CasePath(ConversationInfoAction.quickActions),
         environment: { $0 }
     ),
     securitySectionReducer.pullback(
         state: \ConversationInfoState.security,
-        action: /ConversationInfoAction.security,
+        action: CasePath(ConversationInfoAction.security),
         environment: { $0 }
     ),
     actionsSectionReducer.pullback(
         state: \ConversationInfoState.actions,
-        action: /ConversationInfoAction.actions,
+        action: CasePath(ConversationInfoAction.actions),
         environment: { $0 }
     ),
 ])

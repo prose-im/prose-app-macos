@@ -22,12 +22,12 @@ public let appReducer: Reducer<
 > = Reducer.combine([
     authenticationReducer.optional().pullback(
         state: \AppState.auth,
-        action: /AppAction.auth,
+        action: CasePath(AppAction.auth),
         environment: { $0.auth }
     ),
     mainWindowReducer.pullback(
         state: \AppState.main,
-        action: /AppAction.main,
+        action: CasePath(AppAction.main),
         environment: { $0.main }
     ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
@@ -93,7 +93,7 @@ public let appReducer: Reducer<
                     //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
                 }
             }
-            
+
         case .main(.sidebar(.footer(.avatar(.signOutTapped)))):
             let jid = environment.userDefaults.loadCurrentAccount()
 

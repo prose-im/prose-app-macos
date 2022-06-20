@@ -56,27 +56,27 @@ public let sidebarContentReducer: Reducer<
 > = Reducer.combine([
     spotlightSectionReducer.pullback(
         state: \SidebarContentState.spotlight,
-        action: /SidebarContentAction.spotlight,
+        action: CasePath(SidebarContentAction.spotlight),
         environment: { $0 }
     ),
     favoritesSectionReducer.pullback(
         state: \SidebarContentState.favorites,
-        action: /SidebarContentAction.favorites,
+        action: CasePath(SidebarContentAction.favorites),
         environment: { $0 }
     ),
     teamMembersSectionReducer.pullback(
         state: \SidebarContentState.teamMembers,
-        action: /SidebarContentAction.teamMembers,
+        action: CasePath(SidebarContentAction.teamMembers),
         environment: { $0 }
     ),
     otherContactsSectionReducer.pullback(
         state: \SidebarContentState.otherContacts,
-        action: /SidebarContentAction.otherContacts,
+        action: CasePath(SidebarContentAction.otherContacts),
         environment: { $0 }
     ),
     groupsSectionReducer.pullback(
         state: \SidebarContentState.groups,
-        action: /SidebarContentAction.groups,
+        action: CasePath(SidebarContentAction.groups),
         environment: { $0 }
     ),
     Reducer { state, action, _ in

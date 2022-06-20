@@ -31,8 +31,15 @@ struct NavigationDestinationView: View {
 
     private func content() -> some View {
         SwitchStore(self.store) {
-            CaseLet(state: /State.chat, action: Action.chat, then: ConversationScreen.init(store:))
-            CaseLet(state: /State.unread, action: Action.unread) { store in
+            CaseLet(
+                state: CasePath(State.chat).extract(from:),
+                action: Action.chat,
+                then: ConversationScreen.init(store:)
+            )
+            CaseLet(
+                state: CasePath(State.unread).extract(from:),
+                action: Action.unread
+            ) { store in
                 UnreadScreen(store: store)
                     .groupBoxStyle(.spotlight)
             }
@@ -65,13 +72,13 @@ public let navigationDestinationReducer: Reducer<
     NavigationDestinationEnvironment
 > = Reducer.combine([
     unreadReducer.pullback(
-        state: /SidebarRoute.unread,
-        action: /NavigationDestinationAction.unread,
+        state: CasePath(SidebarRoute.unread),
+        action: CasePath(NavigationDestinationAction.unread),
         environment: { $0.unread }
     ),
     conversationReducer.pullback(
-        state: /SidebarRoute.chat,
-        action: /NavigationDestinationAction.chat,
+        state: CasePath(SidebarRoute.chat),
+        action: CasePath(NavigationDestinationAction.chat),
         environment: { $0.chat }
     ),
 ])

@@ -26,8 +26,16 @@ public struct AuthenticationScreen: View {
 
     public var body: some View {
         SwitchStore(self.store.scope(state: \State.route)) {
-            CaseLet(state: /AuthRoute.basicAuth, action: Action.basicAuth, then: BasicAuthView.init(store:))
-            CaseLet(state: /AuthRoute.mfa, action: Action.mfa, then: MFAView.init(store:))
+            CaseLet(
+                state: CasePath(AuthRoute.basicAuth).extract(from:),
+                action: Action.basicAuth,
+                then: BasicAuthView.init(store:)
+            )
+            CaseLet(
+                state: CasePath(AuthRoute.mfa).extract(from:),
+                action: Action.mfa,
+                then: MFAView.init(store:)
+            )
         }
         .frame(minWidth: 400)
     }
@@ -43,13 +51,13 @@ public let authenticationReducer: Reducer<
     AuthenticationEnvironment
 > = Reducer.combine([
     basicAuthReducer._pullback(
-        state: (\AuthenticationState.route).case(/AuthRoute.basicAuth),
-        action: /AuthenticationAction.basicAuth,
+        state: (\AuthenticationState.route).case(CasePath(AuthRoute.basicAuth)),
+        action: CasePath(AuthenticationAction.basicAuth),
         environment: { $0 }
     ),
     mfaReducer._pullback(
-        state: (\AuthenticationState.route).case(/AuthRoute.mfa),
-        action: /AuthenticationAction.mfa,
+        state: (\AuthenticationState.route).case(CasePath(AuthRoute.mfa)),
+        action: CasePath(AuthenticationAction.mfa),
         environment: { $0 }
     ),
     Reducer { state, action, _ in

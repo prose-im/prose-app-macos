@@ -68,7 +68,7 @@ let teamMembersSectionReducer: Reducer<
 > = Reducer.combine([
     navigationDestinationReducer.optional().pullback(
         state: \TeamMembersSectionState.route,
-        action: /TeamMembersSectionAction.destination,
+        action: CasePath(TeamMembersSectionAction.destination),
         environment: { $0.destination }
     ),
     Reducer { _, action, _ in
