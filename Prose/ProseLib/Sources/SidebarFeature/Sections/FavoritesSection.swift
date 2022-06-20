@@ -7,7 +7,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import PreviewAssets
 import SwiftUI
 
 private let l10n = L10n.Sidebar.Favorites.self
@@ -71,31 +70,14 @@ let favoritesSectionReducer: Reducer<
 // MARK: State
 
 public struct FavoritesSectionState: Equatable {
-    let items: [SidebarItem] = [
-        .init(
-            id: .chat(.init(chatId: .person(id: "valerian@crisp.chat"))),
-            title: "Valerian",
-            image: .avatar(.init(url: PreviewAsset.Avatars.valerian.customURL)),
-            count: 0
-        ),
-        .init(
-            id: .chat(.init(chatId: .person(id: "alexandre@crisp.chat"))),
-            title: "Alexandre",
-            image: .avatar(.init(url: PreviewAsset.Avatars.alexandre.customURL)),
-            count: 0
-        ),
-        .init(
-            id: .chat(.init(chatId: .person(id: "baptiste@crisp.chat"))),
-            title: "Baptiste",
-            image: .avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL)),
-            count: 0
-        ),
-    ]
+    var items: [SidebarItem]
     var route: SidebarRoute?
 
     public init(
+        items: [SidebarItem],
         route: SidebarRoute? = nil
     ) {
+        self.items = items
         self.route = route
     }
 }
@@ -109,31 +91,51 @@ public enum FavoritesSectionAction: Equatable {
 
 // MARK: - Previews
 
-internal struct FavoritesSection_Previews: PreviewProvider {
-    private struct Preview: View {
-        @State var route: SidebarRoute?
+#if DEBUG
+    import PreviewAssets
 
-        var body: some View {
-            NavigationView {
-                List {
-                    FavoritesSection(
-                        store: Store(
-                            initialState: .init(),
-                            reducer: favoritesSectionReducer,
-                            environment: .stub
-                        ),
-                        route: $route
-                    )
+    internal struct FavoritesSection_Previews: PreviewProvider {
+        private struct Preview: View {
+            @State var route: SidebarRoute?
+
+            var body: some View {
+                NavigationView {
+                    List {
+                        FavoritesSection(
+                            store: Store(
+                                initialState: .init(items: [
+                                    .person(
+                                        "valerian@crisp.chat",
+                                        title: "Valerian",
+                                        image: .init(url: PreviewAsset.Avatars.valerian.customURL)
+                                    ),
+                                    .person(
+                                        "alexandre@crisp.chat",
+                                        title: "Alexandre",
+                                        image: .init(url: PreviewAsset.Avatars.alexandre.customURL)
+                                    ),
+                                    .person(
+                                        "baptiste@crisp.chat",
+                                        title: "Baptiste",
+                                        image: .init(url: PreviewAsset.Avatars.baptiste.customURL)
+                                    ),
+                                ]),
+                                reducer: favoritesSectionReducer,
+                                environment: .stub
+                            ),
+                            route: $route
+                        )
+                    }
+                    .frame(width: 256)
                 }
-                .frame(width: 256)
             }
         }
-    }
 
-    static var previews: some View {
-        Preview(route: nil)
-        Preview(route: nil)
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
+        static var previews: some View {
+            Preview(route: nil)
+            Preview(route: nil)
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+        }
     }
-}
+#endif

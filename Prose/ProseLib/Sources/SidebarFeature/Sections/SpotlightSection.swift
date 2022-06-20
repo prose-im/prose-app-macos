@@ -76,17 +76,14 @@ let spotlightSectionReducer: Reducer<
 // MARK: State
 
 public struct SpotlightSectionState: Equatable {
-    let items: [SidebarItem] = [
-        .init(id: .unread(.init()), title: l10n.unreadStack, image: .symbol(Icon.unread.rawValue), count: 0),
-        .init(id: .replies, title: l10n.replies, image: .symbol(Icon.reply.rawValue), count: 5),
-        .init(id: .directMessages, title: l10n.directMessages, image: .symbol(Icon.directMessage.rawValue), count: 0),
-        .init(id: .peopleAndGroups, title: l10n.peopleAndGroups, image: .symbol(Icon.group.rawValue), count: 2),
-    ]
+    var items: [SidebarItem]
     var route: SidebarRoute?
 
     public init(
+        items: [SidebarItem],
         route: SidebarRoute? = nil
     ) {
+        self.items = items
         self.route = route
     }
 }
@@ -109,7 +106,12 @@ struct SpotlightSection_Previews: PreviewProvider {
                 List {
                     SpotlightSection(
                         store: Store(
-                            initialState: .init(),
+                            initialState: .init(items: [
+                                .unread(),
+                                .replies(5),
+                                .directMessages(),
+                                .peopleAndGroups(2),
+                            ]),
                             reducer: spotlightSectionReducer,
                             environment: .stub
                         ),

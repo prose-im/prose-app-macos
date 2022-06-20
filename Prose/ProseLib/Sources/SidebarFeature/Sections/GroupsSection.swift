@@ -94,37 +94,14 @@ let groupsSectionReducer: Reducer<
 // MARK: State
 
 public struct GroupsSectionState: Equatable {
-    let items: [SidebarItem] = [
-        .init(
-            id: .chat(.init(chatId: .group(id: "bugs@crisp.chat"))),
-            title: "bugs",
-            image: .symbol(Icon.group.rawValue),
-            count: 0
-        ),
-        .init(
-            id: .chat(.init(chatId: .group(id: "constellation@crisp.chat"))),
-            title: "constellation",
-            image: .symbol(Icon.group.rawValue),
-            count: 7
-        ),
-        .init(
-            id: .chat(.init(chatId: .group(id: "general@crisp.chat"))),
-            title: "general",
-            image: .symbol(Icon.group.rawValue),
-            count: 0
-        ),
-        .init(
-            id: .chat(.init(chatId: .group(id: "support@crisp.chat"))),
-            title: "support",
-            image: .symbol(Icon.group.rawValue),
-            count: 0
-        ),
-    ]
+    var items: [SidebarItem]
     var route: SidebarRoute?
 
     public init(
+        items: [SidebarItem],
         route: SidebarRoute? = nil
     ) {
+        self.items = items
         self.route = route
     }
 }
@@ -148,7 +125,12 @@ struct GroupsSection_Previews: PreviewProvider {
                 List {
                     GroupsSection(
                         store: Store(
-                            initialState: .init(),
+                            initialState: .init(items: [
+                                .group("bugs@crisp.chat", 0),
+                                .group("constellation@crisp.chat", 7),
+                                .group("general@crisp.chat", 0),
+                                .group("support@crisp.chat", 0),
+                            ]),
                             reducer: groupsSectionReducer,
                             environment: .stub
                         ),

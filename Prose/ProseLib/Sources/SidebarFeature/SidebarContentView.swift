@@ -117,11 +117,46 @@ public struct SidebarContentState: Equatable {
         groups: GroupsSectionState? = nil
     ) {
         self.route = route
-        self.spotlight = spotlight ?? .init(route: route)
-        self.favorites = favorites ?? .init(route: route)
-        self.teamMembers = teamMembers ?? .init(route: route)
-        self.otherContacts = otherContacts ?? .init(route: route)
-        self.groups = groups ?? .init(route: route)
+        self.spotlight = spotlight ?? .init(
+            items: [
+                .unread(),
+                .replies(),
+                .directMessages(),
+                .peopleAndGroups(),
+            ],
+            route: route
+        )
+        self.favorites = favorites ?? .init(
+            items: [
+                .person("valerian@crisp.chat", title: "Valerian"),
+                .person("alexandre@crisp.chat", title: "Alexandre"),
+                .person("baptiste@crisp.chat", title: "Baptiste"),
+            ],
+            route: route
+        )
+        self.teamMembers = teamMembers ?? .init(
+            items: [
+                .person("antoine@crisp.chat", title: "Antoine"),
+                .person("eliott@crisp.chat", title: "Eliott"),
+                .person("camille@crisp.chat", title: "Camille"),
+            ],
+            route: route
+        )
+        self.otherContacts = otherContacts ?? .init(
+            items: [
+                .person("julien@thefamily.com", title: "Julien"),
+            ],
+            route: route
+        )
+        self.groups = groups ?? .init(
+            items: [
+                .group("bugs@crisp.chat"),
+                .group("constellation@crisp.chat"),
+                .group("general@crisp.chat"),
+                .group("support@crisp.chat"),
+            ],
+            route: route
+        )
     }
 }
 
