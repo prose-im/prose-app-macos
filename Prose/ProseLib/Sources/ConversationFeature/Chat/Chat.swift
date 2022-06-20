@@ -46,7 +46,7 @@ struct Chat: View {
                     }
                 }
             }
-            .background(Asset.Color.Background.message.swiftUIColor)
+            .background(Colors.Background.message.color)
             .onAppear { actions.send(.onAppear) }
         }
     }

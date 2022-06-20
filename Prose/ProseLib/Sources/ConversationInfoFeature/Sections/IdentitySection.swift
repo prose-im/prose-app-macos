@@ -36,7 +36,7 @@ struct IdentitySection: View {
 
                     Text("\(viewStore.jobTitle) at \(viewStore.company)")
                         .font(.system(size: 11.5))
-                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                        .foregroundColor(Colors.Text.secondary.color)
                 }
             }
         }

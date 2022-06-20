@@ -28,11 +28,11 @@ struct SettingsPickAccountComponent: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: userName)
                     .font(.system(size: 11).bold())
-                    .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
+                    .foregroundColor(Colors.Text.primary.color)
 
                 Text(verbatim: teamDomain)
                     .font(.system(size: 10.5))
-                    .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                    .foregroundColor(Colors.Text.secondary.color)
             }
 
             Spacer()

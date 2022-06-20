@@ -19,14 +19,14 @@ struct ToolbarSecurity: View {
             if isVerified {
                 Image(systemName: "checkmark.seal.fill")
                     .renderingMode(.template)
-                    .foregroundColor(Asset.Color.State.green.swiftUIColor)
+                    .foregroundColor(Colors.State.green.color)
                     .accessibilityElement()
                     .accessibilityLabel("Verified")
                     .accessibilitySortPriority(1)
             }
 
             Text(verbatim: String(describing: jid))
-                .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                .foregroundColor(Colors.Text.secondary.color)
                 .accessibilitySortPriority(2)
         }
         .padding(.horizontal, 8)

@@ -38,7 +38,7 @@ struct SecuritySection: View {
                         Text("Identity verified")
                     } icon: {
                         Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(Asset.Color.State.green.swiftUIColor)
+                            .foregroundColor(Colors.State.green.color)
                     }
                 } else {
                     Label {
@@ -61,7 +61,7 @@ struct SecuritySection: View {
                         Text("Encrypted (\(fingerprint))")
                     } icon: {
                         Image(systemName: "lock.fill")
-                            .foregroundColor(Asset.Color.State.blue.swiftUIColor)
+                            .foregroundColor(Colors.State.blue.color)
                     }
                 } else {
                     Label {

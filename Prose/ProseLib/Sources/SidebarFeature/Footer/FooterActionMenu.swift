@@ -33,7 +33,7 @@ struct FooterActionMenu: View {
                     Image(systemName: "ellipsis")
                         .rotationEffect(.degrees(90))
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                        .foregroundColor(Colors.Text.secondary.color)
 
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
                         .fill(Color.secondary.opacity(0.125))

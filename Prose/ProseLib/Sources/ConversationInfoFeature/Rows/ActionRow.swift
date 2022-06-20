@@ -24,7 +24,7 @@ struct ActionRow: View {
                 if self.deployTo {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10))
-                        .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
+                        .foregroundColor(Colors.Text.primary.color)
                 }
             }
             // Make hit box full width

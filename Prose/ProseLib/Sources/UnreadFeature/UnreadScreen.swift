@@ -29,7 +29,7 @@ public struct UnreadScreen: View {
     public var body: some View {
         content()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Asset.Color.Background.message.swiftUIColor)
+            .background(Colors.Background.message.color)
             .toolbar(content: Toolbar.init)
             .onAppear { actions.send(.onAppear) }
     }

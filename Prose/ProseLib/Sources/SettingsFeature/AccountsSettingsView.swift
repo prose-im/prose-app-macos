@@ -54,7 +54,7 @@ struct AccountsSettingsView: View {
             }
             .frame(maxWidth: 140)
             .background(.white)
-            .border(Asset.Color.Border.tertiaryLight.swiftUIColor)
+            .border(Colors.Border.tertiaryLight.color)
 
             GroupBox(
                 label: AccountsSettingsTabsComponent(

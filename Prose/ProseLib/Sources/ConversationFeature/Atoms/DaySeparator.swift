@@ -21,12 +21,12 @@ struct DaySeparator: View {
 
     var body: some View {
         HStack {
-            Asset.Color.Border.tertiary.swiftUIColor
+            Colors.Border.tertiary.color
                 .frame(height: 1)
             Text(date, formatter: Self.formatter)
                 .layoutPriority(1)
                 .foregroundColor(.secondary)
-            Asset.Color.Border.tertiary.swiftUIColor
+            Colors.Border.tertiary.color
                 .frame(height: 1)
         }
     }

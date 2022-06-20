@@ -43,7 +43,7 @@ public struct Avatar: View {
         image()
             .scaledToFill()
             .frame(width: size, height: size)
-            .background(Asset.Color.Border.secondary.swiftUIColor)
+            .background(Colors.Border.secondary.color)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .overlay {
                 RoundedRectangle(cornerRadius: 4)

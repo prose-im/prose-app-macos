@@ -14,9 +14,9 @@ enum ConnectionStatus: Hashable, CaseIterable {
     var fillColor: Color {
         switch self {
         case .connected:
-            return Asset.Color.State.greenLight.swiftUIColor
+            return Colors.State.greenLight.color
         case .disconnected:
-            return Asset.Color.State.greyLight.swiftUIColor
+            return Colors.State.greyLight.color
         }
     }
 }

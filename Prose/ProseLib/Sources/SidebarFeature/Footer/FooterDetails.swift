@@ -18,11 +18,11 @@ struct FooterDetails: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(teamName)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
+                .foregroundColor(Colors.Text.primary.color)
 
             Text("\(String(statusIcon)) “\(statusMessage)”")
                 .font(.system(size: 11))
-                .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                .foregroundColor(Colors.Text.secondary.color)
                 .layoutPriority(1)
         }
         // Make hit box full width

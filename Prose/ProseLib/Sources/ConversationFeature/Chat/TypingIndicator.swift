@@ -19,13 +19,13 @@ struct TypingIndicator: View {
             .padding(.vertical, 4.0)
             .padding(.horizontal, 16.0)
             .font(Font.system(size: 10.5, weight: .light))
-            .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+            .foregroundColor(Colors.Text.secondary.color)
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(.background)
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Asset.Color.Border.tertiary.swiftUIColor)
+                        .strokeBorder(Colors.Border.tertiary.color)
                 }
             )
             // TODO: [Rémi Bardon] Probably remove this, as 0.025≈0

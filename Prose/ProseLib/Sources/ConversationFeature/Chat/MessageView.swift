@@ -26,17 +26,17 @@ public struct MessageView: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text(model.senderName)
                         .font(.system(size: 13).bold())
-                        .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
+                        .foregroundColor(Colors.Text.primary.color)
 
                     Text(model.timestamp, format: .relative(presentation: .numeric))
                         .font(.system(size: 11.5))
-                        .foregroundColor(Asset.Color.Text.secondary.swiftUIColor)
+                        .foregroundColor(Colors.Text.secondary.color)
                 }
 
                 Text(model.content)
                     .font(.system(size: 12.5))
                     .fontWeight(.regular)
-                    .foregroundColor(Asset.Color.Text.primary.swiftUIColor)
+                    .foregroundColor(Colors.Text.primary.color)
             }
             .textSelection(.enabled)
 

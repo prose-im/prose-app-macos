@@ -23,21 +23,28 @@ strings:
 #   - Especially the `forceProvidesNamespaces: true` param forces to create sub-namespace for each folder/group used in your Asset Catalogs, even the ones without "Provides Namespace". Without this param, SwiftGen only generates sub-namespaces for folders/groups which have the "Provides Namespace" box checked in the Inspector pane.
 #   - To know which params are supported for a template, use `swiftgen template doc xcassets swift5` to open the template documentation on GitHub.
 xcassets:
-  - inputs: [Assets/Resources/Assets.xcassets]
-    outputs:
-      - templateName: swift5
-        output: Assets/Generated/Assets+Generated.swift
-        params:
-          bundle: Bundle.fixedModule
-          publicAccess: true
+# - inputs: [Assets/Resources/Assets.xcassets]
+#   outputs:
+#     - templateName: swift5
+#       output: Assets/Generated/Assets+Generated.swift
+#       params:
+#         bundle: Bundle.fixedModule
+#         publicAccess: true
   - inputs: [PreviewAssets/Resources/Assets.xcassets]
     outputs:
       - templateName: swift5
-        output: PreviewAssets/Generated/XCAssets+Generated.swift
+        output: PreviewAssets/Generated/Assets+Generated.swift
         params:
           bundle: Bundle.fixedModule
           publicAccess: true
           enumName: PreviewAsset
+  - inputs: [Assets/Resources/Colors.xcassets]
+    outputs:
+      - templatePath: ./xcassets-colors-swiftui.stencil
+        output: Assets/Generated/Colors+Generated.swift
+        params:
+          bundle: Bundle.fixedModule
+          publicAccess: true
 
 # For more info, use `swiftgen config doc` to open the full documentation on GitHub.
 # https://github.com/SwiftGen/SwiftGen/tree/6.5.1/Documentation/
