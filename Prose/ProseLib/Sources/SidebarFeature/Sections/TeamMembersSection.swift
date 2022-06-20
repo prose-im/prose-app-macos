@@ -7,7 +7,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import PreviewAssets
 import SwiftUI
 
 private let l10n = L10n.Sidebar.TeamMembers.self
@@ -94,31 +93,14 @@ let teamMembersSectionReducer: Reducer<
 // MARK: State
 
 public struct TeamMembersSectionState: Equatable {
-    let items: [SidebarItem] = [
-        .init(
-            id: .chat(.init(chatId: .person(id: "antoine@crisp.chat"))),
-            title: "Antoine",
-            image: .avatar(.init(url: PreviewAsset.Avatars.antoine.customURL)),
-            count: 0
-        ),
-        .init(
-            id: .chat(.init(chatId: .person(id: "eliott@crisp.chat"))),
-            title: "Eliott",
-            image: .avatar(.init(url: PreviewAsset.Avatars.eliott.customURL)),
-            count: 3
-        ),
-        .init(
-            id: .chat(.init(chatId: .person(id: "camille@crisp.chat"))),
-            title: "Camille",
-            image: .avatar(.init(url: PreviewAsset.Avatars.camille.customURL)),
-            count: 2
-        ),
-    ]
+    var items: [SidebarItem]
     var route: SidebarRoute?
 
     public init(
+        items: [SidebarItem],
         route: SidebarRoute? = nil
     ) {
+        self.items = items
         self.route = route
     }
 }
@@ -133,31 +115,53 @@ public enum TeamMembersSectionAction: Equatable {
 
 // MARK: - Previews
 
-struct TeamMembersSection_Previews: PreviewProvider {
-    private struct Preview: View {
-        @State var route: SidebarRoute?
+#if DEBUG
+    import PreviewAssets
 
-        var body: some View {
-            NavigationView {
-                List {
-                    TeamMembersSection(
-                        store: Store(
-                            initialState: .init(),
-                            reducer: teamMembersSectionReducer,
-                            environment: .stub
-                        ),
-                        route: $route
-                    )
+    struct TeamMembersSection_Previews: PreviewProvider {
+        private struct Preview: View {
+            @State var route: SidebarRoute?
+
+            var body: some View {
+                NavigationView {
+                    List {
+                        TeamMembersSection(
+                            store: Store(
+                                initialState: .init(items: [
+                                    .person(
+                                        "antoine@crisp.chat",
+                                        title: "Antoine",
+                                        image: .init(url: PreviewAsset.Avatars.antoine.customURL)
+                                    ),
+                                    .person(
+                                        "eliott@crisp.chat",
+                                        title: "Eliott",
+                                        image: .init(url: PreviewAsset.Avatars.eliott.customURL),
+                                        count: 3
+                                    ),
+                                    .person(
+                                        "camille@crisp.chat",
+                                        title: "Camille",
+                                        image: .init(url: PreviewAsset.Avatars.camille.customURL),
+                                        count: 2
+                                    ),
+                                ]),
+                                reducer: teamMembersSectionReducer,
+                                environment: .stub
+                            ),
+                            route: $route
+                        )
+                    }
+                    .frame(width: 256)
                 }
-                .frame(width: 256)
             }
         }
-    }
 
-    static var previews: some View {
-        Preview(route: nil)
-        Preview(route: nil)
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
+        static var previews: some View {
+            Preview(route: nil)
+            Preview(route: nil)
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+        }
     }
-}
+#endif

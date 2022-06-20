@@ -7,7 +7,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import PreviewAssets
 import SwiftUI
 
 private let l10n = L10n.Sidebar.OtherContacts.self
@@ -94,19 +93,14 @@ let otherContactsSectionReducer: Reducer<
 // MARK: State
 
 public struct OtherContactsSectionState: Equatable {
-    let items: [SidebarItem] = [
-        .init(
-            id: .chat(.init(chatId: .person(id: "julien@thefamily.com"))),
-            title: "Julien",
-            image: .avatar(.init(url: PreviewAsset.Avatars.julien.customURL)),
-            count: 2
-        ),
-    ]
+    var items: [SidebarItem]
     var route: SidebarRoute?
 
     public init(
+        items: [SidebarItem],
         route: SidebarRoute? = nil
     ) {
+        self.items = items
         self.route = route
     }
 }
@@ -121,31 +115,42 @@ public enum OtherContactsSectionAction: Equatable {
 
 // MARK: - Previews
 
-struct OtherContactsSection_Previews: PreviewProvider {
-    private struct Preview: View {
-        @State var route: SidebarRoute?
+#if DEBUG
+    import PreviewAssets
 
-        var body: some View {
-            NavigationView {
-                List {
-                    OtherContactsSection(
-                        store: Store(
-                            initialState: .init(),
-                            reducer: otherContactsSectionReducer,
-                            environment: .stub
-                        ),
-                        route: $route
-                    )
+    struct OtherContactsSection_Previews: PreviewProvider {
+        private struct Preview: View {
+            @State var route: SidebarRoute?
+
+            var body: some View {
+                NavigationView {
+                    List {
+                        OtherContactsSection(
+                            store: Store(
+                                initialState: .init(items: [
+                                    .person(
+                                        "julien@thefamily.com",
+                                        title: "Julien",
+                                        image: .init(url: PreviewAsset.Avatars.julien.customURL),
+                                        count: 2
+                                    ),
+                                ]),
+                                reducer: otherContactsSectionReducer,
+                                environment: .stub
+                            ),
+                            route: $route
+                        )
+                    }
+                    .frame(width: 256)
                 }
-                .frame(width: 256)
             }
         }
-    }
 
-    static var previews: some View {
-        Preview(route: nil)
-        Preview(route: nil)
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
+        static var previews: some View {
+            Preview(route: nil)
+            Preview(route: nil)
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+        }
     }
-}
+#endif
