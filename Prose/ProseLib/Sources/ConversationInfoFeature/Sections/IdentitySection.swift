@@ -130,20 +130,22 @@ public enum IdentitySectionAction: Equatable {}
 
 // MARK: - Previews
 
-struct IdentitySection_Previews: PreviewProvider {
-    private struct Preview: View {
-        let state: IdentitySectionState
+#if DEBUG
+    struct IdentitySection_Previews: PreviewProvider {
+        private struct Preview: View {
+            let state: IdentitySectionState
 
-        var body: some View {
-            IdentitySection(store: Store(
-                initialState: state,
-                reducer: identitySectionReducer,
-                environment: ()
-            ))
+            var body: some View {
+                IdentitySection(store: Store(
+                    initialState: state,
+                    reducer: identitySectionReducer,
+                    environment: ()
+                ))
+            }
+        }
+
+        static var previews: some View {
+            Preview(state: .valerian)
         }
     }
-
-    static var previews: some View {
-        Preview(state: .valerian)
-    }
-}
+#endif

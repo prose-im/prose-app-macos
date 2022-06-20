@@ -53,7 +53,7 @@ public struct Avatar: View {
 
     @ViewBuilder
     private func image() -> some View {
-        if let assetData = self.avatar.url.flatMap(PreviewAssets.assetData) {
+        if let assetData = self.avatar.url.flatMap(Assets.assetData) {
             Image(assetData.0, bundle: assetData.1).resizable()
         } else {
             AsyncImage(url: self.avatar.url) { image in
