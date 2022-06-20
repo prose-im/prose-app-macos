@@ -7,6 +7,7 @@
 //
 
 import ConversationFeature
+import ProseUI
 import SharedModels
 import UnreadFeature
 
@@ -35,9 +36,13 @@ public enum SidebarRoute: Hashable {
 }
 
 struct SidebarItem: Equatable, Identifiable {
+    enum Image: Equatable {
+        case avatar(AvatarImage), symbol(String)
+    }
+
     let id: SidebarRoute
     let title: String
-    let image: ImageSource
+    let image: Image
     let count: UInt16
 }
 

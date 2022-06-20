@@ -12,7 +12,7 @@ import SwiftUI
 
 struct ContactRow: View {
     var title: String
-    var avatar: ImageSource
+    var avatar: AvatarImage
     var count: UInt16? = 0
 
     var body: some View {
@@ -37,7 +37,7 @@ struct ContactRow_Previews: PreviewProvider {
         var body: some View {
             ContactRow(
                 title: "Valerian",
-                avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
                 count: 3
             )
             .frame(width: 196)

@@ -48,20 +48,22 @@ public struct MessageView: View {
 public struct MessageViewModel: Equatable {
     let senderId: JID
     let senderName: String
-    let avatar: ImageSource
+    let avatarURL: URL?
     let content: String
     public let timestamp: Date
+
+    var avatar: AvatarImage { AvatarImage(url: self.avatarURL) }
 
     public init(
         senderId: JID,
         senderName: String,
-        avatar: ImageSource,
+        avatarURL: URL?,
         content: String,
         timestamp: Date
     ) {
         self.senderId = senderId
         self.senderName = senderName
-        self.avatar = avatar
+        self.avatarURL = avatarURL
         self.content = content
         self.timestamp = timestamp
     }
@@ -75,16 +77,10 @@ public extension Message {
     func toMessageViewModel(userStore: UserStore) -> MessageViewModel {
         let sender = userStore.user(self.senderId)
 
-        #if DEBUG
-            let avatar = ImageSource.asset(sender?.avatar ?? "", bundle: PreviewAssets.localBundle)
-        #else
-            let avatar = Image(nsImage: .init())
-        #endif
-
         return MessageViewModel(
             senderId: self.senderId,
             senderName: sender?.displayName ?? "Unknown",
-            avatar: avatar,
+            avatarURL: sender.flatMap(\.avatar),
             content: self.content,
             timestamp: self.timestamp
         )
@@ -100,14 +96,14 @@ public extension Message {
                 MessageView(model: .init(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
                     content: "Hello world, this is a message content!",
                     timestamp: .now - 10_000
                 ))
                 MessageView(model: .init(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
                     content: Array(repeating: "Hello world, this is a message content!", count: 5).joined(separator: " "),
                     timestamp: .now - 1_000
                 ))
@@ -115,7 +111,7 @@ public extension Message {
                 MessageView(model: .init(
                     senderId: "unknown@prose.org",
                     senderName: "Unknown",
-                    avatar: .placeholder,
+                    avatarURL: nil,
                     content: "Unknown",
                     timestamp: .now - 500
                 ))
@@ -123,7 +119,7 @@ public extension Message {
                 MessageView(model: .init(
                     senderId: "unknown@prose.org",
                     senderName: "Unknown",
-                    avatar: .placeholder,
+                    avatarURL: nil,
                     content: "Unknown",
                     timestamp: .now - 50
                 ))

@@ -35,11 +35,17 @@ struct GroupsSection: View {
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
-                        NavigationRow(
-                            title: item.title,
-                            image: item.image,
-                            count: item.count
-                        )
+                        switch item.image {
+                        case let .symbol(systemName):
+                            NavigationRow(
+                                title: item.title,
+                                systemImage: systemName,
+                                count: item.count
+                            )
+                        default:
+                            // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                            fatalError("This case should never happen.")
+                        }
                     }
                 }
             }

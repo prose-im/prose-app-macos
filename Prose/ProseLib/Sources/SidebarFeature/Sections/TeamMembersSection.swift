@@ -35,11 +35,17 @@ struct TeamMembersSection: View {
                             then: NavigationDestinationView.init(store:)
                         )
                     } label: {
-                        ContactRow(
-                            title: item.title,
-                            avatar: item.image,
-                            count: item.count
-                        )
+                        switch item.image {
+                        case let .avatar(avatar):
+                            ContactRow(
+                                title: item.title,
+                                avatar: avatar,
+                                count: item.count
+                            )
+                        default:
+                            // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                            fatalError("This case should never happen.")
+                        }
                     }
                 }
             }
@@ -92,19 +98,19 @@ public struct TeamMembersSectionState: Equatable {
         .init(
             id: .chat(.init(chatId: .person(id: "antoine@crisp.chat"))),
             title: "Antoine",
-            image: .nsImage(PreviewAsset.Avatars.antoine.image),
+            image: .avatar(.init(url: PreviewAsset.Avatars.antoine.customURL)),
             count: 0
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "eliott@crisp.chat"))),
             title: "Eliott",
-            image: .nsImage(PreviewAsset.Avatars.eliott.image),
+            image: .avatar(.init(url: PreviewAsset.Avatars.eliott.customURL)),
             count: 3
         ),
         .init(
             id: .chat(.init(chatId: .person(id: "camille@crisp.chat"))),
             title: "Camille",
-            image: .nsImage(PreviewAsset.Avatars.camille.image),
+            image: .avatar(.init(url: PreviewAsset.Avatars.camille.customURL)),
             count: 2
         ),
     ]

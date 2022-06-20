@@ -56,7 +56,7 @@ struct FooterAvatar: View {
                 HStack {
                     #if DEBUG
                         // TODO: [Rémi Bardon] Change this to Crisp icon
-                        Avatar(.nsImage(PreviewAsset.Avatars.baptiste.image), size: 32)
+                        Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 32)
                     #else
                         Avatar(.placeholder, size: 32)
                     #endif
@@ -236,7 +236,7 @@ public let footerAvatarReducer: Reducer<
 // MARK: State
 
 public struct FooterAvatarState: Equatable {
-    var avatar: ImageSource
+    var avatar: AvatarImage
     var availability: Availability
     var fullName: String
     var jid: String
@@ -246,7 +246,7 @@ public struct FooterAvatarState: Equatable {
     @BindableState var showingPopover: Bool
 
     public init(
-        avatar: ImageSource,
+        avatar: AvatarImage,
         availability: Availability = .available,
         fullName: String = "Baptiste Jamin",
         jid: String = "baptiste@crisp.chat",
@@ -292,7 +292,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                 HStack {
                     ForEach(Availability.allCases, id: \.self) { availability in
                         content(state: FooterAvatarState(
-                            avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                            avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
                             availability: availability
                         ))
                     }
@@ -300,7 +300,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
                 .padding()
                 let store = Store(
                     initialState: FooterAvatarState(
-                        avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                        avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
                         availability: .available
                     ),
                     reducer: footerAvatarReducer,

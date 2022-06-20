@@ -10,22 +10,22 @@ import SwiftUI
 
 struct NavigationRow: View {
     private let title: String
-    private let imageSource: ImageSource
+    private let systemImage: String
     private let count: UInt16?
 
     init(
         title: String,
-        image: ImageSource,
+        systemImage: String,
         count: UInt16? = 0
     ) {
         self.title = title
-        self.imageSource = image
+        self.systemImage = systemImage
         self.count = count
     }
 
     var body: some View {
         HStack {
-            Label { Text(title) } icon: { imageSource.image }
+            Label(title, systemImage: systemImage)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Counter(count: count)
         }
@@ -36,7 +36,7 @@ struct NavigationRow_Previews: PreviewProvider {
     static var previews: some View {
         NavigationRow(
             title: "Label",
-            image: .symbol("trash")
+            systemImage: "trash"
         )
     }
 }

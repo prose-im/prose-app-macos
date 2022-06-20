@@ -60,8 +60,12 @@ struct FooterActionMenu: View {
         return VStack(alignment: .leading) {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
-                // TODO: [Rémi Bardon] Change this to Crisp icon
-                Avatar(.nsImage(PreviewAsset.Avatars.baptiste.image), size: 48)
+                #if DEBUG
+                    // TODO: [Rémi Bardon] Change this to Crisp icon
+                    Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 48)
+                #else
+                    Avatar(.placeholder, size: 48)
+                #endif
                 VStack(alignment: .leading) {
                     Text("Crisp")
                         .font(.title3.bold())

@@ -104,6 +104,7 @@ let package = Package(
             ]
         ),
         .target(name: "ConversationInfoFeature", dependencies: [
+            "PreviewAssets",
             "ProseCoreStub",
             "SharedModels",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),

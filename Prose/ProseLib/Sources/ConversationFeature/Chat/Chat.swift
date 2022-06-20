@@ -123,7 +123,7 @@ public enum ChatAction: Equatable {
                 MessageViewModel(
                     senderId: "valerian@crisp.chat",
                     senderName: "Valerian",
-                    avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
                     content: $0.1,
                     timestamp: .now - Double($0.0) * 1_000
                 )

@@ -158,14 +158,14 @@ public extension UnreadEnvironment {
                             MessageViewModel(
                                 senderId: "baptiste@crisp.chat",
                                 senderName: "Baptiste",
-                                avatar: .nsImage(PreviewAsset.Avatars.baptiste.image),
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
                                 content: "They forgot to ship the package.",
                                 timestamp: Date() - 2_800
                             ),
                             MessageViewModel(
                                 senderId: "valerian@crisp.chat",
                                 senderName: "Valerian",
-                                avatar: .nsImage(PreviewAsset.Avatars.valerian.image),
+                                avatarURL: PreviewAsset.Avatars.valerian.customURL,
                                 content: "Okay, I see. Thanks. I will contact them whenever they get back online. 🤯",
                                 timestamp: Date() - 3_000
                             ),
@@ -178,14 +178,14 @@ public extension UnreadEnvironment {
                             MessageViewModel(
                                 senderId: "baptiste@crisp.chat",
                                 senderName: "Baptiste",
-                                avatar: .nsImage(PreviewAsset.Avatars.baptiste.image),
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
                                 content: "Can I initiate a deployment of the Vue app?",
                                 timestamp: Date() - 9_000
                             ),
                             MessageViewModel(
                                 senderId: "julien@thefamily.com",
                                 senderName: "Julien",
-                                avatar: .nsImage(PreviewAsset.Avatars.julien.image),
+                                avatarURL: PreviewAsset.Avatars.julien.customURL,
                                 content: "Yes, it's ready. 3 new features are shipping! 😀",
                                 timestamp: Date() - 10_000
                             ),
@@ -198,14 +198,14 @@ public extension UnreadEnvironment {
                             MessageViewModel(
                                 senderId: "baptiste@crisp.chat",
                                 senderName: "Baptiste",
-                                avatar: .nsImage(PreviewAsset.Avatars.baptiste.image),
+                                avatarURL: PreviewAsset.Avatars.baptiste.customURL,
                                 content: "⚠️ I'm performing a change of the server IP definitions. Slight outage expected.",
                                 timestamp: Date() - 90_000
                             ),
                             MessageViewModel(
                                 senderId: "constellation-health@crisp.chat",
                                 senderName: "constellation-health",
-                                avatar: .nsImage(PreviewAsset.Avatars.constellationHealth.image),
+                                avatarURL: PreviewAsset.Avatars.constellationHealth.customURL,
                                 content: "🆘 socket-1.sgp.atlas.net.crisp.chat - Got HTTP status: \"503 or invalid body\"",
                                 timestamp: Date() - 100_000
                             ),

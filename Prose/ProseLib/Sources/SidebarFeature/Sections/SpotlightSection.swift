@@ -37,9 +37,15 @@ struct SpotlightSection: View {
                         )
                     } label: {
                         HStack {
-                            Label { Text(item.title) } icon: { item.image.image }
-                                .unredacted()
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            switch item.image {
+                            case let .symbol(systemName):
+                                Label(item.title, systemImage: systemName)
+                                    .unredacted()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            default:
+                                // TODO: Get rid of `SidebarItem` which forces us to handle such cases.
+                                fatalError("This case should never happen.")
+                            }
                             Counter(count: item.count)
                         }
                     }

@@ -128,7 +128,7 @@ public enum FooterAction: Equatable {
         static var previews: some View {
             let state = (
                 FooterState(
-                    avatar: .init(avatar: .nsImage(PreviewAsset.Avatars.valerian.image))
+                    avatar: .init(avatar: .init(url: PreviewAsset.Avatars.valerian.customURL))
                 ),
                 UserCredentials(jid: "valerian@crisp.chat")
             )
