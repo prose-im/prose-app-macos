@@ -95,7 +95,7 @@ public let conversationReducer: Reducer<
         case let .chat(.messageBar(.textField(.send(messageContent)))):
             let chatId = state.chatId
             return environment.authenticationClient.requireJID()
-                .receive(on: DispatchQueue.main)
+                .receive(on: environment.mainQueue)
                 .map { jid -> ConversationAction in
                     let message = ProseCoreStub.Message(senderId: jid, content: messageContent, timestamp: .now)
                     environment.messageStore.sendMessage(chatId, message)
@@ -236,18 +236,22 @@ public struct ConversationEnvironment {
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
+    let mainQueue: AnySchedulerOf<DispatchQueue>
+
     public init(
         authenticationClient: AuthenticationClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
-        securityStore: SecurityStore
+        securityStore: SecurityStore,
+        mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
         self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
         self.securityStore = securityStore
+        self.mainQueue = mainQueue
     }
 }
 
@@ -258,7 +262,8 @@ public extension ConversationEnvironment {
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,
-            securityStore: .stub
+            securityStore: .stub,
+            mainQueue: .main
         )
     }
 }

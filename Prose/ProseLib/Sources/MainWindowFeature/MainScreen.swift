@@ -137,13 +137,16 @@ public struct MainScreenEnvironment {
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
+    let mainQueue: AnySchedulerOf<DispatchQueue>
+
     var chat: ConversationEnvironment {
         ConversationEnvironment(
             authenticationClient: self.authenticationClient,
             userStore: self.userStore,
             messageStore: self.messageStore,
             statusStore: self.statusStore,
-            securityStore: self.securityStore
+            securityStore: self.securityStore,
+            mainQueue: self.mainQueue
         )
     }
 
@@ -152,13 +155,15 @@ public struct MainScreenEnvironment {
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
-        securityStore: SecurityStore
+        securityStore: SecurityStore,
+        mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
         self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
         self.securityStore = securityStore
+        self.mainQueue = mainQueue
     }
 }
 
@@ -177,7 +182,8 @@ public struct MainScreenEnvironment {
                     userStore: .stub,
                     messageStore: .stub,
                     statusStore: .stub,
-                    securityStore: .stub
+                    securityStore: .stub,
+                    mainQueue: .main
                 )
             ))
         }

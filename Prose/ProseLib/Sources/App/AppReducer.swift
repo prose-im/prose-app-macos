@@ -215,7 +215,8 @@ public struct AppEnvironment {
             userStore: self.userStore,
             messageStore: self.messageStore,
             statusStore: self.statusStore,
-            securityStore: self.securityStore
+            securityStore: self.securityStore,
+            mainQueue: self.mainQueue
         )
     }
 
