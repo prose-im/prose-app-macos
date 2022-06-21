@@ -74,33 +74,22 @@ public let mainWindowReducer = Reducer<
         action: CasePath(MainScreenAction.chat),
         environment: { _ in .stub }
     ),
-    Reducer { state, action, _ in
-        switch action {
-        case .sidebar(.selection(.unreadStack)):
-            state.route = .unreadStack(.init())
-            return .none
-
-        case .sidebar(.selection(.replies)):
-            state.route = .replies
-            return .none
-
-        case .sidebar(.selection(.directMessages)):
-            state.route = .directMessages
-            return .none
-
-        case .sidebar(.selection(.peopleAndGroups)):
-            state.route = .peopleAndGroups
-            return .none
-
-        case let .sidebar(.selection(.chat(jid))):
-            state.route = .chat(.init(chatId: .person(id: jid), recipient: "Huh?"))
-            return .none
-
-        case .sidebar, .unreadStack, .chat:
-            return .none
-        }
-    },
 ])
+.onChange(of: \.sidebar.selection) { selection, state, _, _ in
+    switch selection {
+    case .unreadStack, .none:
+        state.route = .unreadStack(.init())
+    case .replies:
+        state.route = .replies
+    case .directMessages:
+        state.route = .directMessages
+    case .peopleAndGroups:
+        state.route = .peopleAndGroups
+    case let .chat(jid):
+        state.route = .chat(.init(chatId: .person(id: jid), recipient: "Huh?"))
+    }
+    return .none
+}
 
 // MARK: State
 

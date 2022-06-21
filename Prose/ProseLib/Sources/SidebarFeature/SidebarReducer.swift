@@ -5,8 +5,9 @@ import SharedModels
 public typealias UserCredentials = JID
 
 public struct SidebarState: Equatable {
+    public internal(set) var selection: Selection?
+
     var credentials: UserCredentials
-    var selection: Selection?
     var footer: FooterState
     var toolbar = ToolbarState()
 
