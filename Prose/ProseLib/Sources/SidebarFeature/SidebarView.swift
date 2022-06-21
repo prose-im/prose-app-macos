@@ -79,6 +79,6 @@ public struct SidebarView: View {
             ActionButton(title: L10n.Sidebar.Groups.Add.label) {
                 self.viewStore.send(.addGroupButtonTapped)
             }
-        }
+        }.opacity(0.5)
     }
 }
