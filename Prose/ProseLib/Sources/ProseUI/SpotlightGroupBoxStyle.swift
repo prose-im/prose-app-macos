@@ -5,15 +5,14 @@
 //  Created by Rémi Bardon on 27/03/2022.
 //
 
-import SharedModels
 import SwiftUI
 
-extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
+public extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
     static var spotlight: Self { SpotlightGroupBoxStyle() }
 }
 
-struct SpotlightGroupBoxStyle: GroupBoxStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct SpotlightGroupBoxStyle: GroupBoxStyle {
+    public func makeBody(configuration: Configuration) -> some View {
         VStack(spacing: 12) {
             configuration.label
                 .padding(.horizontal, 4)
@@ -43,29 +42,15 @@ private struct SpotlightItemBackground: ViewModifier {
 }
 
 #if DEBUG
-    import ConversationFeature
     import PreviewAssets
 
     struct SpotlightGroupBoxStyle_Previews: PreviewProvider {
         static var previews: some View {
             GroupBox {
-                MessageView(model: .init(
-                    senderId: "valerian@crisp.chat",
-                    senderName: "Valerian",
-                    avatarURL: PreviewAsset.Avatars.valerian.customURL,
-                    content: "Message from Valerian",
-                    timestamp: Date() - 10_000
-                ))
-                MessageView(model: .init(
-                    senderId: "baptiste@crisp.chat",
-                    senderName: "Baptiste",
-                    avatarURL: PreviewAsset.Avatars.baptiste.customURL,
-                    content: "Message from Baptiste",
-                    timestamp: Date() - 15_000
-                ))
+                Text("GroupBox Content goes here")
             } label: {
                 HStack {
-                    Label("support", systemImage: Icon.group.rawValue)
+                    Label("support", systemImage: "circle.grid.2x2")
                         .labelStyle(.coloredIcon)
                         .font(.title2.bold())
                     Spacer()
@@ -79,15 +64,9 @@ private struct SpotlightItemBackground: ViewModifier {
 
     struct SpotlightItemBackground_Previews: PreviewProvider {
         static var previews: some View {
-            MessageView(model: .init(
-                senderId: "valerian@crisp.chat",
-                senderName: "Valerian",
-                avatarURL: PreviewAsset.Avatars.valerian.customURL,
-                content: "Message from Valerian",
-                timestamp: Date() - 10_000
-            ))
-            .modifier(SpotlightItemBackground())
-            .padding()
+            Text("GroupBox Content goes here")
+                .modifier(SpotlightItemBackground())
+                .padding()
         }
     }
 #endif
