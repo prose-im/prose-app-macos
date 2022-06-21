@@ -5,11 +5,14 @@
 //  Created by Rémi Bardon on 01/06/2022.
 //
 
+import AddressBookFeature
 import ComposableArchitecture
-import ProseCoreStub
+import ConversationFeature
+import SharedModels
 import SidebarFeature
 import SwiftUI
 import TcaHelpers
+import UnreadFeature
 
 // MARK: - View
 
@@ -18,7 +21,6 @@ public struct MainScreen: View {
     public typealias Action = MainScreenAction
 
     private let store: Store<State, Action>
-    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
     // swiftlint:disable:next type_contents_order
     public init(store: Store<State, Action>) {
@@ -27,11 +29,23 @@ public struct MainScreen: View {
 
     public var body: some View {
         NavigationView {
-            // NOTE: [Rémi Bardon] For some reason, using `\State.sidebar` causes
-            //       `Key path value type 'SidebarState' cannot be converted to contextual type
-            //       'SidebarView.State' (aka 'SidebarState')`. We need to omit `State`.
             SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
-            Text("Nothing to show here 🤷")
+
+            SwitchStore(self.store.scope(state: \.route)) {
+                CaseLet(
+                    state: /MainScreenState.Route.unreadStack,
+                    action: MainScreenAction.unreadStack,
+                    then: UnreadScreen.init(store:)
+                )
+                CaseLet(
+                    state: /MainScreenState.Route.chat,
+                    action: MainScreenAction.chat,
+                    then: ConversationScreen.init(store:)
+                )
+                Default {
+                    Text("Not implemented.")
+                }
+            }
         }
     }
 }
@@ -40,92 +54,91 @@ public struct MainScreen: View {
 
 // MARK: Reducer
 
-public let mainWindowReducer: Reducer<
+public let mainWindowReducer = Reducer<
     MainScreenState,
     MainScreenAction,
     MainScreenEnvironment
-> = sidebarReducer._pullback(
-    state: \MainScreenState.sidebar,
-    action: CasePath(MainScreenAction.sidebar),
-    environment: \MainScreenEnvironment.sidebar
-)
+>.combine([
+    sidebarReducer.pullback(
+        state: \.sidebar,
+        action: CasePath(MainScreenAction.sidebar),
+        environment: { _ in }
+    ),
+    unreadReducer._pullback(
+        state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
+        action: CasePath(MainScreenAction.unreadStack),
+        environment: { _ in .stub }
+    ),
+    conversationReducer._pullback(
+        state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
+        action: CasePath(MainScreenAction.chat),
+        environment: { _ in .stub }
+    ),
+    Reducer { state, action, _ in
+        switch action {
+        case .sidebar(.selection(.unreadStack)):
+            state.route = .unreadStack(.init())
+            return .none
+
+        case .sidebar(.selection(.replies)):
+            state.route = .replies
+            return .none
+
+        case .sidebar(.selection(.directMessages)):
+            state.route = .directMessages
+            return .none
+
+        case .sidebar(.selection(.peopleAndGroups)):
+            state.route = .peopleAndGroups
+            return .none
+
+        case let .sidebar(.selection(.chat(jid))):
+            state.route = .chat(.init(chatId: .person(id: jid), recipient: "Huh?"))
+            return .none
+
+        case .sidebar, .unreadStack, .chat:
+            return .none
+        }
+    },
+])
 
 // MARK: State
 
 public struct MainScreenState: Equatable {
     var sidebar: SidebarState
+    var route = Route.unreadStack(.init())
 
-    public init(
-        sidebar: SidebarState
-    ) {
-        self.sidebar = sidebar
+    public init(jid: JID) {
+        self.sidebar = .init(credentials: jid)
+    }
+}
+
+extension MainScreenState {
+    enum Route: Equatable {
+        case unreadStack(UnreadState)
+        case replies
+        case directMessages
+        case peopleAndGroups
+        case chat(ConversationState)
     }
 }
 
 public extension MainScreenState {
-    static var placeholder: MainScreenState {
-        MainScreenState(
-            sidebar: .placeholder
-        )
-    }
+    static var placeholder = MainScreenState(jid: "hello@world.org")
 }
 
 // MARK: Actions
 
 public enum MainScreenAction: Equatable {
     case sidebar(SidebarAction)
+    case unreadStack(UnreadAction)
+    case chat(ConversationAction)
 }
 
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
-    
-    var sidebar: SidebarEnvironment {
-        SidebarEnvironment(
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore:self.securityStore
-        )
-    }
-    
-    public init(
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore
-    ) {
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
-    }
-}
-
-public extension MainScreenEnvironment {
-    static var stub: MainScreenEnvironment {
-        MainScreenEnvironment(
-            userStore: .stub,
-            messageStore: .stub,
-            statusStore: .stub,
-            securityStore: .stub
-        )
-    }
-}
-
-public extension MainScreenEnvironment {
-    static var placeholder: MainScreenEnvironment {
-        MainScreenEnvironment(
-            userStore: .placeholder,
-            messageStore: .placeholder,
-            statusStore: .placeholder,
-            securityStore: .placeholder
-        )
-    }
+    public init() {}
 }
 
 // MARK: - Previews
@@ -136,16 +149,9 @@ public extension MainScreenEnvironment {
     internal struct MainWindow_Previews: PreviewProvider {
         static var previews: some View {
             MainScreen(store: Store(
-                initialState: MainScreenState(
-                    sidebar: .init(
-                        credentials: UserCredentials(jid: "preview@prose.org"),
-                        footer: FooterState(
-                            avatar: .init(avatar: .init(url: PreviewAsset.Avatars.valerian.customURL))
-                        )
-                    )
-                ),
+                initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
-                environment: .stub
+                environment: MainScreenEnvironment()
             ))
         }
     }

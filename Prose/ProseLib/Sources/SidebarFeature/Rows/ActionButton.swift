@@ -8,14 +8,13 @@
 
 import SwiftUI
 
-struct ActionRow: View {
+struct ActionButton: View {
     let title: String
-    let systemImage: String
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Label(title, systemImage: systemImage)
+            Label(title, systemImage: "plus.square.fill")
                 .symbolVariant(.fill)
                 // Make hit box full width
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -27,9 +26,8 @@ struct ActionRow: View {
 
 struct ActionRow_Previews: PreviewProvider {
     static var previews: some View {
-        ActionRow(
+        ActionButton(
             title: "sidebar_groups_add",
-            systemImage: "plus.square",
             action: {}
         )
         .frame(width: 196)

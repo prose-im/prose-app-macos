@@ -8,6 +8,10 @@
 import SharedModels
 import SwiftUI
 
+extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
+    static var spotlight: Self { SpotlightGroupBoxStyle() }
+}
+
 struct SpotlightGroupBoxStyle: GroupBoxStyle {
     func makeBody(configuration: Configuration) -> some View {
         VStack(spacing: 12) {
@@ -21,8 +25,21 @@ struct SpotlightGroupBoxStyle: GroupBoxStyle {
     }
 }
 
-extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
-    static var spotlight: Self { SpotlightGroupBoxStyle() }
+private struct SpotlightItemBackground: ViewModifier {
+    var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: 3)
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background {
+                shape
+                    .fill(.background)
+                    .shadow(color: .gray.opacity(0.5), radius: 1)
+            }
+    }
 }
 
 #if DEBUG
@@ -57,6 +74,20 @@ extension GroupBoxStyle where Self == SpotlightGroupBoxStyle {
                 }
             }
             .groupBoxStyle(.spotlight)
+        }
+    }
+
+    struct SpotlightItemBackground_Previews: PreviewProvider {
+        static var previews: some View {
+            MessageView(model: .init(
+                senderId: "valerian@crisp.chat",
+                senderName: "Valerian",
+                avatarURL: PreviewAsset.Avatars.valerian.customURL,
+                content: "Message from Valerian",
+                timestamp: Date() - 10_000
+            ))
+            .modifier(SpotlightItemBackground())
+            .padding()
         }
     }
 #endif

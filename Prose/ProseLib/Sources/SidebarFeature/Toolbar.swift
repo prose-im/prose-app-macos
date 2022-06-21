@@ -53,10 +53,10 @@ struct Toolbar: ToolbarContent {
 
 // MARK: Reducer
 
-public let toolbarReducer: Reducer<
+let toolbarReducer: Reducer<
     ToolbarState,
     ToolbarAction,
-    SidebarEnvironment
+    Void
 > = Reducer { state, action, _ in
     switch action {
     case .startCallTapped:
@@ -81,13 +81,7 @@ public let toolbarReducer: Reducer<
 // MARK: State
 
 public struct ToolbarState: Equatable {
-    @BindableState var writingNewMessage: Bool
-
-    public init(
-        writingNewMessage: Bool = false
-    ) {
-        self.writingNewMessage = writingNewMessage
-    }
+    @BindableState var writingNewMessage = false
 }
 
 // MARK: Actions
@@ -109,7 +103,7 @@ internal struct Toolbar_Previews: PreviewProvider {
             let store = Store(
                 initialState: state,
                 reducer: toolbarReducer,
-                environment: .stub
+                environment: ()
             )
             HStack {
                 Toolbar.actions(

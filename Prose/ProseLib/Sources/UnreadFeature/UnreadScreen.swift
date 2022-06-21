@@ -32,6 +32,7 @@ public struct UnreadScreen: View {
             .background(Colors.Background.message.color)
             .toolbar(content: Toolbar.init)
             .onAppear { actions.send(.onAppear) }
+            .groupBoxStyle(.spotlight)
     }
 
     private func content() -> some View {

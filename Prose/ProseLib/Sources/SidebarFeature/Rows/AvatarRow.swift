@@ -10,10 +10,10 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-struct ContactRow: View {
+struct AvatarRow: View {
     var title: String
     var avatar: AvatarImage
-    var count: UInt16? = 0
+    var count = 0
 
     var body: some View {
         HStack {
@@ -35,7 +35,7 @@ struct ContactRow: View {
 struct ContactRow_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            ContactRow(
+            AvatarRow(
                 title: "Valerian",
                 avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
                 count: 3
