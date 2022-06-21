@@ -6,6 +6,7 @@
 //
 
 import AddressBookFeature
+import AuthenticationClient
 import ComposableArchitecture
 import ConversationFeature
 import SharedModels
@@ -128,12 +129,12 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    var userDefaults: UserDefaultsClient
+    var authenticationClient: AuthenticationClient
 
     public init(
-        userDefaults: UserDefaultsClient
+        authenticationClient: AuthenticationClient
     ) {
-        self.userDefaults = userDefaults
+        self.authenticationClient = authenticationClient
     }
 }
 
@@ -148,7 +149,7 @@ public struct MainScreenEnvironment {
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
                 environment: MainScreenEnvironment(
-                    userDefaults: .live(UserDefaults())
+                    authenticationClient: .live(userDefaults: .live(UserDefaults()))
                 )
             ))
         }

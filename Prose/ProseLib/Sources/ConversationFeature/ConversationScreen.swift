@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/21/21.
 //
 
+import AuthenticationClient
 import ComposableArchitecture
 import ConversationInfoFeature
 import OrderedCollections
@@ -92,27 +93,25 @@ public let conversationReducer: Reducer<
             state.toolbar = ToolbarState(user: user, showingInfo: false)
 
         case let .chat(.messageBar(.textField(.send(messageContent)))):
-            guard let jid = environment.userDefaults.loadCurrentAccount() else {
-                print("Not logged in correctly")
-//                proceedToLogin(jid: nil)
-                return .none
-            }
-
             let chatId = state.chatId
+            return environment.authenticationClient.requireJID()
+                .receive(on: DispatchQueue.main)
+                .map { jid -> ConversationAction in
+                    let message = ProseCoreStub.Message(senderId: jid, content: messageContent, timestamp: .now)
+                    environment.messageStore.sendMessage(chatId, message)
 
-            let message = ProseCoreStub.Message(senderId: jid, content: messageContent, timestamp: .now)
-            environment.messageStore.sendMessage(chatId, message)
-
-            // TODO: Fix senderName and avatarURL
-            let messageVM = MessageViewModel(
-                senderId: message.senderId,
-                senderName: "TODO",
-                avatarURL: nil,
-                content: message.content,
-                timestamp: message.timestamp
-            )
-            let newMessages = ChatState.sectioned([messageVM])
-            return Effect(value: .chat(.chat(.addMessages(newMessages))))
+                    // TODO: Fix senderName and avatarURL
+                    let messageVM = MessageViewModel(
+                        senderId: message.senderId,
+                        senderName: "TODO",
+                        avatarURL: nil,
+                        content: message.content,
+                        timestamp: message.timestamp
+                    )
+                    let newMessages = ChatState.sectioned([messageVM])
+                    return .chat(.chat(.addMessages(newMessages)))
+                }
+                .eraseToEffect()
 
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
@@ -230,7 +229,7 @@ public enum ConversationAction: Equatable {
 // MARK: Environment
 
 public struct ConversationEnvironment {
-    var userDefaults: UserDefaultsClient
+    let authenticationClient: AuthenticationClient
 
     let userStore: UserStore
     let messageStore: MessageStore
@@ -238,13 +237,13 @@ public struct ConversationEnvironment {
     let securityStore: SecurityStore
 
     public init(
-        userDefaults: UserDefaultsClient,
+        authenticationClient: AuthenticationClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
         securityStore: SecurityStore
     ) {
-        self.userDefaults = userDefaults
+        self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
@@ -255,7 +254,7 @@ public struct ConversationEnvironment {
 public extension ConversationEnvironment {
     static var stub: ConversationEnvironment {
         ConversationEnvironment(
-            userDefaults: .live(UserDefaults()),
+            authenticationClient: .live(userDefaults: .live(UserDefaults())),
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

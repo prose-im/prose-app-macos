@@ -59,6 +59,7 @@ let package = Package(
             ]
         ),
         .target(name: "MainWindowFeature", dependencies: [
+            "AuthenticationClient",
             "SidebarFeature",
             "TcaHelpers",
             "AddressBookFeature",
@@ -93,6 +94,7 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 "Assets",
+                "AuthenticationClient",
                 "ConversationInfoFeature",
                 "ProseCoreStub",
                 "ProseUI",
@@ -139,6 +141,11 @@ let package = Package(
 
         // MARK: Dependencies
 
+        .target(name: "AuthenticationClient", dependencies: [
+            "SharedModels",
+            "UserDefaultsClient",
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        ]),
         .target(name: "CredentialsClient", dependencies: [
             "SharedModels",
         ]),
