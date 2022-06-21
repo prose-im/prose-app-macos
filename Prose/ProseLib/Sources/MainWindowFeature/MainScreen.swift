@@ -33,12 +33,12 @@ public struct MainScreen: View {
 
             SwitchStore(self.store.scope(state: \.route)) {
                 CaseLet(
-                    state: /MainScreenState.Route.unreadStack,
+                    state: CasePath(MainScreenState.Route.unreadStack).extract,
                     action: MainScreenAction.unreadStack,
                     then: UnreadScreen.init(store:)
                 )
                 CaseLet(
-                    state: /MainScreenState.Route.chat,
+                    state: CasePath(MainScreenState.Route.chat).extract,
                     action: MainScreenAction.chat,
                     then: ConversationScreen.init(store:)
                 )
