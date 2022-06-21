@@ -8,6 +8,7 @@ import CredentialsClient
 import Foundation
 import MainWindowFeature
 // import ProseCore
+import ProseCoreStub
 import SharedModels
 import UserDefaultsClient
 
@@ -176,27 +177,48 @@ public struct AppEnvironment {
     var userDefaults: UserDefaultsClient
     var credentials: CredentialsClient
 
+    let userStore: UserStore
+    let messageStore: MessageStore
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
 
-    var auth: AuthenticationEnvironment
-    var main: MainScreenEnvironment
+    var auth: AuthenticationEnvironment {
+        AuthenticationEnvironment(
+            credentials: self.credentials,
+            mainQueue: self.mainQueue
+        )
+    }
+    var main: MainScreenEnvironment {
+        MainScreenEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
+        )
+    }
 
     private init(
         userDefaults: UserDefaultsClient,
         credentials: CredentialsClient,
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore,
         mainQueue: AnySchedulerOf<DispatchQueue>,
-        openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>,
-        auth: AuthenticationEnvironment,
-        main: MainScreenEnvironment
+        openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
     ) {
         self.userDefaults = userDefaults
         self.credentials = credentials
+        self.userStore = userStore
+        self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
         self.mainQueue = mainQueue
         self.openURL = openURL
-        self.auth = auth
-        self.main = main
     }
 
     public static var live: Self {
@@ -204,6 +226,10 @@ public struct AppEnvironment {
         return Self(
             userDefaults: .live(.standard),
             credentials: credentialsClient,
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub,
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in
@@ -219,11 +245,7 @@ public struct AppEnvironment {
                         #error("AppKit is not available, find another way to open an URL.")
                     #endif
                 }
-            },
-            auth: .init(
-                credentials: credentialsClient,
-                mainQueue: .main
-            ),
+            }
 //            auth: .init(login: { jid, password, origin in
 //                Effect.catching {
 //                    try ProseCore.login(jid: jid, password: password, origin: origin)
@@ -231,9 +253,6 @@ public struct AppEnvironment {
 //                .mapError(EquatableError.init)
 //                .catchToEffect()
 //            }),
-            main: .init(
-                sidebar: .stub
-            )
         )
     }
 }
@@ -243,10 +262,12 @@ public extension AppEnvironment {
         AppEnvironment(
             userDefaults: .placeholder,
             credentials: .placeholder,
+            userStore: .placeholder,
+            messageStore: .placeholder,
+            statusStore: .placeholder,
+            securityStore: .placeholder,
             mainQueue: .main,
-            openURL: { _, _ in Effect(value: ()) },
-            auth: .placeholder,
-            main: .placeholder
+            openURL: { _, _ in Effect(value: ()) }
         )
     }
 }

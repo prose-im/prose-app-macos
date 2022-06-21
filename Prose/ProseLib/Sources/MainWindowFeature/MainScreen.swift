@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProseCoreStub
 import SidebarFeature
 import SwiftUI
 import TcaHelpers
@@ -78,19 +79,51 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    var sidebar: SidebarEnvironment
-
+    let userStore: UserStore
+    let messageStore: MessageStore
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+    
+    var sidebar: SidebarEnvironment {
+        SidebarEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore:self.securityStore
+        )
+    }
+    
     public init(
-        sidebar: SidebarEnvironment
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
     ) {
-        self.sidebar = sidebar
+        self.userStore = userStore
+        self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+public extension MainScreenEnvironment {
+    static var stub: MainScreenEnvironment {
+        MainScreenEnvironment(
+            userStore: .stub,
+            messageStore: .stub,
+            statusStore: .stub,
+            securityStore: .stub
+        )
     }
 }
 
 public extension MainScreenEnvironment {
     static var placeholder: MainScreenEnvironment {
         MainScreenEnvironment(
-            sidebar: .placeholder
+            userStore: .placeholder,
+            messageStore: .placeholder,
+            statusStore: .placeholder,
+            securityStore: .placeholder
         )
     }
 }
@@ -112,9 +145,7 @@ public extension MainScreenEnvironment {
                     )
                 ),
                 reducer: mainWindowReducer,
-                environment: MainScreenEnvironment(
-                    sidebar: .stub
-                )
+                environment: .stub
             ))
         }
     }
