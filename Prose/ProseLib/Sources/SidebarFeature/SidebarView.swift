@@ -10,17 +10,17 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct SidebarView: View {
-    public typealias ViewState = SidebarState
-    public typealias ViewAction = SidebarAction
+    public typealias State = SidebarState
+    public typealias Action = SidebarAction
 
     typealias Tag = SidebarState.Selection
 
-    let store: Store<ViewState, ViewAction>
-    let viewStore: ViewStore<Void, ViewAction>
+    let store: Store<State, Action>
+    let viewStore: ViewStore<Void, Action>
 
     @Environment(\.redactionReasons) private var redactionReasons
 
-    public init(store: Store<ViewState, ViewAction>) {
+    public init(store: Store<State, Action>) {
         self.store = store
         self.viewStore = ViewStore(store.stateless)
     }
@@ -38,14 +38,14 @@ public struct SidebarView: View {
             .listStyle(.sidebar)
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Footer(store: self.store.scope(state: \.footer, action: ViewAction.footer))
+                Footer(store: self.store.scope(state: \.footer, action: Action.footer))
                     // Make sure accessibility frame isn't inset by the window's rounded corners
                     .contentShape(Rectangle())
                     // Make footer have a higher priority, to be accessible over the scroll view
                     .accessibilitySortPriority(1)
             }
             .toolbar {
-                Toolbar(store: self.store.scope(state: \.toolbar, action: ViewAction.toolbar))
+                Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
             }
         }
         .disabled(redactionReasons.contains(.placeholder))
