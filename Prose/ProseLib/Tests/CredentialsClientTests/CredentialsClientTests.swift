@@ -17,15 +17,15 @@ final class CredentialsStoreTests: XCTestCase {
 
         try XCTAssertNil(store.loadCredentials(jid))
 
-        let initialCredentials = "initial-password"
+        let initialCredentials = Credentials(jid: jid, password: "initial-password")
 
-        try store.save(jid, initialCredentials)
+        try store.save(initialCredentials)
 
         try XCTAssertEqual(store.loadCredentials(jid), initialCredentials)
 
-        let updatedCredentials = "updated-passowrd"
+        let updatedCredentials = Credentials(jid: jid, password: "updated-passowrd")
 
-        try store.save(jid, updatedCredentials)
+        try store.save(updatedCredentials)
 
         try XCTAssertEqual(store.loadCredentials(jid), updatedCredentials)
 
