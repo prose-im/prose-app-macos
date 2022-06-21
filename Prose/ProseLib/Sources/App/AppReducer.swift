@@ -34,13 +34,19 @@ public let appReducer: Reducer<
     ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
         func proceedToMainFlow(with credentials: Credentials) {
-            state.main = MainScreenState(jid: credentials.jid)
+            if state.isMainWindowRedacted {
+                state.main = MainScreenState(jid: credentials.jid)
+            } else {
+                state.main.sidebar.credentials = credentials.jid
+            }
+            state.isMainWindowRedacted = false
             state.auth = nil
 
             environment.authenticationClient.jidSubject.send(credentials.jid)
         }
 
-        func proceedToLogin(jid: JID? = nil) {
+        func proceedToLogin(jid: JID? = nil, redactMainWindow: Bool) {
+            state.isMainWindowRedacted = redactMainWindow
             state.auth = .init(
                 route: .basicAuth(.init(
                     jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
@@ -62,7 +68,7 @@ public let appReducer: Reducer<
             .map(AppAction.authenticationResult)
 
             let requireAuthEffect = environment.authenticationClient.loginSubject
-                .map { AppAction.proceedToLogin }
+                .map { AppAction.proceedToLogin(redactMainWindow: false) }
                 .eraseToEffect()
 
             return Effect.merge([
@@ -70,8 +76,8 @@ public let appReducer: Reducer<
                 requireAuthEffect,
             ])
 
-        case .proceedToLogin:
-            proceedToLogin()
+        case let .proceedToLogin(redactMainWindow):
+            proceedToLogin(redactMainWindow: redactMainWindow)
             return .none
 
         case let .authenticationResult(.success(.some(credentials))):
@@ -79,12 +85,12 @@ public let appReducer: Reducer<
             return .none
 
         case .authenticationResult(.success(.none)):
-            proceedToLogin()
+            proceedToLogin(redactMainWindow: state.isMainWindowRedacted)
             return .none
 
         case let .authenticationResult(.failure(error)):
             print("Error when loading credentials: \(error.localizedDescription)")
-            proceedToLogin()
+            proceedToLogin(redactMainWindow: state.isMainWindowRedacted)
             return .none
 
         case let .auth(.didLogIn(credentials)):
@@ -114,7 +120,7 @@ public let appReducer: Reducer<
 
             environment.userDefaults.deleteCurrentAccount()
 
-            proceedToLogin(jid: jid)
+            proceedToLogin(jid: jid, redactMainWindow: true)
             return .none
 
         case .onAppear, .auth, .main:
@@ -138,21 +144,23 @@ extension Reducer where State == AppState, Action == AppAction, Environment == A
 
 public struct AppState: Equatable {
     var hasAppearedAtLeastOnce: Bool
+    /// This is a regular value (not a computed property) as we don't want to redact the view when the user
+    /// adds a new account, for example.
+    var isMainWindowRedacted: Bool
 
     var main: MainScreenState
     var auth: AuthenticationState?
 
     var isMainWindowDisabled: Bool { self.auth != nil }
-    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
-    ///         as we don't want to redact the view when the user adds a new account.
-    var isMainWindowRedacted: Bool { self.auth != nil }
 
     public init(
         hasAppearedAtLeastOnce: Bool = false,
+        isMainWindowRedacted: Bool = false,
         main: MainScreenState = .placeholder,
         auth: AuthenticationState? = nil
     ) {
         self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
+        self.isMainWindowRedacted = isMainWindowRedacted
         self.main = main
         self.auth = auth
     }
@@ -166,7 +174,7 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
-    case proceedToLogin
+    case proceedToLogin(redactMainWindow: Bool)
     case authenticationResult(Result<Credentials?, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
@@ -203,7 +211,11 @@ public struct AppEnvironment {
 
     var main: MainScreenEnvironment {
         MainScreenEnvironment(
-            authenticationClient: self.authenticationClient
+            authenticationClient: self.authenticationClient,
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
         )
     }
 
