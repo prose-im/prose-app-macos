@@ -61,6 +61,9 @@ let package = Package(
         .target(name: "MainWindowFeature", dependencies: [
             "SidebarFeature",
             "TcaHelpers",
+            "AddressBookFeature",
+            "ConversationFeature",
+            "UnreadFeature",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
         .target(name: "AddressBookFeature", dependencies: [
@@ -76,16 +79,12 @@ let package = Package(
         .target(
             name: "SidebarFeature",
             dependencies: [
-                "AddressBookFeature",
                 "AppLocalization",
                 "Assets",
-                "ConversationFeature",
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
-                // "ProseCore",
                 "TcaHelpers",
-                "UnreadFeature",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),

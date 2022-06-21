@@ -16,7 +16,7 @@ private let l10n = L10n.Sidebar.Footer.self
 
 /// The small bar at the bottom of the left sidebar.
 struct Footer: View {
-    typealias State = (FooterState, UserCredentials)
+    typealias State = FooterState
     typealias Action = FooterAction
 
     static let height: CGFloat = 64
@@ -29,20 +29,20 @@ struct Footer: View {
 
             HStack(spacing: 12) {
                 // User avatar
-                FooterAvatar(store: self.store.scope(state: \State.0.avatar, action: Action.avatar))
+                FooterAvatar(store: self.store.scope(state: \State.avatar, action: Action.avatar))
 
                 WithViewStore(self.store, removeDuplicates: ==) { viewStore in
                     // Team name + user status
                     FooterDetails(
-                        teamName: viewStore.1.jid.jidString,
-                        statusIcon: viewStore.0.statusIcon,
-                        statusMessage: viewStore.0.statusMessage
+                        teamName: viewStore.credentials.jidString,
+                        statusIcon: viewStore.statusIcon,
+                        statusMessage: viewStore.statusMessage
                     )
                 }
                 .layoutPriority(1)
 
                 // Quick actions button
-                FooterActionMenu(store: self.store.scope(state: \.0.actionButton, action: Action.actionButton))
+                FooterActionMenu(store: self.store.scope(state: \.actionButton, action: Action.actionButton))
             }
             .padding(.leading, 20.0)
             .padding(.trailing, 14.0)
@@ -58,18 +58,18 @@ struct Footer: View {
 
 // MARK: Reducer
 
-public let footerReducer: Reducer<
-    (FooterState, UserCredentials),
+let footerReducer: Reducer<
+    FooterState,
     FooterAction,
     Void
 > = Reducer.combine([
     footerActionMenuReducer.pullback(
-        state: \.0.actionButton,
+        state: \.actionButton,
         action: CasePath(FooterAction.actionButton),
         environment: { $0 }
     ),
     footerAvatarReducer.pullback(
-        state: \.0.avatar,
+        state: \.avatar,
         action: CasePath(FooterAction.avatar),
         environment: { $0 }
     ),
@@ -77,7 +77,8 @@ public let footerReducer: Reducer<
 
 // MARK: State
 
-public struct FooterState: Equatable {
+struct FooterState: Equatable {
+    let credentials: UserCredentials
     let teamName: String
     let statusIcon: Character
     let statusMessage: String
@@ -85,13 +86,15 @@ public struct FooterState: Equatable {
     var avatar: FooterAvatarState
     var actionButton: FooterActionMenuState
 
-    public init(
+    init(
+        credentials: UserCredentials,
         teamName: String = "Crisp",
         statusIcon: Character = "🚀",
         statusMessage: String = "Building new features.",
-        avatar: FooterAvatarState,
+        avatar: FooterAvatarState = .init(avatar: .placeholder),
         actionButton: FooterActionMenuState = .init()
     ) {
+        self.credentials = credentials
         self.teamName = teamName
         self.statusIcon = statusIcon
         self.statusMessage = statusMessage
@@ -126,12 +129,7 @@ public enum FooterAction: Equatable {
         }
 
         static var previews: some View {
-            let state = (
-                FooterState(
-                    avatar: .init(avatar: .init(url: PreviewAsset.Avatars.valerian.customURL))
-                ),
-                UserCredentials(jid: "valerian@crisp.chat")
-            )
+            let state = FooterState(credentials: "valerian@crisp.chat")
             Preview(state: state)
                 .preferredColorScheme(.light)
                 .previewDisplayName("Light")

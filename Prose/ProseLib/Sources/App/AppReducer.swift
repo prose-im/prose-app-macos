@@ -33,18 +33,7 @@ public let appReducer: Reducer<
     ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
         func proceedToMainFlow(with credentials: Credentials) {
-            // NOTE: [@nesium] This thing here should receive a nicer initializer sometime.
-            state.main = MainScreenState(
-                sidebar: .init(
-                    credentials: .init(jid: credentials.jid),
-                    footer: .init(
-                        avatar: .init(
-                            // TODO: Use an image stored by the user
-                            avatar: .placeholder
-                        )
-                    )
-                )
-            )
+            state.main = MainScreenState(jid: credentials.jid)
             state.auth = nil
         }
 
@@ -192,13 +181,9 @@ public struct AppEnvironment {
             mainQueue: self.mainQueue
         )
     }
+
     var main: MainScreenEnvironment {
-        MainScreenEnvironment(
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore: self.securityStore
-        )
+        MainScreenEnvironment()
     }
 
     private init(
@@ -246,28 +231,6 @@ public struct AppEnvironment {
                     #endif
                 }
             }
-//            auth: .init(login: { jid, password, origin in
-//                Effect.catching {
-//                    try ProseCore.login(jid: jid, password: password, origin: origin)
-//                }
-//                .mapError(EquatableError.init)
-//                .catchToEffect()
-//            }),
-        )
-    }
-}
-
-public extension AppEnvironment {
-    static var placeholder: AppEnvironment {
-        AppEnvironment(
-            userDefaults: .placeholder,
-            credentials: .placeholder,
-            userStore: .placeholder,
-            messageStore: .placeholder,
-            statusStore: .placeholder,
-            securityStore: .placeholder,
-            mainQueue: .main,
-            openURL: { _, _ in Effect(value: ()) }
         )
     }
 }

@@ -13,7 +13,7 @@ import SwiftUI
 struct ContactRow: View {
     var title: String
     var avatar: AvatarImage
-    var count: UInt16? = 0
+    var count = 0
 
     var body: some View {
         HStack {

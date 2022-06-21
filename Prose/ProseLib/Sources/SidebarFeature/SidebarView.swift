@@ -5,28 +5,40 @@
 //  Created by Valerian Saliou on 11/15/21.
 //
 
+import AppLocalization
 import ComposableArchitecture
-import ProseCoreStub
 import SwiftUI
 
-// MARK: - View
-
-/// The sidebar on the left of the screen.
 public struct SidebarView: View {
     public typealias State = SidebarState
     public typealias Action = SidebarAction
 
-    private let store: Store<State, Action>
+    typealias Tag = SidebarState.Selection
+
+    let store: Store<State, Action>
+    let viewStore: ViewStore<Void, Action>
+
+    @Environment(\.redactionReasons) private var redactionReasons
 
     public init(store: Store<State, Action>) {
         self.store = store
+        self.viewStore = ViewStore(store.stateless)
     }
 
     public var body: some View {
-        SidebarContentView(store: self.store.scope(state: \.content, action: Action.content))
+        WithViewStore(self.store) { viewStore in
+            List(selection: viewStore.binding(
+                get: \.selection,
+                send: SidebarAction.selection
+            )) {
+                self.spotlightSection
+                self.contactsSection
+                self.groupsSection
+            }
+            .listStyle(.sidebar)
             .frame(minWidth: 280)
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Footer(store: self.store.scope(state: \.footerView, action: Action.footer))
+                Footer(store: self.store.scope(state: \.footer, action: Action.footer))
                     // Make sure accessibility frame isn't inset by the window's rounded corners
                     .contentShape(Rectangle())
                     // Make footer have a higher priority, to be accessible over the scroll view
@@ -35,149 +47,38 @@ public struct SidebarView: View {
             .toolbar {
                 Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
             }
+        }
+        .disabled(redactionReasons.contains(.placeholder))
     }
-}
 
-// MARK: - The Composable Architecture
-
-// MARK: Reducer
-
-public let sidebarReducer: Reducer<
-    SidebarState,
-    SidebarAction,
-    SidebarEnvironment
-> = Reducer.combine([
-    sidebarContentReducer.pullback(
-        state: \SidebarState.content,
-        action: CasePath(SidebarAction.content),
-        environment: { $0 }
-    ),
-    footerReducer.pullback(
-        state: \SidebarState.footerView,
-        action: CasePath(SidebarAction.footer),
-        environment: { _ in () }
-    ),
-    toolbarReducer.pullback(
-        state: \SidebarState.toolbar,
-        action: CasePath(SidebarAction.toolbar),
-        environment: { $0 }
-    ),
-])
-
-// MARK: State
-
-public struct SidebarState: Equatable {
-    var credentials: UserCredentials
-    var content: SidebarContentState
-    var footer: FooterState
-    var toolbar: ToolbarState
-
-    var footerView: (FooterState, UserCredentials) {
-        get { (self.footer, self.credentials) }
-        set {
-            self.footer = newValue.0
-            self.credentials = newValue.1
+    private var spotlightSection: some View {
+        Section(L10n.Sidebar.Spotlight.title) {
+            IconRow(title: L10n.Sidebar.Spotlight.unreadStack, icon: .unread)
+                .tag(Tag.unreadStack)
+            IconRow(title: L10n.Sidebar.Spotlight.replies, icon: .reply)
+                .tag(Tag.replies)
+            IconRow(title: L10n.Sidebar.Spotlight.directMessages, icon: .directMessage)
+                .tag(Tag.directMessages)
+            IconRow(title: L10n.Sidebar.Spotlight.peopleAndGroups, icon: .group)
+                .tag(Tag.peopleAndGroups)
         }
     }
 
-    public init(
-        credentials: UserCredentials,
-        content: SidebarContentState = .init(),
-        footer: FooterState,
-        toolbar: ToolbarState = .init()
-    ) {
-        self.credentials = credentials
-        self.content = content
-        self.footer = footer
-        self.toolbar = toolbar
+    private var contactsSection: some View {
+        Section(L10n.Sidebar.TeamMembers.title) {
+            ContactRow(title: "John Doe", avatar: .placeholder).tag(Tag.chat("john@prose.org"))
+            ActionButton(title: L10n.Sidebar.TeamMembers.Add.label) {
+                self.viewStore.send(.addContactButtonTapped)
+            }
+        }
     }
-}
 
-public extension SidebarState {
-    static var placeholder: SidebarState {
-        SidebarState(
-            credentials: UserCredentials(
-                jid: "valerian@prose.org"
-            ),
-            content: .placeholder,
-            footer: FooterState(
-                teamName: "Prose",
-                statusIcon: "🚀",
-                statusMessage: "Shipping new features",
-                avatar: FooterAvatarState(
-                    avatar: .placeholder,
-                    availability: .available,
-                    fullName: "Valerian Saliou",
-                    jid: "valerian@prose.org",
-                    statusIcon: "🚀",
-                    statusMessage: "Shipping new features"
-                ),
-                actionButton: FooterActionMenuState()
-            ),
-            toolbar: ToolbarState()
-        )
-    }
-}
-
-// MARK: Actions
-
-public enum SidebarAction: Equatable, BindableAction {
-    case content(SidebarContentAction)
-    case footer(FooterAction)
-    case toolbar(ToolbarAction)
-    case binding(BindingAction<SidebarState>)
-}
-
-// MARK: Environment
-
-public struct SidebarEnvironment {
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
-
-    public init(
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore
-    ) {
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
-    }
-}
-
-public extension SidebarEnvironment {
-    static var placeholder: SidebarEnvironment {
-        SidebarEnvironment(
-            userStore: .placeholder,
-            messageStore: .placeholder,
-            statusStore: .placeholder,
-            securityStore: .placeholder
-        )
-    }
-}
-
-public extension SidebarEnvironment {
-    static var stub: SidebarEnvironment {
-        SidebarEnvironment(
-            userStore: .stub,
-            messageStore: .stub,
-            statusStore: .stub,
-            securityStore: .stub
-        )
-    }
-}
-
-public extension SidebarEnvironment {
-    var destination: NavigationDestinationEnvironment {
-        NavigationDestinationEnvironment(
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore: self.securityStore
-        )
+    private var groupsSection: some View {
+        Section(L10n.Sidebar.Groups.title) {
+            IconRow(title: "My group", icon: .group)
+            ActionButton(title: L10n.Sidebar.Groups.Add.label) {
+                self.viewStore.send(.addGroupButtonTapped)
+            }
+        }.opacity(0.5)
     }
 }
