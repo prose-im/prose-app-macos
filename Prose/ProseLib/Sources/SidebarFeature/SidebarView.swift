@@ -66,7 +66,7 @@ public struct SidebarView: View {
 
     private var contactsSection: some View {
         Section(L10n.Sidebar.TeamMembers.title) {
-            AvatarRow(title: "John Doe", avatar: .placeholder).tag(Tag.chat("john@prose.org"))
+            ContactRow(title: "John Doe", avatar: .placeholder).tag(Tag.chat("john@prose.org"))
             ActionButton(title: L10n.Sidebar.TeamMembers.Add.label) {
                 self.viewStore.send(.addContactButtonTapped)
             }

@@ -10,7 +10,7 @@ import ProseUI
 import SharedModels
 import SwiftUI
 
-struct AvatarRow: View {
+struct ContactRow: View {
     var title: String
     var avatar: AvatarImage
     var count = 0
@@ -35,7 +35,7 @@ struct AvatarRow: View {
 struct ContactRow_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            AvatarRow(
+            ContactRow(
                 title: "Valerian",
                 avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
                 count: 3
