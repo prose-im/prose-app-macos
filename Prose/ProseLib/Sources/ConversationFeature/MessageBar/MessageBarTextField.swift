@@ -33,6 +33,7 @@ struct MessageBarTextField: View {
                     .font(Font.system(size: 13, weight: .regular))
                     .foregroundColor(.primary)
                     .textFieldStyle(.plain)
+                    .onSubmit(of: .text) { actions.send(.sendTapped) }
 
                 Button { actions.send(.sendTapped) } label: {
                     Image(systemName: "paperplane.circle.fill")
@@ -64,7 +65,17 @@ public let messageBarTextFieldReducer: Reducer<
     MessageBarTextFieldState,
     MessageBarTextFieldAction,
     Void
-> = Reducer.empty.binding()
+> = Reducer { state, action, _ in
+    switch action {
+    case .sendTapped where !state.message.isEmpty:
+        let content = state.message
+        state.message = ""
+        return Effect(value: .send(message: content))
+
+    default:
+        return .none
+    }
+}.binding()
 
 // MARK: State
 
@@ -85,6 +96,7 @@ public struct MessageBarTextFieldState: Equatable {
 
 public enum MessageBarTextFieldAction: Equatable, BindableAction {
     case sendTapped
+    case send(message: String)
     case binding(BindingAction<MessageBarTextFieldState>)
 }
 

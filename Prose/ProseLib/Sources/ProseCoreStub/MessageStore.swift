@@ -15,18 +15,30 @@ public struct Message {
     public let senderId: JID
     public let content: String
     public let timestamp: Date
+
+    public init(
+        senderId: JID,
+        content: String,
+        timestamp: Date
+    ) {
+        self.senderId = senderId
+        self.content = content
+        self.timestamp = timestamp
+    }
 }
 
 public struct MessageStore {
     public var messages: (_ chatId: ChatID) -> [Message]?
     public var unreadMessages: () -> OrderedDictionary<ChatID, [Message]>
+    public var sendMessage: (_ chatId: ChatID, _ message: Message) -> Void
 }
 
 public extension MessageStore {
     static var placeholder: MessageStore {
         MessageStore(
             messages: { _ in nil },
-            unreadMessages: { OrderedDictionary() }
+            unreadMessages: { OrderedDictionary() },
+            sendMessage: { _, _ in () }
         )
     }
 }
@@ -35,7 +47,8 @@ public extension MessageStore {
     static var stub: MessageStore {
         MessageStore(
             messages: StubMessageStore.shared.messages(for:),
-            unreadMessages: StubMessageStore.shared.unreadMessages
+            unreadMessages: StubMessageStore.shared.unreadMessages,
+            sendMessage: StubMessageStore.shared.sendMessage(chatId:message:)
         )
     }
 }
@@ -122,5 +135,13 @@ private final class StubMessageStore {
 
     func unreadMessages() -> OrderedDictionary<ChatID, [Message]> {
         self._unreadMessages
+    }
+
+    func sendMessage(chatId: ChatID, message: Message) {
+        if self._messages.keys.contains(chatId) {
+            self._messages[chatId]!.append(message)
+        } else {
+            self._messages[chatId] = [message]
+        }
     }
 }

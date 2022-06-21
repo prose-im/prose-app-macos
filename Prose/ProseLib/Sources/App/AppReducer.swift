@@ -183,7 +183,9 @@ public struct AppEnvironment {
     }
 
     var main: MainScreenEnvironment {
-        MainScreenEnvironment()
+        MainScreenEnvironment(
+            userDefaults: self.userDefaults
+        )
     }
 
     private init(

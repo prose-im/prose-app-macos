@@ -34,9 +34,9 @@ struct MessageBar: View {
                         action: Action.textField
                     ))
 
-                    WithViewStore(self.store) { viewStore in
-                        if !viewStore.typing.isEmpty {
-                            TypingIndicator(typing: viewStore.typing)
+                    WithViewStore(self.store.scope(state: \.typing)) { typing in
+                        if !typing.state.isEmpty {
+                            TypingIndicator(typing: typing.state)
                                 .offset(y: -Self.height / 2)
                         }
                     }

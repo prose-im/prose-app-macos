@@ -7,9 +7,11 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
+import OrderedCollections
 import ProseCoreStub
 import SharedModels
 import SwiftUI
+import UserDefaultsClient
 
 // MARK: - View
 
@@ -88,6 +90,29 @@ public let conversationReducer: Reducer<
 
             // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
             state.toolbar = ToolbarState(user: user, showingInfo: false)
+
+        case let .chat(.messageBar(.textField(.send(messageContent)))):
+            guard let jid = environment.userDefaults.loadCurrentAccount() else {
+                print("Not logged in correctly")
+//                proceedToLogin(jid: nil)
+                return .none
+            }
+
+            let chatId = state.chatId
+
+            let message = ProseCoreStub.Message(senderId: jid, content: messageContent, timestamp: .now)
+            environment.messageStore.sendMessage(chatId, message)
+
+            // TODO: Fix senderName and avatarURL
+            let messageVM = MessageViewModel(
+                senderId: message.senderId,
+                senderName: "TODO",
+                avatarURL: nil,
+                content: message.content,
+                timestamp: message.timestamp
+            )
+            let newMessages = ChatState.sectioned([messageVM])
+            return Effect(value: .chat(.chat(.addMessages(newMessages))))
 
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
@@ -205,17 +230,21 @@ public enum ConversationAction: Equatable {
 // MARK: Environment
 
 public struct ConversationEnvironment {
+    var userDefaults: UserDefaultsClient
+
     let userStore: UserStore
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
     public init(
+        userDefaults: UserDefaultsClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
         securityStore: SecurityStore
     ) {
+        self.userDefaults = userDefaults
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
@@ -226,6 +255,7 @@ public struct ConversationEnvironment {
 public extension ConversationEnvironment {
     static var stub: ConversationEnvironment {
         ConversationEnvironment(
+            userDefaults: .live(UserDefaults()),
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

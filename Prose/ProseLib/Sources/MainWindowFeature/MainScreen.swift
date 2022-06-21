@@ -13,6 +13,7 @@ import SidebarFeature
 import SwiftUI
 import TcaHelpers
 import UnreadFeature
+import UserDefaultsClient
 
 // MARK: - View
 
@@ -127,7 +128,13 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    public init() {}
+    var userDefaults: UserDefaultsClient
+
+    public init(
+        userDefaults: UserDefaultsClient
+    ) {
+        self.userDefaults = userDefaults
+    }
 }
 
 // MARK: - Previews
@@ -140,7 +147,9 @@ public struct MainScreenEnvironment {
             MainScreen(store: Store(
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
-                environment: MainScreenEnvironment()
+                environment: MainScreenEnvironment(
+                    userDefaults: .live(UserDefaults())
+                )
             ))
         }
     }
