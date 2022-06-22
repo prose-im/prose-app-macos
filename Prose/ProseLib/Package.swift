@@ -23,7 +23,6 @@ let package = Package(
         ]),
     ],
     dependencies: [
-        // .package(path: "../../ProseCore"),
         .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.2")),
         .package(
@@ -42,7 +41,6 @@ let package = Package(
                 "CredentialsClient",
                 "TcaHelpers",
                 "UserDefaultsClient",
-                // "ProseCore",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -113,7 +111,6 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 "CredentialsClient",
-                // "ProseCore",
                 "ProseUI",
                 "SharedModels",
                 "TcaHelpers",
