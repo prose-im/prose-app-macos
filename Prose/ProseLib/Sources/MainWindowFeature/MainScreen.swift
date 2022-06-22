@@ -14,7 +14,6 @@ import SidebarFeature
 import SwiftUI
 import TcaHelpers
 import UnreadFeature
-import UserDefaultsClient
 
 // MARK: - View
 

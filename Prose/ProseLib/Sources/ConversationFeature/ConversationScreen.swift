@@ -11,7 +11,6 @@ import OrderedCollections
 import ProseCoreStub
 import SharedModels
 import SwiftUI
-import UserDefaultsClient
 
 // MARK: - View
 
