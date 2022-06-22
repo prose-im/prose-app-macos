@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "prose-wrapper-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/prose-im/prose-wrapper-swift",
+      "state" : {
+        "branch" : "0.1.1",
+        "revision" : "d67f30e85702600ae9b6e756f1558ec964df75c2"
+      }
+    },
+    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",

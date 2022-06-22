@@ -9,6 +9,7 @@ import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
 import ProseCoreStub
+import ProseCoreTCA
 import SharedModels
 import SidebarFeature
 import SwiftUI
@@ -63,7 +64,7 @@ public let mainWindowReducer = Reducer<
     sidebarReducer.pullback(
         state: \.sidebar,
         action: CasePath(MainScreenAction.sidebar),
-        environment: { _ in }
+        environment: \.sidebar
     ),
     unreadReducer._pullback(
         state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
@@ -128,11 +129,31 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
+    var proseClient: ProseClient
+    var mainQueue: AnySchedulerOf<DispatchQueue>
     let userStore: UserStore
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
+    public init(
+        proseClient: ProseClient,
+        mainQueue: AnySchedulerOf<DispatchQueue>,
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
+    ) {
+        self.proseClient = proseClient
+        self.mainQueue = mainQueue
+        self.userStore = userStore
+        self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
+}
+
+extension MainScreenEnvironment {
     var chat: ConversationEnvironment {
         ConversationEnvironment(
             userStore: self.userStore,
@@ -142,16 +163,8 @@ public struct MainScreenEnvironment {
         )
     }
 
-    public init(
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore
-    ) {
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
+    var sidebar: SidebarEnvironment {
+        .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
     }
 }
 
@@ -166,6 +179,8 @@ public struct MainScreenEnvironment {
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
                 environment: MainScreenEnvironment(
+                    proseClient: .noop,
+                    mainQueue: .main,
                     userStore: .stub,
                     messageStore: .stub,
                     statusStore: .stub,

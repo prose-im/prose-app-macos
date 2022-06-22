@@ -7,8 +7,8 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import MainWindowFeature
-// import ProseCore
 import ProseCoreStub
+import ProseCoreTCA
 import SharedModels
 import UserDefaultsClient
 
@@ -59,7 +59,10 @@ public let appReducer: Reducer<
 
         case let .authenticationResult(.success(.some(credentials))):
             proceedToMainFlow(with: credentials)
-            return .none
+            return environment.proseClient.login(credentials.jid, credentials.password)
+                .receive(on: environment.mainQueue)
+                .catchToEffect()
+                .map(AppAction.connectionResult)
 
         case .authenticationResult(.success(.none)):
             proceedToLogin()
@@ -98,6 +101,14 @@ public let appReducer: Reducer<
             environment.userDefaults.deleteCurrentAccount()
 
             proceedToLogin(jid: jid)
+            return .none
+
+        case .connectionResult(.success):
+            print("Connection established.")
+            return .none
+
+        case .connectionResult(.failure):
+            proceedToLogin()
             return .none
 
         case .onAppear, .auth, .main:
@@ -150,6 +161,7 @@ public enum URLOpeningError: Error, Equatable {
 public enum AppAction: Equatable {
     case onAppear
     case authenticationResult(Result<Credentials?, EquatableError>)
+    case connectionResult(Result<None, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -166,6 +178,8 @@ public struct AppEnvironment {
     var userDefaults: UserDefaultsClient
     var credentials: CredentialsClient
 
+    var proseClient: ProseClient
+
     let userStore: UserStore
     let messageStore: MessageStore
     let statusStore: StatusStore
@@ -177,6 +191,7 @@ public struct AppEnvironment {
 
     var auth: AuthenticationEnvironment {
         AuthenticationEnvironment(
+            proseClient: self.proseClient,
             credentials: self.credentials,
             mainQueue: self.mainQueue
         )
@@ -184,6 +199,8 @@ public struct AppEnvironment {
 
     var main: MainScreenEnvironment {
         MainScreenEnvironment(
+            proseClient: self.proseClient,
+            mainQueue: self.mainQueue,
             userStore: self.userStore,
             messageStore: self.messageStore,
             statusStore: self.statusStore,
@@ -191,30 +208,11 @@ public struct AppEnvironment {
         )
     }
 
-    private init(
-        userDefaults: UserDefaultsClient,
-        credentials: CredentialsClient,
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore,
-        mainQueue: AnySchedulerOf<DispatchQueue>,
-        openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
-    ) {
-        self.userDefaults = userDefaults
-        self.credentials = credentials
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
-        self.mainQueue = mainQueue
-        self.openURL = openURL
-    }
-
     public static var live: Self {
         Self(
             userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
+            proseClient: .live,
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

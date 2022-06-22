@@ -30,6 +30,8 @@ let package = Package(
             .upToNextMajor(from: "0.33.1")
         ),
         .package(url: "https://github.com/pointfreeco/swiftui-navigation", .upToNextMajor(from: "0.1.0")),
+        // https://github.com/prose-im/prose-wrapper-swift/issues/1
+        .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.1.1"),
     ],
     targets: [
         .target(
@@ -41,6 +43,7 @@ let package = Package(
                 "CredentialsClient",
                 "TcaHelpers",
                 "UserDefaultsClient",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -62,6 +65,7 @@ let package = Package(
             "AddressBookFeature",
             "ConversationFeature",
             "UnreadFeature",
+            "ProseCoreTCA",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
         .target(name: "AddressBookFeature", dependencies: [
@@ -83,6 +87,7 @@ let package = Package(
                 "PreviewAssets",
                 "SharedModels",
                 "TcaHelpers",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -114,6 +119,7 @@ let package = Package(
                 "ProseUI",
                 "SharedModels",
                 "TcaHelpers",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
             ]
@@ -143,5 +149,19 @@ let package = Package(
         .target(name: "UserDefaultsClient", dependencies: [
             "SharedModels",
         ]),
+        .target(
+            name: "ProseCore",
+            dependencies: [
+                .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift"),
+            ]
+        ),
+        .target(
+            name: "ProseCoreTCA",
+            dependencies: [
+                "ProseCore",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
     ]
 )

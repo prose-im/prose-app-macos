@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import CredentialsClient
+import ProseCoreTCA
 import SharedModels
 import SwiftUI
 import TcaHelpers
@@ -107,32 +108,18 @@ public enum AuthenticationAction: Equatable {
 // MARK: Environment
 
 public struct AuthenticationEnvironment {
+    var proseClient: ProseClient
     var credentials: CredentialsClient
-
-//    var login: (String, String, ClientOrigin) -> Effect<Result<UserCredentials, EquatableError>, Never>
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     public init(
+        proseClient: ProseClient,
         credentials: CredentialsClient,
         mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
+        self.proseClient = proseClient
         self.credentials = credentials
         self.mainQueue = mainQueue
-    }
-
-//    public init(login: @escaping (String, String, ClientOrigin)
-//        -> Effect<Result<UserCredentials, EquatableError>, Never>)
-//    {
-//        self.login = login
-//    }
-}
-
-public extension AuthenticationEnvironment {
-    static var placeholder: AuthenticationEnvironment {
-        AuthenticationEnvironment(
-            credentials: .placeholder,
-            mainQueue: .main
-        )
     }
 }
 
@@ -145,6 +132,7 @@ internal struct AuthenticationScreen_Previews: PreviewProvider {
                 initialState: AuthenticationState(route: .basicAuth(.init())),
                 reducer: authenticationReducer,
                 environment: AuthenticationEnvironment(
+                    proseClient: .noop,
                     credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
                     mainQueue: .main
                 )

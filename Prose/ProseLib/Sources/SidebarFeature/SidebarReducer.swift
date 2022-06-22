@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import Foundation
+import ProseCoreTCA
 import SharedModels
+import TcaHelpers
 
 public typealias UserCredentials = JID
 
@@ -8,6 +10,7 @@ public struct SidebarState: Equatable {
     public internal(set) var selection: Selection?
 
     var credentials: UserCredentials
+    var roster = Roster(groups: [])
     var footer: FooterState
     var toolbar = ToolbarState()
 
@@ -29,19 +32,38 @@ public extension SidebarState {
 }
 
 public enum SidebarAction: Equatable {
+    case onAppear
+    case onDisappear
+
     case selection(SidebarState.Selection?)
 
     case addContactButtonTapped
     case addGroupButtonTapped
 
+    case rosterChanged(Roster)
+
     case footer(FooterAction)
     case toolbar(ToolbarAction)
+}
+
+public struct SidebarEnvironment {
+    var proseClient: ProseClient
+    var mainQueue: AnySchedulerOf<DispatchQueue>
+
+    public init(proseClient: ProseClient, mainQueue: AnySchedulerOf<DispatchQueue>) {
+        self.proseClient = proseClient
+        self.mainQueue = mainQueue
+    }
+}
+
+private enum SidebarEffectToken: CaseIterable, Hashable {
+    case rosterSubscription
 }
 
 public let sidebarReducer: Reducer<
     SidebarState,
     SidebarAction,
-    Void
+    SidebarEnvironment
 > = Reducer.combine([
     footerReducer.pullback(
         state: \SidebarState.footer,
@@ -51,10 +73,20 @@ public let sidebarReducer: Reducer<
     toolbarReducer.pullback(
         state: \SidebarState.toolbar,
         action: CasePath(SidebarAction.toolbar),
-        environment: { $0 }
+        environment: { _ in () }
     ),
-    Reducer { state, action, _ in
+    Reducer { state, action, environment in
         switch action {
+        case .onAppear:
+            return environment.proseClient.roster()
+                .receive(on: environment.mainQueue)
+                .map(SidebarAction.rosterChanged)
+                .eraseToEffect()
+                .cancellable(id: SidebarEffectToken.rosterSubscription, cancelInFlight: true)
+
+        case .onDisappear:
+            return .cancel(token: SidebarEffectToken.self)
+
         case let .selection(selection):
             state.selection = selection
             return .none
@@ -65,6 +97,10 @@ public let sidebarReducer: Reducer<
 
         case .addGroupButtonTapped:
             logger.info("Add group button tapped")
+            return .none
+
+        case let .rosterChanged(roster):
+            state.roster = roster
             return .none
 
         case .footer, .toolbar:
