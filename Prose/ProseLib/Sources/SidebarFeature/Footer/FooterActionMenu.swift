@@ -57,7 +57,7 @@ struct FooterActionMenu: View {
 
     fileprivate static func popover(store: Store<State, Action>) -> some View {
         let actions: ViewStore<Void, Action> = ViewStore(store.stateless)
-        return VStack(alignment: .leading) {
+        return VStack(alignment: .leading, spacing: 16) {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
                 #if DEBUG
@@ -85,21 +85,13 @@ struct FooterActionMenu: View {
                 VStack(spacing: 4) {
                     Button { actions.send(.switchAccountTapped(account: "crisp.chat")) } label: {
                         Label {
-                            HStack(spacing: 4) {
-                                Text("Crisp")
-                                Text("–")
-                                Text("crisp.chat").monospacedDigit()
-                            }
+                            Text(verbatim: "Crisp – crisp.chat")
                             Spacer()
                             Image(systemName: "checkmark")
                                 .padding(.horizontal, 4)
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to Crisp icon
-                            Image(PreviewAsset.Avatars.baptiste.name)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 24, height: 24)
-                                .cornerRadius(4)
+                            Avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL), size: 24)
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,18 +101,10 @@ struct FooterActionMenu: View {
                     .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
                     Button { actions.send(.switchAccountTapped(account: "makair.life")) } label: {
                         Label {
-                            HStack(spacing: 4) {
-                                Text("MakAir")
-                                Text("–")
-                                Text("makair.life").monospacedDigit()
-                            }
+                            Text(verbatim: "MakAir – makair.life")
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to MakAir icon
-                            Image(PreviewAsset.Avatars.baptiste.name)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 24, height: 24)
-                                .cornerRadius(4)
+                            Avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL), size: 24)
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -142,13 +126,16 @@ struct FooterActionMenu: View {
                 }
                 .buttonStyle(.plain)
             }
+            .groupBoxStyle(DefaultGroupBoxStyle())
 
             GroupBox(l10n.Server.ServerSettings.title) {
                 Link(destination: URL(string: "https://crisp.chat")!) {
                     HStack {
                         Text(l10n.Server.ServerSettings.Manage.label)
+                            .foregroundColor(.primary)
                         Spacer()
                         Image(systemName: "arrow.up.forward.square")
+                            .foregroundColor(.secondary)
                     }
                     // Make hit box full width
                     .frame(maxWidth: .infinity)
@@ -157,8 +144,13 @@ struct FooterActionMenu: View {
                 .foregroundColor(.accentColor)
             }
         }
-        .padding(8)
-        .frame(minWidth: 256)
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .buttonStyle(SidebarFooterPopoverButtonStyle())
+        .groupBoxStyle(VStackGroupBoxStyle(alignment: .leading, spacing: 6))
+        .multilineTextAlignment(.leading)
+        .padding(12)
+        .frame(width: 256)
     }
 }
 
@@ -223,18 +215,21 @@ public enum FooterActionMenuAction: Equatable, BindableAction {
 struct FooterActionMenu_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
-            FooterActionMenu(store: Store(
-                initialState: FooterActionMenuState(),
-                reducer: footerActionMenuReducer,
-                environment: ()
-            ))
-            .padding()
-            FooterActionMenu.popover(store: Store(
-                initialState: FooterActionMenuState(),
-                reducer: footerActionMenuReducer,
-                environment: ()
-            ))
-            .frame(width: 256)
+            VStack {
+                FooterActionMenu(store: Store(
+                    initialState: FooterActionMenuState(),
+                    reducer: footerActionMenuReducer,
+                    environment: ()
+                ))
+                Text("The popover 👇")
+                Text("(Previews can't display it)")
+                FooterActionMenu.popover(store: Store(
+                    initialState: FooterActionMenuState(),
+                    reducer: footerActionMenuReducer,
+                    environment: ()
+                ))
+                .border(Color.gray)
+            }
             .padding()
         }
     }
