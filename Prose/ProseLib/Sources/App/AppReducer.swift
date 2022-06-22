@@ -183,7 +183,12 @@ public struct AppEnvironment {
     }
 
     var main: MainScreenEnvironment {
-        MainScreenEnvironment()
+        MainScreenEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
+        )
     }
 
     private init(
@@ -207,10 +212,9 @@ public struct AppEnvironment {
     }
 
     public static var live: Self {
-        let credentialsClient = CredentialsClient.live(service: "org.prose.app")
-        return Self(
+        Self(
             userDefaults: .live(.standard),
-            credentials: credentialsClient,
+            credentials: .live(service: "org.prose.app"),
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

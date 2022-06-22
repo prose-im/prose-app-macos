@@ -8,6 +8,7 @@
 import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
+import ProseCoreStub
 import SharedModels
 import SidebarFeature
 import SwiftUI
@@ -72,7 +73,7 @@ public let mainWindowReducer = Reducer<
     conversationReducer._pullback(
         state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
         action: CasePath(MainScreenAction.chat),
-        environment: { _ in .stub }
+        environment: { $0.chat }
     ),
 ])
 .onChange(of: \.sidebar.selection) { selection, state, _, _ in
@@ -94,7 +95,7 @@ public let mainWindowReducer = Reducer<
 // MARK: State
 
 public struct MainScreenState: Equatable {
-    var sidebar: SidebarState
+    public var sidebar: SidebarState
     var route = Route.unreadStack(.init())
 
     public init(jid: JID) {
@@ -127,7 +128,31 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    public init() {}
+    let userStore: UserStore
+    let messageStore: MessageStore
+    let statusStore: StatusStore
+    let securityStore: SecurityStore
+
+    var chat: ConversationEnvironment {
+        ConversationEnvironment(
+            userStore: self.userStore,
+            messageStore: self.messageStore,
+            statusStore: self.statusStore,
+            securityStore: self.securityStore
+        )
+    }
+
+    public init(
+        userStore: UserStore,
+        messageStore: MessageStore,
+        statusStore: StatusStore,
+        securityStore: SecurityStore
+    ) {
+        self.userStore = userStore
+        self.messageStore = messageStore
+        self.statusStore = statusStore
+        self.securityStore = securityStore
+    }
 }
 
 // MARK: - Previews
@@ -140,7 +165,12 @@ public struct MainScreenEnvironment {
             MainScreen(store: Store(
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
-                environment: MainScreenEnvironment()
+                environment: MainScreenEnvironment(
+                    userStore: .stub,
+                    messageStore: .stub,
+                    statusStore: .stub,
+                    securityStore: .stub
+                )
             ))
         }
     }

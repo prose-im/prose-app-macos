@@ -10,6 +10,14 @@ public enum ChatID: Hashable {
     case person(id: JID)
     case group(id: JID)
 
+    public var jid: JID {
+        switch self {
+        case let .person(id: jid),
+             let .group(id: jid):
+            return jid
+        }
+    }
+
     public var icon: Icon {
         switch self {
         case .person:

@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
+import OrderedCollections
 import ProseCoreStub
 import SharedModels
 import SwiftUI
@@ -88,6 +89,22 @@ public let conversationReducer: Reducer<
 
             // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
             state.toolbar = ToolbarState(user: user, showingInfo: false)
+
+        case let .chat(.messageBar(.textField(.send(messageContent)))):
+            let jid = state.chatId.jid
+
+            let message = environment.sendMessage(jid, messageContent)
+
+            // TODO: Fix senderName and avatarURL
+            let messageVM = MessageViewModel(
+                senderId: message.senderId,
+                senderName: message.senderId.rawValue,
+                avatarURL: nil,
+                content: message.content,
+                timestamp: message.timestamp
+            )
+            let newMessages = ChatState.sectioned([messageVM])
+            return Effect(value: .chat(.chat(.addMessages(newMessages))))
 
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
@@ -209,6 +226,16 @@ public struct ConversationEnvironment {
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
+
+    var sendMessage = { (_ to: JID, _ text: String) -> ProseCoreStub.Message in
+        let message = ProseCoreStub.Message(
+            senderId: "idk@prose.org",
+            content: text,
+            timestamp: .now
+        )
+        print("Sending '\(text)' to \(to)…")
+        return message
+    }
 
     public init(
         userStore: UserStore,

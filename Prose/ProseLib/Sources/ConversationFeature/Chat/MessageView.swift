@@ -70,7 +70,15 @@ public struct MessageViewModel: Equatable {
 }
 
 extension MessageViewModel: Identifiable {
-    public var id: String { "\(self.senderId)_\(self.timestamp.ISO8601Format())" }
+    fileprivate static var dateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions.insert(.withFractionalSeconds)
+        return formatter
+    }()
+
+    public var id: String {
+        "\(self.senderId)_\(Self.dateFormatter.string(from: self.timestamp))"
+    }
 }
 
 public extension Message {

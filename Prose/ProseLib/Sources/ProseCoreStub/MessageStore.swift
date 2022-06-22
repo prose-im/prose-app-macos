@@ -15,6 +15,16 @@ public struct Message {
     public let senderId: JID
     public let content: String
     public let timestamp: Date
+
+    public init(
+        senderId: JID,
+        content: String,
+        timestamp: Date
+    ) {
+        self.senderId = senderId
+        self.content = content
+        self.timestamp = timestamp
+    }
 }
 
 public struct MessageStore {

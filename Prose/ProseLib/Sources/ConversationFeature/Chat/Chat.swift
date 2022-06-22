@@ -66,6 +66,9 @@ public let chatReducer: Reducer<
         let chatId = state.chatId
         state.messages = ChatState.sectioned((environment.messageStore.messages(chatId) ?? [])
             .map { $0.toMessageViewModel(userStore: environment.userStore) })
+
+    case let .addMessages(messages):
+        state.messages.merge(messages, uniquingKeysWith: { $0 + $1 })
     }
 
     return .none
@@ -96,7 +99,7 @@ public struct ChatState: Equatable {
         )
     }
 
-    static func sectioned(_ messages: [MessageViewModel]) -> OrderedDictionary<Date, [MessageViewModel]> {
+    public static func sectioned(_ messages: [MessageViewModel]) -> OrderedDictionary<Date, [MessageViewModel]> {
         let calendar = Calendar.current
         return OrderedDictionary(grouping: messages, by: { calendar.startOfDay(for: $0.timestamp) })
     }
@@ -106,6 +109,7 @@ public struct ChatState: Equatable {
 
 public enum ChatAction: Equatable {
     case onAppear
+    case addMessages(OrderedDictionary<Date, [MessageViewModel]>)
 }
 
 // MARK: - Previews
