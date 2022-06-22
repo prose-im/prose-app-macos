@@ -289,35 +289,45 @@ public enum FooterAvatarAction: Equatable, BindableAction {
             @Environment(\.redactionReasons) private var redactionReasons
 
             var body: some View {
-                HStack {
-                    ForEach(Availability.allCases, id: \.self) { availability in
-                        content(state: FooterAvatarState(
-                            avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
-                            availability: availability
-                        ))
+                VStack {
+                    HStack {
+                        ForEach(Availability.allCases, id: \.self) { availability in
+                            content(state: FooterAvatarState(
+                                avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
+                                availability: availability
+                            ))
+                        }
                     }
-                }
-                .padding()
-                let store = Store(
-                    initialState: FooterAvatarState(
-                        avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
-                        availability: .available
-                    ),
-                    reducer: footerAvatarReducer,
-                    environment: ()
-                )
-                FooterAvatar.popover(
-                    store: store,
-                    redactionReasons: redactionReasons
-                )
-                VStack(alignment: .leading) {
-                    FooterAvatar.availabilityMenu(
+                    .padding()
+                    let store = Store(
+                        initialState: FooterAvatarState(
+                            avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
+                            availability: .available
+                        ),
+                        reducer: footerAvatarReducer,
+                        environment: ()
+                    )
+                    Text("The popover 👇")
+                    Text("(Previews can't display it)")
+                    FooterAvatar.popover(
                         store: store,
                         redactionReasons: redactionReasons
                     )
+                    .border(Color.gray)
+                    Text("The availability menu 👇")
+                    Text("(Previews can't display it)")
+                    VStack(alignment: .leading) {
+                        FooterAvatar.availabilityMenu(
+                            store: store,
+                            redactionReasons: redactionReasons
+                        )
+                    }
+                    .padding()
+                    .frame(width: 256)
+                    .border(Color.gray)
+                    .buttonStyle(.plain)
                 }
                 .padding()
-                .buttonStyle(.plain)
             }
 
             private func content(state: FooterAvatarState) -> some View {
