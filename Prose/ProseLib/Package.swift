@@ -24,7 +24,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
-        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.2")),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .upToNextMajor(from: "0.33.1")
@@ -102,7 +101,8 @@ let package = Package(
                 "SharedModels",
                 "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ]
+            ],
+            resources: [.process("Resources")]
         ),
         .target(name: "ConversationInfoFeature", dependencies: [
             "PreviewAssets",
@@ -132,7 +132,6 @@ let package = Package(
                 "SharedModels",
                 "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
 

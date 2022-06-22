@@ -26,7 +26,7 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        Chat(store: self.store.scope(state: \State.chat).actionless)
+        ChatWebView(store: self.store.scope(state: \State.chat).actionless)
             .frame(maxWidth: .infinity)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 MessageBar(store: self.store.scope(state: \.messageBar, action: Action.messageBar))
