@@ -145,7 +145,7 @@ internal struct AuthenticationScreen_Previews: PreviewProvider {
                 initialState: AuthenticationState(route: .basicAuth(.init())),
                 reducer: authenticationReducer,
                 environment: AuthenticationEnvironment(
-                    credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
+                    credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
                     mainQueue: .main
                 )
             ))

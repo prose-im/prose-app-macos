@@ -11,7 +11,7 @@ import XCTest
 
 final class CredentialsStoreTests: XCTestCase {
     func testSavesUpdatesAndDeletesCredentials() throws {
-        let store = CredentialsClient.live(service: "org.prose.Prose.tests")
+        let store = CredentialsClient.live(service: "org.prose.app.tests")
 
         let jid: JID = "tests@prose.org"
 

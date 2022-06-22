@@ -207,7 +207,7 @@ public struct AppEnvironment {
     }
 
     public static var live: Self {
-        let credentialsClient = CredentialsClient.live(service: "org.prose.Prose")
+        let credentialsClient = CredentialsClient.live(service: "org.prose.app")
         return Self(
             userDefaults: .live(.standard),
             credentials: credentialsClient,

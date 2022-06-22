@@ -201,7 +201,7 @@ struct BasicAuthView_Previews: PreviewProvider {
                 initialState: state,
                 reducer: basicAuthReducer,
                 environment: AuthenticationEnvironment(
-                    credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
+                    credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
                     mainQueue: .main
                 )
             ))

@@ -311,7 +311,7 @@ struct MFA6DigitsView_Previews: PreviewProvider {
                 initialState: MFA6DigitsState(jid: "remi@prose.org", password: "prose"),
                 reducer: mfa6DigitsReducer,
                 environment: AuthenticationEnvironment(
-                    credentials: .live(service: "org.prose.Prose.preview.\(Self.self)"),
+                    credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
                     mainQueue: .main
                 )
             ))
