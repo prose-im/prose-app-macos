@@ -5,7 +5,10 @@
 //  Created by Valerian Saliou on 12/12/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+private let l10n = L10n.Settings.Accounts.self
 
 struct AccountsSettingsTabsComponent: View {
     @Binding var selection: AccountsSettingsTab
@@ -16,9 +19,9 @@ struct AccountsSettingsTabsComponent: View {
                 Spacer()
 
                 Picker("", selection: $selection, content: {
-                    Text("settings_accounts_tabs_account".localized()).tag(AccountsSettingsTab.account)
-                    Text("settings_accounts_tabs_security".localized()).tag(AccountsSettingsTab.security)
-                    Text("settings_accounts_tabs_features".localized()).tag(AccountsSettingsTab.features)
+                    Text(l10n.Tabs.account).tag(AccountsSettingsTab.account)
+                    Text(l10n.Tabs.security).tag(AccountsSettingsTab.security)
+                    Text(l10n.Tabs.features).tag(AccountsSettingsTab.features)
                 })
                 .pickerStyle(SegmentedPickerStyle())
                 .labelsHidden()

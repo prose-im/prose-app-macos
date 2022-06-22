@@ -5,14 +5,24 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Preferences
 import SwiftUI
 
-enum AdvancedSettingsUpdateChannel: String, Equatable, CaseIterable {
-    case stable = "settings_advanced_update_channel_option_stable"
-    case beta = "settings_advanced_update_channel_option_beta"
+private let l10n = L10n.Settings.Advanced.self
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+enum AdvancedSettingsUpdateChannel: String, Equatable, CaseIterable {
+    case stable
+    case beta
+
+    var localizedDescription: String {
+        switch self {
+        case .stable:
+            return l10n.UpdateChannel.optionStable
+        case .beta:
+            return l10n.UpdateChannel.optionBeta
+        }
+    }
 }
 
 struct AdvancedSettingsView: View {
@@ -24,12 +34,12 @@ struct AdvancedSettingsView: View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Update channel"
             Preferences.Section(
-                title: "settings_advanced_update_channel_label".localized(),
+                title: l10n.UpdateChannel.label,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $updateChannel) {
                     ForEach(AdvancedSettingsUpdateChannel.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
@@ -41,11 +51,11 @@ struct AdvancedSettingsView: View {
 
             // "Reports"
             Preferences.Section(
-                title: "settings_advanced_reports_label".localized(),
+                title: l10n.Reports.label,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_advanced_reports_usage_toggle".localized(), isOn: $reportsUsage)
-                Toggle("settings_advanced_reports_crash_toggle".localized(), isOn: $reportsCrash)
+                Toggle(l10n.Reports.usageToggle, isOn: $reportsUsage)
+                Toggle(l10n.Reports.crashToggle, isOn: $reportsCrash)
             }
         }
     }
