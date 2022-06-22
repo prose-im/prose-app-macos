@@ -1,7 +1,6 @@
 #if canImport(AppKit)
     import AppKit
 #endif
-import AuthenticationClient
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
@@ -41,8 +40,6 @@ public let appReducer: Reducer<
             }
             state.isMainWindowRedacted = false
             state.auth = nil
-
-            environment.authenticationClient.jidSubject.send(credentials.jid)
         }
 
         func proceedToLogin(jid: JID? = nil, redactMainWindow: Bool) {
@@ -58,7 +55,7 @@ public let appReducer: Reducer<
         case .onAppear where !state.hasAppearedAtLeastOnce:
             state.hasAppearedAtLeastOnce = true
 
-            let credentialsEffect = Effect<Credentials?, EquatableError>.result {
+            return Effect<Credentials?, EquatableError>.result {
                 Result {
                     try environment.userDefaults.loadCurrentAccount()
                         .flatMap(environment.credentials.loadCredentials)
@@ -66,19 +63,6 @@ public let appReducer: Reducer<
             }
             .catchToEffect()
             .map(AppAction.authenticationResult)
-
-            let requireAuthEffect = environment.authenticationClient.loginSubject
-                .map { AppAction.proceedToLogin(redactMainWindow: false) }
-                .eraseToEffect()
-
-            return Effect.merge([
-                credentialsEffect,
-                requireAuthEffect,
-            ])
-
-        case let .proceedToLogin(redactMainWindow):
-            proceedToLogin(redactMainWindow: redactMainWindow)
-            return .none
 
         case let .authenticationResult(.success(.some(credentials))):
             proceedToMainFlow(with: credentials)
@@ -174,7 +158,6 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
-    case proceedToLogin(redactMainWindow: Bool)
     case authenticationResult(Result<Credentials?, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
@@ -191,7 +174,6 @@ public enum AppAction: Equatable {
 public struct AppEnvironment {
     var userDefaults: UserDefaultsClient
     var credentials: CredentialsClient
-    var authenticationClient: AuthenticationClient
 
     let userStore: UserStore
     let messageStore: MessageStore
@@ -211,19 +193,16 @@ public struct AppEnvironment {
 
     var main: MainScreenEnvironment {
         MainScreenEnvironment(
-            authenticationClient: self.authenticationClient,
             userStore: self.userStore,
             messageStore: self.messageStore,
             statusStore: self.statusStore,
-            securityStore: self.securityStore,
-            mainQueue: self.mainQueue
+            securityStore: self.securityStore
         )
     }
 
     private init(
         userDefaults: UserDefaultsClient,
         credentials: CredentialsClient,
-        authenticationClient: AuthenticationClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
@@ -233,7 +212,6 @@ public struct AppEnvironment {
     ) {
         self.userDefaults = userDefaults
         self.credentials = credentials
-        self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
@@ -243,11 +221,9 @@ public struct AppEnvironment {
     }
 
     public static var live: Self {
-        let userDefaults = UserDefaultsClient.live(.standard)
-        return Self(
-            userDefaults: userDefaults,
+        Self(
+            userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
-            authenticationClient: .live(userDefaults: userDefaults),
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,

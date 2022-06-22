@@ -5,7 +5,6 @@
 //  Created by Valerian Saliou on 11/21/21.
 //
 
-import AuthenticationClient
 import ComposableArchitecture
 import ConversationInfoFeature
 import OrderedCollections
@@ -93,25 +92,20 @@ public let conversationReducer: Reducer<
             state.toolbar = ToolbarState(user: user, showingInfo: false)
 
         case let .chat(.messageBar(.textField(.send(messageContent)))):
-            let chatId = state.chatId
-            return environment.authenticationClient.requireJID()
-                .receive(on: environment.mainQueue)
-                .map { jid -> ConversationAction in
-                    let message = ProseCoreStub.Message(senderId: jid, content: messageContent, timestamp: .now)
-                    environment.messageStore.sendMessage(chatId, message)
+            let jid = state.chatId.jid
 
-                    // TODO: Fix senderName and avatarURL
-                    let messageVM = MessageViewModel(
-                        senderId: message.senderId,
-                        senderName: "TODO",
-                        avatarURL: nil,
-                        content: message.content,
-                        timestamp: message.timestamp
-                    )
-                    let newMessages = ChatState.sectioned([messageVM])
-                    return .chat(.chat(.addMessages(newMessages)))
-                }
-                .eraseToEffect()
+            let message = environment.sendMessage(jid, messageContent)
+
+            // TODO: Fix senderName and avatarURL
+            let messageVM = MessageViewModel(
+                senderId: message.senderId,
+                senderName: message.senderId.rawValue,
+                avatarURL: nil,
+                content: message.content,
+                timestamp: message.timestamp
+            )
+            let newMessages = ChatState.sectioned([messageVM])
+            return Effect(value: .chat(.chat(.addMessages(newMessages))))
 
         case .toolbar(.binding(\.$isShowingInfo)):
             // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
@@ -229,41 +223,41 @@ public enum ConversationAction: Equatable {
 // MARK: Environment
 
 public struct ConversationEnvironment {
-    let authenticationClient: AuthenticationClient
-
     let userStore: UserStore
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
-    let mainQueue: AnySchedulerOf<DispatchQueue>
+    var sendMessage = { (_ to: JID, _ text: String) -> ProseCoreStub.Message in
+        let message = ProseCoreStub.Message(
+            senderId: "idk@prose.org",
+            content: text,
+            timestamp: .now
+        )
+        print("Sending '\(text)' to \(to)…")
+        return message
+    }
 
     public init(
-        authenticationClient: AuthenticationClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
-        securityStore: SecurityStore,
-        mainQueue: AnySchedulerOf<DispatchQueue>
+        securityStore: SecurityStore
     ) {
-        self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
         self.securityStore = securityStore
-        self.mainQueue = mainQueue
     }
 }
 
 public extension ConversationEnvironment {
     static var stub: ConversationEnvironment {
         ConversationEnvironment(
-            authenticationClient: .live(userDefaults: .live(UserDefaults())),
             userStore: .stub,
             messageStore: .stub,
             statusStore: .stub,
-            securityStore: .stub,
-            mainQueue: .main
+            securityStore: .stub
         )
     }
 }

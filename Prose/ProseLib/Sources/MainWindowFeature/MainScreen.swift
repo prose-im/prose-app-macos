@@ -6,7 +6,6 @@
 //
 
 import AddressBookFeature
-import AuthenticationClient
 import ComposableArchitecture
 import ConversationFeature
 import ProseCoreStub
@@ -130,40 +129,30 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    var authenticationClient: AuthenticationClient
-
     let userStore: UserStore
     let messageStore: MessageStore
     let statusStore: StatusStore
     let securityStore: SecurityStore
 
-    let mainQueue: AnySchedulerOf<DispatchQueue>
-
     var chat: ConversationEnvironment {
         ConversationEnvironment(
-            authenticationClient: self.authenticationClient,
             userStore: self.userStore,
             messageStore: self.messageStore,
             statusStore: self.statusStore,
-            securityStore: self.securityStore,
-            mainQueue: self.mainQueue
+            securityStore: self.securityStore
         )
     }
 
     public init(
-        authenticationClient: AuthenticationClient,
         userStore: UserStore,
         messageStore: MessageStore,
         statusStore: StatusStore,
-        securityStore: SecurityStore,
-        mainQueue: AnySchedulerOf<DispatchQueue>
+        securityStore: SecurityStore
     ) {
-        self.authenticationClient = authenticationClient
         self.userStore = userStore
         self.messageStore = messageStore
         self.statusStore = statusStore
         self.securityStore = securityStore
-        self.mainQueue = mainQueue
     }
 }
 
@@ -178,12 +167,10 @@ public struct MainScreenEnvironment {
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
                 environment: MainScreenEnvironment(
-                    authenticationClient: .live(userDefaults: .live(UserDefaults())),
                     userStore: .stub,
                     messageStore: .stub,
                     statusStore: .stub,
-                    securityStore: .stub,
-                    mainQueue: .main
+                    securityStore: .stub
                 )
             ))
         }
