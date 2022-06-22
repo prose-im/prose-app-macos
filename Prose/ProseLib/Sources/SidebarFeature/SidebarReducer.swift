@@ -7,7 +7,7 @@ public typealias UserCredentials = JID
 public struct SidebarState: Equatable {
     public internal(set) var selection: Selection?
 
-    public var credentials: UserCredentials
+    var credentials: UserCredentials
     var footer: FooterState
     var toolbar = ToolbarState()
 

@@ -33,17 +33,11 @@ public let appReducer: Reducer<
     ).disabled(when: \.isMainWindowDisabled),
     Reducer { state, action, environment in
         func proceedToMainFlow(with credentials: Credentials) {
-            if state.isMainWindowRedacted {
-                state.main = MainScreenState(jid: credentials.jid)
-            } else {
-                state.main.sidebar.credentials = credentials.jid
-            }
-            state.isMainWindowRedacted = false
+            state.main = MainScreenState(jid: credentials.jid)
             state.auth = nil
         }
 
-        func proceedToLogin(jid: JID? = nil, redactMainWindow: Bool) {
-            state.isMainWindowRedacted = redactMainWindow
+        func proceedToLogin(jid: JID? = nil) {
             state.auth = .init(
                 route: .basicAuth(.init(
                     jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
@@ -54,7 +48,6 @@ public let appReducer: Reducer<
         switch action {
         case .onAppear where !state.hasAppearedAtLeastOnce:
             state.hasAppearedAtLeastOnce = true
-
             return Effect<Credentials?, EquatableError>.result {
                 Result {
                     try environment.userDefaults.loadCurrentAccount()
@@ -69,12 +62,12 @@ public let appReducer: Reducer<
             return .none
 
         case .authenticationResult(.success(.none)):
-            proceedToLogin(redactMainWindow: state.isMainWindowRedacted)
+            proceedToLogin()
             return .none
 
         case let .authenticationResult(.failure(error)):
             print("Error when loading credentials: \(error.localizedDescription)")
-            proceedToLogin(redactMainWindow: state.isMainWindowRedacted)
+            proceedToLogin()
             return .none
 
         case let .auth(.didLogIn(credentials)):
@@ -104,7 +97,7 @@ public let appReducer: Reducer<
 
             environment.userDefaults.deleteCurrentAccount()
 
-            proceedToLogin(jid: jid, redactMainWindow: true)
+            proceedToLogin(jid: jid)
             return .none
 
         case .onAppear, .auth, .main:
@@ -128,23 +121,21 @@ extension Reducer where State == AppState, Action == AppAction, Environment == A
 
 public struct AppState: Equatable {
     var hasAppearedAtLeastOnce: Bool
-    /// This is a regular value (not a computed property) as we don't want to redact the view when the user
-    /// adds a new account, for example.
-    var isMainWindowRedacted: Bool
 
     var main: MainScreenState
     var auth: AuthenticationState?
 
     var isMainWindowDisabled: Bool { self.auth != nil }
+    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
+    ///         as we don't want to redact the view when the user adds a new account.
+    var isMainWindowRedacted: Bool { self.auth != nil }
 
     public init(
         hasAppearedAtLeastOnce: Bool = false,
-        isMainWindowRedacted: Bool = false,
         main: MainScreenState = .placeholder,
         auth: AuthenticationState? = nil
     ) {
         self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
-        self.isMainWindowRedacted = isMainWindowRedacted
         self.main = main
         self.auth = auth
     }
