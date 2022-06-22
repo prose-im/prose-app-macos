@@ -52,12 +52,11 @@ public extension User {
             jid: "valerian@prose.org",
             displayName: "Valerian",
             fullName: "valerian Saliou",
-            // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`
-            avatar: PreviewAsset.Avatars.valerian.customURL,
+            avatar: nil,
             jobTitle: "CTO",
             company: "Crisp",
             emailAddress: "valerian@crisp.chat",
-            phoneNumber: "+33 6 12 34 56",
+            phoneNumber: "+33 6 12 34 56 78",
             location: "Lisbon, Portugal"
         )
     }
