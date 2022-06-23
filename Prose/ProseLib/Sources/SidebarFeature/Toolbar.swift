@@ -61,14 +61,14 @@ let toolbarReducer: Reducer<
     switch action {
     case .startCallTapped:
         // TODO: [Rémi Bardon] Handle action
-        print("Start call tapped")
+        logger.info("Start call tapped")
 
     case .binding(\.$writingNewMessage):
         // TODO: [Rémi Bardon] Handle action
         if state.writingNewMessage {
-            print("Start writing new message tapped")
+            logger.info("Start writing new message tapped")
         } else {
-            print("Stop writing new message tapped")
+            logger.info("Stop writing new message tapped")
         }
 
     case .binding:

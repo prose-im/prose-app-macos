@@ -185,13 +185,13 @@ public let mfa6DigitsReducer: Reducer<
         .eraseToEffect()
 
     case let .verifyOneTimeCodeResult(.success(route)):
-        print("MFA success: \(route)")
+        logger.trace("MFA success: \(String(describing: route))")
 
         // NOTE: [Rémi Bardon] Do not set `state.isLoading = false`, as the user might have a brief moment
         //       to trigger another call.
 
     case let .verifyOneTimeCodeResult(.failure(reason)):
-        print("MFA failure: \(String(reflecting: reason))")
+        logger.trace("MFA failure: \(String(reflecting: reason))")
 
         state.rawCode = ""
         state.filteredCode = ""

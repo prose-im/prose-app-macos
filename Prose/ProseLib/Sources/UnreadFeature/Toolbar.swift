@@ -26,7 +26,7 @@ struct Toolbar: ToolbarContent {
 
     @ViewBuilder
     static func actions(redactionReasons: RedactionReasons) -> some View {
-        Button { print("Mark as read tapped") } label: {
+        Button { logger.info("Mark as read tapped") } label: {
             Label("Mark as read", systemImage: "envelope.open")
         }
         .unredacted()

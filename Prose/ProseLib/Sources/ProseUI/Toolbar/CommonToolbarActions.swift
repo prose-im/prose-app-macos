@@ -13,7 +13,7 @@ public struct CommonToolbarActions: View {
     public init() {}
 
     public var body: some View {
-        Button { print("Search tapped") } label: {
+        Button { logger.info("Search tapped") } label: {
             Label("Search", systemImage: "magnifyingglass")
         }
         .unredacted()

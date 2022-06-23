@@ -66,7 +66,7 @@ public let appReducer: Reducer<
             return .none
 
         case let .authenticationResult(.failure(error)):
-            print("Error when loading credentials: \(error.localizedDescription)")
+            logger.error("Error when loading credentials: \(error.localizedDescription)")
             proceedToLogin()
             return .none
 
@@ -77,7 +77,7 @@ public let appReducer: Reducer<
                 do {
                     try environment.credentials.save(credentials)
                 } catch {
-                    print("Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)")
+                    logger.warning("Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)")
 
                     // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
                     //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.

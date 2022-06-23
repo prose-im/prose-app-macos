@@ -169,16 +169,16 @@ let footerActionMenuReducer: Reducer<
 
     case let .switchAccountTapped(account: account):
         // TODO: [Rémi Bardon] Handle action
-        print("Switch account to '\(account)' tapped")
+        logger.info("Switch account to '\(account)' tapped")
         state.showingMenu = false
 
     case .connectAccountTapped:
         // TODO: [Rémi Bardon] Handle action
-        print("Connect account tapped")
+        logger.info("Connect account tapped")
 
     case .manageServerTapped:
         // TODO: [Rémi Bardon] Handle action (find a way to open a URL)
-        print("Manage server tapped")
+        logger.info("Manage server tapped")
 
     case .binding:
         break

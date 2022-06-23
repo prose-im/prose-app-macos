@@ -46,11 +46,11 @@ public let quickActionsSectionReducer: Reducer<
     switch action {
     case .startCallTapped:
         // TODO: Handle action
-        print("Phone tapped")
+        logger.info("Phone tapped")
 
     case .composeEmailTapped:
         // TODO: Handle action
-        print("Email tapped")
+        logger.info("Email tapped")
     }
 
     return .none

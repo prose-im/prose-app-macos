@@ -34,8 +34,9 @@ public struct EquatableError: LocalizedError, Hashable, CustomStringConvertible 
     }
 
     public var localizedDescription: String {
-        print(self.base)
-        return self.base.localizedDescription
+        // NOTE: [Rémi Bardon] I don't know why this was here, so I commented it out.
+//        print(self.base)
+        self.base.localizedDescription
     }
 
     public func hash(into hasher: inout Hasher) {

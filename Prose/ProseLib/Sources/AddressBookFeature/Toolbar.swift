@@ -25,10 +25,10 @@ struct Toolbar: ToolbarContent {
 
     static func actions() -> some View {
         Group {
-            Button { print("Add contact tapped") } label: {
+            Button { logger.info("Add contact tapped") } label: {
                 Label("Add contact", systemImage: "person.crop.circle.badge.plus")
             }
-            Button { print("Stack plus tapped") } label: {
+            Button { logger.info("Stack plus tapped") } label: {
                 Label("Add group", systemImage: "rectangle.stack.badge.plus")
             }
 
