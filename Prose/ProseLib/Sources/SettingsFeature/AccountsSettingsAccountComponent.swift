@@ -5,7 +5,10 @@
 //  Created by Valerian Saliou on 12/12/21.
 //
 
+import AppLocalization
 import SwiftUI
+
+private let l10n = L10n.Settings.Accounts.self
 
 struct AccountsSettingsAccountComponent: View {
     @AppStorage("settings.accounts.x.account.enabled") var enabled = true
@@ -15,20 +18,20 @@ struct AccountsSettingsAccountComponent: View {
     var body: some View {
         Toggle(isOn: $enabled) {
             SettingsFormFieldLabelComponent(
-                label: "settings_accounts_enabled_label".localized()
+                label: l10n.enabledLabel
             )
         }
         .toggleStyle(.switch)
 
         Divider()
 
-        SettingsFormFieldComponent(label: "settings_accounts_status_label".localized()) {
+        SettingsFormFieldComponent(label: l10n.statusLabel) {
             HStack(spacing: 4) {
                 ConnectionStatusIndicator(
                     status: .connected
                 )
 
-                Text("settings_accounts_status_connected".localized())
+                Text(l10n.statusConnected)
                     .font(.system(size: 13))
                     .fontWeight(.semibold)
             }
@@ -37,16 +40,16 @@ struct AccountsSettingsAccountComponent: View {
         Divider()
 
         Form {
-            TextField(text: $username, prompt: Text("settings_accounts_address_placeholder".localized())) {
+            TextField(text: $username, prompt: Text(l10n.addressPlaceholder)) {
                 SettingsFormFieldLabelComponent(
-                    label: "settings_accounts_address_label".localized()
+                    label: l10n.addressLabel
                 )
             }
             .disableAutocorrection(true)
 
-            SecureField(text: $password, prompt: Text("settings_accounts_password_placeholder".localized())) {
+            SecureField(text: $password, prompt: Text(l10n.passwordPlaceholder)) {
                 SettingsFormFieldLabelComponent(
-                    label: "settings_accounts_password_label".localized()
+                    label: l10n.passwordLabel
                 )
             }
         }

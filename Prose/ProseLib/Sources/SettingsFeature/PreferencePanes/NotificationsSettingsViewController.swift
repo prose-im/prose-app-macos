@@ -5,14 +5,15 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Cocoa
 import Preferences
 
 let NotificationsSettingsViewController: () -> PreferencePane = {
     let paneView = Preferences.Pane(
         identifier: .notifications,
-        title: "settings_tabs_notifications".localized(),
-        toolbarIcon: NSImage(systemSymbolName: "bell", accessibilityDescription: "")!
+        title: L10n.Settings.Tabs.notifications,
+        toolbarIcon: NSImage(systemSymbolName: "bell", accessibilityDescription: nil)!
     ) {
         NotificationsSettingsView()
     }

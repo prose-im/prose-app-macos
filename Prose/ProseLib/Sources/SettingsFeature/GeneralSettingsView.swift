@@ -5,26 +5,51 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Assets
 import Preferences
 import SwiftUI
 
-enum GeneralSettingsTheme: String, Equatable, CaseIterable {
-    case matchSystem = "settings_general_theme_option_match_system"
-    case light = "settings_general_theme_option_light"
-    case dark = "settings_general_theme_option_dark"
+private let l10n = L10n.Settings.General.self
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+enum GeneralSettingsTheme: String, Equatable, CaseIterable {
+    case matchSystem = "match_system"
+    case light
+    case dark
+
+    var localizedDescription: String {
+        switch self {
+        case .matchSystem:
+            return l10n.themeOptionMatchSystem
+        case .light:
+            return l10n.themeOptionLight
+        case .dark:
+            return l10n.themeOptionDark
+        }
+    }
 }
 
 enum GeneralSettingsAutomaticallyMarkAwayAfter: String, Equatable, CaseIterable {
-    case fiveMinutes = "settings_general_idle_automatically_mark_away_after_option_five_minutes"
-    case tenMinutes = "settings_general_idle_automatically_mark_away_after_option_ten_minutes"
-    case fifteenMinutes = "settings_general_idle_automatically_mark_away_after_option_fifteen_minutes"
-    case thirtyMinutes = "settings_general_idle_automatically_mark_away_after_option_thirty_minutes"
-    case oneHour = "settings_general_idle_automatically_mark_away_after_option_one_hour"
+    case fiveMinutes = "five_minutes"
+    case tenMinutes = "ten_minutes"
+    case fifteenMinutes = "fifteen_minutes"
+    case thirtyMinutes = "thirty_minutes"
+    case oneHour = "one_hour"
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .fiveMinutes:
+            return l10n.IdleAutomaticallyMarkAway.afterOptionFiveMinutes
+        case .tenMinutes:
+            return l10n.IdleAutomaticallyMarkAway.afterOptionTenMinutes
+        case .fifteenMinutes:
+            return l10n.IdleAutomaticallyMarkAway.afterOptionFifteenMinutes
+        case .thirtyMinutes:
+            return l10n.IdleAutomaticallyMarkAway.afterOptionThirtyMinutes
+        case .oneHour:
+            return l10n.IdleAutomaticallyMarkAway.afterOptionOneHour
+        }
+    }
 }
 
 struct GeneralSettingsView: View {
@@ -38,12 +63,12 @@ struct GeneralSettingsView: View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Theme"
             Preferences.Section(
-                title: "settings_general_theme_label".localized(),
+                title: l10n.themeLabel,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $theme) {
                     ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
@@ -55,7 +80,7 @@ struct GeneralSettingsView: View {
 
             // "Save downloads to"
             Preferences.Section(
-                title: "settings_general_downloads_label".localized(),
+                title: l10n.downloadsLabel,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $downloadsPath) {
@@ -69,12 +94,12 @@ struct GeneralSettingsView: View {
 
             // "Phone contacts"
             Preferences.Section(
-                title: "settings_general_phone_label".localized(),
+                title: l10n.phoneLabel,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_general_phone_from_address_book_toggle".localized(), isOn: $phoneFromAddressBook)
+                Toggle(l10n.PhoneFromAddressBook.toggle, isOn: $phoneFromAddressBook)
 
-                Text("settings_general_phone_from_address_book_description".localized())
+                Text(l10n.PhoneFromAddressBook.description)
                     .preferenceDescription()
 
                 Spacer()
@@ -82,14 +107,14 @@ struct GeneralSettingsView: View {
 
             // "When idle"
             Preferences.Section(
-                title: "settings_general_idle_label".localized(),
+                title: l10n.idleLabel,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_general_idle_automatically_mark_away_enabled_toggle".localized(), isOn: $automaticallyMarkAwayEnabled)
+                Toggle(l10n.IdleAutomaticallyMarkAway.enabledToggle, isOn: $automaticallyMarkAwayEnabled)
 
                 Picker("", selection: $automaticallyMarkAwayAfter) {
                     ForEach(GeneralSettingsAutomaticallyMarkAwayAfter.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }

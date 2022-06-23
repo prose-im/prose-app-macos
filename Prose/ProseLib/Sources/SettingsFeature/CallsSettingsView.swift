@@ -5,26 +5,44 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Preferences
 import ProseUI
 import SwiftUI
 
-enum CallsSettingsVideoInputDefault: String, Equatable, CaseIterable {
-    case system = "settings_calls_video_input_default_option_system"
+private let l10n = L10n.Settings.Calls.self
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+enum CallsSettingsVideoInputDefault: String, Equatable, CaseIterable {
+    case system
+
+    var localizedDescription: String {
+        switch self {
+        case .system:
+            return l10n.VideoInput.defaultOptionSystem
+        }
+    }
 }
 
 enum CallsSettingsAudioInputDefault: String, Equatable, CaseIterable {
-    case system = "settings_calls_audio_input_default_option_system"
+    case system
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .system:
+            return l10n.AudioInput.defaultOptionSystem
+        }
+    }
 }
 
 enum CallsSettingsAudioOutputDefault: String, Equatable, CaseIterable {
-    case system = "settings_calls_audio_output_default_option_system"
+    case system
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .system:
+            return l10n.AudioOutput.defaultOptionSystem
+        }
+    }
 }
 
 struct CallsSettingsView: View {
@@ -40,7 +58,7 @@ struct CallsSettingsView: View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Camera tester"
             Preferences.Section(
-                title: "settings_calls_video_input_tester_label".localized(),
+                title: l10n.VideoInput.testerLabel,
                 verticalAlignment: .center
             ) {
                 SettingsPreviewVideoComponent(
@@ -52,13 +70,13 @@ struct CallsSettingsView: View {
 
             // "Default video input"
             Preferences.Section(
-                title: "settings_calls_video_input_default_label".localized(),
+                title: l10n.VideoInput.defaultLabel,
                 bottomDivider: true,
                 verticalAlignment: .center
             ) {
                 Picker("", selection: $videoInputDefault) {
                     ForEach(CallsSettingsVideoInputDefault.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
@@ -68,7 +86,7 @@ struct CallsSettingsView: View {
 
             // "Microphone tester"
             Preferences.Section(
-                title: "settings_calls_audio_input_tester_label".localized(),
+                title: l10n.AudioInput.testerLabel,
                 verticalAlignment: .center
             ) {
                 LevelIndicator(
@@ -80,13 +98,13 @@ struct CallsSettingsView: View {
 
             // "Default audio input"
             Preferences.Section(
-                title: "settings_calls_audio_input_default_label".localized(),
+                title: l10n.AudioInput.defaultLabel,
                 bottomDivider: true,
                 verticalAlignment: .center
             ) {
                 Picker("", selection: $audioInputDefault) {
                     ForEach(CallsSettingsAudioInputDefault.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
@@ -96,22 +114,22 @@ struct CallsSettingsView: View {
 
             // "Speakers tester"
             Preferences.Section(
-                title: "settings_calls_audio_output_tester_label".localized(),
+                title: l10n.AudioOutput.testerLabel,
                 verticalAlignment: .center
             ) {
                 Button(action: {}) {
-                    Text("settings_calls_audio_output_tester_button".localized())
+                    Text(l10n.AudioOutput.testerButton)
                 }
             }
 
             // "Default audio output"
             Preferences.Section(
-                title: "settings_calls_audio_output_default_label".localized(),
+                title: l10n.AudioOutput.defaultLabel,
                 verticalAlignment: .center
             ) {
                 Picker("", selection: $audioOutputDefault) {
                     ForEach(CallsSettingsAudioOutputDefault.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }

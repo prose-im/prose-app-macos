@@ -5,14 +5,24 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Preferences
 import SwiftUI
 
-enum MessagesSettingsThumbnailsSize: String, Equatable, CaseIterable {
-    case small = "settings_messages_thumbnails_size_option_small"
-    case large = "settings_messages_thumbnails_size_option_large"
+private let l10n = L10n.Settings.Messages.self
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+enum MessagesSettingsThumbnailsSize: String, Equatable, CaseIterable {
+    case small
+    case large
+
+    var localizedDescription: String {
+        switch self {
+        case .small:
+            return l10n.Thumbnails.sizeOptionSmall
+        case .large:
+            return l10n.Thumbnails.sizeOptionLarge
+        }
+    }
 }
 
 struct MessagesSettingsView: View {
@@ -26,34 +36,34 @@ struct MessagesSettingsView: View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Composing"
             Preferences.Section(
-                title: "settings_messages_composing_label".localized(),
+                title: l10n.Composing.label,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_messages_composing_show_when_typing_toggle".localized(), isOn: $composingShowWhenTyping)
-                Toggle("settings_messages_composing_spell_check_toggle".localized(), isOn: $composingSpellCheck)
+                Toggle(l10n.Composing.showWhenTypingToggle, isOn: $composingShowWhenTyping)
+                Toggle(l10n.Composing.spellCheckToggle, isOn: $composingSpellCheck)
 
                 Spacer()
             }
 
             // "Messages"
             Preferences.Section(
-                title: "settings_messages_messages_label".localized(),
+                title: l10n.Messages.label,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_messages_messages_24_hour_clock_toggle".localized(), isOn: $messages24HourClock)
-                Toggle("settings_messages_messages_image_previews_toggle".localized(), isOn: $messagesImagePreviews)
+                Toggle(l10n.Messages._24HourClockToggle, isOn: $messages24HourClock)
+                Toggle(l10n.Messages.imagePreviewsToggle, isOn: $messagesImagePreviews)
 
                 Spacer()
             }
 
             // "Image thumbnails"
             Preferences.Section(
-                title: "settings_messages_thumbnails_label".localized(),
+                title: l10n.Thumbnails.label,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $thumbnailsSize) {
                     ForEach(MessagesSettingsThumbnailsSize.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }

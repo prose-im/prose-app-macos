@@ -5,38 +5,75 @@
 //  Created by Valerian Saliou on 12/7/21.
 //
 
+import AppLocalization
 import Preferences
 import SwiftUI
 
-enum NotificationsSettingsNotify: String, Equatable, CaseIterable {
-    case allMessages = "settings_notifications_notify_governor_option_all"
-    case directMessages = "settings_notifications_notify_governor_option_direct"
-    case none = "settings_notifications_notify_governor_option_none"
+private let l10n = L10n.Settings.Notifications.self
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+enum NotificationsSettingsNotify: String, Equatable, CaseIterable {
+    case allMessages = "all"
+    case directMessages = "direct"
+    case none
+
+    var localizedDescription: String {
+        switch self {
+        case .allMessages:
+            return l10n.NotifyGovernor.optionAll
+        case .directMessages:
+            return l10n.NotifyGovernor.optionDirect
+        case .none:
+            return l10n.NotifyGovernor.optionNone
+        }
+    }
 }
 
 enum NotificationsSettingsScheduleDays: String, Equatable, CaseIterable {
-    case anytime = "settings_notifications_schedule_days_option_anytime"
-    case weekdays = "settings_notifications_schedule_days_option_weekdays"
-    case weekends = "settings_notifications_schedule_days_option_weekends"
+    case anytime
+    case weekdays
+    case weekends
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .anytime:
+            return l10n.Schedule.Days.optionAnytime
+        case .weekdays:
+            return l10n.Schedule.Days.optionWeekdays
+        case .weekends:
+            return l10n.Schedule.Days.optionWeekends
+        }
+    }
 }
 
 enum NotificationsSettingsScheduleTime: String, Equatable, CaseIterable {
-    case morning = "settings_notifications_schedule_time_option_morning"
-    case evening = "settings_notifications_schedule_time_option_evening"
+    case morning
+    case evening
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .morning:
+            return l10n.Schedule.timeOptionMorning
+        case .evening:
+            return l10n.Schedule.timeOptionEvening
+        }
+    }
 }
 
 enum NotificationsSettingsHandoverForwardMobileAfter: String, Equatable, CaseIterable {
-    case oneMinute = "settings_notifications_handover_forward_mobile_after_option_one_minute"
-    case fiveMinutes = "settings_notifications_handover_forward_mobile_after_option_five_minutes"
-    case tenMinutes = "settings_notifications_handover_forward_mobile_after_option_ten_minutes"
+    case oneMinute = "one_minute"
+    case fiveMinutes = "five_minutes"
+    case tenMinutes = "ten_minutes"
 
-    var localizedName: LocalizedStringKey { LocalizedStringKey(rawValue) }
+    var localizedDescription: String {
+        switch self {
+        case .oneMinute:
+            return l10n.Handover.ForwardMobile.afterOptionOneMinute
+        case .fiveMinutes:
+            return l10n.Handover.ForwardMobile.afterOptionFiveMinutes
+        case .tenMinutes:
+            return l10n.Handover.ForwardMobile.afterOptionTenMinutes
+        }
+    }
 }
 
 struct NotificationsSettingsView: View {
@@ -55,19 +92,19 @@ struct NotificationsSettingsView: View {
         Preferences.Container(contentWidth: SettingsContants.contentWidth) {
             // "Notify me about"
             Preferences.Section(
-                title: "settings_notifications_notify_governor_label".localized(),
+                title: l10n.NotifyGovernor.label,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $notifyGovernor) {
                     ForEach(NotificationsSettingsNotify.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
                 .labelsHidden()
                 .frame(width: SettingsContants.selectNormalWidth)
 
-                Toggle("settings_notifications_notify_on_reply_toggle".localized(), isOn: $notifyOnReply)
+                Toggle(l10n.NotifyOnReply.toggle, isOn: $notifyOnReply)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Spacer()
@@ -75,12 +112,12 @@ struct NotificationsSettingsView: View {
 
             // "Get notified"
             Preferences.Section(
-                title: "settings_notifications_schedule_label".localized(),
+                title: l10n.Schedule.label,
                 verticalAlignment: .top
             ) {
                 Picker("", selection: $scheduleDays) {
                     ForEach(NotificationsSettingsScheduleDays.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
@@ -90,18 +127,18 @@ struct NotificationsSettingsView: View {
                 HStack {
                     Picker("", selection: $scheduleTimeFrom) {
                         ForEach(NotificationsSettingsScheduleTime.allCases, id: \.self) { value in
-                            Text(value.localizedName)
+                            Text(value.localizedDescription)
                                 .tag(value)
                         }
                     }
                     .labelsHidden()
                     .frame(width: SettingsContants.selectSmallWidth)
 
-                    Text("settings_notifications_schedule_time_separator".localized())
+                    Text(l10n.Schedule.timeSeparator)
 
                     Picker("", selection: $scheduleTimeTo) {
                         ForEach(NotificationsSettingsScheduleTime.allCases, id: \.self) { value in
-                            Text(value.localizedName)
+                            Text(value.localizedDescription)
                                 .tag(value)
                         }
                     }
@@ -114,26 +151,26 @@ struct NotificationsSettingsView: View {
 
             // "When notified"
             Preferences.Section(
-                title: "settings_notifications_action_label".localized(),
+                title: l10n.Action.label,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_notifications_action_badge_toggle".localized(), isOn: $actionBadge)
-                Toggle("settings_notifications_action_sound_toggle".localized(), isOn: $actionSound)
-                Toggle("settings_notifications_action_banner_toggle".localized(), isOn: $actionBanner)
+                Toggle(l10n.Action.badgeToggle, isOn: $actionBadge)
+                Toggle(l10n.Action.soundToggle, isOn: $actionSound)
+                Toggle(l10n.Action.bannerToggle, isOn: $actionBanner)
 
                 Spacer()
             }
 
             // "Mobile alerts"
             Preferences.Section(
-                title: "settings_notifications_handover_label".localized(),
+                title: l10n.Handover.label,
                 verticalAlignment: .top
             ) {
-                Toggle("settings_notifications_handover_forward_mobile_toggle".localized(), isOn: $handoverForwardMobileEnabled)
+                Toggle(l10n.Handover.ForwardMobile.toggle, isOn: $handoverForwardMobileEnabled)
 
                 Picker("", selection: $handoverForwardMobileAfter) {
                     ForEach(NotificationsSettingsHandoverForwardMobileAfter.allCases, id: \.self) { value in
-                        Text(value.localizedName)
+                        Text(value.localizedDescription)
                             .tag(value)
                     }
                 }

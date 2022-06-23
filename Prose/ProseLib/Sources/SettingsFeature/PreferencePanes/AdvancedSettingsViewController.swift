@@ -12,8 +12,8 @@ import Preferences
 let AdvancedSettingsViewController: () -> PreferencePane = {
     let paneView = Preferences.Pane(
         identifier: .advanced,
-        title: "settings_tabs_advanced".localized(),
-        toolbarIcon: NSImage(systemSymbolName: "dial.min", accessibilityDescription: "")!
+        title: L10n.Settings.Tabs.advanced,
+        toolbarIcon: NSImage(systemSymbolName: "dial.min", accessibilityDescription: nil)!
     ) {
         AdvancedSettingsView()
     }
