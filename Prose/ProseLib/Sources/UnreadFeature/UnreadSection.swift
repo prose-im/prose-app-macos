@@ -40,18 +40,14 @@ struct UnreadSection: View {
                 }
                 VStack {
                     VStack {
-                        Button {
-                            print("Reply tapped")
-                        } label: {
+                        Button { logger.info("Reply tapped") } label: {
                             // FIXME: Localize
                             Label("Reply", systemImage: "arrowshape.turn.up.right")
                                 .frame(maxWidth: .infinity)
                         }
                         .foregroundColor(.accentColor)
                         .unredacted()
-                        Button {
-                            print("Mark read tapped")
-                        } label: {
+                        Button { logger.info("Mark read tapped") } label: {
                             // FIXME: Localize
                             Text("Mark read")
                                 .frame(maxWidth: .infinity)

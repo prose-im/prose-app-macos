@@ -14,10 +14,10 @@ public struct CommonToolbarNavigation: View {
 
     public var body: some View {
         Group {
-            Button { print("Navigation back tapped") } label: {
+            Button { logger.info("Navigation back tapped") } label: {
                 Label("Back", systemImage: "chevron.backward")
             }
-            Button { print("Navigation forward tapped") } label: {
+            Button { logger.info("Navigation forward tapped") } label: {
                 Label("Forward", systemImage: "chevron.forward")
             }
             Menu {

@@ -227,7 +227,7 @@ public let footerAvatarReducer: Reducer<
 
     default:
         // TODO: [Rémi Bardon] Handle actions
-        print("Received unhandled action: \(String(describing: action))")
+        logger.notice("Received unhandled action: \(String(describing: action))")
     }
 
     return .none

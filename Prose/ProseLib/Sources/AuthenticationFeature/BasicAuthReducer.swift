@@ -140,7 +140,7 @@ public let basicAuthReducer = Reducer<
         return Effect(value: .didPassChallenge(next: route))
 
     case let .loginResult(.failure(reason)):
-        print("Login failure: \(String(reflecting: reason))")
+        logger.debug("Login failure: \(String(reflecting: reason))")
         state.isLoading = false
 
         state.alert = .init(

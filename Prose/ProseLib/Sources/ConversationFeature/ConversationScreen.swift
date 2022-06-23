@@ -83,7 +83,7 @@ public let conversationReducer: Reducer<
             case let .person(jid):
                 user = environment.userStore.user(jid)
             case .group:
-                print("Group info not supported yet")
+                logger.notice("Group info not supported yet")
                 user = nil
             }
 
@@ -129,7 +129,7 @@ public let conversationReducer: Reducer<
                     isIdentityVerified = environment.securityStore.isIdentityVerified(jid)
                     encryptionFingerprint = environment.securityStore.encryptionFingerprint(jid)
                 case .group:
-                    print("Group info not supported yet")
+                    logger.notice("Group info not supported yet")
                     user = nil
                     status = nil
                     lastSeenDate = nil
@@ -233,7 +233,7 @@ public struct ConversationEnvironment {
             content: text,
             timestamp: .now
         )
-        print("Sending '\(text)' to \(to)…")
+        logger.trace("Sending '\(text)' to \(to)…")
         return message
     }
 

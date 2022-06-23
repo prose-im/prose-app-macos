@@ -98,10 +98,10 @@ public let securitySectionReducer: Reducer<
 > = Reducer { _, action, _ in
     switch action {
     case .showIdVerificationInfoTapped:
-        print("Show ID verification info tapped")
+        logger.info("Show ID verification info tapped")
 
     case .showEncryptionInfoTapped:
-        print("Show encryption info tapped")
+        logger.info("Show encryption info tapped")
     }
 
     return .none

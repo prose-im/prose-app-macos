@@ -60,11 +60,11 @@ public let sidebarReducer: Reducer<
             return .none
 
         case .addContactButtonTapped:
-            print("Add contact button tapped")
+            logger.info("Add contact button tapped")
             return .none
 
         case .addGroupButtonTapped:
-            print("Add group button tapped")
+            logger.info("Add group button tapped")
             return .none
 
         case .footer, .toolbar:

@@ -104,13 +104,13 @@ public let toolbarReducer: Reducer<
 > = Reducer { state, action, _ in
     switch action {
     case .startVideoCallTapped:
-        print("Start video call tapped")
+        logger.info("Start video call tapped")
 
     case .binding(\ToolbarState.$isShowingInfo):
         if state.isShowingInfo {
-            print("Show info tapped")
+            logger.info("Show info tapped")
         } else {
-            print("Stop showing info tapped")
+            logger.info("Stop showing info tapped")
         }
 
     case .binding:

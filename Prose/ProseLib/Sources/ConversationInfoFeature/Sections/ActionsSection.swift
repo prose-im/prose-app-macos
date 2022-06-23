@@ -58,16 +58,16 @@ public let actionsSectionReducer: Reducer<
 > = Reducer { _, action, _ in
     switch action {
     case .viewSharedFilesTapped:
-        print("View shared files tapped")
+        logger.info("View shared files tapped")
 
     case .encryptionSettingsTapped:
-        print("Encryption settings tapped")
+        logger.info("Encryption settings tapped")
 
     case .removeContactTapped:
-        print("Remove contact tapped")
+        logger.info("Remove contact tapped")
 
     case .blockContactTapped:
-        print("Block tapped")
+        logger.info("Block tapped")
     }
 
     return .none
