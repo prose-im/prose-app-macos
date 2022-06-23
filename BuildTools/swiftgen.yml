@@ -48,6 +48,7 @@ xcassets:
 
 files:
   - inputs: [ConversationFeature/Resources/Views]
+    filter: .+\.html$
     outputs:
       - templateName: structured-swift5
         output: ConversationFeature/Generated/Files+Generated.swift

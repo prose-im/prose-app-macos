@@ -12,10 +12,6 @@ import Foundation
 internal enum Files {
     /// index.html
     internal static let indexHtml = File(name: "index", ext: "html", relativePath: "", mimeType: "text/html")
-    /// index.c80a7c78.js
-    internal static let indexC80a7c78Js = File(name: "index.c80a7c78", ext: "js", relativePath: "", mimeType: "text/javascript")
-    /// index.ea5f17a4.css
-    internal static let indexEa5f17a4Css = File(name: "index.ea5f17a4", ext: "css", relativePath: "", mimeType: "text/css")
 }
 
 // swiftlint:enable explicit_type_interface identifier_name
