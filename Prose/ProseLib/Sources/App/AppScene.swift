@@ -29,6 +29,7 @@ public struct AppScene: Scene {
         mainWindowGroup()
     }
 
+    @SceneBuilder
     private func mainWindowGroup() -> some Scene {
         WindowGroup {
             WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
@@ -56,7 +57,9 @@ public struct AppScene: Scene {
         .windowToolbarStyle(UnifiedWindowToolbarStyle())
         .commands {
             SidebarCommands()
-            AppSettings()
+        }
+        Settings {
+            SettingsView()
         }
     }
 }

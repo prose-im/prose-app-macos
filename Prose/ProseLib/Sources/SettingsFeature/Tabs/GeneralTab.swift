@@ -1,5 +1,5 @@
 //
-//  GeneralSettingsView.swift
+//  GeneralTab.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/7/21.
@@ -7,7 +7,6 @@
 
 import AppLocalization
 import Assets
-import Preferences
 import SwiftUI
 
 private let l10n = L10n.Settings.General.self
@@ -52,7 +51,7 @@ enum GeneralSettingsAutomaticallyMarkAwayAfter: String, Equatable, CaseIterable 
     }
 }
 
-struct GeneralSettingsView: View {
+struct GeneralTab: View {
     @AppStorage("settings.general.theme") var theme: GeneralSettingsTheme = .matchSystem
     @AppStorage("settings.general.downloadsPath") var downloadsPath = 0
     @AppStorage("settings.general.phoneFromAddressBook") var phoneFromAddressBook = false
@@ -60,12 +59,9 @@ struct GeneralSettingsView: View {
     @AppStorage("settings.general.automaticallyMarkAwayAfter") var automaticallyMarkAwayAfter: GeneralSettingsAutomaticallyMarkAwayAfter = .fifteenMinutes
 
     var body: some View {
-        Preferences.Container(contentWidth: SettingsContants.contentWidth) {
+        VStack(spacing: 24) {
             // "Theme"
-            Preferences.Section(
-                title: l10n.themeLabel,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.themeLabel) {
                 Picker("", selection: $theme) {
                     ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
                         Text(value.localizedDescription)
@@ -73,60 +69,49 @@ struct GeneralSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
-
-                Spacer()
+                .frame(width: SettingsConstants.selectNormalWidth)
             }
 
             // "Save downloads to"
-            Preferences.Section(
-                title: l10n.downloadsLabel,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.downloadsLabel) {
                 Picker("", selection: $downloadsPath) {
-                    // TODO:
+                    // TODO: Choose from file system
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
-
-                Spacer()
+                .frame(width: SettingsConstants.selectNormalWidth)
             }
 
             // "Phone contacts"
-            Preferences.Section(
-                title: l10n.phoneLabel,
-                verticalAlignment: .top
-            ) {
-                Toggle(l10n.PhoneFromAddressBook.toggle, isOn: $phoneFromAddressBook)
-
-                Text(l10n.PhoneFromAddressBook.description)
-                    .preferenceDescription()
-
-                Spacer()
+            GroupBox(l10n.phoneLabel) {
+                Toggle(isOn: $phoneFromAddressBook) {
+                    VStack(alignment: .leading) {
+                        Text(l10n.PhoneFromAddressBook.toggle)
+                        Text(l10n.PhoneFromAddressBook.description)
+                            .font(.caption)
+                    }
+                }
             }
 
             // "When idle"
-            Preferences.Section(
-                title: l10n.idleLabel,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.idleLabel) {
                 Toggle(l10n.IdleAutomaticallyMarkAway.enabledToggle, isOn: $automaticallyMarkAwayEnabled)
-
-                Picker("", selection: $automaticallyMarkAwayAfter) {
+                Picker(l10n.IdleAutomaticallyMarkAway.afterLabel, selection: $automaticallyMarkAwayAfter) {
                     ForEach(GeneralSettingsAutomaticallyMarkAwayAfter.allCases, id: \.self) { value in
                         Text(value.localizedDescription)
                             .tag(value)
                     }
                 }
-                .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
+                .frame(width: SettingsConstants.selectNormalWidth)
             }
         }
+        .groupBoxStyle(FormGroupBoxStyle())
+        .padding()
     }
 }
 
-struct GeneralSettingsView_Previews: PreviewProvider {
+struct GeneralTab_Previews: PreviewProvider {
     static var previews: some View {
-        GeneralSettingsView()
+        GeneralTab()
+            .padding()
     }
 }

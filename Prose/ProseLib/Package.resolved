@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "preferences",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sindresorhus/Preferences",
-      "state" : {
-        "revision" : "ffeaaad1def45d0625720dc1adae3789cd9c167d",
-        "version" : "2.5.0"
-      }
-    },
-    {
       "identity" : "swift-case-paths",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",

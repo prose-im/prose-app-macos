@@ -114,7 +114,8 @@
 "settings.general.phone_from_address_book.description" = "This is for local use only. Data does not get sent to a server.";
 
 "settings.general.idle_label" = "When idle:";
-"settings.general.idle_automatically_mark_away.enabled_toggle" = "Automatically mark me as away after:";
+"settings.general.idle_automatically_mark_away.enabled_toggle" = "Automatically mark me as away";
+"settings.general.idle_automatically_mark_away.after_label" = "After:";
 "settings.general.idle_automatically_mark_away.after_option_five_minutes" = "5 minutes";
 "settings.general.idle_automatically_mark_away.after_option_ten_minutes" = "10 minutes";
 "settings.general.idle_automatically_mark_away.after_option_fifteen_minutes" = "15 minutes";

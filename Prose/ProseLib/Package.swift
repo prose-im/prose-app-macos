@@ -23,7 +23,6 @@ let package = Package(
         ]),
     ],
     dependencies: [
-        .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .upToNextMajor(from: "0.33.1")
@@ -72,7 +71,6 @@ let package = Package(
             "SharedModels",
         ]),
         .target(name: "SettingsFeature", dependencies: [
-            "Preferences",
             "AppLocalization",
             "Assets",
             "ProseUI",
