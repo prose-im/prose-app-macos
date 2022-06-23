@@ -26,8 +26,7 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        ChatWebView(store: self.store.scope(state: \State.chat).actionless)
-            .frame(maxWidth: .infinity)
+        Chat(store: self.store.scope(state: \State.chat).actionless)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 MessageBar(store: self.store.scope(state: \.messageBar, action: Action.messageBar))
                     // Make footer have a higher priority, to be accessible over the scroll view

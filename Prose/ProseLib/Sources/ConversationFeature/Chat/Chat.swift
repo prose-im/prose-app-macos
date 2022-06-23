@@ -11,35 +11,76 @@ import ComposableArchitecture
 import ProseCoreTCA
 import SharedModels
 import SwiftUI
+import WebKit
 
 // MARK: - View
 
-struct Chat: View {
-    typealias State = ChatState
-    typealias Action = Never
+struct Chat: NSViewRepresentable {
+    typealias ViewState = ChatState
+    typealias ViewAction = Never
 
-    let store: Store<State, Action>
+    let store: Store<ViewState, ViewAction>
+    @ObservedObject var viewStore: ViewStore<ViewState, ViewAction>
 
-    var body: some View {
-        WithViewStore(self.store.scope(state: \State.messages)) { messages in
-            let messages = messages.state
-            ScrollViewReader { scrollView in
-                ScrollView {
-                    VStack(spacing: 14) {
-                        ForEach(messages) { message in
-                            MessageView(model: message)
-                        }
-                    }
-                    .padding()
-                }
-                .frame(maxWidth: .infinity)
-                .onAppear {
-                    if let id = messages.last?.id {
-                        scrollView.scrollTo(id, anchor: .top)
-                    }
+    init(store: Store<ViewState, ViewAction>) {
+        self.store = store
+        self.viewStore = ViewStore(store)
+    }
+
+    func makeNSView(context _: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.loadFileURL(Files.indexHtml.url, allowingReadAccessTo: Files.indexHtml.url)
+        return webView
+    }
+
+    struct ProseCoreViewsMessage: Encodable {
+        struct Content: Encodable {
+            let type = "text"
+            let text: String
+        }
+
+        struct User: Encodable {
+            let name: String
+            let avatar: String
+        }
+
+        fileprivate static var dateFormatter: ISO8601DateFormatter = {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions.insert(.withFractionalSeconds)
+            return formatter
+        }()
+
+        let id = UUID()
+        let type = "message"
+        let date: String
+        let content: [Content]
+        let user: User
+
+        init(from message: Message) {
+            self.date = Self.dateFormatter.string(from: message.timestamp)
+            self.content = [Content(text: message.body)]
+            self.user = User(
+                name: message.from.jidString,
+                avatar: ""
+            )
+        }
+    }
+
+    func updateNSView(_ webView: WKWebView, context _: Context) {
+        if !webView.isLoading {
+            let jsonData = try! JSONEncoder().encode(self.viewStore.messages.map(ProseCoreViewsMessage.init(from:)))
+            let json = String(data: jsonData, encoding: .utf8) ?? "[]"
+            webView.evaluateJavaScript("""
+            globalThis.MessagingStore.flush();
+            globalThis.MessagingStore.insert(...\(json));
+            """) { _, error in
+                if let error = error {
+                    logger.warning("Error evaluating JavaScript: \(error)")
                 }
             }
-            .background(Colors.Background.message.color)
+        } else {
+            logger.trace("Skipping \(Self.self) update: Page is not loaded, `updateMessages` is `undefined`.")
         }
     }
 }
