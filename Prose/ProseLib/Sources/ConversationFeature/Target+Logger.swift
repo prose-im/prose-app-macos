@@ -8,3 +8,4 @@
 import OSLog
 
 internal let logger = Logger(subsystem: "org.prose.app", category: "conversation")
+internal let signposter = OSSignposter(logger: logger)
