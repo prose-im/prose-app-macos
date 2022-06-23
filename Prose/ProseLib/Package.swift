@@ -31,7 +31,7 @@ let package = Package(
         ),
         .package(url: "https://github.com/pointfreeco/swiftui-navigation", .upToNextMajor(from: "0.1.0")),
         // https://github.com/prose-im/prose-wrapper-swift/issues/1
-        .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.1.1"),
+        .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.1.3"),
     ],
     targets: [
         .target(
@@ -97,17 +97,15 @@ let package = Package(
                 "AppLocalization",
                 "Assets",
                 "ConversationInfoFeature",
-                "ProseCoreStub",
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
         .target(name: "ConversationInfoFeature", dependencies: [
             "PreviewAssets",
-            "ProseCoreStub",
             "SharedModels",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
@@ -131,14 +129,11 @@ let package = Package(
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
-        .target(name: "ProseCoreStub", dependencies: [
-            "SharedModels",
-            .product(name: "OrderedCollections", package: "swift-collections"),
-        ]),
 
         // MARK: Dependencies
 

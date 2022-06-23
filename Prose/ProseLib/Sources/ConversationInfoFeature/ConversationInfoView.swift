@@ -6,7 +6,6 @@
 //
 
 import ComposableArchitecture
-import ProseCoreStub
 import ProseUI
 import SwiftUI
 
@@ -113,6 +112,33 @@ public struct ConversationInfoState: Equatable {
         self.security = security
         self.actions = actions
     }
+}
+
+public extension ConversationInfoState {
+    static let demo = ConversationInfoState(
+        identity: .init(
+            avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
+            fullName: "Valerian Saliou",
+            status: .online,
+            jobTitle: "CTO",
+            company: "Crisp"
+        ),
+        quickActions: .init(),
+        information: .init(
+            emailAddress: "valerian@crisp.chat",
+            phoneNumber: "+33 6 12 34 56",
+            lastSeenDate: Date.now - 1_000,
+            timeZone: TimeZone.current,
+            location: "Lisbon, Portugal",
+            statusIcon: "👨‍💻",
+            statusMessage: "Focusing on code"
+        ),
+        security: .init(
+            isIdentityVerified: true,
+            encryptionFingerprint: "V5I92"
+        ),
+        actions: .init()
+    )
 }
 
 // MARK: Actions

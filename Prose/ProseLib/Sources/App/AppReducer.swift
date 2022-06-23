@@ -7,7 +7,6 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import MainWindowFeature
-import ProseCoreStub
 import ProseCoreTCA
 import SharedModels
 import UserDefaultsClient
@@ -180,11 +179,6 @@ public struct AppEnvironment {
 
     var proseClient: ProseClient
 
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
-
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
     var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
@@ -198,25 +192,14 @@ public struct AppEnvironment {
     }
 
     var main: MainScreenEnvironment {
-        MainScreenEnvironment(
-            proseClient: self.proseClient,
-            mainQueue: self.mainQueue,
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore: self.securityStore
-        )
+        MainScreenEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
     }
 
     public static var live: Self {
         Self(
             userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
-            proseClient: .live,
-            userStore: .stub,
-            messageStore: .stub,
-            statusStore: .stub,
-            securityStore: .stub,
+            proseClient: .live(),
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in

@@ -15,7 +15,8 @@ public final class ProseClient {
 
     // Temporarily save these here until the core lib provides two methods for authentication
     // and connection as well.
-    private var jid: String?
+    public private(set) var jid: String?
+
     private var credential: Credential?
 
     public init(delegate: ProseClientDelegate) {

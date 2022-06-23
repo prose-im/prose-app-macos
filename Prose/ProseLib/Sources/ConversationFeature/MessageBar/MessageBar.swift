@@ -30,7 +30,7 @@ struct MessageBar: View {
 
                 ZStack {
                     MessageBarTextField(store: self.store.scope(
-                        state: \State.textField,
+                        state: \.textField,
                         action: Action.textField
                     ))
 

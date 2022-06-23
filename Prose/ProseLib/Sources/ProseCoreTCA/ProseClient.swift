@@ -18,4 +18,7 @@ public struct ProseClient {
     public var logout: (_ jid: JID) -> Effect<None, Never>
 
     public var roster: () -> Effect<Roster, Never>
+
+    public var messagesInChat: (_ with: JID) -> Effect<[Message], Never>
+    public var sendMessage: (_ to: JID, _ body: String) -> Effect<None, EquatableError>
 }

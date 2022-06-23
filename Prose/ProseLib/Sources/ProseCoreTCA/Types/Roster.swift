@@ -83,9 +83,3 @@ extension Roster.Group.Item.Subscription {
         }
     }
 }
-
-extension JID {
-    init(bareJid: ProseCoreClientFFI.BareJid) {
-        self.init(rawValue: "\(bareJid.node ?? "")@\(bareJid.domain)")
-    }
-}
