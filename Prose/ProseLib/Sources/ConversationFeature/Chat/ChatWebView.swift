@@ -55,22 +55,22 @@ struct ChatWebView: NSViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.uiDelegate = context.coordinator
 
-//        webView.loadFileURL(Files.indexHtml.url, allowingReadAccessTo: Files.indexHtml.url)
-        webView.loadHTMLString("""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Messaging View</title>
-        </head>
-        <body>
-            <h1>Hello, World!</h1>
-            <ol id="messages">
-            </ol>
-        </body>
-        </html>
-        """, baseURL: nil)
+        webView.loadFileURL(Files.indexHtml.url, allowingReadAccessTo: Files.indexHtml.url.deletingLastPathComponent())
+//        webView.loadHTMLString("""
+//        <!DOCTYPE html>
+//        <html lang="en">
+//        <head>
+//            <meta charset="utf-8">
+//            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//            <title>Messaging View</title>
+//        </head>
+//        <body>
+//            <h1>Hello, World!</h1>
+//            <ol id="messages">
+//            </ol>
+//        </body>
+//        </html>
+//        """, baseURL: nil)
 
         return webView
     }
