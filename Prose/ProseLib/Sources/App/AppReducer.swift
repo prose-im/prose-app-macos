@@ -103,7 +103,7 @@ public let appReducer: Reducer<
             return .none
 
         case .connectionResult(.success):
-            print("Connection established.")
+            logger.info("Connection established.")
             return .none
 
         case .connectionResult(.failure):
