@@ -90,7 +90,7 @@ struct Chat: NSViewRepresentable {
                 }
             }
         } else {
-            logger.trace("Skipping \(Self.self) update: Page is not loaded, `updateMessages` is `undefined`.")
+            logger.trace("Skipping \(Self.self) update: JavaScript is not loaded.")
         }
 
         signposter.endInterval(#function, interval)

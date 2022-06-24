@@ -14,18 +14,15 @@ struct ContentView: View {
     var body: some View {
         ConversationScreen(store: Store(
             initialState: ConversationState(
-                chatId: .person(id: "valerian@prose.org"),
-                recipient: "Valerian"
+                chatId: "valerian@prose.org"
             ),
             reducer: conversationReducer,
             environment: ConversationEnvironment(
-                userStore: .stub,
-                messageStore: .stub,
-                statusStore: .stub,
-                securityStore: .stub
+                proseClient: .live(),
+                mainQueue: .main
             )
         ))
-        .frame(minWidth: 720, minHeight: 320)
+        .frame(minWidth: 960, minHeight: 320)
     }
 }
 
