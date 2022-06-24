@@ -4,6 +4,6 @@ import SharedModels
 
 extension JID {
     init(bareJid: ProseCoreClientFFI.BareJid) {
-        self.init(rawValue: "\(bareJid.node ?? "")@\(bareJid.domain)")
+        self.init(node: bareJid.node, domain: bareJid.domain, resource: nil)
     }
 }
