@@ -108,7 +108,7 @@ public let conversationReducer: Reducer<
 
         case let .messagesDidChange(messages):
             state.messages = messages
-            return .none
+            return environment.proseClient.markMessagesReadInChat(state.chatId).fireAndForget()
 
         case .toolbar(.binding(\.$isShowingInfo)):
             if state.toolbar.isShowingInfo, state.info == nil {

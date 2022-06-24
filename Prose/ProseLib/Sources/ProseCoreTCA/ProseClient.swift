@@ -21,4 +21,6 @@ public struct ProseClient {
 
     public var messagesInChat: (_ with: JID) -> Effect<[Message], Never>
     public var sendMessage: (_ to: JID, _ body: String) -> Effect<None, EquatableError>
+    
+    public var markMessagesReadInChat: (_ jid: JID) -> Effect<None, Never>
 }

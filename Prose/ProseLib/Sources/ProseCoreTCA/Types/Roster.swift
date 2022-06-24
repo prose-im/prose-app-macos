@@ -25,10 +25,16 @@ public extension Roster.Group {
     struct Item: Equatable {
         public var jid: JID
         public var subscription: Subscription
+        public var numberOfUnreadMessages: Int
 
-        public init(jid: JID, subscription: Roster.Group.Item.Subscription) {
+        public init(
+            jid: JID,
+            subscription: Roster.Group.Item.Subscription,
+            numberOfUnreadMessages: Int
+        ) {
             self.jid = jid
             self.subscription = subscription
+            self.numberOfUnreadMessages = numberOfUnreadMessages
         }
     }
 }
@@ -61,7 +67,8 @@ extension Roster.Group.Item {
     init(item: ProseCoreClientFFI.RosterItem) {
         self.init(
             jid: .init(bareJid: item.jid),
-            subscription: .init(subscription: item.subscription)
+            subscription: .init(subscription: item.subscription),
+            numberOfUnreadMessages: 0
         )
     }
 }

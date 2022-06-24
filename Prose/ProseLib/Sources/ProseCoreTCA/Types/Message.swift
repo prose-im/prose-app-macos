@@ -20,13 +20,22 @@ public struct Message: Equatable, Identifiable {
     public var kind: MessageKind?
     public var body: String
     public var timestamp: Date
+    public var isRead: Bool
 
-    public init(from: JID, id: MessageID, kind: MessageKind?, body: String, timestamp: Date) {
+    public init(
+        from: JID,
+        id: MessageID,
+        kind: MessageKind?,
+        body: String,
+        timestamp: Date,
+        isRead: Bool
+    ) {
         self.from = from
         self.id = id
         self.kind = kind
         self.body = body
         self.timestamp = timestamp
+        self.isRead = isRead
     }
 }
 
@@ -44,7 +53,8 @@ extension Message {
             id: .serverAssigned(id),
             kind: message.kind.map(MessageKind.init),
             body: body,
-            timestamp: timestamp
+            timestamp: timestamp,
+            isRead: false
         )
     }
 }

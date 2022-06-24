@@ -12,7 +12,8 @@
             messagesInChat: { _ in Just([]).eraseToEffect() },
             sendMessage: { _, _ in
                 Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
-            }
+            },
+            markMessagesReadInChat: { _ in Empty(completeImmediately: true).eraseToEffect() }
         )
     }
 #endif
