@@ -22,6 +22,7 @@ public final class ProseClient {
     public init(jid: BareJid, delegate: ProseClientDelegate) {
         self.client = .init(jid: jid)
         self.delegate = delegate
+        enableLogging()
     }
 
     public func connect(credential: Credential) throws {
