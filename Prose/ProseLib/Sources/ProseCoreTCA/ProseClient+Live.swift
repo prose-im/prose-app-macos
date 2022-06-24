@@ -80,11 +80,13 @@ public extension ProseClient {
                     }
                     return roster
                 }
+                .removeDuplicates()
                 .eraseToEffect()
             },
             messagesInChat: { jid in
                 delegate.chats
                     .map { $0[jid]?.messages ?? [] }
+                    .removeDuplicates()
                     .eraseToEffect()
             },
             sendMessage: { to, body in
