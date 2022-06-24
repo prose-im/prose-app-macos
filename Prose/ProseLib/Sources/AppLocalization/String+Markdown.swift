@@ -27,7 +27,7 @@ public extension String {
                 )
             )
         } catch {
-            logger.warning("Error parsing markdown: \(error)")
+            logger.warning("Error parsing markdown: \(error.localizedDescription)")
             return AttributedString(self)
         }
     }
