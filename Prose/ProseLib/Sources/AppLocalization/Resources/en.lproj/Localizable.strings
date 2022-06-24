@@ -34,6 +34,12 @@
 "authentication.mfa.footer.no_account.title" = "No account yet?";
 "authentication.mfa.form.one_time_code.placeholder" = "One time code";
 
+"authentication.account_error_alert.title" = "Account Error";
+"authentication.account_error_alert.content" = "Prose failed connecting to your account, as the server reported an account error.\n\nThis might mean that your credentials are invalid, or your account does not exist anymore on this server, or was blocked.";
+"authentication.account_error_alert.try_again_action.title" = "Try again";
+"authentication.account_error_alert.go_to_account_settings_action.title" = "Account settings";
+"authentication.account_error_alert.work_offline_action.title" = "Work offline";
+
 "sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";
 "sidebar.spotlight.replies" = "Replies";

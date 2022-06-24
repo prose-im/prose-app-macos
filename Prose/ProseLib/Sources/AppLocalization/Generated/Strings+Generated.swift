@@ -11,6 +11,29 @@ import Foundation
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
     public enum Authentication {
+        public enum AccountErrorAlert {
+            /// Prose failed connecting to your account, as the server reported an account error.
+            ///
+            /// This might mean that your credentials are invalid, or your account does not exist anymore on this server, or was blocked.
+            public static let content = L10n.tr("Localizable", "authentication.account_error_alert.content")
+            /// Account Error
+            public static let title = L10n.tr("Localizable", "authentication.account_error_alert.title")
+            public enum GoToAccountSettingsAction {
+                /// Account settings
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.go_to_account_settings_action.title")
+            }
+
+            public enum TryAgainAction {
+                /// Try again
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.try_again_action.title")
+            }
+
+            public enum WorkOfflineAction {
+                /// Work offline
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.work_offline_action.title")
+            }
+        }
+
         public enum BasicAuth {
             public enum Alert {
                 public enum BadCredentials {
