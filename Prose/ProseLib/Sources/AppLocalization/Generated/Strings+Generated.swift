@@ -146,6 +146,19 @@ public enum L10n {
         }
     }
 
+    public enum Chat {
+        public enum OfflineBanner {
+            /// New messages will not appear, drafts will be saved for later.
+            public static let content = L10n.tr("Localizable", "chat.offline_banner.content")
+            /// You are offline
+            public static let title = L10n.tr("Localizable", "chat.offline_banner.title")
+            public enum ReconnectAction {
+                /// Reconnect now
+                public static let title = L10n.tr("Localizable", "chat.offline_banner.reconnect_action.title")
+            }
+        }
+    }
+
     public enum Content {
         public enum MessageBar {
             /// %s is typing…

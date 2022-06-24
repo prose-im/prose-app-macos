@@ -80,6 +80,10 @@
 
 "server.connected_to.label" = "Connected to %s";
 
+"chat.offline_banner.title" = "You are offline";
+"chat.offline_banner.content" = "New messages will not appear, drafts will be saved for later.";
+"chat.offline_banner.reconnect_action.title" = "Reconnect now";
+
 "content.message_details.information.title" = "Information";
 
 "content.message_details.security.title" = "Security";
