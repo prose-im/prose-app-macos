@@ -8,6 +8,7 @@
 import AppLocalization
 import Assets
 import ComposableArchitecture
+import ProseCoreTCA
 import SharedModels
 import SwiftUI
 

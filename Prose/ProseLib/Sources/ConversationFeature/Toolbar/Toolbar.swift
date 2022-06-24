@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import ProseCoreTCA
 import ProseUI
 import SharedModels
 import SwiftUI

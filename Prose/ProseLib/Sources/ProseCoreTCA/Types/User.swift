@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SharedModels
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 /// It more or less represents a vCard.
