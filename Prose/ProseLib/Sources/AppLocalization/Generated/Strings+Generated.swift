@@ -294,6 +294,8 @@ public enum L10n {
             /// Match system
             public static let themeOptionMatchSystem = L10n.tr("Localizable", "settings.general.theme_option_match_system")
             public enum IdleAutomaticallyMarkAway {
+                /// After:
+                public static let afterLabel = L10n.tr("Localizable", "settings.general.idle_automatically_mark_away.after_label")
                 /// 15 minutes
                 public static let afterOptionFifteenMinutes = L10n.tr("Localizable", "settings.general.idle_automatically_mark_away.after_option_fifteen_minutes")
                 /// 5 minutes
@@ -304,7 +306,7 @@ public enum L10n {
                 public static let afterOptionTenMinutes = L10n.tr("Localizable", "settings.general.idle_automatically_mark_away.after_option_ten_minutes")
                 /// 30 minutes
                 public static let afterOptionThirtyMinutes = L10n.tr("Localizable", "settings.general.idle_automatically_mark_away.after_option_thirty_minutes")
-                /// Automatically mark me as away after:
+                /// Automatically mark me as away
                 public static let enabledToggle = L10n.tr("Localizable", "settings.general.idle_automatically_mark_away.enabled_toggle")
             }
 

@@ -1,12 +1,11 @@
 //
-//  NotificationsSettingsView.swift
+//  NotificationsTab.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/7/21.
 //
 
 import AppLocalization
-import Preferences
 import SwiftUI
 
 private let l10n = L10n.Settings.Notifications.self
@@ -76,7 +75,7 @@ enum NotificationsSettingsHandoverForwardMobileAfter: String, Equatable, CaseIte
     }
 }
 
-struct NotificationsSettingsView: View {
+struct NotificationsTab: View {
     @AppStorage("settings.notifications.notifyGovernor") var notifyGovernor: NotificationsSettingsNotify = .allMessages
     @AppStorage("settings.notifications.notifyOnReply") var notifyOnReply = true
     @AppStorage("settings.notifications.scheduleDays") var scheduleDays: NotificationsSettingsScheduleDays = .weekdays
@@ -89,12 +88,9 @@ struct NotificationsSettingsView: View {
     @AppStorage("settings.notifications.handoverForwardMobileAfter") var handoverForwardMobileAfter: NotificationsSettingsHandoverForwardMobileAfter = .fiveMinutes
 
     var body: some View {
-        Preferences.Container(contentWidth: SettingsContants.contentWidth) {
+        VStack {
             // "Notify me about"
-            Preferences.Section(
-                title: l10n.NotifyGovernor.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.NotifyGovernor.label) {
                 Picker("", selection: $notifyGovernor) {
                     ForEach(NotificationsSettingsNotify.allCases, id: \.self) { value in
                         Text(value.localizedDescription)
@@ -102,19 +98,14 @@ struct NotificationsSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
+                .frame(width: SettingsConstants.selectNormalWidth)
 
                 Toggle(l10n.NotifyOnReply.toggle, isOn: $notifyOnReply)
                     .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer()
             }
 
             // "Get notified"
-            Preferences.Section(
-                title: l10n.Schedule.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.Schedule.label) {
                 Picker("", selection: $scheduleDays) {
                     ForEach(NotificationsSettingsScheduleDays.allCases, id: \.self) { value in
                         Text(value.localizedDescription)
@@ -122,7 +113,7 @@ struct NotificationsSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
+                .frame(width: SettingsConstants.selectNormalWidth)
 
                 HStack {
                     Picker("", selection: $scheduleTimeFrom) {
@@ -132,7 +123,7 @@ struct NotificationsSettingsView: View {
                         }
                     }
                     .labelsHidden()
-                    .frame(width: SettingsContants.selectSmallWidth)
+                    .frame(width: SettingsConstants.selectSmallWidth)
 
                     Text(l10n.Schedule.timeSeparator)
 
@@ -143,29 +134,19 @@ struct NotificationsSettingsView: View {
                         }
                     }
                     .labelsHidden()
-                    .frame(width: SettingsContants.selectSmallWidth)
+                    .frame(width: SettingsConstants.selectSmallWidth)
                 }
-
-                Spacer()
             }
 
             // "When notified"
-            Preferences.Section(
-                title: l10n.Action.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.Action.label) {
                 Toggle(l10n.Action.badgeToggle, isOn: $actionBadge)
                 Toggle(l10n.Action.soundToggle, isOn: $actionSound)
                 Toggle(l10n.Action.bannerToggle, isOn: $actionBanner)
-
-                Spacer()
             }
 
             // "Mobile alerts"
-            Preferences.Section(
-                title: l10n.Handover.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.Handover.label) {
                 Toggle(l10n.Handover.ForwardMobile.toggle, isOn: $handoverForwardMobileEnabled)
 
                 Picker("", selection: $handoverForwardMobileAfter) {
@@ -175,14 +156,17 @@ struct NotificationsSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
+                .frame(width: SettingsConstants.selectNormalWidth)
             }
         }
+        .groupBoxStyle(FormGroupBoxStyle())
+        .padding()
+        .frame(width: SettingsConstants.contentWidth)
     }
 }
 
-struct NotificationsSettingsView_Previews: PreviewProvider {
+struct NotificationsTab_Previews: PreviewProvider {
     static var previews: some View {
-        NotificationsSettingsView()
+        NotificationsTab()
     }
 }

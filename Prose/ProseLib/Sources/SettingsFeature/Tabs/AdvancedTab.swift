@@ -1,12 +1,11 @@
 //
-//  AdvancedSettingsView.swift
+//  AdvancedTab.swift
 //  Prose
 //
 //  Created by Valerian Saliou on 12/7/21.
 //
 
 import AppLocalization
-import Preferences
 import SwiftUI
 
 private let l10n = L10n.Settings.Advanced.self
@@ -25,18 +24,15 @@ enum AdvancedSettingsUpdateChannel: String, Equatable, CaseIterable {
     }
 }
 
-struct AdvancedSettingsView: View {
+struct AdvancedTab: View {
     @AppStorage("settings.advanced.updateChannel") var updateChannel: AdvancedSettingsUpdateChannel = .stable
     @AppStorage("settings.advanced.reportsUsage") var reportsUsage = true
     @AppStorage("settings.advanced.reportsCrash") var reportsCrash = true
 
     var body: some View {
-        Preferences.Container(contentWidth: SettingsContants.contentWidth) {
+        VStack(spacing: 24) {
             // "Update channel"
-            Preferences.Section(
-                title: l10n.UpdateChannel.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.UpdateChannel.label) {
                 Picker("", selection: $updateChannel) {
                     ForEach(AdvancedSettingsUpdateChannel.allCases, id: \.self) { value in
                         Text(value.localizedDescription)
@@ -44,25 +40,22 @@ struct AdvancedSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: SettingsContants.selectNormalWidth)
-
-                Spacer()
+                .frame(width: SettingsConstants.selectNormalWidth)
             }
 
             // "Reports"
-            Preferences.Section(
-                title: l10n.Reports.label,
-                verticalAlignment: .top
-            ) {
+            GroupBox(l10n.Reports.label) {
                 Toggle(l10n.Reports.usageToggle, isOn: $reportsUsage)
                 Toggle(l10n.Reports.crashToggle, isOn: $reportsCrash)
             }
         }
+        .groupBoxStyle(FormGroupBoxStyle())
+        .padding()
     }
 }
 
-struct AdvancedSettingsView_Previews: PreviewProvider {
+struct AdvancedTab_Previews: PreviewProvider {
     static var previews: some View {
-        AdvancedSettingsView()
+        AdvancedTab()
     }
 }
