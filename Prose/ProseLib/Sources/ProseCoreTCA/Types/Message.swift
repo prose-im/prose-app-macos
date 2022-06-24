@@ -21,6 +21,14 @@ public struct Message: Equatable, Identifiable {
     public var kind: MessageKind?
     public var body: String
     public var timestamp: Date
+
+    public init(from: JID, id: MessageID, kind: MessageKind?, body: String, timestamp: Date) {
+        self.from = from
+        self.id = id
+        self.kind = kind
+        self.body = body
+        self.timestamp = timestamp
+    }
 }
 
 extension Message {

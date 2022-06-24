@@ -12,7 +12,7 @@ import SharedModels
 import SwiftUI
 
 public struct AvatarImage: Equatable {
-    let url: URL?
+    public let url: URL?
     // let initials: String
 
     public init(url: URL?) {

@@ -27,7 +27,6 @@ public struct ConversationScreen: View {
 
     public var body: some View {
         Chat(store: self.store.scope(state: \State.chat).actionless)
-            .frame(maxWidth: .infinity)
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 MessageBar(store: self.store.scope(state: \.messageBar, action: Action.messageBar))
                     // Make footer have a higher priority, to be accessible over the scroll view
@@ -99,6 +98,11 @@ public let conversationReducer: Reducer<
         case let .messageBar(.textField(.send(messageContent))):
             // Ignore the error for now. There is no error handling in the library so far.
             return environment.proseClient.sendMessage(state.chatId, messageContent)
+                .handleEvents(receiveCompletion: { comp in
+                    if case let .failure(error) = comp {
+                        logger.notice("Error when sending message: \(String(describing: error))")
+                    }
+                })
                 .ignoreOutput()
                 .eraseToEffect()
                 .fireAndForget()

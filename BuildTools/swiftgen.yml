@@ -46,5 +46,15 @@ xcassets:
           bundle: Bundle.fixedModule
           publicAccess: true
 
+files:
+  - inputs: [ConversationFeature/Resources/Views]
+    filter: .+\.html$
+    outputs:
+      - templateName: structured-swift5
+        output: ConversationFeature/Generated/Files+Generated.swift
+        params:
+          bundle: Bundle.fixedModule
+          publicAccess: false
+
 # For more info, use `swiftgen config doc` to open the full documentation on GitHub.
 # https://github.com/SwiftGen/SwiftGen/tree/6.5.1/Documentation/
