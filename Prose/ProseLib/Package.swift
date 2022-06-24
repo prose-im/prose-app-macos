@@ -23,7 +23,6 @@ let package = Package(
         ]),
     ],
     dependencies: [
-        // .package(path: "../../ProseCore"),
         .package(url: "https://github.com/sindresorhus/Preferences", .upToNextMajor(from: "2.5.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.2")),
         .package(
@@ -31,6 +30,8 @@ let package = Package(
             .upToNextMajor(from: "0.33.1")
         ),
         .package(url: "https://github.com/pointfreeco/swiftui-navigation", .upToNextMajor(from: "0.1.0")),
+        // https://github.com/prose-im/prose-wrapper-swift/issues/1
+        .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.1.3"),
     ],
     targets: [
         .target(
@@ -42,7 +43,7 @@ let package = Package(
                 "CredentialsClient",
                 "TcaHelpers",
                 "UserDefaultsClient",
-                // "ProseCore",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -64,6 +65,7 @@ let package = Package(
             "AddressBookFeature",
             "ConversationFeature",
             "UnreadFeature",
+            "ProseCoreTCA",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
         .target(name: "AddressBookFeature", dependencies: [
@@ -85,6 +87,7 @@ let package = Package(
                 "PreviewAssets",
                 "SharedModels",
                 "TcaHelpers",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
@@ -94,18 +97,17 @@ let package = Package(
                 "AppLocalization",
                 "Assets",
                 "ConversationInfoFeature",
-                "ProseCoreStub",
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
         .target(name: "ConversationInfoFeature", dependencies: [
             "PreviewAssets",
-            "ProseCoreStub",
             "SharedModels",
+            "ProseCoreTCA",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         ]),
         .target(
@@ -113,10 +115,10 @@ let package = Package(
             dependencies: [
                 "AppLocalization",
                 "CredentialsClient",
-                // "ProseCore",
                 "ProseUI",
                 "SharedModels",
                 "TcaHelpers",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
             ]
@@ -128,14 +130,11 @@ let package = Package(
                 "ProseUI",
                 "PreviewAssets",
                 "SharedModels",
+                "ProseCoreTCA",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ]
         ),
-        .target(name: "ProseCoreStub", dependencies: [
-            "SharedModels",
-            .product(name: "OrderedCollections", package: "swift-collections"),
-        ]),
 
         // MARK: Dependencies
 
@@ -146,5 +145,19 @@ let package = Package(
         .target(name: "UserDefaultsClient", dependencies: [
             "SharedModels",
         ]),
+        .target(
+            name: "ProseCore",
+            dependencies: [
+                .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift"),
+            ]
+        ),
+        .target(
+            name: "ProseCoreTCA",
+            dependencies: [
+                "ProseCore",
+                "SharedModels",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
     ]
 )

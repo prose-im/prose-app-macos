@@ -8,19 +8,6 @@
 import AppLocalization
 import Foundation
 
-public enum BasicAuthError: Error, Equatable {
-    case badCredentials
-}
-
-extension BasicAuthError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .badCredentials:
-            return L10n.Authentication.BasicAuth.Alert.BadCredentials.title
-        }
-    }
-}
-
 public enum MFAError: Error, Equatable {
     case badCode
 }

@@ -10,7 +10,6 @@ import AppLocalization
 import Combine
 import ComposableArchitecture
 import Foundation
-// import ProseCore
 import SharedModels
 
 private let l10n = L10n.Authentication.BasicAuth.self
@@ -67,9 +66,7 @@ public enum BasicAuthAction: Equatable, BindableAction {
     case alertDismissed
     case loginButtonTapped, showPopoverTapped(BasicAuthState.Popover)
     case submitTapped(BasicAuthState.Field), cancelLogInTapped
-    case logIn
-//    case loginResult(Result<UserCredentials, EquatableError>)
-    case loginResult(Result<AuthRoute, BasicAuthError>)
+    case loginResult(Result<AuthRoute, EquatableError>)
     case didPassChallenge(next: AuthRoute)
     case binding(BindingAction<BasicAuthState>)
 }
@@ -83,39 +80,31 @@ public let basicAuthReducer = Reducer<
 > { state, action, environment in
     struct CancelId: Hashable {}
 
+    func performLogin() -> Effect<BasicAuthAction, Never> {
+        guard state.isFormValid else {
+            return .none
+        }
+
+        state.focusedField = nil
+        state.isLoading = true
+
+        let jid = JID(rawValue: state.jid)
+        let password = state.password
+
+        return environment.proseClient.login(jid, password)
+            .map { _ in AuthRoute.success(jid: jid, password: password) }
+            .receive(on: environment.mainQueue)
+            .catchToEffect()
+            .map(BasicAuthAction.loginResult)
+            .cancellable(id: CancelId())
+    }
+
     switch action {
     case .alertDismissed:
         state.alert = nil
 
     case .loginButtonTapped:
-        return Effect(value: .logIn)
-
-    case .logIn:
-        state.focusedField = nil
-        state.isLoading = true
-
-        let isFormValid = state.isFormValid
-        let jid = JID(rawValue: state.jid)
-        let password = state.password
-        return Effect.task {
-            if isFormValid, jid.node != "error" {
-                if jid.node == "mfa" {
-                    return .loginResult(.success(.mfa(.sixDigits(MFA6DigitsState(
-                        jid: jid,
-                        password: password
-                    )))))
-                } else {
-                    return .loginResult(.success(.success(jid: jid, password: password)))
-                }
-            } else {
-                return .loginResult(.failure(.badCredentials))
-            }
-        }
-        .delay(for: .seconds(1), scheduler: environment.mainQueue)
-        .eraseToEffect()
-        .cancellable(id: CancelId())
-//        return environment.login(state.jid, state.password, .proseAppMacOs)
-//            .map(BasicAuthAction.loginResult)
+        return performLogin()
 
     case let .showPopoverTapped(popover):
         state.focusedField = nil
@@ -125,18 +114,14 @@ public let basicAuthReducer = Reducer<
         state.focusedField = .password
 
     case .submitTapped(.password):
-        if state.isLogInButtonEnabled {
-            return Effect(value: .logIn)
-        }
+        return performLogin()
 
     case .cancelLogInTapped:
         state.isLoading = false
         return Effect.cancel(id: CancelId())
 
     case let .loginResult(.success(route)):
-//    case let .loginResult(.success(credentials)):
         state.isLoading = false
-
         return Effect(value: .didPassChallenge(next: route))
 
     case let .loginResult(.failure(reason)):

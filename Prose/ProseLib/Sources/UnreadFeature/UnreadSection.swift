@@ -6,7 +6,7 @@
 //
 
 import ConversationFeature
-import ProseCoreStub
+import ProseCoreTCA
 import ProseUI
 import SharedModels
 import SwiftUI
@@ -14,12 +14,12 @@ import SwiftUI
 public struct UnreadSectionModel: Equatable {
     let chatId: ChatID
     let chatTitle: String
-    var messages: [MessageViewModel]
+    var messages: [Message]
 
     public init(
         chatId: ChatID,
         chatTitle: String,
-        messages: [MessageViewModel]
+        messages: [Message]
     ) {
         self.chatId = chatId
         self.chatTitle = chatTitle

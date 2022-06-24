@@ -7,10 +7,10 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
-import OrderedCollections
-import ProseCoreStub
+import ProseCoreTCA
 import SharedModels
 import SwiftUI
+import TcaHelpers
 
 // MARK: - View
 
@@ -26,13 +26,20 @@ public struct ConversationScreen: View {
     }
 
     public var body: some View {
-        ChatWithMessageBar(store: store.scope(state: \State.chat, action: Action.chat))
+        Chat(store: self.store.scope(state: \State.chat).actionless)
+            .frame(maxWidth: .infinity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                MessageBar(store: self.store.scope(state: \.messageBar, action: Action.messageBar))
+                    // Make footer have a higher priority, to be accessible over the scroll view
+                    .accessibilitySortPriority(1)
+            }
             .onAppear { actions.send(.onAppear) }
+            .onDisappear { actions.send(.onDisappear) }
             .safeAreaInset(edge: .trailing, spacing: 0) {
                 WithViewStore(self.store.scope(state: \State.toolbar.isShowingInfo)) { showingInfo in
                     HStack(spacing: 0) {
                         Divider()
-                        IfLetStore(self.store.scope(state: \State.info, action: Action.info)) { store in
+                        IfLetStore(self.store.scope(state: \.info, action: Action.info)) { store in
                             ConversationInfoView(store: store)
                         } else: {
                             ConversationInfoView.placeholder
@@ -44,7 +51,7 @@ public struct ConversationScreen: View {
                 }
             }
             .toolbar {
-                Toolbar(store: self.store.scope(state: \State.toolbar, action: Action.toolbar))
+                Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
             }
     }
 }
@@ -53,15 +60,19 @@ public struct ConversationScreen: View {
 
 // MARK: Reducer
 
+enum ConversationEffectToken: Hashable, CaseIterable {
+    case observeMessages
+}
+
 public let conversationReducer: Reducer<
     ConversationState,
     ConversationAction,
     ConversationEnvironment
 > = Reducer.combine([
-    chatWithBarReducer.pullback(
-        state: \ConversationState.chat,
-        action: CasePath(ConversationAction.chat),
-        environment: { $0 }
+    messageBarReducer.pullback(
+        state: \ConversationState.messageBar,
+        action: CasePath(ConversationAction.messageBar),
+        environment: { _ in () }
     ),
     conversationInfoReducer.optional().pullback(
         state: \ConversationState.info,
@@ -76,137 +87,67 @@ public let conversationReducer: Reducer<
     Reducer { state, action, environment in
         switch action {
         case .onAppear:
-            guard state.toolbar.user == nil else { return .none }
+            return environment.proseClient.messagesInChat(state.chatId)
+                .receive(on: environment.mainQueue)
+                .eraseToEffect()
+                .map(ConversationAction.messagesDidChange)
+                .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true)
 
-            let user: User?
-            switch state.chatId {
-            case let .person(jid):
-                user = environment.userStore.user(jid)
-            case .group:
-                logger.notice("Group info not supported yet")
-                user = nil
-            }
+        case .onDisappear:
+            return .cancel(token: ConversationEffectToken.self)
 
-            // TODO: [Rémi Bardon] We should remember the `showingInfo` setting, to avoid hiding if every time
-            state.toolbar = ToolbarState(user: user, showingInfo: false)
+        case let .messageBar(.textField(.send(messageContent))):
+            // Ignore the error for now. There is no error handling in the library so far.
+            return environment.proseClient.sendMessage(state.chatId, messageContent)
+                .ignoreOutput()
+                .eraseToEffect()
+                .fireAndForget()
 
-        case let .chat(.messageBar(.textField(.send(messageContent)))):
-            let jid = state.chatId.jid
-
-            let message = environment.sendMessage(jid, messageContent)
-
-            // TODO: Fix senderName and avatarURL
-            let messageVM = MessageViewModel(
-                senderId: message.senderId,
-                senderName: message.senderId.rawValue,
-                avatarURL: nil,
-                content: message.content,
-                timestamp: message.timestamp
-            )
-            let newMessages = ChatState.sectioned([messageVM])
-            return Effect(value: .chat(.chat(.addMessages(newMessages))))
+        case let .messagesDidChange(messages):
+            state.messages = messages
+            return .none
 
         case .toolbar(.binding(\.$isShowingInfo)):
-            // TODO: [Rémi Bardon] Once `ConversationInfoState` contains a lot of data,
-            //       trigger an asynchronous call here, to retrieve it.
-            //       Use a placeholder while waiting for the data.
             if state.toolbar.isShowingInfo, state.info == nil {
-                let user: User?
-                let status: OnlineStatus?
-                let lastSeenDate: Date?
-                let timeZone: TimeZone?
-                let statusLine: (Character, String)?
-                let isIdentityVerified: Bool
-                let encryptionFingerprint: String?
-
-                switch state.chatId {
-                case let .person(jid):
-                    user = environment.userStore.user(jid)
-                    status = environment.statusStore.onlineStatus(jid)
-                    lastSeenDate = environment.statusStore.lastSeenDate(jid)
-                    timeZone = environment.statusStore.timeZone(jid)
-                    statusLine = environment.statusStore.statusLine(jid)
-                    isIdentityVerified = environment.securityStore.isIdentityVerified(jid)
-                    encryptionFingerprint = environment.securityStore.encryptionFingerprint(jid)
-                case .group:
-                    logger.notice("Group info not supported yet")
-                    user = nil
-                    status = nil
-                    lastSeenDate = nil
-                    timeZone = nil
-                    statusLine = nil
-                    isIdentityVerified = false
-                    encryptionFingerprint = nil
-                }
-
-                if let user = user,
-                   let status = status,
-                   let lastSeenDate = lastSeenDate,
-                   let timeZone = timeZone,
-                   let statusLine = statusLine
-                {
-                    state.info = ConversationInfoState(
-                        identity: .init(from: user, status: status),
-                        quickActions: .init(),
-                        information: .init(
-                            from: user,
-                            lastSeenDate: lastSeenDate,
-                            timeZone: timeZone,
-                            statusIcon: statusLine.0,
-                            statusMessage: statusLine.1
-                        ),
-                        security: .init(
-                            isIdentityVerified: isIdentityVerified,
-                            encryptionFingerprint: encryptionFingerprint
-                        ),
-                        actions: .init()
-                    )
-                }
+                state.info = .demo
             }
+            return .none
 
-        default:
-            break
+        case .info, .toolbar, .messageBar:
+            return .none
         }
-
-        return .none
     },
 ])
 
 // MARK: State
 
 public struct ConversationState: Equatable {
-    public let chatId: ChatID
-    var chat: ChatWithBarState
+    let chatId: JID
     var info: ConversationInfoState?
     var toolbar: ToolbarState
+    var messageBar: MessageBarState
+    var messages = [Message]()
 
-    public init(
-        chatId: ChatID,
-        chat: ChatWithBarState,
-        info: ConversationInfoState? = nil,
-        toolbar: ToolbarState? = nil
-    ) {
+    public init(chatId: JID) {
         self.chatId = chatId
-        self.chat = chat
-        self.info = info
-        self.toolbar = toolbar ?? .init(user: nil)
+        self.toolbar = .init(user: .init(
+            jid: chatId,
+            displayName: chatId.jidString,
+            fullName: "John Doe",
+            avatar: nil,
+            jobTitle: "Chatbot",
+            company: "Acme Inc.",
+            emailAddress: "chatbot@prose.org",
+            phoneNumber: "0000000",
+            location: "The Internets"
+        ))
+        self.messageBar = .init(textField: .init(recipient: chatId.jidString))
     }
+}
 
-    public init(
-        chatId: ChatID,
-        recipient: String,
-        info: ConversationInfoState? = nil,
-        toolbar: ToolbarState? = nil
-    ) {
-        self.chatId = chatId
-        self.chat = ChatWithBarState(
-            chat: ChatState(chatId: chatId),
-            messageBar: MessageBarState(
-                textField: .init(recipient: recipient)
-            )
-        )
-        self.info = info
-        self.toolbar = toolbar ?? .init(user: nil)
+extension ConversationState {
+    var chat: ChatState {
+        .init(messages: self.messages)
     }
 }
 
@@ -214,50 +155,27 @@ public struct ConversationState: Equatable {
 
 public enum ConversationAction: Equatable {
     case onAppear
-    case chat(ChatWithBarAction)
+    case onDisappear
+
+    case messagesDidChange([Message])
+
     case info(ConversationInfoAction)
     case toolbar(ToolbarAction)
+    case messageBar(MessageBarAction)
 }
 
 // MARK: Environment
 
 public struct ConversationEnvironment {
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
-
-    var sendMessage = { (_ to: JID, _ text: String) -> ProseCoreStub.Message in
-        let message = ProseCoreStub.Message(
-            senderId: "idk@prose.org",
-            content: text,
-            timestamp: .now
-        )
-        logger.trace("Sending '\(text)' to \(to)…")
-        return message
-    }
+    var proseClient: ProseClient
+    var mainQueue: AnySchedulerOf<DispatchQueue>
 
     public init(
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore
+        proseClient: ProseClient,
+        mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
-    }
-}
-
-public extension ConversationEnvironment {
-    static var stub: ConversationEnvironment {
-        ConversationEnvironment(
-            userStore: .stub,
-            messageStore: .stub,
-            statusStore: .stub,
-            securityStore: .stub
-        )
+        self.proseClient = proseClient
+        self.mainQueue = mainQueue
     }
 }
 
@@ -267,12 +185,9 @@ struct ConversationScreen_Previews: PreviewProvider {
     private struct Preview: View {
         var body: some View {
             ConversationScreen(store: Store(
-                initialState: ConversationState(
-                    chatId: .person(id: "alexandre@crisp.chat"),
-                    recipient: "Alexandre"
-                ),
+                initialState: ConversationState(chatId: JID(rawValue: "alexandre@crisp.chat")),
                 reducer: conversationReducer,
-                environment: .stub
+                environment: .init(proseClient: .noop, mainQueue: .main)
             ))
             .previewLayout(.sizeThatFits)
         }

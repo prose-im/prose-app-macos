@@ -7,8 +7,7 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import MainWindowFeature
-// import ProseCore
-import ProseCoreStub
+import ProseCoreTCA
 import SharedModels
 import UserDefaultsClient
 
@@ -59,7 +58,10 @@ public let appReducer: Reducer<
 
         case let .authenticationResult(.success(.some(credentials))):
             proceedToMainFlow(with: credentials)
-            return .none
+            return environment.proseClient.login(credentials.jid, credentials.password)
+                .receive(on: environment.mainQueue)
+                .catchToEffect()
+                .map(AppAction.connectionResult)
 
         case .authenticationResult(.success(.none)):
             proceedToLogin()
@@ -98,6 +100,14 @@ public let appReducer: Reducer<
             environment.userDefaults.deleteCurrentAccount()
 
             proceedToLogin(jid: jid)
+            return .none
+
+        case .connectionResult(.success):
+            logger.info("Connection established.")
+            return .none
+
+        case .connectionResult(.failure):
+            proceedToLogin()
             return .none
 
         case .onAppear, .auth, .main:
@@ -150,6 +160,7 @@ public enum URLOpeningError: Error, Equatable {
 public enum AppAction: Equatable {
     case onAppear
     case authenticationResult(Result<Credentials?, EquatableError>)
+    case connectionResult(Result<None, EquatableError>)
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -166,10 +177,7 @@ public struct AppEnvironment {
     var userDefaults: UserDefaultsClient
     var credentials: CredentialsClient
 
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
+    var proseClient: ProseClient
 
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
@@ -177,48 +185,21 @@ public struct AppEnvironment {
 
     var auth: AuthenticationEnvironment {
         AuthenticationEnvironment(
+            proseClient: self.proseClient,
             credentials: self.credentials,
             mainQueue: self.mainQueue
         )
     }
 
     var main: MainScreenEnvironment {
-        MainScreenEnvironment(
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore: self.securityStore
-        )
-    }
-
-    private init(
-        userDefaults: UserDefaultsClient,
-        credentials: CredentialsClient,
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore,
-        mainQueue: AnySchedulerOf<DispatchQueue>,
-        openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
-    ) {
-        self.userDefaults = userDefaults
-        self.credentials = credentials
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
-        self.mainQueue = mainQueue
-        self.openURL = openURL
+        MainScreenEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
     }
 
     public static var live: Self {
         Self(
             userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
-            userStore: .stub,
-            messageStore: .stub,
-            statusStore: .stub,
-            securityStore: .stub,
+            proseClient: .live(),
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in

@@ -12,6 +12,12 @@ public struct JID: Hashable {
     public let node: String?
     public let domain: String
     public let resource: String?
+
+    public init(node: String?, domain: String, resource: String?) {
+        self.node = node
+        self.domain = domain
+        self.resource = resource
+    }
 }
 
 public extension JID {

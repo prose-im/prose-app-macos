@@ -29,7 +29,7 @@ struct Footer: View {
 
             HStack(spacing: 12) {
                 // User avatar
-                FooterAvatar(store: self.store.scope(state: \State.avatar, action: Action.avatar))
+                FooterAvatar(store: self.store.scope(state: \.avatar, action: Action.avatar))
 
                 WithViewStore(self.store, removeDuplicates: ==) { viewStore in
                     // Team name + user status

@@ -6,8 +6,9 @@
 //
 
 import ComposableArchitecture
-import ProseCoreStub
+import ProseCoreTCA
 import ProseUI
+import SharedModels
 import SwiftUI
 
 // MARK: - View

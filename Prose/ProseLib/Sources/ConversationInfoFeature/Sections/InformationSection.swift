@@ -8,7 +8,8 @@
 import AppLocalization
 import Assets
 import ComposableArchitecture
-import ProseCoreStub
+import ProseCoreTCA
+import SharedModels
 import SwiftUI
 
 private let l10n = L10n.Content.MessageDetails.Information.self

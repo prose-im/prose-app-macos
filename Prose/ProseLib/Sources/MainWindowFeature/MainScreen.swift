@@ -8,7 +8,7 @@
 import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
-import ProseCoreStub
+import ProseCoreTCA
 import SharedModels
 import SidebarFeature
 import SwiftUI
@@ -63,20 +63,21 @@ public let mainWindowReducer = Reducer<
     sidebarReducer.pullback(
         state: \.sidebar,
         action: CasePath(MainScreenAction.sidebar),
-        environment: { _ in }
+        environment: \.sidebar
     ),
     unreadReducer._pullback(
         state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
         action: CasePath(MainScreenAction.unreadStack),
-        environment: { _ in .stub }
+        environment: \.unread
     ),
     conversationReducer._pullback(
         state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
         action: CasePath(MainScreenAction.chat),
-        environment: { $0.chat }
+        environment: \.chat,
+        breakpointOnNil: false
     ),
 ])
-.onChange(of: \.sidebar.selection) { selection, state, _, _ in
+.onChange(of: \.sidebar.selection) { selection, state, _, environment in
     switch selection {
     case .unreadStack, .none:
         state.route = .unreadStack(.init())
@@ -87,7 +88,23 @@ public let mainWindowReducer = Reducer<
     case .peopleAndGroups:
         state.route = .peopleAndGroups
     case let .chat(jid):
-        state.route = .chat(.init(chatId: .person(id: jid), recipient: "Huh?"))
+        var priorRoute = state.route
+        var conversationState = ConversationState(chatId: jid)
+        var effects = Effect<MainScreenAction, Never>.none
+
+        // If another chat was selected already, we'll manually send the `.onAppear` and
+        // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
+        if case var .chat(priorConversationState) = priorRoute {
+            effects = .concatenate([
+                conversationReducer(&priorConversationState, .onDisappear, environment.chat)
+                    .map(MainScreenAction.chat),
+                conversationReducer(&conversationState, .onAppear, environment.chat)
+                    .map(MainScreenAction.chat),
+            ])
+        }
+
+        state.route = .chat(conversationState)
+        return effects
     }
     return .none
 }
@@ -128,30 +145,29 @@ public enum MainScreenAction: Equatable {
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    let userStore: UserStore
-    let messageStore: MessageStore
-    let statusStore: StatusStore
-    let securityStore: SecurityStore
-
-    var chat: ConversationEnvironment {
-        ConversationEnvironment(
-            userStore: self.userStore,
-            messageStore: self.messageStore,
-            statusStore: self.statusStore,
-            securityStore: self.securityStore
-        )
-    }
+    var proseClient: ProseClient
+    var mainQueue: AnySchedulerOf<DispatchQueue>
 
     public init(
-        userStore: UserStore,
-        messageStore: MessageStore,
-        statusStore: StatusStore,
-        securityStore: SecurityStore
+        proseClient: ProseClient,
+        mainQueue: AnySchedulerOf<DispatchQueue>
     ) {
-        self.userStore = userStore
-        self.messageStore = messageStore
-        self.statusStore = statusStore
-        self.securityStore = securityStore
+        self.proseClient = proseClient
+        self.mainQueue = mainQueue
+    }
+}
+
+extension MainScreenEnvironment {
+    var chat: ConversationEnvironment {
+        .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
+    }
+
+    var sidebar: SidebarEnvironment {
+        .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
+    }
+
+    var unread: UnreadEnvironment {
+        .init()
     }
 }
 
@@ -166,10 +182,8 @@ public struct MainScreenEnvironment {
                 initialState: MainScreenState(jid: "preview@prose.org"),
                 reducer: mainWindowReducer,
                 environment: MainScreenEnvironment(
-                    userStore: .stub,
-                    messageStore: .stub,
-                    statusStore: .stub,
-                    securityStore: .stub
+                    proseClient: .noop,
+                    mainQueue: .main
                 )
             ))
         }
