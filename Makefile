@@ -1,3 +1,5 @@
+# ################ Assets ################
+
 assets: swiftgen format
 
 swiftgen:
