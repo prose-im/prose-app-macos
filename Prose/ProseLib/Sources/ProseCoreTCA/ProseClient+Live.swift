@@ -91,6 +91,7 @@ public extension ProseClient {
                 let message = Message(
                     from: from,
                     id: .selfAssigned(uuid()),
+                    kind: .chat,
                     body: body,
                     timestamp: date()
                 )
