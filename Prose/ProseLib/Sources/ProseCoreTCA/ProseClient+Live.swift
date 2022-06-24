@@ -52,34 +52,33 @@ public extension ProseClient {
             },
             roster: {
                 Publishers.CombineLatest(
-                  delegate.roster,
-                  delegate.chats
+                    delegate.roster,
+                    delegate.chats
                 ).map { roster, chats -> Roster in
-                  // Append our own JID to each group, so that we can chat with
-                  // ourselves (via a second IM).
-                  if let jid = client?.jid {
-                      return Roster(groups: roster.groups.map { group in
-                          var mutGroup = group
-                          mutGroup.items.append(
-                              .init(
-                                  jid: JID(bareJid: jid),
-                                  subscription: .both,
-                                  numberOfUnreadMessages: 0
-                              )
-                          )
-                          
-                          mutGroup.items = mutGroup.items.map { item in
-                            var mutItem = item
-                            mutItem.numberOfUnreadMessages =
-                              chats[item.jid]?.numberOfUnreadMessages ?? 0
-                            return mutItem
-                          }
-                          
+                    // Append our own JID to each group, so that we can chat with
+                    // ourselves (via a second IM).
+                    if let jid = client?.jid {
+                        return Roster(groups: roster.groups.map { group in
+                            var mutGroup = group
+                            mutGroup.items.append(
+                                .init(
+                                    jid: JID(bareJid: jid),
+                                    subscription: .both,
+                                    numberOfUnreadMessages: 0
+                                )
+                            )
 
-                          return mutGroup
-                      })
-                  }
-                  return roster
+                            mutGroup.items = mutGroup.items.map { item in
+                                var mutItem = item
+                                mutItem.numberOfUnreadMessages =
+                                    chats[item.jid]?.numberOfUnreadMessages ?? 0
+                                return mutItem
+                            }
+
+                            return mutGroup
+                        })
+                    }
+                    return roster
                 }
                 .eraseToEffect()
             },
@@ -163,20 +162,20 @@ private final class Delegate: ProseClientDelegate {
 }
 
 private struct Chat: Equatable {
-  private(set) var messages = [Message]()
-  private(set) var numberOfUnreadMessages = 0
-  
-  mutating func appendMessage(_ message: Message) {
-    self.messages.append(message)
-    if !message.isRead {
-      self.numberOfUnreadMessages += 1
+    private(set) var messages = [Message]()
+    private(set) var numberOfUnreadMessages = 0
+
+    mutating func appendMessage(_ message: Message) {
+        self.messages.append(message)
+        if !message.isRead {
+            self.numberOfUnreadMessages += 1
+        }
     }
-  }
-  
-  mutating func markMessagesRead() {
-    self.messages.indices.forEach { idx in
-      self.messages[idx].isRead = true
+
+    mutating func markMessagesRead() {
+        self.messages.indices.forEach { idx in
+            self.messages[idx].isRead = true
+        }
+        self.numberOfUnreadMessages = 0
     }
-    self.numberOfUnreadMessages = 0
-  }
 }
