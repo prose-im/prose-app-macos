@@ -106,6 +106,7 @@ struct GeneralTab: View {
         }
         .groupBoxStyle(FormGroupBoxStyle())
         .padding()
+        .disabled(true)
     }
 }
 

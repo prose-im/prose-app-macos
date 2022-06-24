@@ -59,6 +59,7 @@ struct MessagesTab: View {
         }
         .groupBoxStyle(FormGroupBoxStyle())
         .padding()
+        .disabled(true)
     }
 }
 
