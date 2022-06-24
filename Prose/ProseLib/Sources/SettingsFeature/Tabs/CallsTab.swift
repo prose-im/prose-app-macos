@@ -45,7 +45,7 @@ enum CallsSettingsAudioOutputDefault: String, Equatable, CaseIterable {
 }
 
 struct CallsTab: View {
-    @State var videoInputStreamPath: String
+    @State var videoInputStreamPath: String = "webcam-valerian"
 
     @State private var audioInputLevel: Double = 0.6
 
@@ -133,8 +133,6 @@ struct CallsTab: View {
 
 struct CallsTab_Previews: PreviewProvider {
     static var previews: some View {
-        CallsTab(
-            videoInputStreamPath: "webcam-valerian"
-        )
+        CallsTab()
     }
 }

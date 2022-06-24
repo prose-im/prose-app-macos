@@ -13,12 +13,17 @@ import SwiftUI
 ///
 /// - Note: This style might break some layout, accessibility and readability benefits of the system style.
 struct FormGroupBoxStyle: GroupBoxStyle {
+    let firstColumnWidth: CGFloat
+    init(firstColumnWidth: CGFloat = SettingsConstants.firstFormColumnWidth) {
+        self.firstColumnWidth = firstColumnWidth
+    }
+
     func makeBody(configuration: Configuration) -> some View {
         HStack(alignment: .top) {
             VStack(alignment: .trailing) {
                 configuration.label
             }
-            .frame(width: 128, alignment: .trailing)
+            .frame(width: self.firstColumnWidth, alignment: .trailing)
             VStack(alignment: .leading) {
                 configuration.content
             }

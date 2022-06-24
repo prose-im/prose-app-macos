@@ -81,7 +81,6 @@ struct AccountsTab: View {
             // NOTE: Very important, otherwise the `TabView` disappears!
             .tabViewStyle(DefaultTabViewStyle())
             .padding()
-            .frame(width: SettingsConstants.contentWidth)
         }
     }
 }

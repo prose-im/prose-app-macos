@@ -123,6 +123,7 @@ struct NotificationsTab: View {
                         }
                     }
                     .labelsHidden()
+                    .frame(width: SettingsConstants.selectSmallWidth)
 
                     Text(l10n.Schedule.timeSeparator)
 
@@ -133,6 +134,7 @@ struct NotificationsTab: View {
                         }
                     }
                     .labelsHidden()
+                    .frame(width: SettingsConstants.selectSmallWidth)
                 }
             }
 

@@ -47,7 +47,7 @@ struct AccountSettingsAccountView: View {
 
             Spacer()
         }
-        .groupBoxStyle(FormGroupBoxStyle())
+        .groupBoxStyle(FormGroupBoxStyle(firstColumnWidth: SettingsConstants.firstFormColumnConstrainedWidth))
         .padding()
     }
 }
