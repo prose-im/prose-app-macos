@@ -5,7 +5,7 @@ enum ProseClientError: Error {
     case unsupportedCredentials
 }
 
-public final class ProseClient {
+public final class ProseClient: ProseClientProtocol {
     public private(set) weak var delegate: ProseClientDelegate?
 
     private let client: ProseCoreClientFFI.Client
@@ -22,7 +22,7 @@ public final class ProseClient {
     public init(jid: BareJid, delegate: ProseClientDelegate) {
         self.client = .init(jid: jid)
         self.delegate = delegate
-        
+
         if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
             enableLogging()
         }
@@ -53,14 +53,6 @@ public final class ProseClient {
     public func loadRoster() throws {
         self.client.loadRoster()
     }
-}
-
-public protocol ProseClientDelegate: AnyObject {
-    func proseClientDidConnect(_ client: ProseClient)
-    func proseClient(_ client: ProseClient, connectionDidFailWith error: Error?)
-
-    func proseClient(_ client: ProseClient, didReceiveRoster roster: ProseCoreClientFFI.Roster)
-    func proseClient(_ client: ProseClient, didReceiveMessage message: ProseCoreClientFFI.Message)
 }
 
 extension ProseClient: AccountObserver {

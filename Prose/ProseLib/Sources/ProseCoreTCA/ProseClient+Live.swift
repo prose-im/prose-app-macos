@@ -10,18 +10,19 @@ private extension Account {
 }
 
 public extension ProseClient {
-    static func live(
+    static func live<Client: ProseClientProtocol>(
+        provider: @escaping ProseClientProvider<Client>,
         date: @escaping () -> Date = Date.init,
         uuid: @escaping () -> UUID = UUID.init
     ) -> Self {
         // Only one client/account for now.
-        var client: ProseCore.ProseClient?
+        var client: Client?
         let delegate = Delegate(date: date)
 
         return ProseClient(
             login: { jid, password in
                 delegate.account.value = .init(jid: jid, status: .connecting)
-                client = .init(jid: jid.bareJid, delegate: delegate)
+                client = provider(jid.bareJid, delegate)
 
                 do {
                     try client?.connect(credential: .password(password))
@@ -137,24 +138,24 @@ private final class Delegate: ProseClientDelegate {
         self.date = date
     }
 
-    func proseClientDidConnect(_: ProseCore.ProseClient) {
+    func proseClientDidConnect(_: ProseClientProtocol) {
         self.account.value.status = .connected
     }
 
-    func proseClient(_: ProseCore.ProseClient, connectionDidFailWith error: Error?) {
+    func proseClient(_: ProseClientProtocol, connectionDidFailWith error: Error?) {
         self.account.value.status =
             .error(EquatableError(error ?? ProseClientError.connectionDidFail))
     }
 
     func proseClient(
-        _: ProseCore.ProseClient,
+        _: ProseClientProtocol,
         didReceiveRoster roster: ProseCoreClientFFI.Roster
     ) {
         self.roster.value = Roster(roster: roster)
     }
 
     func proseClient(
-        _: ProseCore.ProseClient,
+        _: ProseClientProtocol,
         didReceiveMessage message: ProseCoreClientFFI.Message
     ) {
         if let message = Message(message: message, timestamp: self.date()) {

@@ -7,7 +7,9 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import MainWindowFeature
+import ProseCore
 import ProseCoreTCA
+import struct ProseCoreTCA.ProseClient
 import Toolbox
 import UserDefaultsClient
 
@@ -199,7 +201,7 @@ public struct AppEnvironment {
         Self(
             userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
-            proseClient: .live(),
+            proseClient: .live(provider: ProseCore.ProseClient.init),
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in
