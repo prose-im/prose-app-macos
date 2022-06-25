@@ -64,18 +64,9 @@ public extension ProseClient {
                             mutGroup.items.append(
                                 .init(
                                     jid: JID(bareJid: jid),
-                                    subscription: .both,
-                                    numberOfUnreadMessages: 0
+                                    subscription: .both
                                 )
                             )
-
-                            mutGroup.items = mutGroup.items.map { item in
-                                var mutItem = item
-                                mutItem.numberOfUnreadMessages =
-                                    chats[item.jid]?.numberOfUnreadMessages ?? 0
-                                return mutItem
-                            }
-
                             return mutGroup
                         })
                     }
