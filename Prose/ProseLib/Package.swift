@@ -127,6 +127,9 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
+        .testTarget(name: "ProseCoreTCATests", dependencies: ["ProseCoreTCA", "TestHelpers"]),
+        
+        .target(name: "TestHelpers"),
     ]
 )
 
