@@ -10,7 +10,8 @@ import AppLocalization
 import Combine
 import ComposableArchitecture
 import Foundation
-import SharedModels
+import ProseCoreTCA
+import Toolbox
 
 private let l10n = L10n.Authentication.BasicAuth.self
 
@@ -88,7 +89,12 @@ public let basicAuthReducer = Reducer<
         state.focusedField = nil
         state.isLoading = true
 
-        let jid = JID(rawValue: state.jid)
+        let jid: JID
+        do {
+            jid = try JID(string: state.jid)
+        } catch {
+            return Effect(value: .loginResult(.failure(EquatableError(error))))
+        }
         let password = state.password
 
         return environment.proseClient.login(jid, password)

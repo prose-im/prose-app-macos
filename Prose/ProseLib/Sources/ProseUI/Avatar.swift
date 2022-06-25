@@ -8,7 +8,6 @@
 
 import Assets
 import Foundation
-import SharedModels
 import SwiftUI
 
 public struct AvatarImage: Equatable {

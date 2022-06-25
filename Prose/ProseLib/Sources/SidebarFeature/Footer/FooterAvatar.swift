@@ -7,8 +7,8 @@
 
 import AppLocalization
 import ComposableArchitecture
+import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 
 private let l10n = L10n.Sidebar.Footer.Actions.Account.self

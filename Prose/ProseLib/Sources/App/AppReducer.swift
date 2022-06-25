@@ -8,7 +8,7 @@ import CredentialsClient
 import Foundation
 import MainWindowFeature
 import ProseCoreTCA
-import SharedModels
+import Toolbox
 import UserDefaultsClient
 
 // MARK: - The Composable Architecture

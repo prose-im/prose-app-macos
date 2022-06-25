@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import ConversationInfoFeature
 import ProseCoreTCA
-import SharedModels
 import SwiftUI
 import TcaHelpers
 
@@ -183,27 +182,30 @@ public struct ConversationEnvironment {
     }
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct ConversationScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            ConversationScreen(store: Store(
-                initialState: ConversationState(chatId: JID(rawValue: "alexandre@crisp.chat")),
-                reducer: conversationReducer,
-                environment: .init(proseClient: .noop, mainQueue: .main)
-            ))
-            .previewLayout(.sizeThatFits)
+    // MARK: - Previews
+
+    struct ConversationScreen_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                ConversationScreen(store: Store(
+                    initialState: ConversationState(chatId: "alexandre@crisp.chat"),
+                    reducer: conversationReducer,
+                    environment: .init(proseClient: .noop, mainQueue: .main)
+                ))
+                .previewLayout(.sizeThatFits)
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark mode")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-        Preview()
-            .preferredColorScheme(.dark)
-            .previewDisplayName("Dark mode")
-        Preview()
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
-}
+#endif

@@ -1,6 +1,5 @@
 import Foundation
-@_implementationOnly import ProseCoreClientFFI
-import SharedModels
+import ProseCoreClientFFI
 
 public enum MessageKind: Equatable {
     case chat

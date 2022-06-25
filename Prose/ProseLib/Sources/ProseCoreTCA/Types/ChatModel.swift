@@ -17,13 +17,4 @@ public enum ChatID: Hashable {
             return jid
         }
     }
-
-    public var icon: Icon {
-        switch self {
-        case .person:
-            return Icon.directMessage
-        case .group:
-            return Icon.group
-        }
-    }
 }

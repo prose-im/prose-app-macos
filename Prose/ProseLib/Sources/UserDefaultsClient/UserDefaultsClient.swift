@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SharedModels
+import ProseCoreTCA
 
 public struct UserDefaultsClient {
     public var loadCurrentAccount: () -> JID?

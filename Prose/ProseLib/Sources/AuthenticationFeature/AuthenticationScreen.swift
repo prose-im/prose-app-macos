@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import CredentialsClient
 import ProseCoreTCA
-import SharedModels
 import SwiftUI
 import TcaHelpers
 
@@ -123,27 +122,30 @@ public struct AuthenticationEnvironment {
     }
 }
 
-// MARK: - Previews
+#if DEBUG
 
-internal struct AuthenticationScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            AuthenticationScreen(store: Store(
-                initialState: AuthenticationState(route: .basicAuth(.init())),
-                reducer: authenticationReducer,
-                environment: AuthenticationEnvironment(
-                    proseClient: .noop,
-                    credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
-                    mainQueue: .main
-                )
-            ))
+    // MARK: - Previews
+
+    internal struct AuthenticationScreen_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                AuthenticationScreen(store: Store(
+                    initialState: AuthenticationState(route: .basicAuth(.init())),
+                    reducer: authenticationReducer,
+                    environment: AuthenticationEnvironment(
+                        proseClient: .noop,
+                        credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
+                        mainQueue: .main
+                    )
+                ))
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-        Preview()
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
-}
+#endif

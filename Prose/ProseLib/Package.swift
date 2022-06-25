@@ -1,5 +1,6 @@
 // swift-tools-version:5.6
 
+import Foundation
 import PackageDescription
 
 let package = Package(
@@ -8,7 +9,6 @@ let package = Package(
     platforms: [.macOS(.v12)],
     products: [
         .library(name: "App", targets: ["App"]),
-        .library(name: "ProseUI", targets: ["ProseUI"]),
         // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
         .library(name: "Previews", targets: [
             "AddressBookFeature",
@@ -27,9 +27,11 @@ let package = Package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
             .upToNextMajor(from: "0.33.1")
         ),
-        .package(url: "https://github.com/pointfreeco/swiftui-navigation", .upToNextMajor(from: "0.1.0")),
-        // https://github.com/prose-im/prose-wrapper-swift/issues/1
-        .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.1.3"),
+        .package(
+            url: "https://github.com/pointfreeco/swiftui-navigation",
+            .upToNextMajor(from: "0.1.0")
+        ),
+        .proseCore("0.1.4"),
     ],
     targets: [
         .target(
@@ -39,24 +41,10 @@ let package = Package(
                 "SettingsFeature",
                 "AuthenticationFeature",
                 "CredentialsClient",
-                "TcaHelpers",
                 "UserDefaultsClient",
-                "ProseCoreTCA",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
-        .target(name: "Assets", resources: [.process("Resources")]),
-        .target(name: "AppLocalization", resources: [.process("Resources")]),
-        .target(name: "PreviewAssets", resources: [.process("Resources")]),
-        .target(name: "ProseUI", dependencies: ["Assets", "PreviewAssets", "SharedModels"]),
-        .target(name: "SharedModels"),
-        .testTarget(name: "SharedModelsTests", dependencies: ["SharedModels"]),
-        .target(
-            name: "TcaHelpers",
-            dependencies: [
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ]
-        ),
+
         .target(name: "MainWindowFeature", dependencies: [
             "SidebarFeature",
             "TcaHelpers",
@@ -68,56 +56,24 @@ let package = Package(
         ]),
         .target(name: "AddressBookFeature", dependencies: [
             "ProseUI",
-            "SharedModels",
+            "ProseCoreTCA",
         ]),
-        .target(name: "SettingsFeature", dependencies: [
-            "AppLocalization",
-            "Assets",
-            "ProseUI",
-        ]),
-        .target(
-            name: "SidebarFeature",
-            dependencies: [
-                "AppLocalization",
-                "Assets",
-                "ProseUI",
-                "PreviewAssets",
-                "SharedModels",
-                "TcaHelpers",
-                "ProseCoreTCA",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ]
-        ),
+        .target(name: "SettingsFeature", dependencies: [.featureBase]),
+        .target(name: "SidebarFeature", dependencies: [.featureBase]),
         .target(
             name: "ConversationFeature",
             dependencies: [
-                "AppLocalization",
-                "Assets",
                 "ConversationInfoFeature",
-                "ProseUI",
-                "PreviewAssets",
-                "SharedModels",
-                "ProseCoreTCA",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .featureBase,
             ],
             resources: [.process("Resources")]
         ),
-        .target(name: "ConversationInfoFeature", dependencies: [
-            "PreviewAssets",
-            "SharedModels",
-            "ProseCoreTCA",
-            .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        ]),
+        .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
         .target(
             name: "AuthenticationFeature",
             dependencies: [
-                "AppLocalization",
                 "CredentialsClient",
-                "ProseUI",
-                "SharedModels",
-                "TcaHelpers",
-                "ProseCoreTCA",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .featureBase,
                 .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
             ]
         ),
@@ -125,36 +81,135 @@ let package = Package(
             name: "UnreadFeature",
             dependencies: [
                 "ConversationFeature",
-                "ProseUI",
-                "PreviewAssets",
-                "SharedModels",
-                "ProseCoreTCA",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .featureBase,
             ]
         ),
 
         // MARK: Dependencies
 
-        .target(name: "CredentialsClient", dependencies: [
-            "SharedModels",
-        ]),
+        .target(name: "CredentialsClient", dependencies: [.base]),
         .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
-        .target(name: "UserDefaultsClient", dependencies: [
-            "SharedModels",
-        ]),
+
+        .target(name: "UserDefaultsClient", dependencies: [.base]),
+
         .target(
-            name: "ProseCore",
+            name: "FeatureBase",
+            dependencies: [.base, "ProseUI", "TcaHelpers", "AppLocalization", "Assets"]
+        ),
+        .target(
+            name: "Base",
+            dependencies: ["ProseCoreTCA"]
+        ),
+
+        .target(name: "Assets", resources: [.process("Resources")]),
+        .target(name: "AppLocalization", resources: [.process("Resources")]),
+        .target(
+            name: "ProseUI",
+            dependencies: ["Assets", "ProseCoreTCA"]
+                .appendingDebugDependencies(["PreviewAssets"])
+        ),
+        .target(name: "Toolbox"),
+        .target(
+            name: "TcaHelpers",
             dependencies: [
-                .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift"),
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
+
+        .target(name: "PreviewAssets", resources: [.process("Resources")]),
+
+        .target(name: "ProseCore", dependencies: [.proseCore]),
         .target(
             name: "ProseCoreTCA",
             dependencies: [
                 "ProseCore",
-                "SharedModels",
+                "Toolbox",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
     ]
 )
+
+enum Environment {
+    struct Settings: Decodable {
+        enum Configuration: String, Decodable {
+            case debug
+            case release
+        }
+
+        var configuration: Configuration
+        var useLocalProseLib: Bool
+        var proseLibPath: String
+    }
+
+    static let settings: Settings = {
+        // If the `IS_RELEASE_BUILD` env var is set we're switching to the release settings.
+        // The env var can only be set when running xcodebuild outside of Xcode.
+        // No better way yet? https://forums.swift.org/t/spm-resources-only-in-debug-configuration/38046/14
+        guard ProcessInfo.processInfo.environment["IS_RELEASE_BUILD"] != "1" else {
+            return .release
+        }
+
+        // Let's see if we have a .env.json file next to our Package.swift. If not, we're
+        // assuming debug settings.
+        let envFilePath = URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .appendingPathComponent(".env.json")
+
+        guard FileManager.default.fileExists(atPath: envFilePath.path) else {
+            return .debug
+        }
+
+        // Finally load the .env.json. If you're fiddling with this file, you'll probably need to
+        // close & reopen the project file.
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let env: Data
+        do {
+            env = try Data(contentsOf: envFilePath)
+            return try decoder.decode(Settings.self, from: env)
+        } catch { fatalError(String(describing: error)) }
+    }()
+}
+
+extension Environment.Settings {
+    static let release = Self(
+        configuration: .release,
+        useLocalProseLib: false,
+        proseLibPath: ""
+    )
+
+    static let debug = Self(
+        configuration: .debug,
+        useLocalProseLib: false,
+        proseLibPath: ""
+    )
+}
+
+extension Package.Dependency {
+    static func proseCore(_ version: String) -> Package.Dependency {
+        Environment.settings.useLocalProseLib
+            ? .package(path: Environment.settings.proseLibPath)
+            : .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: version)
+    }
+}
+
+extension Target.Dependency {
+    static var proseCore: Target.Dependency {
+        Environment.settings.useLocalProseLib
+            ? "ProseCoreClientFFI"
+            : .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift")
+    }
+
+    static let base = Target.Dependency.target(name: "Base")
+    static var featureBase = Target.Dependency.target(name: "FeatureBase")
+}
+
+extension Array where Element == Target.Dependency {
+    func appendingDebugDependencies(_ dependencies: [Target.Dependency]) -> Self {
+        if Environment.settings.configuration == .debug {
+            return self + dependencies
+        }
+        return self
+    }
+}

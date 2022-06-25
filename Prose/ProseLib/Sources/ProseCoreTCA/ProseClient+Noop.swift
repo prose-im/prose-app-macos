@@ -2,7 +2,7 @@
     import Combine
     import ComposableArchitecture
     import Foundation
-    import SharedModels
+    import Toolbox
 
     public extension ProseClient {
         static let noop = ProseClient(

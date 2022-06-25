@@ -7,7 +7,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import SharedModels
 import SwiftUI
 
 private let l10n = L10n.Sidebar.Footer.self

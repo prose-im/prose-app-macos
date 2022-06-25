@@ -6,7 +6,7 @@
 //
 
 import Assets
-import SharedModels
+import ProseCoreTCA
 import SwiftUI
 
 public struct AvailabilityIndicator: View {

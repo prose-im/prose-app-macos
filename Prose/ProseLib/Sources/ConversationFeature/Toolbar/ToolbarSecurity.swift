@@ -6,7 +6,7 @@
 //
 
 import Assets
-import SharedModels
+import ProseCoreTCA
 import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.
@@ -34,24 +34,26 @@ struct ToolbarSecurity: View {
     }
 }
 
-struct ToolbarSecurity_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(alignment: .leading) {
-            ToolbarSecurity(
-                jid: "valerian@prose.org",
-                isVerified: true
-            )
-            ToolbarSecurity(
-                jid: "valerian@prose.org",
-                isVerified: false
-            )
-            ToolbarSecurity(
-                jid: "valerian@prose.org",
-                isVerified: false
-            )
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
+#if DEBUG
+    struct ToolbarSecurity_Previews: PreviewProvider {
+        static var previews: some View {
+            VStack(alignment: .leading) {
+                ToolbarSecurity(
+                    jid: "valerian@prose.org",
+                    isVerified: true
+                )
+                ToolbarSecurity(
+                    jid: "valerian@prose.org",
+                    isVerified: false
+                )
+                ToolbarSecurity(
+                    jid: "valerian@prose.org",
+                    isVerified: false
+                )
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
+            }
+            .previewLayout(.sizeThatFits)
         }
-        .previewLayout(.sizeThatFits)
     }
-}
+#endif

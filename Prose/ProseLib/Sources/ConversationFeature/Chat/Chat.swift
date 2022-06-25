@@ -10,7 +10,6 @@ import Assets
 import ComposableArchitecture
 import OSLog
 import ProseCoreTCA
-import SharedModels
 import SwiftUI
 import WebKit
 
@@ -86,7 +85,7 @@ struct Chat: NSViewRepresentable {
             globalThis.MessagingStore.insert(...\(json));
             """) { _, error in
                 if let error = error {
-                    logger.warning("Error evaluating JavaScript: \(error)")
+                    logger.warning("Error evaluating JavaScript: \(error.localizedDescription)")
                 }
             }
         } else {
