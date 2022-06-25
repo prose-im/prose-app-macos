@@ -1,7 +1,6 @@
 import ComposableArchitecture
 import Foundation
 import ProseCoreTCA
-import SharedModels
 import TcaHelpers
 
 public typealias UserCredentials = JID

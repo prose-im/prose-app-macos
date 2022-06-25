@@ -1,6 +1,5 @@
 import Foundation
-@_implementationOnly import ProseCoreClientFFI
-import SharedModels
+import ProseCoreClientFFI
 
 public struct Roster: Equatable {
     public var groups: [Group]

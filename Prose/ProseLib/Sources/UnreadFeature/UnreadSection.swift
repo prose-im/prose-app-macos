@@ -8,7 +8,6 @@
 import ConversationFeature
 import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 
 public struct UnreadSectionModel: Equatable {
@@ -73,8 +72,13 @@ struct UnreadSection: View {
     }
 }
 
-// struct UnreadSection_Previews: PreviewProvider {
-//    static var previews: some View {
-//        UnreadSection()
-//    }
-// }
+private extension ChatID {
+    var icon: Icon {
+        switch self {
+        case .person:
+            return Icon.directMessage
+        case .group:
+            return Icon.group
+        }
+    }
+}

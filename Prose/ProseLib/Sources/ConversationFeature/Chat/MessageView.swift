@@ -8,7 +8,6 @@
 import Assets
 import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 
 public struct MessageView: View {

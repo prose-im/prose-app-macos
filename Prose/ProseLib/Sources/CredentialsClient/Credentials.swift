@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ProseCoreTCA
 
 public struct Credentials: Hashable {
     public let jid: JID

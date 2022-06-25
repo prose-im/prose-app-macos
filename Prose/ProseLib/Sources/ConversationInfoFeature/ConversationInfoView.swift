@@ -117,7 +117,7 @@ public struct ConversationInfoState: Equatable {
 public extension ConversationInfoState {
     static let demo = ConversationInfoState(
         identity: .init(
-            avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
+            avatar: .placeholder,
             fullName: "Valerian Saliou",
             status: .online,
             jobTitle: "CTO",

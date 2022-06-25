@@ -8,8 +8,8 @@
 import AppLocalization
 import Combine
 import ComposableArchitecture
+import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
@@ -302,31 +302,34 @@ public enum MFA6DigitsAction: Equatable, BindableAction {
     case binding(BindingAction<MFA6DigitsState>)
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct MFA6DigitsView_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            MFA6DigitsView(store: Store(
-                initialState: MFA6DigitsState(jid: "remi@prose.org", password: "prose"),
-                reducer: mfa6DigitsReducer,
-                environment: AuthenticationEnvironment(
-                    proseClient: .noop,
-                    credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
-                    mainQueue: .main
-                )
-            ))
-            .previewLayout(.sizeThatFits)
+    // MARK: - Previews
+
+    struct MFA6DigitsView_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                MFA6DigitsView(store: Store(
+                    initialState: MFA6DigitsState(jid: .init(rawValue: "remi@prose.org")!, password: "prose"),
+                    reducer: mfa6DigitsReducer,
+                    environment: AuthenticationEnvironment(
+                        proseClient: .noop,
+                        credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
+                        mainQueue: .main
+                    )
+                ))
+                .previewLayout(.sizeThatFits)
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark mode")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-        Preview()
-            .preferredColorScheme(.dark)
-            .previewDisplayName("Dark mode")
-        Preview()
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
-}
+#endif

@@ -1,6 +1,6 @@
 import ComposableArchitecture
 import Foundation
-import SharedModels
+import Toolbox
 
 public struct Account: Hashable {
     public enum Status: Hashable {

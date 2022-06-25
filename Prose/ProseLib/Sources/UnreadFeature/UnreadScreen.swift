@@ -10,7 +10,6 @@ import ComposableArchitecture
 import ConversationFeature
 import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 
 // MARK: - View

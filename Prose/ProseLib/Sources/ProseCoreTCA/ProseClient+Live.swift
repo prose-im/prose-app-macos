@@ -1,12 +1,12 @@
 import Combine
 import ComposableArchitecture
 import Foundation
-@_implementationOnly import ProseCore
-@_implementationOnly import ProseCoreClientFFI
-import SharedModels
+import ProseCore
+import ProseCoreClientFFI
+import Toolbox
 
 private extension Account {
-    static let placeholder = Account(jid: "void@prose.org", status: .connected)
+    static let placeholder = Account(jid: try! .init(string: "void@prose.org"), status: .connected)
 }
 
 public extension ProseClient {
@@ -21,11 +21,10 @@ public extension ProseClient {
         return ProseClient(
             login: { jid, password in
                 delegate.account.value = .init(jid: jid, status: .connecting)
-                client = .init(delegate: delegate)
+                client = .init(jid: jid.bareJid, delegate: delegate)
 
                 do {
-                    try client?.authenticate(jid: jid.rawValue, with: .password(password))
-                    try client?.connect()
+                    try client?.connect(credential: .password(password))
                 } catch {
                     return Effect(error: EquatableError(error))
                 }
@@ -60,7 +59,7 @@ public extension ProseClient {
                             return Roster(groups: roster.groups.map { group in
                                 var mutGroup = group
                                 mutGroup.items.append(
-                                    .init(jid: JID(rawValue: jid), subscription: .both)
+                                    .init(jid: JID(bareJid: jid), subscription: .both)
                                 )
                                 return mutGroup
                             })
@@ -75,21 +74,18 @@ public extension ProseClient {
                     .eraseToEffect()
             },
             sendMessage: { to, body in
-                guard
-                    let client = client,
-                    let from = client.jid.map(JID.init(rawValue:))
-                else {
+                guard let client = client else {
                     return Effect(error: EquatableError(ProseClientError.notAuthenticated))
                 }
 
                 do {
-                    try client.sendMessage(to: to.jidString, text: body)
+                    try client.sendMessage(to: to.bareJid, text: body)
                 } catch {
                     return Effect(error: EquatableError(error))
                 }
 
                 let message = Message(
-                    from: from,
+                    from: JID(bareJid: client.jid),
                     id: .selfAssigned(uuid()),
                     kind: .chat,
                     body: body,

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SharedModels
+import ProseCoreTCA
 
 /// - Note: See <https://developer.apple.com/documentation/security/keychain_services/keychain_items/using_the_keychain_to_manage_user_secrets>
 ///         for documentation about the Keychain.

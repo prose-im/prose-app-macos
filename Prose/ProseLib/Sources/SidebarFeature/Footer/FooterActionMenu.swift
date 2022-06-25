@@ -8,7 +8,6 @@
 import AppLocalization
 import Assets
 import ComposableArchitecture
-import PreviewAssets
 import ProseUI
 import SwiftUI
 
@@ -60,12 +59,7 @@ struct FooterActionMenu: View {
         return VStack(alignment: .leading, spacing: 16) {
             // TODO: [Rémi Bardon] Refactor this view out
             HStack {
-                #if DEBUG
-                    // TODO: [Rémi Bardon] Change this to Crisp icon
-                    Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 48)
-                #else
-                    Avatar(.placeholder, size: 48)
-                #endif
+                Avatar(.placeholder, size: 48)
                 VStack(alignment: .leading) {
                     Text("Crisp")
                         .font(.title3.bold())
@@ -91,7 +85,7 @@ struct FooterActionMenu: View {
                                 .padding(.horizontal, 4)
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to Crisp icon
-                            Avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL), size: 24)
+                            Avatar(.placeholder, size: 24)
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -104,7 +98,7 @@ struct FooterActionMenu: View {
                             Text(verbatim: "MakAir – makair.life")
                         } icon: {
                             // TODO: [Rémi Bardon] Change this to MakAir icon
-                            Avatar(.init(url: PreviewAsset.Avatars.baptiste.customURL), size: 24)
+                            Avatar(.placeholder, size: 24)
                         }
                         // Make hit box full width
                         .frame(maxWidth: .infinity, alignment: .leading)

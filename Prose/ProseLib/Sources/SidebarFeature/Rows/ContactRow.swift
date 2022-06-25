@@ -5,9 +5,7 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
-import PreviewAssets
 import ProseUI
-import SharedModels
 import SwiftUI
 
 struct ContactRow: View {
@@ -32,26 +30,30 @@ struct ContactRow: View {
     }
 }
 
-struct ContactRow_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            ContactRow(
-                title: "Valerian",
-                avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
-                count: 3
-            )
-            .frame(width: 196)
-            .padding()
+#if DEBUG
+    import PreviewAssets
+
+    struct ContactRow_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                ContactRow(
+                    title: "Valerian",
+                    avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
+                    count: 3
+                )
+                .frame(width: 196)
+                .padding()
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+                .preferredColorScheme(.light)
+                .previewDisplayName("Light")
+
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark")
         }
     }
-
-    static var previews: some View {
-        Preview()
-            .preferredColorScheme(.light)
-            .previewDisplayName("Light")
-
-        Preview()
-            .preferredColorScheme(.dark)
-            .previewDisplayName("Dark")
-    }
-}
+#endif

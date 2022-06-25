@@ -9,10 +9,10 @@ import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
 import ProseCoreTCA
-import SharedModels
 import SidebarFeature
 import SwiftUI
 import TcaHelpers
+import Toolbox
 import UnreadFeature
 
 // MARK: - View
@@ -131,7 +131,9 @@ extension MainScreenState {
 }
 
 public extension MainScreenState {
-    static var placeholder = MainScreenState(jid: "hello@world.org")
+    static var placeholder = MainScreenState(
+        jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
+    )
 }
 
 // MARK: Actions
