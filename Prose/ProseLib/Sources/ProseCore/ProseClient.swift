@@ -22,7 +22,10 @@ public final class ProseClient {
     public init(jid: BareJid, delegate: ProseClientDelegate) {
         self.client = .init(jid: jid)
         self.delegate = delegate
-        enableLogging()
+        
+        if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
+            enableLogging()
+        }
     }
 
     public func connect(credential: Credential) throws {
