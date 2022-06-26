@@ -32,7 +32,7 @@ let package = Package(
             .upToNextMajor(from: "0.1.0")
         ),
         .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.7.0")),
-        .proseCore("0.1.5"),
+        .proseCore("0.1.6"),
     ],
     targets: [
         .target(
