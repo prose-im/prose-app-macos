@@ -11,6 +11,7 @@
             roster: { Empty(completeImmediately: false).eraseToEffect() },
             activeChats: { Empty(completeImmediately: false).eraseToEffect() },
             presence: { Empty(completeImmediately: false).eraseToEffect() },
+            incomingMessages: { Empty(completeImmediately: false).eraseToEffect() },
             messagesInChat: { _ in
                 Just([]).setFailureType(to: EquatableError.self).eraseToEffect()
             },

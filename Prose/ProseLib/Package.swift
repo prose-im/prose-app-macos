@@ -43,6 +43,7 @@ let package = Package(
                 "AuthenticationFeature",
                 "CredentialsClient",
                 "UserDefaultsClient",
+                "NotificationsClient",
             ]
         ),
 
@@ -92,6 +93,7 @@ let package = Package(
         .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
         .target(name: "UserDefaultsClient", dependencies: [.base]),
+        .target(name: "NotificationsClient", dependencies: [.base]),
 
         .target(
             name: "FeatureBase",

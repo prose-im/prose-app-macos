@@ -43,11 +43,11 @@ public extension ProseClient {
                 Empty(completeImmediately: true).eraseToEffect()
             },
             roster: {
-                return delegate.$roster.map { roster in
+                delegate.$roster.map { roster in
                     if let jid = client?.jid {
-                      return roster.appendingItemToFirstGroup(
-                          .init(jid: JID(bareJid: jid), subscription: .both)
-                      )
+                        return roster.appendingItemToFirstGroup(
+                            .init(jid: JID(bareJid: jid), subscription: .both)
+                        )
                     }
                     return roster
                 }
@@ -66,6 +66,9 @@ public extension ProseClient {
                     .setFailureType(to: EquatableError.self)
                     .removeDuplicates()
                     .eraseToEffect()
+            },
+            incomingMessages: {
+                delegate.incomingMessages.eraseToEffect()
             },
             messagesInChat: { jid in
                 delegate.$activeChats
@@ -213,6 +216,8 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     @Published var activeChats = [JID: Chat]()
     @Published var presences = [JID: Presence]()
 
+    let incomingMessages = PassthroughSubject<Message, Never>()
+
     init(date: @escaping () -> Date) {
         self.date = date
     }
@@ -238,6 +243,7 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     ) {
         if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
             self.activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
+            self.incomingMessages.send(message)
         }
 
         let jid = JID(bareJid: message.from)

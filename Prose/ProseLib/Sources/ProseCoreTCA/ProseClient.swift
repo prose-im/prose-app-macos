@@ -21,6 +21,9 @@ public struct ProseClient {
     public var activeChats: () -> Effect<[JID: Chat], EquatableError>
     public var presence: () -> Effect<[JID: Presence], EquatableError>
 
+    /// Returns an Effect that publishes new messages as they arrive.
+    public var incomingMessages: () -> Effect<Message, Never>
+
     /// This will probably be split up in two methods/publishers. One where we can load older
     /// messages and a second one where the new messages come in.
     public var messagesInChat: (_ with: JID) -> Effect<[Message], EquatableError>
