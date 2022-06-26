@@ -35,7 +35,7 @@ public final class ProseClient {
         }
 
         self.isConnected = true
-        self.client.connect(password: password, observer: self)
+        try self.client.connect(password: password, observer: self)
     }
 
     public func disconnect() {
@@ -43,7 +43,7 @@ public final class ProseClient {
     }
 
     public func sendMessage(to jid: BareJid, text: String) throws {
-        self.client.sendMessage(receiverJid: jid, body: text)
+        self.client.sendMessage(id: UUID().uuidString, to: jid, body: text, chatState: nil)
     }
 
     public func loadRoster() throws {
