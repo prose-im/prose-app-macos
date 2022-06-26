@@ -5,6 +5,7 @@
 //  Created by Valerian Saliou on 11/28/21.
 //
 
+import ProseCoreTCA
 import ProseUI
 import SwiftUI
 
@@ -12,6 +13,7 @@ struct ContactRow: View {
     var title: String
     var avatar: AvatarImage
     var count = 0
+    var status: OnlineStatus = .offline
 
     var body: some View {
         HStack {
@@ -20,7 +22,7 @@ struct ContactRow: View {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(title)
 
-                OnlineStatusIndicator(status: .offline)
+                OnlineStatusIndicator(status: self.status)
             }
 
             Spacer()

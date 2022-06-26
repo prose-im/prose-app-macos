@@ -10,7 +10,7 @@ public struct SidebarState: Equatable {
     public internal(set) var selection: Selection?
 
     var credentials: UserCredentials
-    var roster = Roster(groups: [])
+    var roster = RosterState()
     var footer: FooterState
     var toolbar = ToolbarState()
 
@@ -41,6 +41,8 @@ public enum SidebarAction: Equatable {
     case addGroupButtonTapped
 
     case rosterResult(Result<Roster, EquatableError>)
+    case activeChatsResult(Result<[JID: Chat], EquatableError>)
+    case presencesResult(Result<[JID: Presence], EquatableError>)
 
     case footer(FooterAction)
     case toolbar(ToolbarAction)
@@ -56,8 +58,10 @@ public struct SidebarEnvironment {
     }
 }
 
-private enum SidebarEffectToken: CaseIterable, Hashable {
+enum SidebarEffectToken: CaseIterable, Hashable {
     case rosterSubscription
+    case presenceSubscription
+    case activeChatsSubscription
 }
 
 public let sidebarReducer: Reducer<
@@ -75,14 +79,10 @@ public let sidebarReducer: Reducer<
         action: CasePath(SidebarAction.toolbar),
         environment: { _ in () }
     ),
-    Reducer { state, action, environment in
+    Reducer { state, action, _ in
         switch action {
         case .onAppear:
-            return environment.proseClient.roster()
-                .receive(on: environment.mainQueue)
-                .catchToEffect()
-                .map(SidebarAction.rosterResult)
-                .cancellable(id: SidebarEffectToken.rosterSubscription, cancelInFlight: true)
+            return .none
 
         case .onDisappear:
             return .cancel(token: SidebarEffectToken.self)
@@ -99,16 +99,9 @@ public let sidebarReducer: Reducer<
             logger.info("Add group button tapped")
             return .none
 
-        case let .rosterResult(.success(roster)):
-            state.roster = roster
-            return .none
-
-        case let .rosterResult(.failure(error)):
-            logger.error("Could not load roster. \(error.localizedDescription, privacy: .public)")
-            return .none
-
-        case .footer, .toolbar:
+        case .footer, .toolbar, .rosterResult, .activeChatsResult, .presencesResult:
             return .none
         }
     },
 ])
+.roster()
