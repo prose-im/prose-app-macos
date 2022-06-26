@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "AA58C178-605B-4A55-B48D-7D8B07E8DD8D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:ProseLib",
+        "identifier" : "CredentialsClientTests",
+        "name" : "CredentialsClientTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:ProseLib",
+        "identifier" : "ProseCoreTCATests",
+        "name" : "ProseCoreTCATests"
+      }
+    }
+  ],
+  "version" : 1
+}

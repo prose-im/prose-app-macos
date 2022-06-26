@@ -43,6 +43,7 @@ test: XCBEAUTIFY
 	@$(XCODEBUILD) \
 		-project $(XCPROJ) \
 	    -scheme $(XCSCHEME) \
+		-testPlan AllTests \
 	  	test | $(XCBEAUTIFY)
 
 release_build: XCBEAUTIFY
