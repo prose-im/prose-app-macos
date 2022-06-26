@@ -31,7 +31,7 @@ let package = Package(
             url: "https://github.com/pointfreeco/swiftui-navigation",
             .upToNextMajor(from: "0.1.0")
         ),
-        .proseCore("0.1.4"),
+        .proseCore("0.1.5"),
     ],
     targets: [
         .target(
