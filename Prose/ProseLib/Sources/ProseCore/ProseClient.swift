@@ -46,8 +46,30 @@ public final class ProseClient: ProseClientProtocol {
         // Hah. We're always on!
     }
 
-    public func sendMessage(to jid: BareJid, text: String) throws {
-        self.client.sendMessage(id: UUID().uuidString, to: jid, body: text, chatState: nil)
+    public func sendMessage(
+        id: String,
+        to: BareJid,
+        text: String,
+        chatState: ChatState?
+    ) throws {
+        self.client.sendMessage(id: id, to: to, body: text, chatState: chatState)
+    }
+
+    public func updateMessage(
+        id: String,
+        newID: String,
+        to: BareJid,
+        text: String
+    ) throws {
+        self.client.updateMessage(id: id, newId: newID, to: to, body: text)
+    }
+
+    public func sendChatState(to: BareJid, chatState: ChatState) throws {
+        self.client.sendChatState(to: to, chatState: chatState)
+    }
+
+    public func sendPresence(show: ShowKind, status: String?) throws {
+        self.client.sendPresence(show: show, status: status)
     }
 
     public func loadRoster() throws {
@@ -75,5 +97,7 @@ extension ProseClient: AccountObserver {
         self.delegate?.proseClient(self, didReceiveRoster: roster)
     }
 
-    public func didReceivePresence(presence _: Presence) {}
+    public func didReceivePresence(presence: Presence) {
+        self.delegate?.proseClient(self, didReceivePresence: presence)
+    }
 }

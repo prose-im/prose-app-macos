@@ -10,7 +10,23 @@ public protocol ProseClientProtocol: AnyObject {
     func connect(credential: Credential) throws
     func disconnect()
 
-    func sendMessage(to jid: BareJid, text: String) throws
+    func sendMessage(
+        id: String,
+        to: BareJid,
+        text: String,
+        chatState: ChatState?
+    ) throws
+
+    func updateMessage(
+        id: String,
+        newID: String,
+        to: BareJid,
+        text: String
+    ) throws
+
+    func sendChatState(to: BareJid, chatState: ChatState) throws
+    func sendPresence(show: ShowKind, status: String?) throws
+
     func loadRoster() throws
 }
 
@@ -20,7 +36,6 @@ public protocol ProseClientDelegate: AnyObject {
         _ client: ProseClientProtocol,
         connectionDidFailWith error: Error?
     )
-
     func proseClient(
         _ client: ProseClientProtocol,
         didReceiveRoster roster: ProseCoreClientFFI.Roster
@@ -28,5 +43,9 @@ public protocol ProseClientDelegate: AnyObject {
     func proseClient(
         _ client: ProseClientProtocol,
         didReceiveMessage message: ProseCoreClientFFI.Message
+    )
+    func proseClient(
+        _ client: ProseClientProtocol,
+        didReceivePresence presence: Presence
     )
 }

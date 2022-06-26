@@ -9,8 +9,21 @@
             login: { _, _ in Empty(completeImmediately: true).eraseToEffect() },
             logout: { _ in Empty(completeImmediately: true).eraseToEffect() },
             roster: { Empty(completeImmediately: false).eraseToEffect() },
-            messagesInChat: { _ in Just([]).eraseToEffect() },
+            activeChats: { Empty(completeImmediately: false).eraseToEffect() },
+            presence: { Empty(completeImmediately: false).eraseToEffect() },
+            messagesInChat: { _ in
+                Just([]).setFailureType(to: EquatableError.self).eraseToEffect()
+            },
             sendMessage: { _, _ in
+                Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+            },
+            updateMessage: { _, _, _ in
+                Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+            },
+            sendChatState: { _, _ in
+                Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+            },
+            sendPresence: { _, _ in
                 Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
             },
             markMessagesReadInChat: { _ in Empty(completeImmediately: true).eraseToEffect() }

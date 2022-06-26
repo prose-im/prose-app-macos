@@ -2,6 +2,7 @@ import ComposableArchitecture
 import Foundation
 import ProseCoreTCA
 import TcaHelpers
+import Toolbox
 
 public typealias UserCredentials = JID
 
@@ -39,7 +40,7 @@ public enum SidebarAction: Equatable {
     case addContactButtonTapped
     case addGroupButtonTapped
 
-    case rosterChanged(Roster)
+    case rosterResult(Result<Roster, EquatableError>)
 
     case footer(FooterAction)
     case toolbar(ToolbarAction)
@@ -79,8 +80,8 @@ public let sidebarReducer: Reducer<
         case .onAppear:
             return environment.proseClient.roster()
                 .receive(on: environment.mainQueue)
-                .map(SidebarAction.rosterChanged)
-                .eraseToEffect()
+                .catchToEffect()
+                .map(SidebarAction.rosterResult)
                 .cancellable(id: SidebarEffectToken.rosterSubscription, cancelInFlight: true)
 
         case .onDisappear:
@@ -98,8 +99,12 @@ public let sidebarReducer: Reducer<
             logger.info("Add group button tapped")
             return .none
 
-        case let .rosterChanged(roster):
+        case let .rosterResult(.success(roster)):
             state.roster = roster
+            return .none
+
+        case let .rosterResult(.failure(error)):
+            logger.error("Could not load roster. \(error.localizedDescription, privacy: .public)")
             return .none
 
         case .footer, .toolbar:

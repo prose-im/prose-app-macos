@@ -1,5 +1,6 @@
 import Foundation
 import ProseCoreClientFFI
+import Tagged
 
 public enum MessageKind: Equatable {
     case chat
@@ -9,26 +10,25 @@ public enum MessageKind: Equatable {
     case normal
 }
 
-public enum MessageID: Hashable {
-    case serverAssigned(String)
-    case selfAssigned(UUID)
-}
-
 public struct Message: Equatable, Identifiable {
+    public typealias ID = Tagged<Message, String>
+
     public var from: JID
-    public var id: MessageID
+    public var id: ID
     public var kind: MessageKind?
     public var body: String
     public var timestamp: Date
     public var isRead: Bool
+    public var isEdited: Bool
 
     public init(
         from: JID,
-        id: MessageID,
+        id: ID,
         kind: MessageKind?,
         body: String,
         timestamp: Date,
-        isRead: Bool
+        isRead: Bool,
+        isEdited: Bool
     ) {
         self.from = from
         self.id = id
@@ -36,6 +36,7 @@ public struct Message: Equatable, Identifiable {
         self.body = body
         self.timestamp = timestamp
         self.isRead = isRead
+        self.isEdited = isEdited
     }
 }
 
@@ -50,11 +51,12 @@ extension Message {
 
         self.init(
             from: JID(bareJid: message.from),
-            id: .serverAssigned(id),
+            id: .init(rawValue: id),
             kind: message.kind.map(MessageKind.init),
             body: body,
             timestamp: timestamp,
-            isRead: false
+            isRead: false,
+            isEdited: false
         )
     }
 }
