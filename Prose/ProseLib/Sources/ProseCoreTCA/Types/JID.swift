@@ -19,12 +19,6 @@ public extension JID {
     }
 }
 
-extension JID: Comparable {
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
-}
-
 extension JID: RawRepresentable {
     public var rawValue: String {
         ProseCoreClientFFI.formatJid(jid: self.bareJid)
