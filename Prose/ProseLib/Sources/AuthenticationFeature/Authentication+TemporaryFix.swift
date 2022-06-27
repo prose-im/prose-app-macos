@@ -1,22 +1,20 @@
 //
-//  Authentication+TemporaryFix.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 09/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import AppLocalization
 import Foundation
 
 public enum MFAError: Error, Equatable {
-    case badCode
+  case badCode
 }
 
 extension MFAError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
-        case .badCode:
-            return "Bad code"
-        }
+  public var errorDescription: String? {
+    switch self {
+    case .badCode:
+      return "Bad code"
     }
+  }
 }

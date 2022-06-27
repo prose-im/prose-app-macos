@@ -1,8 +1,6 @@
 //
-//  ProseApp.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 9/14/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import App
@@ -10,7 +8,7 @@ import SwiftUI
 
 @main
 struct ProseApp: App {
-    var body: some Scene {
-        AppScene()
-    }
+  var body: some Scene {
+    AppScene()
+  }
 }

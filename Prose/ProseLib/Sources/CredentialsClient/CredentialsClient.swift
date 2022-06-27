@@ -1,8 +1,6 @@
 //
-//  CredentialsClient.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 15/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import Foundation
@@ -12,95 +10,95 @@ import ProseCoreTCA
 ///         for documentation about the Keychain.
 /// - Copyright: Inspired by <https://gist.github.com/nesium/4a3da805d6000b76350cbe9c8aa35cf2>.
 public struct CredentialsClient {
-    public var loadCredentials: (_ jid: JID) throws -> Credentials?
-    public var save: (_ credentials: Credentials) throws -> Void
-    public var deleteCredentials: (_ jid: JID) throws -> Void
+  public var loadCredentials: (_ jid: JID) throws -> Credentials?
+  public var save: (_ credentials: Credentials) throws -> Void
+  public var deleteCredentials: (_ jid: JID) throws -> Void
 }
 
 private enum KeychainError: Error {
-    case unexpectedPasswordData
-    case unhandledError(status: OSStatus)
+  case unexpectedPasswordData
+  case unhandledError(status: OSStatus)
 }
 
 public extension CredentialsClient {
-    static var placeholder: CredentialsClient {
-        CredentialsClient(
-            loadCredentials: { _ in nil },
-            save: { _ in () },
-            deleteCredentials: { _ in () }
-        )
+  static var placeholder: CredentialsClient {
+    CredentialsClient(
+      loadCredentials: { _ in nil },
+      save: { _ in () },
+      deleteCredentials: { _ in () }
+    )
+  }
+}
+
+public extension CredentialsClient {
+  static func live(service: String) -> CredentialsClient {
+    let deleteCredentials = { (jid: JID) in
+      let query: [CFString: Any] = [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrService: service,
+        kSecAttrAccount: jid.jidString,
+      ]
+
+      let status = SecItemDelete(query as CFDictionary)
+      guard status == errSecSuccess || status == errSecItemNotFound else {
+        throw KeychainError.unhandledError(status: status)
+      }
     }
-}
 
-public extension CredentialsClient {
-    static func live(service: String) -> CredentialsClient {
-        let deleteCredentials = { (jid: JID) in
-            let query: [CFString: Any] = [
-                kSecClass: kSecClassGenericPassword,
-                kSecAttrService: service,
-                kSecAttrAccount: jid.jidString,
-            ]
+    return CredentialsClient(
+      loadCredentials: { (jid: JID) in
+        let query: [CFString: Any] = [
+          kSecClass: kSecClassGenericPassword,
+          kSecAttrService: service,
+          kSecAttrAccount: jid.jidString,
+          kSecMatchLimit: kSecMatchLimitOne,
+          kSecReturnAttributes: true,
+          kSecReturnData: true,
+        ]
 
-            let status = SecItemDelete(query as CFDictionary)
-            guard status == errSecSuccess || status == errSecItemNotFound else {
-                throw KeychainError.unhandledError(status: status)
-            }
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+
+        guard status != errSecItemNotFound else {
+          return nil
         }
 
-        return CredentialsClient(
-            loadCredentials: { (jid: JID) in
-                let query: [CFString: Any] = [
-                    kSecClass: kSecClassGenericPassword,
-                    kSecAttrService: service,
-                    kSecAttrAccount: jid.jidString,
-                    kSecMatchLimit: kSecMatchLimitOne,
-                    kSecReturnAttributes: true,
-                    kSecReturnData: true,
-                ]
+        guard status == errSecSuccess else {
+          throw KeychainError.unhandledError(status: status)
+        }
 
-                var item: CFTypeRef?
-                let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard let existingItem = item as? [CFString: Any] else {
+          throw KeychainError.unexpectedPasswordData
+        }
 
-                guard status != errSecItemNotFound else {
-                    return nil
-                }
+        guard let itemData = existingItem[kSecValueData] as? Data else {
+          throw KeychainError.unexpectedPasswordData
+        }
 
-                guard status == errSecSuccess else {
-                    throw KeychainError.unhandledError(status: status)
-                }
+        if let password = String(data: itemData, encoding: .utf8) {
+          return Credentials(jid: jid, password: password)
+        } else {
+          return nil
+        }
+      },
+      save: { (credentials: Credentials) in
+        try? deleteCredentials(credentials.jid)
 
-                guard let existingItem = item as? [CFString: Any] else {
-                    throw KeychainError.unexpectedPasswordData
-                }
+        let query: [CFString: Any] = [
+          kSecClass: kSecClassGenericPassword,
+          kSecAttrService: service,
+          kSecAttrAccount: credentials.jid.jidString,
+          kSecValueData: credentials.password,
+          kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
+        ]
 
-                guard let itemData = existingItem[kSecValueData] as? Data else {
-                    throw KeychainError.unexpectedPasswordData
-                }
+        let status = SecItemAdd(query as CFDictionary, nil)
 
-                if let password = String(data: itemData, encoding: .utf8) {
-                    return Credentials(jid: jid, password: password)
-                } else {
-                    return nil
-                }
-            },
-            save: { (credentials: Credentials) in
-                try? deleteCredentials(credentials.jid)
-
-                let query: [CFString: Any] = [
-                    kSecClass: kSecClassGenericPassword,
-                    kSecAttrService: service,
-                    kSecAttrAccount: credentials.jid.jidString,
-                    kSecValueData: credentials.password,
-                    kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlock,
-                ]
-
-                let status = SecItemAdd(query as CFDictionary, nil)
-
-                guard status == errSecSuccess else {
-                    throw KeychainError.unhandledError(status: status)
-                }
-            },
-            deleteCredentials: deleteCredentials
-        )
-    }
+        guard status == errSecSuccess else {
+          throw KeychainError.unhandledError(status: status)
+        }
+      },
+      deleteCredentials: deleteCredentials
+    )
+  }
 }

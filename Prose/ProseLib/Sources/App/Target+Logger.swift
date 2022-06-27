@@ -1,8 +1,6 @@
 //
-//  Target+Logger.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 23/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import OSLog

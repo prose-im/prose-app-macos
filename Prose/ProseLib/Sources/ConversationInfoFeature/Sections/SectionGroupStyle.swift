@@ -1,31 +1,29 @@
 //
-//  SectionGroupStyle.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 03/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import SwiftUI
 
 struct SectionGroupStyle: GroupBoxStyle {
-    private static let sidesPadding: CGFloat = 15
+  private static let sidesPadding: CGFloat = 15
 
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                configuration.label
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Color.primary.opacity(0.25))
-                    .padding(.horizontal, Self.sidesPadding)
-                    .unredacted()
+  func makeBody(configuration: Configuration) -> some View {
+    VStack(spacing: 8) {
+      VStack(alignment: .leading, spacing: 2) {
+        configuration.label
+          .font(.system(size: 11, weight: .semibold))
+          .foregroundColor(Color.primary.opacity(0.25))
+          .padding(.horizontal, Self.sidesPadding)
+          .unredacted()
 
-                Divider()
-            }
+        Divider()
+      }
 
-            configuration.content
-                .font(.system(size: 13))
-                .labelStyle(EntryRowLabelStyle())
-                .padding(.horizontal, Self.sidesPadding)
-        }
+      configuration.content
+        .font(.system(size: 13))
+        .labelStyle(EntryRowLabelStyle())
+        .padding(.horizontal, Self.sidesPadding)
     }
+  }
 }

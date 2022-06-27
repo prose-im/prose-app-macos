@@ -1,22 +1,20 @@
 //
-//  CommonToolbar.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 11/28/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import SwiftUI
 
 public struct CommonToolbar: ToolbarContent {
-    public init() {}
+  public init() {}
 
-    public var body: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            CommonToolbarNavigation()
-        }
-
-        ToolbarItemGroup {
-            CommonToolbarActions()
-        }
+  public var body: some ToolbarContent {
+    ToolbarItemGroup(placement: .navigation) {
+      CommonToolbarNavigation()
     }
+
+    ToolbarItemGroup {
+      CommonToolbarActions()
+    }
+  }
 }
