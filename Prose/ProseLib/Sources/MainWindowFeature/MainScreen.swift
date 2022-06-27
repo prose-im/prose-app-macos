@@ -1,8 +1,6 @@
 //
-//  MainScreen.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 01/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import AddressBookFeature
@@ -18,37 +16,37 @@ import UnreadFeature
 // MARK: - View
 
 public struct MainScreen: View {
-    public typealias State = MainScreenState
-    public typealias Action = MainScreenAction
+  public typealias State = MainScreenState
+  public typealias Action = MainScreenAction
 
-    private let store: Store<State, Action>
+  private let store: Store<State, Action>
 
-    // swiftlint:disable:next type_contents_order
-    public init(store: Store<State, Action>) {
-        self.store = store
-    }
+  // swiftlint:disable:next type_contents_order
+  public init(store: Store<State, Action>) {
+    self.store = store
+  }
 
-    public var body: some View {
-        NavigationView {
-            SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
+  public var body: some View {
+    NavigationView {
+      SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
 
-            SwitchStore(self.store.scope(state: \.route)) {
-                CaseLet(
-                    state: CasePath(MainScreenState.Route.unreadStack).extract,
-                    action: MainScreenAction.unreadStack,
-                    then: UnreadScreen.init(store:)
-                )
-                CaseLet(
-                    state: CasePath(MainScreenState.Route.chat).extract,
-                    action: MainScreenAction.chat,
-                    then: ConversationScreen.init(store:)
-                )
-                Default {
-                    Text("Not implemented.")
-                }
-            }
+      SwitchStore(self.store.scope(state: \.route)) {
+        CaseLet(
+          state: CasePath(MainScreenState.Route.unreadStack).extract,
+          action: MainScreenAction.unreadStack,
+          then: UnreadScreen.init(store:)
+        )
+        CaseLet(
+          state: CasePath(MainScreenState.Route.chat).extract,
+          action: MainScreenAction.chat,
+          then: ConversationScreen.init(store:)
+        )
+        Default {
+          Text("Not implemented.")
         }
+      }
     }
+  }
 }
 
 // MARK: - The Composable Architecture
@@ -56,138 +54,138 @@ public struct MainScreen: View {
 // MARK: Reducer
 
 public let mainWindowReducer = Reducer<
-    MainScreenState,
-    MainScreenAction,
-    MainScreenEnvironment
+  MainScreenState,
+  MainScreenAction,
+  MainScreenEnvironment
 >.combine([
-    sidebarReducer.pullback(
-        state: \.sidebar,
-        action: CasePath(MainScreenAction.sidebar),
-        environment: \.sidebar
-    ),
-    unreadReducer._pullback(
-        state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
-        action: CasePath(MainScreenAction.unreadStack),
-        environment: \.unread
-    ),
-    conversationReducer._pullback(
-        state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
-        action: CasePath(MainScreenAction.chat),
-        environment: \.chat,
-        breakpointOnNil: false
-    ),
+  sidebarReducer.pullback(
+    state: \.sidebar,
+    action: CasePath(MainScreenAction.sidebar),
+    environment: \.sidebar
+  ),
+  unreadReducer._pullback(
+    state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
+    action: CasePath(MainScreenAction.unreadStack),
+    environment: \.unread
+  ),
+  conversationReducer._pullback(
+    state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
+    action: CasePath(MainScreenAction.chat),
+    environment: \.chat,
+    breakpointOnNil: false
+  ),
 ])
 .onChange(of: \.sidebar.selection) { selection, state, _, environment in
-    switch selection {
-    case .unreadStack, .none:
-        state.route = .unreadStack(.init())
-    case .replies:
-        state.route = .replies
-    case .directMessages:
-        state.route = .directMessages
-    case .peopleAndGroups:
-        state.route = .peopleAndGroups
-    case let .chat(jid):
-        var priorRoute = state.route
-        var conversationState = ConversationState(chatId: jid)
-        var effects = Effect<MainScreenAction, Never>.none
+  switch selection {
+  case .unreadStack, .none:
+    state.route = .unreadStack(.init())
+  case .replies:
+    state.route = .replies
+  case .directMessages:
+    state.route = .directMessages
+  case .peopleAndGroups:
+    state.route = .peopleAndGroups
+  case let .chat(jid):
+    var priorRoute = state.route
+    var conversationState = ConversationState(chatId: jid)
+    var effects = Effect<MainScreenAction, Never>.none
 
-        // If another chat was selected already, we'll manually send the `.onAppear` and
-        // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
-        if case var .chat(priorConversationState) = priorRoute {
-            effects = .concatenate([
-                conversationReducer(&priorConversationState, .onDisappear, environment.chat)
-                    .map(MainScreenAction.chat),
-                conversationReducer(&conversationState, .onAppear, environment.chat)
-                    .map(MainScreenAction.chat),
-            ])
-        }
-
-        state.route = .chat(conversationState)
-        return effects
+    // If another chat was selected already, we'll manually send the `.onAppear` and
+    // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
+    if case var .chat(priorConversationState) = priorRoute {
+      effects = .concatenate([
+        conversationReducer(&priorConversationState, .onDisappear, environment.chat)
+          .map(MainScreenAction.chat),
+        conversationReducer(&conversationState, .onAppear, environment.chat)
+          .map(MainScreenAction.chat),
+      ])
     }
-    return .none
+
+    state.route = .chat(conversationState)
+    return effects
+  }
+  return .none
 }
 
 // MARK: State
 
 public struct MainScreenState: Equatable {
-    public var sidebar: SidebarState
-    var route = Route.unreadStack(.init())
+  public var sidebar: SidebarState
+  var route = Route.unreadStack(.init())
 
-    public init(jid: JID) {
-        self.sidebar = .init(credentials: jid)
-    }
+  public init(jid: JID) {
+    self.sidebar = .init(credentials: jid)
+  }
 }
 
 extension MainScreenState {
-    enum Route: Equatable {
-        case unreadStack(UnreadState)
-        case replies
-        case directMessages
-        case peopleAndGroups
-        case chat(ConversationState)
-    }
+  enum Route: Equatable {
+    case unreadStack(UnreadState)
+    case replies
+    case directMessages
+    case peopleAndGroups
+    case chat(ConversationState)
+  }
 }
 
 public extension MainScreenState {
-    static var placeholder = MainScreenState(
-        jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
-    )
+  static var placeholder = MainScreenState(
+    jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
+  )
 }
 
 // MARK: Actions
 
 public enum MainScreenAction: Equatable {
-    case sidebar(SidebarAction)
-    case unreadStack(UnreadAction)
-    case chat(ConversationAction)
+  case sidebar(SidebarAction)
+  case unreadStack(UnreadAction)
+  case chat(ConversationAction)
 }
 
 // MARK: Environment
 
 public struct MainScreenEnvironment {
-    var proseClient: ProseClient
-    var mainQueue: AnySchedulerOf<DispatchQueue>
+  var proseClient: ProseClient
+  var mainQueue: AnySchedulerOf<DispatchQueue>
 
-    public init(
-        proseClient: ProseClient,
-        mainQueue: AnySchedulerOf<DispatchQueue>
-    ) {
-        self.proseClient = proseClient
-        self.mainQueue = mainQueue
-    }
+  public init(
+    proseClient: ProseClient,
+    mainQueue: AnySchedulerOf<DispatchQueue>
+  ) {
+    self.proseClient = proseClient
+    self.mainQueue = mainQueue
+  }
 }
 
 extension MainScreenEnvironment {
-    var chat: ConversationEnvironment {
-        .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
-    }
+  var chat: ConversationEnvironment {
+    .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
+  }
 
-    var sidebar: SidebarEnvironment {
-        .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
-    }
+  var sidebar: SidebarEnvironment {
+    .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
+  }
 
-    var unread: UnreadEnvironment {
-        .init()
-    }
+  var unread: UnreadEnvironment {
+    .init()
+  }
 }
 
 // MARK: - Previews
 
 #if DEBUG
-    import PreviewAssets
+  import PreviewAssets
 
-    internal struct MainWindow_Previews: PreviewProvider {
-        static var previews: some View {
-            MainScreen(store: Store(
-                initialState: MainScreenState(jid: "preview@prose.org"),
-                reducer: mainWindowReducer,
-                environment: MainScreenEnvironment(
-                    proseClient: .noop,
-                    mainQueue: .main
-                )
-            ))
-        }
+  internal struct MainWindow_Previews: PreviewProvider {
+    static var previews: some View {
+      MainScreen(store: Store(
+        initialState: MainScreenState(jid: "preview@prose.org"),
+        reducer: mainWindowReducer,
+        environment: MainScreenEnvironment(
+          proseClient: .noop,
+          mainQueue: .main
+        )
+      ))
     }
+  }
 #endif

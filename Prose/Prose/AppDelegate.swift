@@ -1,8 +1,6 @@
 //
-//  AppDelegate.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 12/7/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import Foundation

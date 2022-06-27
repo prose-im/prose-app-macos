@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import Combine
 import Foundation
 
@@ -6,13 +11,13 @@ import Foundation
 /// This is a fix for an issue that `Result<Void, RequestError>` can't be extended to
 /// conform to `Equatable`.
 public struct None: Hashable {
-    public static let none = None()
+  public static let none = None()
 
-    private init() {}
+  private init() {}
 }
 
 public extension Publisher {
-    func mapVoidToNone() -> AnyPublisher<None, Failure> where Self.Output == Void {
-        self.map { .none }.eraseToAnyPublisher()
-    }
+  func mapVoidToNone() -> AnyPublisher<None, Failure> where Self.Output == Void {
+    self.map { .none }.eraseToAnyPublisher()
+  }
 }

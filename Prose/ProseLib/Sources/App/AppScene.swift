@@ -1,8 +1,6 @@
 //
-//  AppScene.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 9/14/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import AuthenticationFeature
@@ -12,54 +10,57 @@ import SettingsFeature
 import SwiftUI
 
 public struct AppScene: Scene {
-    private let store: Store<AppState, AppAction>
-    private var actions: ViewStore<Void, AppAction> { ViewStore(self.store.stateless) }
+  private let store: Store<AppState, AppAction>
+  private var actions: ViewStore<Void, AppAction> { ViewStore(self.store.stateless) }
 
-    @SwiftUI.State var mainWindow: NSWindow?
+  @SwiftUI.State var mainWindow: NSWindow?
 
-    public init(store: Store<AppState, AppAction> = Store(
-        initialState: AppState(),
-        reducer: appReducer,
-        environment: AppEnvironment.live
-    )) {
-        self.store = store
-    }
+  public init(store: Store<AppState, AppAction> = Store(
+    initialState: AppState(),
+    reducer: appReducer,
+    environment: AppEnvironment.live
+  )) {
+    self.store = store
+  }
 
-    public var body: some Scene {
-        mainWindowGroup()
-    }
+  public var body: some Scene {
+    mainWindowGroup()
+  }
 
-    @SceneBuilder
-    private func mainWindowGroup() -> some Scene {
-        WindowGroup {
-            WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
-                WithViewStore(self.store.scope(state: \.isMainWindowRedacted)) { isMainWindowRedacted in
-                    MainScreen(store: self.store.scope(state: \.main, action: AppAction.main))
-                        .redacted(reason: isMainWindowRedacted.state ? .placeholder : [])
-                        .frame(minWidth: 1_280, minHeight: 720)
-                        .onAppear { actions.send(.onAppear) }
-                        .background(WindowAccessor(window: $mainWindow))
-                        .onChange(of: mainWindow) { newValue in
-                            guard let window = newValue else { return }
+  @SceneBuilder
+  private func mainWindowGroup() -> some Scene {
+    WindowGroup {
+      WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
+        WithViewStore(
+          self.store
+            .scope(state: \.isMainWindowRedacted)
+        ) { isMainWindowRedacted in
+          MainScreen(store: self.store.scope(state: \.main, action: AppAction.main))
+            .redacted(reason: isMainWindowRedacted.state ? .placeholder : [])
+            .frame(minWidth: 1280, minHeight: 720)
+            .onAppear { actions.send(.onAppear) }
+            .background(WindowAccessor(window: $mainWindow))
+            .onChange(of: mainWindow) { newValue in
+              guard let window = newValue else { return }
 
-                            window.makeKeyAndOrderFront(nil)
-                        }
-                        .sheet(unwrapping: .constant(authViewStore.state)) { $state in
-                            AuthenticationScreen(store: self.store.scope(
-                                state: { _ in $state.wrappedValue },
-                                action: AppAction.auth
-                            ))
-                        }
-                }
+              window.makeKeyAndOrderFront(nil)
+            }
+            .sheet(unwrapping: .constant(authViewStore.state)) { $state in
+              AuthenticationScreen(store: self.store.scope(
+                state: { _ in $state.wrappedValue },
+                action: AppAction.auth
+              ))
             }
         }
-        .windowStyle(DefaultWindowStyle())
-        .windowToolbarStyle(UnifiedWindowToolbarStyle())
-        .commands {
-            SidebarCommands()
-        }
-        Settings {
-            SettingsView()
-        }
+      }
     }
+    .windowStyle(DefaultWindowStyle())
+    .windowToolbarStyle(UnifiedWindowToolbarStyle())
+    .commands {
+      SidebarCommands()
+    }
+    Settings {
+      SettingsView()
+    }
+  }
 }

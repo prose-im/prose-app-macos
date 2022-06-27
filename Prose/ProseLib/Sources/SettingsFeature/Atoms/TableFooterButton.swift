@@ -1,8 +1,6 @@
 //
-//  TableFooterButton.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 12/12/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import SwiftUI
@@ -11,31 +9,31 @@ import SwiftUI
 /// See https://developers.apple.com/design/human-interface-guidelines/components/menus-and-actions/buttons#gradient-buttons/
 /// for more information.
 struct TableFooterButton: View {
-    var actionName: String
+  var actionName: String
 
-    var body: some View {
-        HStack(spacing: 0) {
-            Button { logger.debug("Button tapped") } label: {
-                Image(systemName: actionName)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.primary)
-                    // Make tap area bigger
-                    .frame(width: 26)
-                    .frame(maxHeight: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+  var body: some View {
+    HStack(spacing: 0) {
+      Button { logger.debug("Button tapped") } label: {
+        Image(systemName: actionName)
+          .font(.system(size: 11, weight: .medium))
+          .foregroundColor(.primary)
+          // Make tap area bigger
+          .frame(width: 26)
+          .frame(maxHeight: .infinity)
+          .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
 
-            Divider()
-                .padding(.vertical, 3.0)
-        }
+      Divider()
+        .padding(.vertical, 3.0)
     }
+  }
 }
 
 struct TableFooterButton_Previews: PreviewProvider {
-    static var previews: some View {
-        TableFooterButton(
-            actionName: "plus"
-        )
-    }
+  static var previews: some View {
+    TableFooterButton(
+      actionName: "plus"
+    )
+  }
 }

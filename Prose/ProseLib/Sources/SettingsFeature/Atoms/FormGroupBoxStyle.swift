@@ -1,8 +1,6 @@
 //
-//  FormGroupBoxStyle.swift
-//  Prose
-//
-//  Created by Rémi Bardon on 23/06/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import SwiftUI
@@ -13,22 +11,22 @@ import SwiftUI
 ///
 /// - Note: This style might break some layout, accessibility and readability benefits of the system style.
 struct FormGroupBoxStyle: GroupBoxStyle {
-    let firstColumnWidth: CGFloat
-    init(firstColumnWidth: CGFloat = SettingsConstants.firstFormColumnWidth) {
-        self.firstColumnWidth = firstColumnWidth
-    }
+  let firstColumnWidth: CGFloat
+  init(firstColumnWidth: CGFloat = SettingsConstants.firstFormColumnWidth) {
+    self.firstColumnWidth = firstColumnWidth
+  }
 
-    func makeBody(configuration: Configuration) -> some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .trailing) {
-                configuration.label
-            }
-            .frame(width: self.firstColumnWidth, alignment: .trailing)
-            VStack(alignment: .leading) {
-                configuration.content
-            }
-            .textFieldStyle(.roundedBorder)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
+  func makeBody(configuration: Configuration) -> some View {
+    HStack(alignment: .top) {
+      VStack(alignment: .trailing) {
+        configuration.label
+      }
+      .frame(width: self.firstColumnWidth, alignment: .trailing)
+      VStack(alignment: .leading) {
+        configuration.content
+      }
+      .textFieldStyle(.roundedBorder)
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
+  }
 }

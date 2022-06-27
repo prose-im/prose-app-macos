@@ -1,8 +1,6 @@
 //
-//  Toolbar.swift
-//  Prose
-//
-//  Created by Valerian Saliou on 12/12/21.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import AppLocalization
@@ -14,39 +12,39 @@ private let l10n = L10n.Sidebar.Toolbar.self
 // MARK: - View
 
 struct Toolbar: ToolbarContent {
-    typealias State = ToolbarState
-    typealias Action = ToolbarAction
+  typealias State = ToolbarState
+  typealias Action = ToolbarAction
 
-    @Environment(\.redactionReasons) private var redactionReasons
+  @Environment(\.redactionReasons) private var redactionReasons
 
-    let store: Store<State, Action>
-    private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+  let store: Store<State, Action>
+  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-    var body: some ToolbarContent {
-        ToolbarItemGroup(placement: ToolbarItemPlacement.primaryAction) {
-            Self.actions(store: store, redactionReasons: self.redactionReasons)
-        }
+  var body: some ToolbarContent {
+    ToolbarItemGroup(placement: ToolbarItemPlacement.primaryAction) {
+      Self.actions(store: store, redactionReasons: self.redactionReasons)
     }
+  }
 
-    static func actions(
-        store: Store<State, Action>,
-        redactionReasons: RedactionReasons
-    ) -> some View {
-        WithViewStore(store) { viewStore in
-            Button { viewStore.send(.startCallTapped) } label: {
-                Label(l10n.Actions.StartCall.label, systemImage: "phone.bubble.left")
-            }
-            .unredacted()
-            .accessibilityHint(l10n.Actions.StartCall.hint)
-            Toggle(isOn: viewStore.binding(\State.$writingNewMessage)) {
-                Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
-            }
-            .toggleStyle(.button)
-            .unredacted()
-            .accessibilityHint(l10n.Actions.WriteMessage.hint)
-        }
-        .disabled(redactionReasons.contains(.placeholder))
+  static func actions(
+    store: Store<State, Action>,
+    redactionReasons: RedactionReasons
+  ) -> some View {
+    WithViewStore(store) { viewStore in
+      Button { viewStore.send(.startCallTapped) } label: {
+        Label(l10n.Actions.StartCall.label, systemImage: "phone.bubble.left")
+      }
+      .unredacted()
+      .accessibilityHint(l10n.Actions.StartCall.hint)
+      Toggle(isOn: viewStore.binding(\State.$writingNewMessage)) {
+        Label(l10n.Actions.WriteMessage.label, systemImage: "square.and.pencil")
+      }
+      .toggleStyle(.button)
+      .unredacted()
+      .accessibilityHint(l10n.Actions.WriteMessage.hint)
     }
+    .disabled(redactionReasons.contains(.placeholder))
+  }
 }
 
 // MARK: - The Composable Architecture
@@ -54,72 +52,72 @@ struct Toolbar: ToolbarContent {
 // MARK: Reducer
 
 let toolbarReducer: Reducer<
-    ToolbarState,
-    ToolbarAction,
-    Void
+  ToolbarState,
+  ToolbarAction,
+  Void
 > = Reducer { state, action, _ in
-    switch action {
-    case .startCallTapped:
-        // TODO: [Rémi Bardon] Handle action
-        logger.info("Start call tapped")
+  switch action {
+  case .startCallTapped:
+    // TODO: [Rémi Bardon] Handle action
+    logger.info("Start call tapped")
 
-    case .binding(\.$writingNewMessage):
-        // TODO: [Rémi Bardon] Handle action
-        if state.writingNewMessage {
-            logger.info("Start writing new message tapped")
-        } else {
-            logger.info("Stop writing new message tapped")
-        }
-
-    case .binding:
-        break
+  case .binding(\.$writingNewMessage):
+    // TODO: [Rémi Bardon] Handle action
+    if state.writingNewMessage {
+      logger.info("Start writing new message tapped")
+    } else {
+      logger.info("Stop writing new message tapped")
     }
 
-    return .none
+  case .binding:
+    break
+  }
+
+  return .none
 }.binding()
 
 // MARK: State
 
 public struct ToolbarState: Equatable {
-    @BindableState var writingNewMessage = false
+  @BindableState var writingNewMessage = false
 }
 
 // MARK: Actions
 
 public enum ToolbarAction: Equatable, BindableAction {
-    case startCallTapped
-    case binding(BindingAction<ToolbarState>)
+  case startCallTapped
+  case binding(BindingAction<ToolbarState>)
 }
 
 // MARK: - Previews
 
 internal struct Toolbar_Previews: PreviewProvider {
-    private struct Preview: View {
-        @Environment(\.redactionReasons) private var redactionReasons
+  private struct Preview: View {
+    @Environment(\.redactionReasons) private var redactionReasons
 
-        let state: ToolbarState
+    let state: ToolbarState
 
-        var body: some View {
-            let store = Store(
-                initialState: state,
-                reducer: toolbarReducer,
-                environment: ()
-            )
-            HStack {
-                Toolbar.actions(
-                    store: store,
-                    redactionReasons: redactionReasons
-                )
-            }
-            .padding()
-            .previewLayout(.sizeThatFits)
-        }
+    var body: some View {
+      let store = Store(
+        initialState: state,
+        reducer: toolbarReducer,
+        environment: ()
+      )
+      HStack {
+        Toolbar.actions(
+          store: store,
+          redactionReasons: redactionReasons
+        )
+      }
+      .padding()
+      .previewLayout(.sizeThatFits)
     }
+  }
 
-    static var previews: some View {
-        Preview(state: .init())
-        Preview(state: .init())
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
+  static var previews: some View {
+    Preview(state: .init())
+    Preview(state: .init())
+      .redacted(reason: .placeholder)
+      .previewDisplayName("Placeholder")
+  }
 }
