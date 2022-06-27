@@ -10,8 +10,8 @@ import Foundation
 // swiftlint:disable explicit_type_interface identifier_name
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 internal enum Files {
-    /// index.html
-    internal static let indexHtml = File(name: "index", ext: "html", relativePath: "", mimeType: "text/html")
+    /// messaging.html
+    internal static let messagingHtml = File(name: "messaging", ext: "html", relativePath: "", mimeType: "text/html")
 }
 
 // swiftlint:enable explicit_type_interface identifier_name

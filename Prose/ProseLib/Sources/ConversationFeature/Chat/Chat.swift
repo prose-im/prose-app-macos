@@ -16,14 +16,9 @@ import WebKit
 // MARK: - View
 
 struct ProseCoreViewsMessage: Encodable {
-    struct Content: Encodable {
-        let type = "text"
-        let text: String
-    }
-
     struct User: Encodable {
+        let jid: String
         let name: String
-        let avatar: String
     }
 
     fileprivate static var dateFormatter: ISO8601DateFormatter = {
@@ -33,17 +28,17 @@ struct ProseCoreViewsMessage: Encodable {
     }()
 
     let id = UUID()
-    let type = "message"
+    let type = "text"
     let date: String
-    let content: [Content]
-    let user: User
+    let content: String
+    let from: User
 
     init(from message: Message) {
         self.date = Self.dateFormatter.string(from: message.timestamp)
-        self.content = [Content(text: message.body)]
-        self.user = User(
-            name: message.from.jidString,
-            avatar: ""
+        self.content = message.body
+        self.from = User(
+            jid: message.from.jidString,
+            name: message.from.jidString
         )
     }
 }
@@ -67,7 +62,7 @@ struct Chat: NSViewRepresentable {
 
         let configuration = WKWebViewConfiguration()
         let webView = WKWebView(frame: .zero, configuration: configuration)
-        webView.loadFileURL(Files.indexHtml.url, allowingReadAccessTo: Files.indexHtml.url)
+        webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
         signposter.endInterval(#function, interval)
 
@@ -81,8 +76,8 @@ struct Chat: NSViewRepresentable {
             let jsonData = try! JSONEncoder().encode(self.viewStore.messages.map(ProseCoreViewsMessage.init(from:)))
             let json = String(data: jsonData, encoding: .utf8) ?? "[]"
             webView.evaluateJavaScript("""
-            globalThis.MessagingStore.flush();
-            globalThis.MessagingStore.insert(...\(json));
+            MessagingStore.flush();
+            MessagingStore.insert(...\(json));
             """) { _, error in
                 if let error = error {
                     logger.warning("Error evaluating JavaScript: \(error.localizedDescription)")

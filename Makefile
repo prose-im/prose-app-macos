@@ -13,19 +13,22 @@ XCBEAUTIFY:
 
 # ################ Web Views ################
 
-VIEWS_LIB_PATH = ../prose-core-views
-DESTINATION = Prose/ProseLib/Sources/ConversationFeature/Resources/Views
+VIEWS_LIB_URL=https://github.com/prose-im/prose-core-views
+VIEWS_LIB_VERSION=0.2.3
+VIEWS_ARCHIVE_NAME=release-${VIEWS_LIB_VERSION}.tar.gz
+DESTINATION=Prose/ProseLib/Sources/ConversationFeature/Resources/Views
 
 views: views-build assets
 
 views-build:
-	rm -rf "${VIEWS_LIB_PATH}/dist"
-	(cd "${VIEWS_LIB_PATH}"; npm run build)
 	rm -rf "${DESTINATION}"
 	mkdir "${DESTINATION}"
 	touch "${DESTINATION}/.gitkeep"
 
-	cp -Rp "${VIEWS_LIB_PATH}/dist/" "${DESTINATION}"
+	@(cd "${DESTINATION}"; \
+		wget "${VIEWS_LIB_URL}/releases/download/${VIEWS_LIB_VERSION}/${VIEWS_ARCHIVE_NAME}"; \
+		tar -zxf "${VIEWS_ARCHIVE_NAME}" --strip=1; \
+		rm -rf "${VIEWS_ARCHIVE_NAME}")
 
 # ################ Code Hygiene ################
 
