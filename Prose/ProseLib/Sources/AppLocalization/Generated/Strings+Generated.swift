@@ -11,6 +11,29 @@ import Foundation
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 public enum L10n {
     public enum Authentication {
+        public enum AccountErrorAlert {
+            /// Prose failed connecting to your account, as the server reported an account error.
+            ///
+            /// This might mean that your credentials are invalid, or your account does not exist anymore on this server, or was blocked.
+            public static let content = L10n.tr("Localizable", "authentication.account_error_alert.content")
+            /// Account Error
+            public static let title = L10n.tr("Localizable", "authentication.account_error_alert.title")
+            public enum GoToAccountSettingsAction {
+                /// Account settings
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.go_to_account_settings_action.title")
+            }
+
+            public enum TryAgainAction {
+                /// Try again
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.try_again_action.title")
+            }
+
+            public enum WorkOfflineAction {
+                /// Work offline
+                public static let title = L10n.tr("Localizable", "authentication.account_error_alert.work_offline_action.title")
+            }
+        }
+
         public enum BasicAuth {
             public enum Alert {
                 public enum BadCredentials {
@@ -142,6 +165,19 @@ public enum L10n {
                 public static let subtitle = L10n.tr("Localizable", "authentication.mfa.header.subtitle")
                 /// One more step…
                 public static let title = L10n.tr("Localizable", "authentication.mfa.header.title")
+            }
+        }
+    }
+
+    public enum Chat {
+        public enum OfflineBanner {
+            /// New messages will not appear, drafts will be saved for later.
+            public static let content = L10n.tr("Localizable", "chat.offline_banner.content")
+            /// You are offline
+            public static let title = L10n.tr("Localizable", "chat.offline_banner.title")
+            public enum ReconnectAction {
+                /// Reconnect now
+                public static let title = L10n.tr("Localizable", "chat.offline_banner.reconnect_action.title")
             }
         }
     }
