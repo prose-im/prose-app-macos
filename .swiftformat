@@ -3,6 +3,7 @@
 --disable enumNamespaces
 --enable isEmpty,blockComments
 --ranges no-space
+--decimalgrouping 3,5
 --wraparguments before-first
 --wrapcollections before-first
 --maxwidth 100
