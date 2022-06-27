@@ -16,6 +16,7 @@ public struct Presence: Equatable {
 }
 
 public extension Presence {
+    /// https://datatracker.ietf.org/doc/html/rfc6121#section-4.7.1
     enum Kind: Equatable {
         case unavailable
         case subscribe
@@ -26,6 +27,7 @@ public extension Presence {
         case error
     }
 
+    /// https://datatracker.ietf.org/doc/html/rfc6121#section-4.7.2.1
     enum Show: Equatable {
         case away
         case chat
