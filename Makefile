@@ -23,4 +23,3 @@ views-build:
 	touch "${DESTINATION}/.gitkeep"
 
 	cp -Rp "${VIEWS_LIB_PATH}/dist/" "${DESTINATION}"
->>>>>>> 5d87fee (chore: Replace SwiftUI chat view by a `WKWebView`)
