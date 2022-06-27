@@ -2,5 +2,8 @@
 --self insert
 --disable enumNamespaces
 --enable isEmpty,blockComments
---decimalgrouping 3,4
 --ranges no-space
+--wraparguments before-first
+--wrapcollections before-first
+--maxwidth 100
+--header \nThis file is part of prose-app-macos.\nCopyright (c) 2022 Prose Foundation\n
