@@ -65,11 +65,15 @@ public struct SidebarView: View {
     }
 
     private var contactsSection: some View {
-        ForEach(viewStore.roster.groups, id: \.name) { group in
+        ForEach(viewStore.roster.sidebar.groups, id: \.name) { group in
             Section(group.name) {
                 ForEach(group.items, id: \.jid) { item in
-                    ContactRow(title: item.jid.jidString, avatar: .placeholder)
-                        .tag(Tag.chat(item.jid))
+                    ContactRow(
+                        title: item.jid.jidString,
+                        avatar: .placeholder,
+                        count: item.numberOfUnreadMessages,
+                        status: item.status
+                    ).tag(Tag.chat(item.jid))
                 }
                 ActionButton(title: L10n.Sidebar.TeamMembers.Add.label) {
                     self.viewStore.send(.addContactButtonTapped)

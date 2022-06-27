@@ -5,7 +5,7 @@ enum ProseClientError: Error {
     case unsupportedCredentials
 }
 
-public final class ProseClient {
+public final class ProseClient: ProseClientProtocol {
     public private(set) weak var delegate: ProseClientDelegate?
 
     private let client: ProseCoreClientFFI.Client
@@ -22,6 +22,10 @@ public final class ProseClient {
     public init(jid: BareJid, delegate: ProseClientDelegate) {
         self.client = .init(jid: jid)
         self.delegate = delegate
+
+        if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
+            enableLogging()
+        }
     }
 
     public func connect(credential: Credential) throws {
@@ -42,21 +46,35 @@ public final class ProseClient {
         // Hah. We're always on!
     }
 
-    public func sendMessage(to jid: BareJid, text: String) throws {
-        self.client.sendMessage(id: UUID().uuidString, to: jid, body: text, chatState: nil)
+    public func sendMessage(
+        id: String,
+        to: BareJid,
+        text: String,
+        chatState: ChatState?
+    ) throws {
+        self.client.sendMessage(id: id, to: to, body: text, chatState: chatState)
+    }
+
+    public func updateMessage(
+        id: String,
+        newID: String,
+        to: BareJid,
+        text: String
+    ) throws {
+        self.client.updateMessage(id: id, newId: newID, to: to, body: text)
+    }
+
+    public func sendChatState(to: BareJid, chatState: ChatState) throws {
+        self.client.sendChatState(to: to, chatState: chatState)
+    }
+
+    public func sendPresence(show: ShowKind, status: String?) throws {
+        self.client.sendPresence(show: show, status: status)
     }
 
     public func loadRoster() throws {
         self.client.loadRoster()
     }
-}
-
-public protocol ProseClientDelegate: AnyObject {
-    func proseClientDidConnect(_ client: ProseClient)
-    func proseClient(_ client: ProseClient, connectionDidFailWith error: Error?)
-
-    func proseClient(_ client: ProseClient, didReceiveRoster roster: ProseCoreClientFFI.Roster)
-    func proseClient(_ client: ProseClient, didReceiveMessage message: ProseCoreClientFFI.Message)
 }
 
 extension ProseClient: AccountObserver {
@@ -79,5 +97,7 @@ extension ProseClient: AccountObserver {
         self.delegate?.proseClient(self, didReceiveRoster: roster)
     }
 
-    public func didReceivePresence(presence _: Presence) {}
+    public func didReceivePresence(presence: Presence) {
+        self.delegate?.proseClient(self, didReceivePresence: presence)
+    }
 }

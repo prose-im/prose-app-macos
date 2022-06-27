@@ -10,6 +10,7 @@ import ConversationInfoFeature
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
+import Toolbox
 
 // MARK: - View
 
@@ -87,8 +88,8 @@ public let conversationReducer: Reducer<
         case .onAppear:
             return environment.proseClient.messagesInChat(state.chatId)
                 .receive(on: environment.mainQueue)
-                .eraseToEffect()
-                .map(ConversationAction.messagesDidChange)
+                .catchToEffect()
+                .map(ConversationAction.messagesResult)
                 .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true)
 
         case .onDisappear:
@@ -106,8 +107,14 @@ public let conversationReducer: Reducer<
                 .eraseToEffect()
                 .fireAndForget()
 
-        case let .messagesDidChange(messages):
+        case let .messagesResult(.success(messages)):
             state.messages = messages
+            return environment.proseClient.markMessagesReadInChat(state.chatId).fireAndForget()
+
+        case let .messagesResult(.failure(error)):
+            logger.error(
+                "Could not load messages. \(error.localizedDescription, privacy: .public)"
+            )
             return .none
 
         case .toolbar(.binding(\.$isShowingInfo)):
@@ -160,7 +167,7 @@ public enum ConversationAction: Equatable {
     case onAppear
     case onDisappear
 
-    case messagesDidChange([Message])
+    case messagesResult(Result<[Message], EquatableError>)
 
     case info(ConversationInfoAction)
     case toolbar(ToolbarAction)

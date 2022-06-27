@@ -7,7 +7,10 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import MainWindowFeature
+import NotificationsClient
+import ProseCore
 import ProseCoreTCA
+import struct ProseCoreTCA.ProseClient
 import Toolbox
 import UserDefaultsClient
 
@@ -47,14 +50,26 @@ public let appReducer: Reducer<
         switch action {
         case .onAppear where !state.hasAppearedAtLeastOnce:
             state.hasAppearedAtLeastOnce = true
-            return Effect<Credentials?, EquatableError>.result {
-                Result {
-                    try environment.userDefaults.loadCurrentAccount()
-                        .flatMap(environment.credentials.loadCredentials)
-                }.mapError(EquatableError.init)
-            }
-            .catchToEffect()
-            .map(AppAction.authenticationResult)
+
+            return Effect.merge(
+                Effect<Credentials?, EquatableError>.result {
+                    Result {
+                        try environment.userDefaults.loadCurrentAccount()
+                            .flatMap(environment.credentials.loadCredentials)
+                    }.mapError(EquatableError.init)
+                }
+                .catchToEffect()
+                .map(AppAction.authenticationResult),
+
+                .fireAndForget {
+                    environment.notifications.promptForPushNotifications()
+                },
+
+                environment.proseClient.incomingMessages()
+                    .receive(on: environment.mainQueue)
+                    .eraseToEffect()
+                    .map(AppAction.didReceiveMessage)
+            )
 
         case let .authenticationResult(.success(.some(credentials))):
             proceedToMainFlow(with: credentials)
@@ -110,6 +125,9 @@ public let appReducer: Reducer<
             proceedToLogin()
             return .none
 
+        case let .didReceiveMessage(message):
+            return environment.notifications.scheduleLocalNotification(message).fireAndForget()
+
         case .onAppear, .auth, .main:
             return .none
         }
@@ -159,8 +177,11 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
     case onAppear
+
     case authenticationResult(Result<Credentials?, EquatableError>)
     case connectionResult(Result<None, EquatableError>)
+    case didReceiveMessage(Message)
+
     case auth(AuthenticationAction)
     case main(MainScreenAction)
 }
@@ -178,6 +199,7 @@ public struct AppEnvironment {
     var credentials: CredentialsClient
 
     var proseClient: ProseClient
+    var notifications: NotificationsClient
 
     var mainQueue: AnySchedulerOf<DispatchQueue>
 
@@ -199,7 +221,8 @@ public struct AppEnvironment {
         Self(
             userDefaults: .live(.standard),
             credentials: .live(service: "org.prose.app"),
-            proseClient: .live(),
+            proseClient: .live(provider: ProseCore.ProseClient.init),
+            notifications: .live,
             mainQueue: .main,
             openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
                 Effect.future { callback in

@@ -31,7 +31,8 @@ let package = Package(
             url: "https://github.com/pointfreeco/swiftui-navigation",
             .upToNextMajor(from: "0.1.0")
         ),
-        .proseCore("0.1.5"),
+        .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.7.0")),
+        .proseCore("0.1.6"),
     ],
     targets: [
         .target(
@@ -42,6 +43,7 @@ let package = Package(
                 "AuthenticationFeature",
                 "CredentialsClient",
                 "UserDefaultsClient",
+                "NotificationsClient",
             ]
         ),
 
@@ -91,6 +93,7 @@ let package = Package(
         .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
         .target(name: "UserDefaultsClient", dependencies: [.base]),
+        .target(name: "NotificationsClient", dependencies: [.base]),
 
         .target(
             name: "FeatureBase",
@@ -124,9 +127,13 @@ let package = Package(
             dependencies: [
                 "ProseCore",
                 "Toolbox",
+                .product(name: "Tagged", package: "swift-tagged"),
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
+        .testTarget(name: "ProseCoreTCATests", dependencies: ["ProseCoreTCA", "TestHelpers"]),
+
+        .target(name: "TestHelpers"),
     ]
 )
 
