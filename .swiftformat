@@ -1,4 +1,4 @@
---indent 4
+--indent 2
 --self insert
 --disable enumNamespaces
 --enable isEmpty,blockComments
