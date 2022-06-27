@@ -13,7 +13,7 @@ private let l10n = L10n.Settings.Accounts.self
 struct AccountSettingsAccountView: View {
     @AppStorage("settings.accounts.x.account.enabled") var enabled = true
     @AppStorage("settings.accounts.x.account.username") var username = ""
-    @AppStorage("settings.accounts.x.account.password") var password = ""
+    @State var password = ""
 
     var body: some View {
         VStack(spacing: 24) {
@@ -21,6 +21,7 @@ struct AccountSettingsAccountView: View {
                 Toggle("", isOn: $enabled)
                     .toggleStyle(.switch)
                     .labelsHidden()
+                    .disabled(true)
             }
 
             GroupBox(l10n.statusLabel) {

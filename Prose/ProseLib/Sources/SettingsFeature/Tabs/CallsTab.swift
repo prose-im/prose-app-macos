@@ -128,6 +128,7 @@ struct CallsTab: View {
         }
         .groupBoxStyle(FormGroupBoxStyle())
         .padding()
+        .disabled(true)
     }
 }
 

@@ -161,7 +161,7 @@ struct NotificationsTab: View {
         }
         .groupBoxStyle(FormGroupBoxStyle())
         .padding()
-        .frame(width: SettingsConstants.contentWidth)
+        .disabled(true)
     }
 }
 
