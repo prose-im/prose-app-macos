@@ -12,6 +12,7 @@ let package = Package(
     .library(name: "TestHostApp", targets: ["TestHostApp"]),
     // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
     .library(name: "Previews", targets: [
+      "AddMemberFeature",
       "AddressBookFeature",
       "AuthenticationFeature",
       "ConversationFeature",
@@ -70,6 +71,9 @@ let package = Package(
     .target(name: "AddressBookFeature", dependencies: [
       "ProseUI",
       "ProseCoreTCA",
+    ]),
+    .target(name: "AddMemberFeature", dependencies: [
+      .featureBase,
     ]),
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
     .target(name: "SidebarFeature", dependencies: [
