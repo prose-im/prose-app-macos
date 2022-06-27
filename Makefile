@@ -25,10 +25,7 @@ views-build:
 	mkdir "${DESTINATION}"
 	touch "${DESTINATION}/.gitkeep"
 
-	@(cd "${DESTINATION}"; \
-		wget "${VIEWS_LIB_URL}/releases/download/${VIEWS_LIB_VERSION}/${VIEWS_ARCHIVE_NAME}"; \
-		tar -zxf "${VIEWS_ARCHIVE_NAME}" --strip=1; \
-		rm -rf "${VIEWS_ARCHIVE_NAME}")
+	@curl -Ls "${VIEWS_LIB_URL}/releases/download/${VIEWS_LIB_VERSION}/${VIEWS_ARCHIVE_NAME}" | tar -xvz -C ${DESTINATION} --strip=1
 
 # ################ Code Hygiene ################
 
