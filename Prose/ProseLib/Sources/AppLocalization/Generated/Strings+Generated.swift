@@ -25,10 +25,7 @@ public enum L10n {
         "authentication.account_error_alert.content"
       )
       /// Account Error
-      public static let title = L10n.tr(
-        "Localizable",
-        "authentication.account_error_alert.title"
-      )
+      public static let title = L10n.tr("Localizable", "authentication.account_error_alert.title")
       public enum GoToAccountSettingsAction {
         /// Account settings
         public static let title = L10n.tr(
@@ -95,10 +92,7 @@ public enum L10n {
 
       public enum Error {
         /// Login failure
-        public static let title = L10n.tr(
-          "Localizable",
-          "authentication.basic_auth.error.title"
-        )
+        public static let title = L10n.tr("Localizable", "authentication.basic_auth.error.title")
       }
 
       public enum Form {
@@ -126,10 +120,7 @@ public enum L10n {
           "authentication.basic_auth.header.subtitle"
         )
         /// Welcome!
-        public static let title = L10n.tr(
-          "Localizable",
-          "authentication.basic_auth.header.title"
-        )
+        public static let title = L10n.tr("Localizable", "authentication.basic_auth.header.title")
       }
 
       public enum LogIn {
@@ -199,10 +190,7 @@ public enum L10n {
     public enum Mfa {
       public enum ConfirmButton {
         /// Confirm login code
-        public static let title = L10n.tr(
-          "Localizable",
-          "authentication.mfa.confirm_button.title"
-        )
+        public static let title = L10n.tr("Localizable", "authentication.mfa.confirm_button.title")
       }
 
       public enum Error {
@@ -245,10 +233,7 @@ public enum L10n {
 
       public enum Header {
         /// Enter your 6-digit access code
-        public static let subtitle = L10n.tr(
-          "Localizable",
-          "authentication.mfa.header.subtitle"
-        )
+        public static let subtitle = L10n.tr("Localizable", "authentication.mfa.header.subtitle")
         /// One more step…
         public static let title = L10n.tr("Localizable", "authentication.mfa.header.title")
       }
@@ -287,10 +272,7 @@ public enum L10n {
     public enum MessageDetails {
       public enum Actions {
         /// Block contact
-        public static let block = L10n.tr(
-          "Localizable",
-          "content.message_details.actions.block"
-        )
+        public static let block = L10n.tr("Localizable", "content.message_details.actions.block")
         /// Encryption settings
         public static let encryptionSettings = L10n.tr(
           "Localizable",
@@ -307,10 +289,7 @@ public enum L10n {
           "content.message_details.actions.shared_files"
         )
         /// Actions
-        public static let title = L10n.tr(
-          "Localizable",
-          "content.message_details.actions.title"
-        )
+        public static let title = L10n.tr("Localizable", "content.message_details.actions.title")
       }
 
       public enum Information {
@@ -333,10 +312,7 @@ public enum L10n {
           "content.message_details.security.identity_verified"
         )
         /// Security
-        public static let title = L10n.tr(
-          "Localizable",
-          "content.message_details.security.title"
-        )
+        public static let title = L10n.tr("Localizable", "content.message_details.security.title")
       }
     }
   }
@@ -353,25 +329,16 @@ public enum L10n {
   public enum Settings {
     public enum Accounts {
       /// Address:
-      public static let addressLabel = L10n.tr(
-        "Localizable",
-        "settings.accounts.address_label"
-      )
+      public static let addressLabel = L10n.tr("Localizable", "settings.accounts.address_label")
       /// Enter your address...
       public static let addressPlaceholder = L10n.tr(
         "Localizable",
         "settings.accounts.address_placeholder"
       )
       /// Enabled:
-      public static let enabledLabel = L10n.tr(
-        "Localizable",
-        "settings.accounts.enabled_label"
-      )
+      public static let enabledLabel = L10n.tr("Localizable", "settings.accounts.enabled_label")
       /// Password:
-      public static let passwordLabel = L10n.tr(
-        "Localizable",
-        "settings.accounts.password_label"
-      )
+      public static let passwordLabel = L10n.tr("Localizable", "settings.accounts.password_label")
       /// Enter password...
       public static let passwordPlaceholder = L10n.tr(
         "Localizable",
@@ -388,15 +355,9 @@ public enum L10n {
         /// Account
         public static let account = L10n.tr("Localizable", "settings.accounts.tabs.account")
         /// Features
-        public static let features = L10n.tr(
-          "Localizable",
-          "settings.accounts.tabs.features"
-        )
+        public static let features = L10n.tr("Localizable", "settings.accounts.tabs.features")
         /// Security
-        public static let security = L10n.tr(
-          "Localizable",
-          "settings.accounts.tabs.security"
-        )
+        public static let security = L10n.tr("Localizable", "settings.accounts.tabs.security")
       }
     }
 
@@ -418,10 +379,7 @@ public enum L10n {
 
       public enum UpdateChannel {
         /// Update channel:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.advanced.update_channel.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.advanced.update_channel.label")
         /// Beta releases
         public static let optionBeta = L10n.tr(
           "Localizable",
@@ -498,10 +456,7 @@ public enum L10n {
 
     public enum General {
       /// Save downloads to:
-      public static let downloadsLabel = L10n.tr(
-        "Localizable",
-        "settings.general.downloads_label"
-      )
+      public static let downloadsLabel = L10n.tr("Localizable", "settings.general.downloads_label")
       /// When idle:
       public static let idleLabel = L10n.tr("Localizable", "settings.general.idle_label")
       /// Phone contacts:
@@ -578,10 +533,7 @@ public enum L10n {
     public enum Messages {
       public enum Composing {
         /// Composing:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.messages.composing.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.messages.composing.label")
         /// Let users know when I am typing
         public static let showWhenTypingToggle = L10n.tr(
           "Localizable",
@@ -611,10 +563,7 @@ public enum L10n {
 
       public enum Thumbnails {
         /// Image thumbnails:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.messages.thumbnails.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.messages.thumbnails.label")
         /// Large
         public static let sizeOptionLarge = L10n.tr(
           "Localizable",
@@ -641,10 +590,7 @@ public enum L10n {
           "settings.notifications.action.banner_toggle"
         )
         /// When notified:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.notifications.action.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.notifications.action.label")
         /// Play a sound
         public static let soundToggle = L10n.tr(
           "Localizable",
@@ -654,10 +600,7 @@ public enum L10n {
 
       public enum Handover {
         /// Mobile alerts:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.notifications.handover.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.notifications.handover.label")
         public enum ForwardMobile {
           /// 5 minutes
           public static let afterOptionFiveMinutes = L10n.tr(
@@ -715,10 +658,7 @@ public enum L10n {
 
       public enum Schedule {
         /// Get notified:
-        public static let label = L10n.tr(
-          "Localizable",
-          "settings.notifications.schedule.label"
-        )
+        public static let label = L10n.tr("Localizable", "settings.notifications.schedule.label")
         /// Evening
         public static let timeOptionEvening = L10n.tr(
           "Localizable",
@@ -782,10 +722,7 @@ public enum L10n {
       public enum Actions {
         public enum Account {
           /// Account actions
-          public static let label = L10n.tr(
-            "Localizable",
-            "sidebar.footer.actions.account.label"
-          )
+          public static let label = L10n.tr("Localizable", "sidebar.footer.actions.account.label")
           public enum AccountSettings {
             /// Account settings
             public static let title = L10n.tr(
@@ -816,12 +753,7 @@ public enum L10n {
               _ p1: UnsafePointer<CChar>,
               _ p2: UnsafePointer<CChar>
             ) -> String {
-              L10n.tr(
-                "Localizable",
-                "sidebar.footer.actions.account.header.label",
-                p1,
-                p2
-              )
+              L10n.tr("Localizable", "sidebar.footer.actions.account.header.label", p1, p2)
             }
           }
 
@@ -860,10 +792,7 @@ public enum L10n {
 
         public enum Server {
           /// Server actions
-          public static let label = L10n.tr(
-            "Localizable",
-            "sidebar.footer.actions.server.label"
-          )
+          public static let label = L10n.tr("Localizable", "sidebar.footer.actions.server.label")
           public enum ServerSettings {
             /// Server settings
             public static let title = L10n.tr(
@@ -882,11 +811,7 @@ public enum L10n {
           public enum SwitchAccount {
             /// Switch to %s
             public static func label(_ p1: UnsafePointer<CChar>) -> String {
-              L10n.tr(
-                "Localizable",
-                "sidebar.footer.actions.server.switch_account.label",
-                p1
-              )
+              L10n.tr("Localizable", "sidebar.footer.actions.server.switch_account.label", p1)
             }
 
             /// Switch account
@@ -926,10 +851,7 @@ public enum L10n {
 
     public enum Spotlight {
       /// Direct messages
-      public static let directMessages = L10n.tr(
-        "Localizable",
-        "sidebar.spotlight.direct_messages"
-      )
+      public static let directMessages = L10n.tr("Localizable", "sidebar.spotlight.direct_messages")
       /// People & groups
       public static let peopleAndGroups = L10n.tr(
         "Localizable",
@@ -956,10 +878,7 @@ public enum L10n {
       public enum Actions {
         public enum StartCall {
           /// Opens a window to start a new call.
-          public static let hint = L10n.tr(
-            "Localizable",
-            "sidebar.toolbar.actions.start_call.hint"
-          )
+          public static let hint = L10n.tr("Localizable", "sidebar.toolbar.actions.start_call.hint")
           /// Start a call
           public static let label = L10n.tr(
             "Localizable",

@@ -79,8 +79,7 @@ public struct ImageAsset {
     @available(iOS 8.0, tvOS 9.0, *)
     public func image(compatibleWith traitCollection: UITraitCollection) -> Image {
       let bundle = Bundle.fixedModule
-      guard let result = Image(named: name, in: bundle, compatibleWith: traitCollection)
-      else {
+      guard let result = Image(named: name, in: bundle, compatibleWith: traitCollection) else {
         fatalError("Unable to load image asset named \(self.name).")
       }
       return result

@@ -101,8 +101,7 @@ public extension ColorAsset {
     @available(iOS 11.0, tvOS 11.0, *)
     func uiColor(compatibleWith traitCollection: UITraitCollection) -> UIColor {
       let bundle = Bundle.fixedModule
-      guard let color = UIColor(named: name, in: bundle, compatibleWith: traitCollection)
-      else {
+      guard let color = UIColor(named: name, in: bundle, compatibleWith: traitCollection) else {
         fatalError("Unable to load color asset named \(self.name).")
       }
       return color
