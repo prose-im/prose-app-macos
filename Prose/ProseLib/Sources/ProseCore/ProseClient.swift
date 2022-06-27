@@ -2,88 +2,79 @@ import Foundation
 import ProseCoreClientFFI
 
 enum ProseClientError: Error {
-    case missingCredentials
+    case unsupportedCredentials
 }
 
-public final class ProseClient {
+public final class ProseClient: ProseClientProtocol {
     public private(set) weak var delegate: ProseClientDelegate?
 
-    private let client = ProseCoreClientFFI.Client()
+    private let client: ProseCoreClientFFI.Client
 
     /// When `true`, we're either already connected or in the midst of a connection attempt.
     private var isConnected = false
 
-    // Temporarily save these here until the core lib provides two methods for authentication
-    // and connection as well.
-    public private(set) var jid: String?
+    public var jid: BareJid {
+        self.client.jid()
+    }
 
     private var credential: Credential?
 
-    public init(delegate: ProseClientDelegate) {
+    public init(jid: BareJid, delegate: ProseClientDelegate) {
+        self.client = .init(jid: jid)
         self.delegate = delegate
+
+        if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
+            enableLogging()
+        }
     }
 
-    public func authenticate(jid: String, with credential: Credential) throws {
-        self.jid = jid
-        self.credential = credential
-    }
-
-    public func connect() throws {
+    public func connect(credential: Credential) throws {
         guard !self.isConnected else {
             // Nothing to do.
             return
         }
 
-        guard let jid = self.jid, case let .password(password) = self.credential else {
-            throw ProseClientError.missingCredentials
+        guard case let .password(password) = credential else {
+            throw ProseClientError.unsupportedCredentials
         }
 
-        do {
-            self.isConnected = true
-            // The core lib returns a (parsed) BareJid. Should we pass that to our client?
-            // Should probably happen in the `authenticate(jid:with:)` call already or we'd provide
-            // a helper function to validate Jids and only accept a parsed Jid.
-            _ = try self.client.connect(jid: jid, password: password, observer: self)
-        } catch {
-            self.isConnected = false
-            throw error
-        }
+        self.isConnected = true
+        try self.client.connect(password: password, observer: self)
     }
 
     public func disconnect() {
         // Hah. We're always on!
     }
 
-    public func sendMessage(to jid: String, text: String) throws {
-        try self.withAccount { accountJid in
-            self.client.sendMessage(accountJid: accountJid, receiverJid: jid, body: text)
-        }
+    public func sendMessage(
+        id: String,
+        to: BareJid,
+        text: String,
+        chatState: ChatState?
+    ) throws {
+        self.client.sendMessage(id: id, to: to, body: text, chatState: chatState)
+    }
+
+    public func updateMessage(
+        id: String,
+        newID: String,
+        to: BareJid,
+        text: String
+    ) throws {
+        self.client.updateMessage(id: id, newId: newID, to: to, body: text)
+    }
+
+    public func sendChatState(to: BareJid, chatState: ChatState) throws {
+        self.client.sendChatState(to: to, chatState: chatState)
+    }
+
+    public func sendPresence(show: ShowKind, status: String?) throws {
+        self.client.sendPresence(show: show, status: status)
     }
 
     public func loadRoster() throws {
-        try self.withAccount { accountJid in
-            self.client.loadRoster(accountJid: accountJid)
-        }
+        self.client.loadRoster()
     }
-}
-
-private extension ProseClient {
-    // The core lib really should save the account JID itself in the next iteration. For now we
-    // have this crutch…
-    func withAccount<T>(_ handler: (String) throws -> T) throws -> T {
-        guard let jid = self.jid else {
-            throw ProseClientError.missingCredentials
-        }
-        return try handler(jid)
-    }
-}
-
-public protocol ProseClientDelegate: AnyObject {
-    func proseClientDidConnect(_ client: ProseClient)
-    func proseClient(_ client: ProseClient, connectionDidFailWith error: Error?)
-
-    func proseClient(_ client: ProseClient, didReceiveRoster roster: ProseCoreClientFFI.Roster)
-    func proseClient(_ client: ProseClient, didReceiveMessage message: ProseCoreClientFFI.Message)
 }
 
 extension ProseClient: AccountObserver {
@@ -104,5 +95,9 @@ extension ProseClient: AccountObserver {
 
     public func didReceiveRoster(roster: ProseCoreClientFFI.Roster) {
         self.delegate?.proseClient(self, didReceiveRoster: roster)
+    }
+
+    public func didReceivePresence(presence: Presence) {
+        self.delegate?.proseClient(self, didReceivePresence: presence)
     }
 }

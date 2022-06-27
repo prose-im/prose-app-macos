@@ -5,7 +5,7 @@
 //  Created by Valerian Saliou on 11/24/21.
 //
 
-import SharedModels
+import ProseCoreTCA
 import SwiftUI
 
 public struct ContentCommonNameStatusComponent: View {

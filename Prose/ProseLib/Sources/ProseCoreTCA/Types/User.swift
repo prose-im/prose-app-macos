@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SharedModels
 
 /// Just a temporary `struct` that will be replaced by a real implementation later.
 /// It more or less represents a vCard.
@@ -48,7 +47,7 @@ public struct User: Equatable {
 public extension User {
     static var placeholder: User {
         User(
-            jid: "valerian@prose.org",
+            jid: .init(bareJid: .init(node: "valerian", domain: "prose.org")),
             displayName: "Valerian",
             fullName: "valerian Saliou",
             // FIXME: Allow setting avatar to `nil` to avoid importing `PreviewAssets`

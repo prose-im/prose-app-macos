@@ -5,7 +5,7 @@
 //  Created by Valerian Saliou on 11/15/21.
 //
 
-import SharedModels
+import ProseUI
 import SwiftUI
 
 struct IconRow: View {

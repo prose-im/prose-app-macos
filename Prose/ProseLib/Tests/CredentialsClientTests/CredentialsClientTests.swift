@@ -6,7 +6,7 @@
 //
 
 @testable import CredentialsClient
-import SharedModels
+import ProseCoreTCA
 import XCTest
 
 final class CredentialsStoreTests: XCTestCase {

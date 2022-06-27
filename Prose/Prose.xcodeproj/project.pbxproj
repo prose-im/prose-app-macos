@@ -18,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2C16617F2867F4400041E270 /* AllTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = AllTests.xctestplan; sourceTree = "<group>"; };
 		2C4F3D0D27F713E5004B79F3 /* ProseLib */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ProseLib; sourceTree = "<group>"; };
 		2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C4F3D1A27F73002004B79F3 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
@@ -112,9 +113,10 @@
 		52EA1170274C23C2007DA1C5 /* Prose */ = {
 			isa = PBXGroup;
 			children = (
-				2C4F3D1427F72F8B004B79F3 /* Resources */,
-				46D1758C2851D3A500C72BC0 /* ProseApp.swift */,
 				52EA117A274C23C3007DA1C5 /* Prose.entitlements */,
+				46D1758C2851D3A500C72BC0 /* ProseApp.swift */,
+				2C16617F2867F4400041E270 /* AllTests.xctestplan */,
+				2C4F3D1427F72F8B004B79F3 /* Resources */,
 			);
 			path = Prose;
 			sourceTree = "<group>";

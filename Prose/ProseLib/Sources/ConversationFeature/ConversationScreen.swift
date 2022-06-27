@@ -8,9 +8,9 @@
 import ComposableArchitecture
 import ConversationInfoFeature
 import ProseCoreTCA
-import SharedModels
 import SwiftUI
 import TcaHelpers
+import Toolbox
 
 // MARK: - View
 
@@ -88,8 +88,8 @@ public let conversationReducer: Reducer<
         case .onAppear:
             return environment.proseClient.messagesInChat(state.chatId)
                 .receive(on: environment.mainQueue)
-                .eraseToEffect()
-                .map(ConversationAction.messagesDidChange)
+                .catchToEffect()
+                .map(ConversationAction.messagesResult)
                 .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true)
 
         case .onDisappear:
@@ -107,8 +107,14 @@ public let conversationReducer: Reducer<
                 .eraseToEffect()
                 .fireAndForget()
 
-        case let .messagesDidChange(messages):
+        case let .messagesResult(.success(messages)):
             state.messages = messages
+            return environment.proseClient.markMessagesReadInChat(state.chatId).fireAndForget()
+
+        case let .messagesResult(.failure(error)):
+            logger.error(
+                "Could not load messages. \(error.localizedDescription, privacy: .public)"
+            )
             return .none
 
         case .toolbar(.binding(\.$isShowingInfo)):
@@ -161,7 +167,7 @@ public enum ConversationAction: Equatable {
     case onAppear
     case onDisappear
 
-    case messagesDidChange([Message])
+    case messagesResult(Result<[Message], EquatableError>)
 
     case info(ConversationInfoAction)
     case toolbar(ToolbarAction)
@@ -183,27 +189,30 @@ public struct ConversationEnvironment {
     }
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct ConversationScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-        var body: some View {
-            ConversationScreen(store: Store(
-                initialState: ConversationState(chatId: JID(rawValue: "alexandre@crisp.chat")),
-                reducer: conversationReducer,
-                environment: .init(proseClient: .noop, mainQueue: .main)
-            ))
-            .previewLayout(.sizeThatFits)
+    // MARK: - Previews
+
+    struct ConversationScreen_Previews: PreviewProvider {
+        private struct Preview: View {
+            var body: some View {
+                ConversationScreen(store: Store(
+                    initialState: ConversationState(chatId: "alexandre@crisp.chat"),
+                    reducer: conversationReducer,
+                    environment: .init(proseClient: .noop, mainQueue: .main)
+                ))
+                .previewLayout(.sizeThatFits)
+            }
+        }
+
+        static var previews: some View {
+            Preview()
+            Preview()
+                .preferredColorScheme(.dark)
+                .previewDisplayName("Dark mode")
+            Preview()
+                .redacted(reason: .placeholder)
+                .previewDisplayName("Placeholder")
         }
     }
-
-    static var previews: some View {
-        Preview()
-        Preview()
-            .preferredColorScheme(.dark)
-            .previewDisplayName("Dark mode")
-        Preview()
-            .redacted(reason: .placeholder)
-            .previewDisplayName("Placeholder")
-    }
-}
+#endif

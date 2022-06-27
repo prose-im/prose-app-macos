@@ -11,6 +11,7 @@ import ComposableArchitecture
 import ConversationFeature
 import ProseCoreTCA
 import SwiftUI
+import Toolbox
 
 struct ContentView: View {
     let store: Store<ConversationState, ConversationAction>
@@ -23,12 +24,12 @@ struct ContentView: View {
         client.sendMessage = { jid, body in
             .fireAndForget {
                 chatSubject.value.append(
-                    .init(from: jid, id: .selfAssigned(UUID()), kind: nil, body: body, timestamp: Date())
+                    .init(from: jid, id: .init(rawValue: UUID().uuidString), kind: nil, body: body, timestamp: Date(), isRead: true, isEdited: false)
                 )
             }
         }
         client.messagesInChat = { _ in
-            chatSubject.eraseToEffect()
+            chatSubject.setFailureType(to: EquatableError.self).eraseToEffect()
         }
 
         self.store = Store(

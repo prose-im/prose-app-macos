@@ -5,8 +5,8 @@
 //  Created by Valerian Saliou on 11/24/21.
 //
 
+import ProseCoreTCA
 import ProseUI
-import SharedModels
 import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.
