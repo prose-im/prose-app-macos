@@ -47,18 +47,18 @@ public struct AddMemberSheet: View {
         .overlay(alignment: .custom) {
           if !viewStore.suggestions.isEmpty {
 //          ScrollView(.vertical) {
-              VStack(alignment: .leading) {
-                ForEach(viewStore.suggestions, id: \.self) { suggestion in
-                  Button { print("\(suggestion) tapped") } label: {
-                    HStack(spacing: 4) {
-                      Avatar(.placeholder, size: 16)
-                      Text(verbatim: suggestion)
-                    }
+            VStack(alignment: .leading) {
+              ForEach(viewStore.suggestions, id: \.self) { suggestion in
+                Button { print("\(suggestion) tapped") } label: {
+                  HStack(spacing: 4) {
+                    Avatar(.placeholder, size: 16)
+                    Text(verbatim: suggestion)
                   }
                 }
               }
-              .frame(maxWidth: .infinity, alignment: .leading)
-              .padding(8)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(8)
 //          }
             .buttonStyle(.plain)
             .frame(maxHeight: 256)
@@ -143,7 +143,7 @@ public struct AddMemberSheet: View {
 extension VerticalAlignment {
   struct CustomAlignment: AlignmentID {
     static func defaultValue(in context: ViewDimensions) -> CGFloat {
-      return context[VerticalAlignment.bottom]
+      context[VerticalAlignment.bottom]
     }
   }
 

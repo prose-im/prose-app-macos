@@ -20,6 +20,7 @@ let package = Package(
       "EditProfileFeature",
       "MainWindowFeature",
       "ProseUI",
+      "SearchSuggestionsFeature",
       "SettingsFeature",
       "SidebarFeature",
       "UnreadFeature",
@@ -101,6 +102,14 @@ let package = Package(
         "CredentialsClient",
         .featureBase,
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
+      ]
+    ),
+    .target(
+      name: "SearchSuggestionsFeature",
+      dependencies: [.featureBase],
+      resources: [
+        .process("SuggestionsWindowController.xib"),
+        .process("TableCellView.xib"),
       ]
     ),
     .target(
