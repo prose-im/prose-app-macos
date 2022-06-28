@@ -108,7 +108,7 @@ let package = Package(
       name: "SearchSuggestionsFeature",
       dependencies: [.featureBase],
       resources: [
-        .process("SuggestionsWindowController.xib"),
+//        .process("SuggestionsWindowController.xib"),
         .process("TableCellView.xib"),
       ]
     ),

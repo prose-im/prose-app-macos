@@ -32,7 +32,13 @@ public struct SearchSuggestionsField: NSViewRepresentable {
 
     let text: Binding<String>
 
-    lazy var suggestionsWindowController = SuggestionsWindowController(owner: self)
+    lazy var vc = SuggestionsViewController()
+    lazy var window: NSWindow = {
+      let window: NSWindow = NSWindow(contentViewController: self.vc)
+      window.styleMask.remove(.titled)
+      return window
+    }()
+    lazy var wc = SuggestionsWindowController(window: self.window)
 
     init(text: Binding<String>) {
       self.text = text
@@ -51,25 +57,23 @@ public struct SearchSuggestionsField: NSViewRepresentable {
 }
 
 extension SearchSuggestionsField.Coordinator: NSTextFieldDelegate {
-  // This is just a test, trying to debug what's going on
-//  public func controlTextDidBeginEditing(_ notification: Notification) {
-//    guard let textField = notification.object as? NSTextField else { return }
-//    guard let textFieldWindow: NSWindow = textField.window else {
-//      fatalError("`textField` has no `window`")
-//    }
-//    suggestionsWindowController.awakeFromNib()
-//    let window = suggestionsWindowController.window!
-//    textFieldWindow.addChildWindow(window, ordered: .above)
-////    textFieldWindow.windowController.contentViewController!.addChild(self.suggestionsWindowController.contentViewController!)
-//  }
+  public func controlTextDidBeginEditing(_ notification: Notification) {
+    guard let textField = notification.object as? NSTextField else { return }
+
+    guard let textFieldWindow: NSWindow = textField.window else {
+      fatalError("`textField` has no `window`")
+    }
+    textFieldWindow.addChildWindow(self.window, ordered: .above)
+    textFieldWindow.contentViewController!.addChild(self.vc)
+  }
 
   public func controlTextDidChange(_ notification: Notification) {
     guard let textField = notification.object as? NSTextField else { return }
     self.text.wrappedValue = textField.stringValue
 
-    let filteredSuggestsions = Self.suggestions(for: textField.stringValue)
-    self.suggestionsWindowController.showSuggestions(
-      filteredSuggestsions,
+    let filteredSuggestions = Self.suggestions(for: textField.stringValue)
+    self.wc.showSuggestions(
+      filteredSuggestions,
       for: textField
     )
   }
@@ -80,17 +84,17 @@ extension SearchSuggestionsField.Coordinator: NSTextFieldDelegate {
     doCommandBy commandSelector: Selector
   ) -> Bool {
     if commandSelector == #selector(NSResponder.moveUp(_:)) {
-      self.suggestionsWindowController.moveUp()
+      self.vc.moveUp()
       return true
     } else if commandSelector == #selector(NSResponder.moveDown(_:)) {
-      self.suggestionsWindowController.moveDown()
+      self.vc.moveDown()
       return true
     } else if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-      guard let suggestion = self.suggestionsWindowController.currentSuggestion else { return false }
+      guard let suggestion = self.vc.currentSuggestion else { return false }
 
 //      searchField.stringValue = suggestion
 //      resultsLabel.stringValue = suggestion
-      self.suggestionsWindowController.orderOut()
+      self.wc.orderOut()
       return true
     }
 
