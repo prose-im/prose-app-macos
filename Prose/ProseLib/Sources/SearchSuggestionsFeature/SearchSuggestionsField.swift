@@ -32,7 +32,7 @@ public struct SearchSuggestionsField: NSViewRepresentable {
 
     let text: Binding<String>
 
-    lazy var suggestionsWindowController = SuggestionsWindowController()
+    lazy var suggestionsWindowController = SuggestionsWindowController(owner: self)
 
     init(text: Binding<String>) {
       self.text = text

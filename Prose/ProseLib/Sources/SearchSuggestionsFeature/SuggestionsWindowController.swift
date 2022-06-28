@@ -20,8 +20,9 @@ class SuggestionsWindowController: NSWindowController {
     return t
   }()
 
-  convenience init() {
-    self.init(windowNibName: String(describing: Self.self))
+  convenience init(owner: Any) {
+    let path = Bundle.module.path(forResource: String(describing: Self.self), ofType: "nib")!
+    self.init(windowNibPath: path, owner: owner)
   }
 
 //  override func awakeFromNib() {
