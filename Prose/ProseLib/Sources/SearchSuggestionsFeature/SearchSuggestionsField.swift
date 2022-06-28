@@ -15,11 +15,12 @@ public struct SearchSuggestionsField: NSViewRepresentable {
   public func makeNSView(context: Context) -> NSTextField {
     let textField = NSTextField(frame: .zero)
     textField.delegate = context.coordinator
+    textField.bezelStyle = .roundedBezel
 
     return textField
   }
 
-  public func updateNSView(_ textField: NSTextField, context: Context) {
+  public func updateNSView(_ textField: NSTextField, context _: Context) {
     textField.stringValue = self.text
   }
 
@@ -28,16 +29,47 @@ public struct SearchSuggestionsField: NSViewRepresentable {
   }
 
   public final class Coordinator: NSObject {
-    private static let suggestions = ["Al", "Bethany", "Billy", "Bob", "Bobby", "Lucas"]
+    private static let suggestions = [
+      "cram@prose.org",
+      "imer@prose.org",
+      "marc@prose.org",
+      "nairelav@prose.org",
+      "remi@prose.org",
+      "valerian@prose.org",
+    ]
 
     let text: Binding<String>
 
     lazy var vc = SuggestionsViewController()
     lazy var window: NSWindow = {
-      let window: NSWindow = NSWindow(contentViewController: self.vc)
+      let window = NSWindow(contentViewController: self.vc)
+
+      let visualEffect = NSVisualEffectView()
+      visualEffect.translatesAutoresizingMaskIntoConstraints = false
+      visualEffect.material = .hudWindow
+      visualEffect.state = .active
+      visualEffect.wantsLayer = true
+      visualEffect.layer?.cornerRadius = 8
+
+      window.titleVisibility = .hidden
       window.styleMask.remove(.titled)
+      window.styleMask.remove(.resizable)
+      window.backgroundColor = .clear
+      window.isMovableByWindowBackground = true
+
+      let contentView = window.contentView!
+      contentView.addSubview(visualEffect, positioned: .below, relativeTo: self.vc.tableView)
+
+      NSLayoutConstraint.activate([
+        visualEffect.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+        visualEffect.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+        visualEffect.topAnchor.constraint(equalTo: contentView.topAnchor),
+        visualEffect.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+      ])
+
       return window
     }()
+
     lazy var wc = SuggestionsWindowController(window: self.window)
 
     init(text: Binding<String>) {
@@ -47,8 +79,8 @@ public struct SearchSuggestionsField: NSViewRepresentable {
     private static func suggestions(for searchString: String) -> [String] {
       if searchString.isEmpty { return [] }
       let results = Self.suggestions.filter { string in
-        guard let range = string
-          .range(of: searchString, options: [.anchored, .caseInsensitive]) else { return false }
+        let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        guard let range = string.range(of: searchString, options: options) else { return false }
         return !range.isEmpty
       }
       return results
@@ -63,8 +95,8 @@ extension SearchSuggestionsField.Coordinator: NSTextFieldDelegate {
     guard let textFieldWindow: NSWindow = textField.window else {
       fatalError("`textField` has no `window`")
     }
-    textFieldWindow.addChildWindow(self.window, ordered: .above)
     textFieldWindow.contentViewController!.addChild(self.vc)
+    textFieldWindow.addChildWindow(self.window, ordered: .above)
   }
 
   public func controlTextDidChange(_ notification: Notification) {
@@ -92,8 +124,7 @@ extension SearchSuggestionsField.Coordinator: NSTextFieldDelegate {
     } else if commandSelector == #selector(NSResponder.insertNewline(_:)) {
       guard let suggestion = self.vc.currentSuggestion else { return false }
 
-//      searchField.stringValue = suggestion
-//      resultsLabel.stringValue = suggestion
+      self.text.wrappedValue = suggestion
       self.wc.orderOut()
       return true
     }

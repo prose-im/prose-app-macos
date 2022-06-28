@@ -9,9 +9,16 @@ import SwiftUI
 struct ContentView: View {
   @State private var text: String = "Start"
   var body: some View {
-    SearchSuggestionsField(text: $text)
-      .frame(minWidth: 256)
-      .padding()
+    VStack(alignment: .leading) {
+      Text("Search for a user 👇")
+        .font(.headline)
+      Text("You should see a popup appear, and be able to navigate with arrow keys.")
+        .font(.subheadline)
+      SearchSuggestionsField(text: $text)
+    }
+    .fixedSize(horizontal: false, vertical: true)
+    .frame(minWidth: 320)
+    .padding()
   }
 }
 
