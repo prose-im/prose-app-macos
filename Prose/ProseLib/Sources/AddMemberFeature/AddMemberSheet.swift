@@ -45,64 +45,30 @@ public struct AddMemberSheet: View {
         .onSubmit(of: .text) { viewStore.send(.submitTapped) }
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .custom) {
+          if !viewStore.suggestions.isEmpty {
 //          ScrollView(.vertical) {
-            VStack(alignment: .leading) {
-              Button {} label: {
-                HStack(spacing: 4) {
-                  Avatar(.placeholder, size: 16)
-                  Text(verbatim: "Valerian Saliou – valerian@prose.org")
+              VStack(alignment: .leading) {
+                ForEach(viewStore.suggestions, id: \.self) { suggestion in
+                  Button { print("\(suggestion) tapped") } label: {
+                    HStack(spacing: 4) {
+                      Avatar(.placeholder, size: 16)
+                      Text(verbatim: suggestion)
+                    }
+                  }
                 }
               }
-//              Button {} label: {
-//                HStack(spacing: 4) {
-//                  Avatar(.placeholder, size: 16)
-//                  Text(verbatim: "Marc Bauer – marc@prose.org")
-//                }
-//              }
-//              Button {} label: {
-//                HStack(spacing: 4) {
-//                  Avatar(.placeholder, size: 16)
-//                  Text(verbatim: "Rémi Bardon – remi@prose.org")
-//                }
-//              }
-//              Button {} label: {
-//                HStack(spacing: 4) {
-//                  Avatar(.placeholder, size: 16)
-//                  Text(verbatim: "The other Valerian – nairelav@prose.org")
-//                }
-//              }
-//              Button {} label: {
-//                HStack(spacing: 4) {
-//                  Avatar(.placeholder, size: 16)
-//                  Text(verbatim: "The other Marc – cram@prose.org")
-//                }
-//              }
-//              Button {} label: {
-//                HStack(spacing: 4) {
-//                  Avatar(.placeholder, size: 16)
-//                  Text(verbatim: "The other Rémi – imer@prose.org")
-//                }
-//              }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-//            .padding(4) // For scaled background
-            .padding(8) // For not scaled background
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(8)
 //          }
-          .buttonStyle(.plain)
-          .frame(maxHeight: 256)
-//          .background {
-//            RoundedRectangle(cornerRadius: 8, style: .continuous)
-//              .fill(.ultraThickMaterial)
-//              .scaleEffect(1.03125)
-//              .shadow(radius: 1, y: 1)
-//          }
-          // The background, not scaled
-          .background(.ultraThickMaterial, in: RoundedRectangle(cornerRadius: 8))
-          // Apply the shadow to the whole view, not every child view
-          .compositingGroup()
-          .shadow(radius: 1, y: 1)
-          // Offset a bit to avoid the text field outline
-          .alignmentGuide(.custom) { $0[VerticalAlignment.top] - 3 }
+            .buttonStyle(.plain)
+            .frame(maxHeight: 256)
+            .background(Material.regular, in: RoundedRectangle(cornerRadius: 8))
+            // Apply the shadow to the whole view, not every child view
+            .compositingGroup()
+            .shadow(radius: 1, y: 1)
+            // Offset a bit to avoid the text field outline
+            .alignmentGuide(.custom) { $0[VerticalAlignment.top] - 3 }
+          }
         }
         .zIndex(1)
         Self.infoMessage(for: viewStore.info)
@@ -188,7 +154,7 @@ extension Alignment {
   static let custom = Alignment(horizontal: .center, vertical: .custom)
 }
 
-// MARK: - The Composabe Architecture
+// MARK: - The Composable Architecture
 
 // MARK: Reducer
 
@@ -206,6 +172,12 @@ public let addMemberReducer = Reducer<
 
   case let .didCheckText(text):
     state.isProcessing = false
+    state.suggestions = ["Valerian Saliou – valerian@prose.org"]
+//    "Marc Bauer – marc@prose.org"
+//    "Rémi Bardon – remi@prose.org"
+//    "The other Valerian – nairelav@prose.org"
+//    "The other Marc – cram@prose.org"
+//    "The other Rémi – imer@prose.org"
 
     switch text {
     case "":
@@ -248,6 +220,8 @@ public struct AddMemberSheetState: Equatable {
   var info: InfoMessage
   var isProcessing: Bool
 
+  var suggestions: [String]
+
   @BindableState var text: String
 
   var isFormValid: Bool {
@@ -262,11 +236,13 @@ public struct AddMemberSheetState: Equatable {
   public init(
     text: String = "",
     info: InfoMessage = .none,
-    isProcessing: Bool = false
+    isProcessing: Bool = false,
+    suggestions: [String] = ["Valerian Saliou – valerian@prose.org"]
   ) {
     self.text = text
     self.info = info
     self.isProcessing = isProcessing
+    self.suggestions = suggestions
   }
 }
 
