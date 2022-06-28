@@ -7,6 +7,5 @@ import Cocoa
 
 /// - Copyright: https://github.com/lucasderraugh/AppleProg-Cocoa-Tutorials/tree/master/Lesson%2090
 class TableCellView: NSTableCellView {
-  static let nib = NSNib(nibNamed: String(describing: TableCellView.self), bundle: .module)
   static let identifier = NSUserInterfaceItemIdentifier(String(describing: TableCellView.self))
 }

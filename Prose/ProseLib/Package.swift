@@ -104,14 +104,7 @@ let package = Package(
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
     ),
-    .target(
-      name: "SearchSuggestionsFeature",
-      dependencies: [.featureBase],
-      resources: [
-//        .process("SuggestionsWindowController.xib"),
-        .process("TableCellView.xib"),
-      ]
-    ),
+    .target(name: "SearchSuggestionsFeature", dependencies: [.featureBase]),
     .target(
       name: "UnreadFeature",
       dependencies: [
