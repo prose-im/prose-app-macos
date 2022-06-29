@@ -55,6 +55,11 @@ struct ContentView: View {
     .fixedSize(horizontal: false, vertical: true)
     .frame(minWidth: 320)
     .padding()
+    .onChange(of: self.selection) { newValue in
+      guard let newValue = newValue else { return }
+      guard let suggestion = self.suggestions[id: newValue] else { return }
+      self.text = suggestion.jid
+    }
   }
 
   private static func suggestions(for searchString: String) -> [Suggestion] {
