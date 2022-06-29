@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import IdentifiedCollections
 import SearchSuggestionsFeature
 import SwiftUI
 
@@ -10,7 +11,7 @@ struct SuggestionsList: View, SuggestionsViewProtocol {
   static let rowHeight: CGFloat = 24
   static let listVerticalPadding: CGFloat = 20
 
-  let suggestions: [Suggestion]
+  let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
 
   var shouldBeVisible: Bool { !self.suggestions.isEmpty }

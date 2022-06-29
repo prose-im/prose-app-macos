@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import IdentifiedCollections
 import SearchSuggestionsFeature
 import SwiftUI
 
@@ -23,7 +24,9 @@ struct ContentView: View {
     .init(jid: "nairelav@prose.org", name: "The other Valerian Saliou"),
   ]
 
-  private var suggestions: [Suggestion] { Self.suggestions(for: self.text) }
+  private var suggestions: IdentifiedArrayOf<Suggestion> {
+    IdentifiedArray(uniqueElements: Self.suggestions(for: self.text))
+  }
 
   @State private var text: String = ""
   @State private var selection: Suggestion.ID?
@@ -54,9 +57,6 @@ struct ContentView: View {
     .fixedSize(horizontal: false, vertical: true)
     .frame(minWidth: 320)
     .padding()
-    .onChange(of: self.text) { _ in
-      print("suggestions: \(self.suggestions.map(\.jid))")
-    }
   }
 
   private static func suggestions(for searchString: String) -> [Suggestion] {
@@ -71,28 +71,27 @@ struct ContentView: View {
   }
 
   func moveUp() -> Bool {
-    guard let selection = self.selection else { return false }
-    guard let index = self.suggestions.firstIndex(where: { $0.id == selection })
-    else { return false }
-    let newIndex = max(index - 1, 0)
+    guard let selection: Suggestion.ID = self.selection else { return false }
+    guard let index: Int = self.suggestions.index(id: selection) else { return false }
+    let newIndex: Int = max(index - 1, 0)
     self.selection = self.suggestions[newIndex].id
     return true
   }
 
   func moveDown() -> Bool {
-    let index: Int? = self.selection.flatMap { selection in
-      self.suggestions.firstIndex(where: { $0.id == selection })
+    if let index: Int = self.selection.flatMap(self.suggestions.index(id:)) {
+      let newIndex: Int = min(index + 1, self.suggestions.count - 1)
+      self.selection = self.suggestions[newIndex].id
+      return true
+    } else {
+      self.selection = self.suggestions[0].id
+      return true
     }
-    let newIndex = min((index ?? -1) + 1, self.suggestions.count - 1)
-    if newIndex < 0 { self.selection = nil; return false }
-    self.selection = self.suggestions[newIndex].id
-    return true
   }
 
   func confirmSelection() -> (Bool, Bool) {
     guard let selection = self.selection else { return (false, false) }
-    guard let index = self.suggestions.firstIndex(where: { $0.id == selection })
-    else { return (false, false) }
+    guard let index = self.suggestions.index(id: selection) else { return (false, false) }
     self.text = self.suggestions[index].jid
     return (true, true)
   }

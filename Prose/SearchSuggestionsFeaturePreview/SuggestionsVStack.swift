@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import IdentifiedCollections
 import SearchSuggestionsFeature
 import SwiftUI
 
@@ -10,7 +11,7 @@ struct SuggestionsVStack: View, SuggestionsViewProtocol {
   static let rowHeight: CGFloat = 24
   static let stackVerticalPadding: CGFloat = 16
 
-  let suggestions: [Suggestion]
+  let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
 
   var shouldBeVisible: Bool { !self.suggestions.isEmpty }
