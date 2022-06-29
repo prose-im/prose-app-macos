@@ -42,24 +42,27 @@ struct ContentView: View {
         showSuggestions: !self.suggestions.isEmpty,
         handleKeyboardEvent: self.handleKeyboardEvent
       ) {
-        SuggestionsVStack(suggestions: self.suggestions, selection: self.$selection)
+        SuggestionsVStack(
+          suggestions: self.suggestions,
+          selection: self.$selection,
+          select: { self.text = $0.jid }
+        )
       }
       SearchSuggestionsField(
         text: self.$text,
         showSuggestions: !self.suggestions.isEmpty,
         handleKeyboardEvent: self.handleKeyboardEvent
       ) {
-        SuggestionsList(suggestions: self.suggestions, selection: self.$selection)
+        SuggestionsList(
+          suggestions: self.suggestions,
+          selection: self.$selection,
+          select: { self.text = $0.jid }
+        )
       }
     }
     .fixedSize(horizontal: false, vertical: true)
     .frame(minWidth: 320)
     .padding()
-    .onChange(of: self.selection) { newValue in
-      guard let newValue = newValue else { return }
-      guard let suggestion = self.suggestions[id: newValue] else { return }
-      self.text = suggestion.jid
-    }
   }
 
   private static func suggestions(for searchString: String) -> [Suggestion] {

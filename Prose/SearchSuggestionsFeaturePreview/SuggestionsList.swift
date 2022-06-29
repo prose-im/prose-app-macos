@@ -14,11 +14,15 @@ struct SuggestionsList: View {
   let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
 
+  let select: (Suggestion) -> Void
+
   var body: some View {
     List(selection: self.$selection) {
       ForEach(self.suggestions) { suggestion in
-        Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
-          .tag(suggestion.id)
+        Button { self.select(suggestion) } label: {
+          Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
+            .tag(suggestion.id)
+        }
       }
     }
     .buttonStyle(.plain)

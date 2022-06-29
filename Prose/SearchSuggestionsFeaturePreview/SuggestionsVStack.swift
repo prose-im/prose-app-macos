@@ -14,10 +14,12 @@ struct SuggestionsVStack: View {
   let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
 
+  let select: (Suggestion) -> Void
+
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ForEach(self.suggestions) { suggestion in
-        Button { self.selection = suggestion.id } label: {
+        Button { self.select(suggestion) } label: {
           Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
             .tag(suggestion.id)
             .frame(maxWidth: .infinity, alignment: .leading)
