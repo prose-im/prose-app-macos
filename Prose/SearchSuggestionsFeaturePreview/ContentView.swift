@@ -37,20 +37,10 @@ struct ContentView: View {
         .font(.headline)
       Text("You should see a popup appear, and be able to navigate with arrow keys.")
         .font(.subheadline)
-      SearchSuggestionsField(
-        text: self.$text,
-        moveUp: self.moveUp,
-        moveDown: self.moveDown,
-        confirmSelection: self.confirmSelection
-      ) {
+      SearchSuggestionsField(text: self.$text, handleKeyboardEvent: self.handleKeyboardEvent) {
         SuggestionsVStack(suggestions: self.suggestions, selection: self.$selection)
       }
-      SearchSuggestionsField(
-        text: self.$text,
-        moveUp: self.moveUp,
-        moveDown: self.moveDown,
-        confirmSelection: self.confirmSelection
-      ) {
+      SearchSuggestionsField(text: self.$text, handleKeyboardEvent: self.handleKeyboardEvent) {
         SuggestionsList(suggestions: self.suggestions, selection: self.$selection)
       }
     }
@@ -70,35 +60,39 @@ struct ContentView: View {
     return results
   }
 
-  func moveUp() -> Bool {
-    guard let selection: Suggestion.ID = self.selection else { return false }
-    guard let index: Int = self.suggestions.index(id: selection) else { return false }
-    let newIndex: Int = max(index - 1, 0)
-    self.selection = self.suggestions[newIndex].id
-    return true
-  }
-
-  func moveDown() -> Bool {
-    if let index: Int = self.selection.flatMap(self.suggestions.index(id:)) {
-      let newIndex: Int = min(index + 1, self.suggestions.count - 1)
-      self.selection = self.suggestions[newIndex].id
-      return true
-    } else {
-      self.selection = self.suggestions[0].id
-      return true
+  func handleKeyboardEvent(event: SearchSuggestionEvent) -> SearchSuggestionEventResult {
+    switch event {
+    case .moveDown:
+      return self.moveDown()
+    case .moveUp:
+      return self.moveUp()
+    case .confirmSelection:
+      return self.confirmSelection()
     }
   }
 
-  func confirmSelection() -> (Bool, Bool) {
-    guard let selection = self.selection else { return (false, false) }
-    guard let index = self.suggestions.index(id: selection) else { return (false, false) }
-    self.text = self.suggestions[index].jid
-    return (true, true)
+  func moveUp() -> SearchSuggestionEventResult {
+    guard let selection: Suggestion.ID = self.selection else { return .notHandled }
+    guard let index: Int = self.suggestions.index(id: selection) else { return .notHandled }
+    let newIndex: Int = max(index - 1, 0)
+    self.selection = self.suggestions[newIndex].id
+    return .handled
   }
-}
 
-struct ContentView_Previews: PreviewProvider {
-  static var previews: some View {
-    ContentView()
+  func moveDown() -> SearchSuggestionEventResult {
+    if let index: Int = self.selection.flatMap(self.suggestions.index(id:)) {
+      let newIndex: Int = min(index + 1, self.suggestions.count - 1)
+      self.selection = self.suggestions[newIndex].id
+    } else {
+      self.selection = self.suggestions[0].id
+    }
+    return .handled
+  }
+
+  func confirmSelection() -> SearchSuggestionEventResult {
+    guard let selection = self.selection else { return .notHandled }
+    guard let index = self.suggestions.index(id: selection) else { return .notHandled }
+    self.text = self.suggestions[index].jid
+    return .close
   }
 }

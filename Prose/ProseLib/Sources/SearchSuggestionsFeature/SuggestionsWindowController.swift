@@ -6,13 +6,45 @@
 import Cocoa
 import SwiftUI
 
-/// - Copyright: https://github.com/lucasderraugh/AppleProg-Cocoa-Tutorials/tree/master/Lesson%2090
 class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowController {
-  weak var vc: SuggestionsViewController<Content>?
+  let vc: SuggestionsViewController<Content>
 
-  override init(window: NSWindow?) {
+  init(vc: @escaping () -> SuggestionsViewController<Content>) {
+    self.vc = vc()
+
+    let window = NSWindow(contentViewController: self.vc)
+
+    // Remove the title bar
+    window.styleMask.remove(.titled)
+    // Disable window resizing
+    window.styleMask.remove(.resizable)
+    // Remove the default background
+    window.backgroundColor = .clear
+
+    let background = NSVisualEffectView()
+    // Set the background to the system material used for HUDs
+    background.material = .hudWindow
+    // Activate the effect
+    background.state = .active
+    // Allow corner clipping (otherwise the radius won't apply)
+    background.wantsLayer = true
+    // Set the corner radius
+    background.layer?.cornerRadius = 8
+
+    let contentView = window.contentView!
+    // Add the background under the hosted view
+    contentView.addSubview(background, positioned: .below, relativeTo: self.vc.hc.view)
+
+    // Make sure the background always fills the full view
+    background.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+      background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+      background.topAnchor.constraint(equalTo: contentView.topAnchor),
+      background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+    ])
+
     super.init(window: window)
-    self.vc = window?.windowController?.contentViewController as? SuggestionsViewController<Content>
   }
 
   @available(*, unavailable)
@@ -25,21 +57,30 @@ class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowCon
   }
 
   func showSuggestions(for textField: NSTextField) {
-    guard let vc = self.vc else { return self.orderOut() }
-    if !vc.reload() { return self.orderOut() }
+    // Hide the view if there is nothing to show
+    #warning("We should find another way to do this")
+    if !self.vc.content().shouldBeVisible { return self.orderOut() }
 
-    guard let textFieldWindow = textField.window, let window = self.window else {
-      fatalError("`window` is `nil`")
+    // Fail gracefully if we cannot show the window
+    guard let textFieldWindow = textField.window else {
+      return logger.error("`textField` has no `window`")
     }
+    guard let window = self.window else {
+      return logger.error("`window` is `nil`")
+    }
+
+    // Move the window under the text field
     var textFieldRect = textField.convert(textField.bounds, to: nil)
     textFieldRect = textFieldWindow.convertToScreen(textFieldRect)
-    textFieldRect.origin.y -= 1
     window.setFrameTopLeftPoint(textFieldRect.origin)
 
+    // Make the window a little bigger than the text field
     var frame = window.frame
     frame.size.width = textField.frame.width + 16
     frame.origin.x -= 8
     window.setFrame(frame, display: false)
+
+    // Add the window on screen
     textFieldWindow.addChildWindow(window, ordered: .above)
   }
 }

@@ -22,29 +22,24 @@ final class SuggestionsViewController<Content: SuggestionsViewProtocol>: NSViewC
   }
 
   override func loadView() {
+    // Set `self.view` so AppKit doesn't try to load a `nib` file
     self.view = NSView()
   }
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.hc.rootView = self.content()
+    // Add the hosted view
     self.addChild(self.hc)
-
     self.view.addSubview(self.hc.view)
+
+    // Make sure the hosted view always fills the full view
     self.hc.view.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
       self.hc.view.topAnchor.constraint(equalTo: self.view.topAnchor),
       self.hc.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
       self.hc.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
       self.hc.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-//      self.hc.view.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
     ])
-  }
-
-  func reload() -> Bool {
-    let content = self.content()
-    self.hc.rootView = content
-    return content.shouldBeVisible
   }
 }

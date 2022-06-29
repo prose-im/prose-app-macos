@@ -5,6 +5,27 @@
 
 import SwiftUI
 
+public enum SearchSuggestionEvent: Equatable {
+  /// The user hit the down arrow key.
+  case moveDown
+  /// The user hit the up arrow key.
+  case moveUp
+  /// The user hit the return key.
+  case confirmSelection
+}
+
+public enum SearchSuggestionEventResult: Equatable {
+  /// The event was not handled.
+  case notHandled
+  /// The event was handled, but the window should be kept open.
+  case handled
+  /// The window should be closed.
+  case close
+
+  var handled: Bool { self != .notHandled }
+  var orderOut: Bool { self == .close }
+}
+
 public protocol SuggestionsViewProtocol: View {
   var shouldBeVisible: Bool { get }
 }
@@ -13,119 +34,79 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
   @Binding var text: String
   let suggestionsView: () -> SuggestionsView
 
-  let moveUp: () -> Bool
-  let moveDown: () -> Bool
-  let confirmSelection: () -> (Bool, Bool)
+  let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
 
   public init(
     text: Binding<String>,
-    moveUp: @escaping () -> Bool,
-    moveDown: @escaping () -> Bool,
-    confirmSelection: @escaping () -> (Bool, Bool),
+    handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult = { _ in
+      .notHandled
+    },
     @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
   ) {
     self._text = text
     self.suggestionsView = suggestionsView
-    self.moveUp = moveUp
-    self.moveDown = moveDown
-    self.confirmSelection = confirmSelection
+    self.handleKeyboardEvent = handleKeyboardEvent
   }
 
   public func makeNSView(context: Context) -> NSTextField {
     let textField = NSTextField(frame: .zero)
     textField.delegate = context.coordinator
+
+    // Make text field rounded
     textField.bezelStyle = .roundedBezel
 
     return textField
   }
 
   public func updateNSView(_ textField: NSTextField, context _: Context) {
-    textField.stringValue = self.text
+    // Update the text field text if this update came from SwiftUI
+    if textField.stringValue != self.text {
+      textField.stringValue = self.text
+    }
   }
 
   public func makeCoordinator() -> Coordinator {
     Coordinator(
       text: self._text,
-      vc: { SuggestionsViewController(content: self.suggestionsView) },
-      moveUp: self.moveUp,
-      moveDown: self.moveDown,
-      confirmSelection: self.confirmSelection
+      wc: {
+        SuggestionsWindowController(vc: { SuggestionsViewController(content: self.suggestionsView)
+        })
+      },
+      handleKeyboardEvent: self.handleKeyboardEvent
     )
   }
 
   public final class Coordinator: NSObject, NSTextFieldDelegate {
     let text: Binding<String>
 
-    let moveUp: () -> Bool
-    let moveDown: () -> Bool
-    let confirmSelection: () -> (Bool, Bool)
+    let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
 
-    let _vc: () -> SuggestionsViewController<SuggestionsView>
+    let _wc: () -> SuggestionsWindowController<SuggestionsView>
 
-    lazy var vc = _vc()
-    lazy var window: NSWindow = {
-      let window = NSWindow(contentViewController: self.vc)
-
-      let visualEffect = NSVisualEffectView()
-      visualEffect.translatesAutoresizingMaskIntoConstraints = false
-      visualEffect.material = .hudWindow
-      visualEffect.state = .active
-      visualEffect.wantsLayer = true
-      visualEffect.layer?.cornerRadius = 8
-
-      window.titleVisibility = .hidden
-      window.styleMask.remove(.titled)
-      window.styleMask.remove(.resizable)
-      window.backgroundColor = .clear
-
-      let contentView = window.contentView!
-      contentView.addSubview(visualEffect, positioned: .below, relativeTo: self.vc.hc.view)
-
-      NSLayoutConstraint.activate([
-        visualEffect.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-        visualEffect.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-        visualEffect.topAnchor.constraint(equalTo: contentView.topAnchor),
-        visualEffect.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-      ])
-
-      return window
-    }()
-
-    lazy var wc = SuggestionsWindowController<SuggestionsView>(window: self.window)
+    lazy var wc: SuggestionsWindowController<SuggestionsView> = self._wc()
 
     init(
       text: Binding<String>,
-      vc: @escaping () -> SuggestionsViewController<SuggestionsView>,
-      moveUp: @escaping () -> Bool,
-      moveDown: @escaping () -> Bool,
-      confirmSelection: @escaping () -> (Bool, Bool)
+      wc: @escaping () -> SuggestionsWindowController<SuggestionsView>,
+      handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult
     ) {
       self.text = text
-      self._vc = vc
-      self.moveUp = moveUp
-      self.moveDown = moveDown
-      self.confirmSelection = confirmSelection
-    }
-
-    public func controlTextDidBeginEditing(_ notification: Notification) {
-      guard let textField = notification.object as? NSTextField else { return }
-
-      guard let textFieldWindow: NSWindow = textField.window else {
-        fatalError("`textField` has no `window`")
-      }
-      textFieldWindow.contentViewController!.addChild(self.window.contentViewController!)
-      textFieldWindow.addChildWindow(self.window, ordered: .above)
-
-      self.wc.showSuggestions(for: textField)
+      self._wc = wc
+      self.handleKeyboardEvent = handleKeyboardEvent
     }
 
     public func controlTextDidEndEditing(_: Notification) {
+      // Hide the popover window when the user focuses another control in the app
       self.wc.orderOut()
     }
 
     public func controlTextDidChange(_ notification: Notification) {
       guard let textField = notification.object as? NSTextField else { return }
+
+      // Send the text update to SwiftUI
       self.text.wrappedValue = textField.stringValue
+
+      // Show the window if needed
       self.wc.showSuggestions(for: textField)
     }
 
@@ -134,17 +115,21 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
       textView _: NSTextView,
       doCommandBy commandSelector: Selector
     ) -> Bool {
-      if commandSelector == #selector(NSResponder.moveUp(_:)) {
-        return self.moveUp()
-      } else if commandSelector == #selector(NSResponder.moveDown(_:)) {
-        return self.moveDown()
-      } else if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-        let (handled, orderOut) = self.confirmSelection()
-        if orderOut { self.wc.orderOut() }
-        return handled
+      let event: SearchSuggestionEvent
+      switch commandSelector {
+      case #selector(NSResponder.moveUp(_:)):
+        event = .moveUp
+      case #selector(NSResponder.moveDown(_:)):
+        event = .moveDown
+      case #selector(NSResponder.insertNewline(_:)):
+        event = .confirmSelection
+      default:
+        return false
       }
 
-      return false
+      let res = self.handleKeyboardEvent(event)
+      if res.orderOut { self.wc.orderOut() }
+      return res.handled
     }
   }
 }
