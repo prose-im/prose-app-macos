@@ -42,14 +42,22 @@ struct ContentView: View {
         showSuggestions: !self.suggestions.isEmpty,
         handleKeyboardEvent: self.handleKeyboardEvent
       ) {
-        SuggestionsVStack(suggestions: self.suggestions, selection: self.$selection)
+        SuggestionsVStack(
+          suggestions: self.suggestions,
+          selection: self.$selection,
+          select: { self.text = $0.jid }
+        )
       }
       SearchSuggestionsField(
         text: self.$text,
         showSuggestions: !self.suggestions.isEmpty,
         handleKeyboardEvent: self.handleKeyboardEvent
       ) {
-        SuggestionsList(suggestions: self.suggestions, selection: self.$selection)
+        SuggestionsList(
+          suggestions: self.suggestions,
+          selection: self.$selection,
+          select: { self.text = $0.jid }
+        )
       }
     }
     .fixedSize(horizontal: false, vertical: true)
