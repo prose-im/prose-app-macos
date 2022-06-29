@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.5fd84779.css"><script src="messaging.d1056e2d.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" :class="[
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.edfd3c8d.css"><script src="messaging.2b3b920a.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" :class="[
       'app--' + $context.style.theme,
       {
         'app--visible': isReady
@@ -11,4 +11,4 @@
           {
             'message-file-inner--expanded': isExpanded
           }
-        ]"> <span class="message-file-expander" @click="onExpanderClick"> {{ file.name }} </span> <a v-if="presentation === 'image'" :href="file.url" class="message-file-image" target="_blank" rel="noopener noreferrer"> <img v-if="imageSize" :src="file.url" :width="imageSize.width || null" :height="imageSize.height || null" alt=""> </a> <ul v-else-if="presentation === 'other'" class="message-file-other"> <li> <a :href="file.url" :download="file.name || file.url" rel="noopener noreferrer" class="message-file-other-option message-file-other-option--get"></a> </li> </ul> </span> </template> </body></html>
+        ]"> <span class="message-file-expander" @click="onExpanderClick"> {{ file.name }} </span> <a v-if="presentation === 'image'" :href="file.url" class="message-file-image" target="_blank" rel="noopener"> <img v-if="imageSize" :src="file.url" :width="imageSize.width || null" :height="imageSize.height || null" alt=""> </a> <ul v-else-if="presentation === 'other'" class="message-file-other"> <li> <a :href="file.url" :download="file.name || file.url" rel="noopener" class="message-file-other-option message-file-other-option--get"></a> </li> </ul> </span> </template> </body></html>
