@@ -7,7 +7,7 @@ import Cocoa
 import SwiftUI
 
 /// - Copyright: https://github.com/lucasderraugh/AppleProg-Cocoa-Tutorials/tree/master/Lesson%2090
-class SuggestionsWindowController<Content: View>: NSWindowController {
+class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowController {
   weak var vc: SuggestionsViewController<Content>?
 
   override init(window: NSWindow?) {
@@ -26,6 +26,7 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
 
   func showSuggestions(for textField: NSTextField) {
     guard let vc = self.vc else { return self.orderOut() }
+    if !vc.reload() { return self.orderOut() }
 
     guard let textFieldWindow = textField.window, let window = self.window else {
       fatalError("`window` is `nil`")
@@ -40,7 +41,5 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
     frame.origin.x -= 8
     window.setFrame(frame, display: false)
     textFieldWindow.addChildWindow(window, ordered: .above)
-
-    vc.reload()
   }
 }
