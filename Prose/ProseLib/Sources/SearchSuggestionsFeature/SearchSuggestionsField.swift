@@ -5,6 +5,16 @@
 
 import SwiftUI
 
+public enum SearchSuggestionEvent: Equatable {
+  case moveDown, moveUp, confirmSelection
+}
+public enum SearchSuggestionEventResult: Equatable {
+  case notHandled, handled, close
+
+  var handled: Bool { self != .notHandled }
+  var orderOut: Bool { self == .close }
+}
+
 public protocol SuggestionsViewProtocol: View {
   var shouldBeVisible: Bool { get }
 }
@@ -13,22 +23,16 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
   @Binding var text: String
   let suggestionsView: () -> SuggestionsView
 
-  let moveUp: () -> Bool
-  let moveDown: () -> Bool
-  let confirmSelection: () -> (Bool, Bool)
+  let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
 
   public init(
     text: Binding<String>,
-    moveUp: @escaping () -> Bool,
-    moveDown: @escaping () -> Bool,
-    confirmSelection: @escaping () -> (Bool, Bool),
+    handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult = { _ in .notHandled },
     @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
   ) {
     self._text = text
     self.suggestionsView = suggestionsView
-    self.moveUp = moveUp
-    self.moveDown = moveDown
-    self.confirmSelection = confirmSelection
+    self.handleKeyboardEvent = handleKeyboardEvent
   }
 
   public func makeNSView(context: Context) -> NSTextField {
@@ -47,18 +51,14 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
     Coordinator(
       text: self._text,
       vc: { SuggestionsViewController(content: self.suggestionsView) },
-      moveUp: self.moveUp,
-      moveDown: self.moveDown,
-      confirmSelection: self.confirmSelection
+      handleKeyboardEvent: self.handleKeyboardEvent
     )
   }
 
   public final class Coordinator: NSObject, NSTextFieldDelegate {
     let text: Binding<String>
 
-    let moveUp: () -> Bool
-    let moveDown: () -> Bool
-    let confirmSelection: () -> (Bool, Bool)
+    let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
 
     let _vc: () -> SuggestionsViewController<SuggestionsView>
 
@@ -96,15 +96,11 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
     init(
       text: Binding<String>,
       vc: @escaping () -> SuggestionsViewController<SuggestionsView>,
-      moveUp: @escaping () -> Bool,
-      moveDown: @escaping () -> Bool,
-      confirmSelection: @escaping () -> (Bool, Bool)
+      handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult
     ) {
       self.text = text
       self._vc = vc
-      self.moveUp = moveUp
-      self.moveDown = moveDown
-      self.confirmSelection = confirmSelection
+      self.handleKeyboardEvent = handleKeyboardEvent
     }
 
     public func controlTextDidBeginEditing(_ notification: Notification) {
@@ -134,17 +130,21 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
       textView _: NSTextView,
       doCommandBy commandSelector: Selector
     ) -> Bool {
-      if commandSelector == #selector(NSResponder.moveUp(_:)) {
-        return self.moveUp()
-      } else if commandSelector == #selector(NSResponder.moveDown(_:)) {
-        return self.moveDown()
-      } else if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-        let (handled, orderOut) = self.confirmSelection()
-        if orderOut { self.wc.orderOut() }
-        return handled
+      let event: SearchSuggestionEvent
+      switch commandSelector {
+      case #selector(NSResponder.moveUp(_:)):
+        event = .moveUp
+      case #selector(NSResponder.moveDown(_:)):
+        event = .moveDown
+      case #selector(NSResponder.insertNewline(_:)):
+        event = .confirmSelection
+      default:
+        return false
       }
 
-      return false
+      let res = self.handleKeyboardEvent(event)
+      if res.orderOut { self.wc.orderOut() }
+      return res.handled
     }
   }
 }
