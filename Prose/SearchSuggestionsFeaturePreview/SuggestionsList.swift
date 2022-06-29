@@ -17,14 +17,14 @@ struct SuggestionsList: View, SuggestionsViewProtocol {
   var shouldBeVisible: Bool { !self.suggestions.isEmpty }
 
   var body: some View {
-      List(selection: self.$selection) {
-        ForEach(self.suggestions) { suggestion in
-          Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
-            .tag(suggestion.id)
-        }
+    List(selection: self.$selection) {
+      ForEach(self.suggestions) { suggestion in
+        Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
+          .tag(suggestion.id)
       }
-      .buttonStyle(.plain)
-      .listStyle(.inset)
-      .frame(height: CGFloat(self.suggestions.count) * Self.rowHeight + Self.listVerticalPadding)
+    }
+    .buttonStyle(.plain)
+    .listStyle(.inset)
+    .frame(height: CGFloat(self.suggestions.count) * Self.rowHeight + Self.listVerticalPadding)
   }
 }
