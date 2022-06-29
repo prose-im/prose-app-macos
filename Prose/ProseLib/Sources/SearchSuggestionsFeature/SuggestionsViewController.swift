@@ -4,18 +4,22 @@
 //
 
 import AppKit
+import SwiftUI
 
-final class SuggestionsViewController: NSViewController {
-  private var suggestions = [String]()
+final class SuggestionsViewController<Content: View>: NSViewController {
+  var content: () -> Content
 
-  lazy var tableView: NSTableView = {
-    let t = NSTableView()
-    t.addTableColumn(NSTableColumn())
-    t.usesAutomaticRowHeights = true
-    t.dataSource = self
-    t.delegate = self
-    return t
-  }()
+  lazy var hostingView = NSHostingView(rootView: content())
+
+  init(content: @escaping () -> Content) {
+    self.content = content
+    super.init(nibName: nil, bundle: nil)
+  }
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
 
   override func loadView() {
     self.view = NSView()
@@ -24,55 +28,18 @@ final class SuggestionsViewController: NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.view.addSubview(self.tableView)
-    self.tableView.translatesAutoresizingMaskIntoConstraints = false
+    self.view.addSubview(self.hostingView)
+    self.hostingView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
-      self.tableView.topAnchor.constraint(equalTo: self.view.topAnchor),
-      self.tableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-      self.tableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-      self.tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+      self.hostingView.topAnchor.constraint(equalTo: self.view.topAnchor),
+      self.hostingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+      self.hostingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+      self.hostingView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+//      self.hostingView.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
     ])
   }
 
-  func showSuggestions(_ suggestions: [String]) {
-    self.suggestions = suggestions
-    self.tableView.reloadData()
-  }
-
-  func moveUp() {
-    let selectedRow = max(tableView.selectedRow - 1, 0)
-    self.tableView.selectRowIndexes(IndexSet(integer: selectedRow), byExtendingSelection: false)
-  }
-
-  func moveDown() {
-    let selectedRow = min(tableView.selectedRow + 1, self.suggestions.count - 1)
-    self.tableView.selectRowIndexes(IndexSet(integer: selectedRow), byExtendingSelection: false)
-  }
-
-  var currentSuggestion: String? {
-    let selectedRow = self.tableView.selectedRow
-    return selectedRow == -1 ? nil : self.suggestions[selectedRow]
-  }
-}
-
-extension SuggestionsViewController: NSTableViewDataSource {
-  func numberOfRows(in _: NSTableView) -> Int { self.suggestions.count }
-}
-
-extension SuggestionsViewController: NSTableViewDelegate {
-  func tableView(_ tableView: NSTableView, viewFor _: NSTableColumn?, row: Int) -> NSView? {
-    var result: NSTextField? = tableView.makeView(
-      withIdentifier: TableCellView.identifier,
-      owner: self
-    ) as? NSTextField
-    let value = self.suggestions[row]
-    if let result = result {
-      result.stringValue = value
-    } else {
-      let cell = NSTextField(labelWithString: value)
-      cell.identifier = TableCellView.identifier
-      result = cell
-    }
-    return result
+  func reload() {
+    self.hostingView.rootView = self.content()
   }
 }
