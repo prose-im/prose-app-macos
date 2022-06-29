@@ -3,21 +3,19 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import SearchSuggestionsFeature
 import SwiftUI
 
-struct SuggestionsList: View {
-  struct Suggestion: Identifiable {
-    let jid: String
-    let name: String
-
-    var id: String { self.jid }
-  }
+struct SuggestionsList: View, SuggestionsViewProtocol {
+  static let rowHeight: CGFloat = 24
+  static let listVerticalPadding: CGFloat = 20
 
   let suggestions: [Suggestion]
   @Binding var selection: Suggestion.ID?
 
+  var shouldBeVisible: Bool { !self.suggestions.isEmpty }
+
   var body: some View {
-    if !self.suggestions.isEmpty {
       List(selection: self.$selection) {
         ForEach(self.suggestions) { suggestion in
           Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
@@ -25,15 +23,7 @@ struct SuggestionsList: View {
         }
       }
       .buttonStyle(.plain)
-      .fixedSize(horizontal: false, vertical: true)
-    }
-  }
-}
-
-struct SuggestionsList_Previews: PreviewProvider {
-  static var previews: some View {
-    SuggestionsList(suggestions: [
-      .init(jid: "remi@prose.org", name: "Rémi Bardon"),
-    ], selection: .constant(nil))
+      .listStyle(.inset)
+      .frame(height: CGFloat(self.suggestions.count) * Self.rowHeight + Self.listVerticalPadding)
   }
 }

@@ -6,10 +6,10 @@
 import AppKit
 import SwiftUI
 
-final class SuggestionsViewController<Content: View>: NSViewController {
+final class SuggestionsViewController<Content: SuggestionsViewProtocol>: NSViewController {
   var content: () -> Content
 
-  lazy var hostingView = NSHostingView(rootView: content())
+  lazy var hc = NSHostingController(rootView: self.content())
 
   init(content: @escaping () -> Content) {
     self.content = content
@@ -28,18 +28,23 @@ final class SuggestionsViewController<Content: View>: NSViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.view.addSubview(self.hostingView)
-    self.hostingView.translatesAutoresizingMaskIntoConstraints = false
+    self.hc.rootView = self.content()
+    self.addChild(self.hc)
+
+    self.view.addSubview(self.hc.view)
+    self.hc.view.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
-      self.hostingView.topAnchor.constraint(equalTo: self.view.topAnchor),
-      self.hostingView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-      self.hostingView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-      self.hostingView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
-//      self.hostingView.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
+      self.hc.view.topAnchor.constraint(equalTo: self.view.topAnchor),
+      self.hc.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+      self.hc.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+      self.hc.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+//      self.hc.view.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
     ])
   }
 
-  func reload() {
-    self.hostingView.rootView = self.content()
+  func reload() -> Bool {
+    let content = self.content()
+    self.hc.rootView = content
+    return content.shouldBeVisible
   }
 }

@@ -5,26 +5,30 @@
 
 import SwiftUI
 
-public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
+public protocol SuggestionsViewProtocol: View {
+  var shouldBeVisible: Bool { get }
+}
+
+public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: NSViewRepresentable {
   @Binding var text: String
   let suggestionsView: () -> SuggestionsView
 
   let moveUp: () -> Bool
   let moveDown: () -> Bool
-  let select: () -> (Bool, Bool)
+  let confirmSelection: () -> (Bool, Bool)
 
   public init(
     text: Binding<String>,
-    @ViewBuilder suggestionsView: @escaping () -> SuggestionsView,
     moveUp: @escaping () -> Bool,
     moveDown: @escaping () -> Bool,
-    select: @escaping () -> (Bool, Bool)
+    confirmSelection: @escaping () -> (Bool, Bool),
+    @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
   ) {
     self._text = text
     self.suggestionsView = suggestionsView
     self.moveUp = moveUp
     self.moveDown = moveDown
-    self.select = select
+    self.confirmSelection = confirmSelection
   }
 
   public func makeNSView(context: Context) -> NSTextField {
@@ -45,7 +49,7 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
       vc: { SuggestionsViewController(content: self.suggestionsView) },
       moveUp: self.moveUp,
       moveDown: self.moveDown,
-      select: self.select
+      confirmSelection: self.confirmSelection
     )
   }
 
@@ -54,7 +58,7 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
 
     let moveUp: () -> Bool
     let moveDown: () -> Bool
-    let select: () -> (Bool, Bool)
+    let confirmSelection: () -> (Bool, Bool)
 
     let _vc: () -> SuggestionsViewController<SuggestionsView>
 
@@ -73,10 +77,9 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
       window.styleMask.remove(.titled)
       window.styleMask.remove(.resizable)
       window.backgroundColor = .clear
-      window.isMovableByWindowBackground = true
 
       let contentView = window.contentView!
-      contentView.addSubview(visualEffect, positioned: .below, relativeTo: self.vc.hostingView)
+      contentView.addSubview(visualEffect, positioned: .below, relativeTo: self.vc.hc.view)
 
       NSLayoutConstraint.activate([
         visualEffect.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -95,13 +98,13 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
       vc: @escaping () -> SuggestionsViewController<SuggestionsView>,
       moveUp: @escaping () -> Bool,
       moveDown: @escaping () -> Bool,
-      select: @escaping () -> (Bool, Bool)
+      confirmSelection: @escaping () -> (Bool, Bool)
     ) {
       self.text = text
       self._vc = vc
       self.moveUp = moveUp
       self.moveDown = moveDown
-      self.select = select
+      self.confirmSelection = confirmSelection
     }
 
     public func controlTextDidBeginEditing(_ notification: Notification) {
@@ -112,12 +115,17 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
       }
       textFieldWindow.contentViewController!.addChild(self.window.contentViewController!)
       textFieldWindow.addChildWindow(self.window, ordered: .above)
+
+      self.wc.showSuggestions(for: textField)
+    }
+
+    public func controlTextDidEndEditing(_: Notification) {
+      self.wc.orderOut()
     }
 
     public func controlTextDidChange(_ notification: Notification) {
       guard let textField = notification.object as? NSTextField else { return }
       self.text.wrappedValue = textField.stringValue
-
       self.wc.showSuggestions(for: textField)
     }
 
@@ -131,7 +139,7 @@ public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable
       } else if commandSelector == #selector(NSResponder.moveDown(_:)) {
         return self.moveDown()
       } else if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-        let (handled, orderOut) = self.select()
+        let (handled, orderOut) = self.confirmSelection()
         if orderOut { self.wc.orderOut() }
         return handled
       }
