@@ -6,7 +6,7 @@
 import AppKit
 import SwiftUI
 
-final class SuggestionsViewController<Content: SuggestionsViewProtocol>: NSViewController {
+final class SuggestionsViewController<Content: View>: NSViewController {
   var content: () -> Content
 
   lazy var hc = NSHostingController(rootView: self.content())
