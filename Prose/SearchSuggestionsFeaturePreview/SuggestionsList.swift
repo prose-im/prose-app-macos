@@ -7,14 +7,12 @@ import IdentifiedCollections
 import SearchSuggestionsFeature
 import SwiftUI
 
-struct SuggestionsList: View, SuggestionsViewProtocol {
+struct SuggestionsList: View {
   static let rowHeight: CGFloat = 24
   static let listVerticalPadding: CGFloat = 20
 
   let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
-
-  var shouldBeVisible: Bool { !self.suggestions.isEmpty }
 
   var body: some View {
     List(selection: self.$selection) {

@@ -6,13 +6,13 @@
 import Cocoa
 import SwiftUI
 
-class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowController {
+class SuggestionsWindowController<Content: View>: NSWindowController {
   let vc: SuggestionsViewController<Content>
 
-  init(vc: @escaping () -> SuggestionsViewController<Content>) {
-    self.vc = vc()
+  init(vc: SuggestionsViewController<Content>) {
+    self.vc = vc
 
-    let window = NSWindow(contentViewController: self.vc)
+    let window = NSWindow(contentViewController: vc)
 
     // Remove the title bar
     window.styleMask.remove(.titled)
@@ -33,7 +33,7 @@ class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowCon
 
     let contentView = window.contentView!
     // Add the background under the hosted view
-    contentView.addSubview(background, positioned: .below, relativeTo: self.vc.hc.view)
+    contentView.addSubview(background, positioned: .below, relativeTo: vc.hc.view)
 
     // Make sure the background always fills the full view
     background.translatesAutoresizingMaskIntoConstraints = false
@@ -53,14 +53,13 @@ class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowCon
   }
 
   func orderOut() {
-    self.window?.orderOut(nil)
+    if let window = self.window, window.isVisible {
+      window.orderOut(self)
+      logger.trace("Window removed from screen")
+    }
   }
 
-  func showSuggestions(for textField: NSTextField) {
-    // Hide the view if there is nothing to show
-    #warning("We should find another way to do this")
-    if !self.vc.content().shouldBeVisible { return self.orderOut() }
-
+  func showSuggestions(_ suggestionsView: () -> Content, on textField: NSTextField) {
     // Fail gracefully if we cannot show the window
     guard let textFieldWindow = textField.window else {
       return logger.error("`textField` has no `window`")
@@ -69,18 +68,26 @@ class SuggestionsWindowController<Content: SuggestionsViewProtocol>: NSWindowCon
       return logger.error("`window` is `nil`")
     }
 
-    // Move the window under the text field
-    var textFieldRect = textField.convert(textField.bounds, to: nil)
-    textFieldRect = textFieldWindow.convertToScreen(textFieldRect)
-    window.setFrameTopLeftPoint(textFieldRect.origin)
+    // Show the window if needed
+    if !window.isVisible {
+      // Move the window under the text field
+      var textFieldRect = textField.convert(textField.bounds, to: nil)
+      textFieldRect = textFieldWindow.convertToScreen(textFieldRect)
+      window.setFrameTopLeftPoint(textFieldRect.origin)
 
-    // Make the window a little bigger than the text field
-    var frame = window.frame
-    frame.size.width = textField.frame.width + 16
-    frame.origin.x -= 8
-    window.setFrame(frame, display: false)
+      // Make the window a little bigger than the text field
+      var frame = window.frame
+      frame.size.width = textField.frame.width + 16
+      frame.origin.x -= 8
+      window.setFrame(frame, display: false)
 
-    // Add the window on screen
-    textFieldWindow.addChildWindow(window, ordered: .above)
+      // Add the window on screen
+      textFieldWindow.addChildWindow(window, ordered: .above)
+
+      logger.trace("Window added on screen")
+    }
+
+    // Update the view
+    self.vc.hc.rootView = suggestionsView()
   }
 }

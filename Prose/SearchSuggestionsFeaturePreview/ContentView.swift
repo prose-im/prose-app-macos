@@ -37,10 +37,18 @@ struct ContentView: View {
         .font(.headline)
       Text("You should see a popup appear, and be able to navigate with arrow keys.")
         .font(.subheadline)
-      SearchSuggestionsField(text: self.$text, handleKeyboardEvent: self.handleKeyboardEvent) {
+      SearchSuggestionsField(
+        text: self.$text,
+        showSuggestions: !self.suggestions.isEmpty,
+        handleKeyboardEvent: self.handleKeyboardEvent
+      ) {
         SuggestionsVStack(suggestions: self.suggestions, selection: self.$selection)
       }
-      SearchSuggestionsField(text: self.$text, handleKeyboardEvent: self.handleKeyboardEvent) {
+      SearchSuggestionsField(
+        text: self.$text,
+        showSuggestions: !self.suggestions.isEmpty,
+        handleKeyboardEvent: self.handleKeyboardEvent
+      ) {
         SuggestionsList(suggestions: self.suggestions, selection: self.$selection)
       }
     }
@@ -56,6 +64,7 @@ struct ContentView: View {
       let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
       guard let range = string.range(of: searchString, options: options) else { return false }
       return !range.isEmpty
+        && !(range.lowerBound == string.startIndex && range.upperBound == string.endIndex)
     }
     return results
   }

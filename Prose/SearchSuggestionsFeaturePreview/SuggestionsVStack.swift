@@ -7,14 +7,12 @@ import IdentifiedCollections
 import SearchSuggestionsFeature
 import SwiftUI
 
-struct SuggestionsVStack: View, SuggestionsViewProtocol {
+struct SuggestionsVStack: View {
   static let rowHeight: CGFloat = 24
   static let stackVerticalPadding: CGFloat = 16
 
   let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
-
-  var shouldBeVisible: Bool { !self.suggestions.isEmpty }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {

@@ -26,24 +26,23 @@ public enum SearchSuggestionEventResult: Equatable {
   var orderOut: Bool { self == .close }
 }
 
-public protocol SuggestionsViewProtocol: View {
-  var shouldBeVisible: Bool { get }
-}
-
-public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: NSViewRepresentable {
+public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
   @Binding var text: String
+  let showSuggestions: Bool
   let suggestionsView: () -> SuggestionsView
 
   let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
 
   public init(
     text: Binding<String>,
+    showSuggestions: Bool,
     handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult = { _ in
       .notHandled
     },
     @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
   ) {
     self._text = text
+    self.showSuggestions = showSuggestions
     self.suggestionsView = suggestionsView
     self.handleKeyboardEvent = handleKeyboardEvent
   }
@@ -58,10 +57,17 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
     return textField
   }
 
-  public func updateNSView(_ textField: NSTextField, context _: Context) {
+  public func updateNSView(_ textField: NSTextField, context: Context) {
     // Update the text field text if this update came from SwiftUI
     if textField.stringValue != self.text {
       textField.stringValue = self.text
+    }
+
+    if self.showSuggestions, textField.currentEditor() != nil {
+      // Update the window
+      context.coordinator.wc.showSuggestions(self.suggestionsView, on: textField)
+    } else {
+      context.coordinator.wc.orderOut()
     }
   }
 
@@ -69,8 +75,7 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
     Coordinator(
       text: self._text,
       wc: {
-        SuggestionsWindowController(vc: { SuggestionsViewController(content: self.suggestionsView)
-        })
+        SuggestionsWindowController(vc: SuggestionsViewController(content: self.suggestionsView))
       },
       handleKeyboardEvent: self.handleKeyboardEvent
     )
@@ -105,9 +110,6 @@ public struct SearchSuggestionsField<SuggestionsView: SuggestionsViewProtocol>: 
 
       // Send the text update to SwiftUI
       self.text.wrappedValue = textField.stringValue
-
-      // Show the window if needed
-      self.wc.showSuggestions(for: textField)
     }
 
     public func control(
