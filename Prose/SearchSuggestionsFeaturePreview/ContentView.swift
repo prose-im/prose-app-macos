@@ -35,12 +35,14 @@ struct ContentView: View {
   private let tcaStore = Store(
     initialState: SearchSuggestionsFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      suggestions: { text in
-        IdentifiedArray(uniqueElements: Self.suggestions(for: text))
-      },
       stringForSuggestion: \Suggestion.jid
     ),
-    environment: .live()
+    environment: .init(
+      client: .chooseFrom([
+        .init(title: "In your team", items: Self.allSuggestions),
+      ], on: { [$0.jid, $0.name] }),
+      mainQueue: .main
+    )
   )
 
   var body: some View {
@@ -50,6 +52,12 @@ struct ContentView: View {
           .font(.headline)
         Text("You should see a popup appear, and be able to navigate with arrow keys.")
           .font(.subheadline)
+      }
+      VStack(alignment: .leading, spacing: 4) {
+        Text("TCA, `VStack` content")
+        SearchSuggestionsField(store: self.tcaStore) { suggestion in
+          Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
+        }
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("Vanilla SwiftUI, `VStack` content")
@@ -77,12 +85,6 @@ struct ContentView: View {
             selection: self.$selection,
             select: { self.text = $0.jid }
           )
-        }
-      }
-      VStack(alignment: .leading, spacing: 4) {
-        Text("TCA, `VStack` content")
-        SearchSuggestionsField(store: self.tcaStore) { suggestion in
-          Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
         }
       }
     }

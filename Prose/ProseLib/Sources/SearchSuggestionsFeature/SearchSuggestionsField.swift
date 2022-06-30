@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AutoSuggestClient
 import ComposableArchitecture
 import IdentifiedCollections
 import SwiftUI
@@ -38,11 +39,22 @@ public struct SearchSuggestionsField<
           return true
         },
         suggestionsView: {
-          VStack(alignment: .leading, spacing: 0) {
-            ForEach(viewStore.suggestions, id: \.self) { suggestion in
-              self.suggestionView(suggestion)
-                .tag(suggestion.id)
-                .modifier(Selected(suggestion.id == viewStore.selection))
+          VStack(alignment: .leading) {
+            ForEach(viewStore.suggestions) { section in
+              VStack(alignment: .leading, spacing: 4) {
+                Text(section.title)
+                  .font(.headline)
+                  .foregroundColor(.secondary)
+                  .padding(.horizontal, 8)
+                  .fixedSize()
+                VStack(alignment: .leading, spacing: 0) {
+                  ForEach(section.items) { suggestion in
+                    self.suggestionView(suggestion)
+                      .tag(suggestion.id)
+                      .modifier(Selected(suggestion.id == viewStore.selection))
+                  }
+                }
+              }
             }
           }
           .padding(8)
@@ -89,15 +101,18 @@ private struct Selected: ViewModifier {
 
 // MARK: Reducer
 
-private struct Token: Hashable {}
+enum AutoSuggestToken: CaseIterable, Hashable {
+  case debounce
+  case loadSuggestions
+}
+
 public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
-  suggestions: @escaping (String) async -> IdentifiedArrayOf<Suggestion>,
   stringForSuggestion: @escaping (Suggestion) -> String,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
   SearchSuggestionsFieldState<Suggestion>,
   SearchSuggestionsFieldAction<Suggestion>,
-  SearchSuggestionsFieldEnvironment
+  AutoSuggestEnvironment<Suggestion>
 > {
   Reducer { state, action, environment in
     @discardableResult func handleKeyboardEvent(event: SearchSuggestionEvent) -> Bool {
@@ -113,26 +128,35 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 
     func moveUp() -> Bool {
       guard let selection: Suggestion.ID = state.selection else { return false }
-      guard let index: Int = state.suggestions.index(id: selection) else { return false }
+      let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
+        uniqueElements: state.suggestions.flatMap(\.items)
+      )
+      guard let index: Int = suggestions.index(id: selection) else { return false }
       let newIndex: Int = max(index - 1, 0)
-      state.selection = state.suggestions[newIndex].id
+      state.selection = suggestions[newIndex].id
       return true
     }
 
     func moveDown() -> Bool {
-      if let index: Int = state.selection.flatMap(state.suggestions.index(id:)) {
-        let newIndex: Int = min(index + 1, state.suggestions.count - 1)
-        state.selection = state.suggestions[newIndex].id
+      let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
+        uniqueElements: state.suggestions.flatMap(\.items)
+      )
+      if let index: Int = state.selection.flatMap(suggestions.index(id:)) {
+        let newIndex: Int = min(index + 1, suggestions.count - 1)
+        state.selection = suggestions[newIndex].id
       } else {
-        state.selection = state.suggestions[0].id
+        state.selection = suggestions[0].id
       }
       return true
     }
 
     func confirmSelection() -> Bool {
       guard let selection = state.selection else { return false }
-      guard let index = state.suggestions.index(id: selection) else { return false }
-      state.text = stringForSuggestion(state.suggestions[index])
+      let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
+        uniqueElements: state.suggestions.flatMap(\.items)
+      )
+      guard let index = suggestions.index(id: selection) else { return false }
+      state.text = stringForSuggestion(suggestions[index])
       if closeWhenConfirmingSelection {
         state.showSuggestions = false
       }
@@ -142,17 +166,18 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
     switch action {
     case let .textDidChange(text):
       state.isProcessing = true
-      return Effect.task(priority: .userInitiated) {
-        let suggestions = await suggestions(text)
-        return .showSuggestions(suggestions)
-      }
-      .delay(for: 0.5, scheduler: environment.mainQueue)
-      .eraseToEffect()
+      let excludedTerms: Set<String> = [state.text]
+      return environment.client.loadSuggestions(text, excludedTerms)
+        .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
+        .replaceError(with: [])
+        .eraseToEffect()
+        .map(SearchSuggestionsFieldAction.showSuggestions)
 
     case let .showSuggestions(suggestions):
       state.isProcessing = false
-      state.suggestions = suggestions
+      state.suggestions = IdentifiedArray(uniqueElements: suggestions)
       state.showSuggestions = !suggestions.isEmpty
+      print("\(state.suggestions), \(state.showSuggestions)")
       return .none
 
     case let .keyboard(event):
@@ -161,7 +186,7 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 
     case .binding(\.$text):
       return Effect(value: .textDidChange(state.text))
-        .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
+        .debounce(id: AutoSuggestToken.debounce, for: 0.5, scheduler: environment.mainQueue)
         .eraseToEffect()
 
     default:
@@ -172,16 +197,16 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 
 // MARK: State
 
-public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Equatable>: Equatable {
+public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: Equatable {
   @BindableState var text: String
-  var suggestions: IdentifiedArrayOf<Suggestion>
+  var suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>>
   var showSuggestions: Bool
   var selection: Suggestion.ID?
   var isProcessing: Bool
 
   public init(
     text: String = "",
-    suggestions: IdentifiedArrayOf<Suggestion> = [],
+    suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>> = [],
     showSuggestions: Bool = false,
     selection: Suggestion.ID? = nil,
     isProcessing: Bool = false
@@ -196,32 +221,10 @@ public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Equatable>:
 
 // MARK: Actions
 
-public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Equatable>: Equatable,
+public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Hashable>: Equatable,
   BindableAction
 {
   case keyboard(SearchSuggestionEvent)
-  case textDidChange(String), showSuggestions(IdentifiedArrayOf<Suggestion>)
+  case textDidChange(String), showSuggestions([AutoSuggestSection<Suggestion>])
   case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
-}
-
-// MARK: Environment
-
-public struct SearchSuggestionsFieldEnvironment {
-  var mainQueue: AnySchedulerOf<DispatchQueue>
-
-  public init(
-    mainQueue: AnySchedulerOf<DispatchQueue>
-  ) {
-    self.mainQueue = mainQueue
-  }
-}
-
-public extension SearchSuggestionsFieldEnvironment {
-  static func live(
-    mainQueue: AnySchedulerOf<DispatchQueue> = .main
-  ) -> SearchSuggestionsFieldEnvironment {
-    SearchSuggestionsFieldEnvironment(
-      mainQueue: mainQueue
-    )
-  }
 }
