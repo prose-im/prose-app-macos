@@ -8,9 +8,6 @@ import SearchSuggestionsFeature
 import SwiftUI
 
 struct SuggestionsVStack: View {
-  static let rowHeight: CGFloat = 24
-  static let stackVerticalPadding: CGFloat = 16
-
   let suggestions: IdentifiedArrayOf<Suggestion>
   @Binding var selection: Suggestion.ID?
 
@@ -22,7 +19,6 @@ struct SuggestionsVStack: View {
         Button { self.select(suggestion) } label: {
           Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
             .tag(suggestion.id)
-            .frame(maxWidth: .infinity, alignment: .leading)
             .modifier(Selected(suggestion.id == selection))
         }
       }
@@ -30,27 +26,31 @@ struct SuggestionsVStack: View {
     .buttonStyle(.plain)
     .listStyle(.inset)
     .padding(8)
-    .frame(height: CGFloat(self.suggestions.count) * Self.rowHeight + Self.stackVerticalPadding)
     .frame(maxWidth: .infinity)
   }
 }
 
-struct Selected: ViewModifier {
+private struct Selected: ViewModifier {
   let isSelected: Bool
+  let alignment: Alignment
 
-  init(_ isSelected: Bool) {
+  init(_ isSelected: Bool, alignment: Alignment = .leading) {
     self.isSelected = isSelected
+    self.alignment = alignment
   }
 
   func body(content: Content) -> some View {
     content
+      .fixedSize()
+      .frame(maxWidth: .infinity, alignment: self.alignment)
       .padding(.horizontal, 8)
       .padding(.vertical, 4)
       .foregroundColor(self.isSelected ? Color.white : nil)
       .background {
         if self.isSelected {
-          RoundedRectangle(cornerRadius: 4).fill(Color.accentColor)
+          RoundedRectangle(cornerRadius: 4).fill(Color.accentColor.opacity(0.75))
         }
       }
+      .accessibilityAddTraits(self.isSelected ? .isSelected : [])
   }
 }
