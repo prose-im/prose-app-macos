@@ -3,135 +3,225 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import ComposableArchitecture
+import IdentifiedCollections
 import SwiftUI
 
-public enum SearchSuggestionEvent: Equatable {
-  /// The user hit the down arrow key.
-  case moveDown
-  /// The user hit the up arrow key.
-  case moveUp
-  /// The user hit the return key.
-  case confirmSelection
-}
+// MARK: - View
 
-public enum SearchSuggestionEventResult: Equatable {
-  /// The event was not handled.
-  case notHandled
-  /// The event was handled, but the window should be kept open.
-  case handled
-  /// The window should be closed.
-  case close
+public struct SearchSuggestionsField<
+  Suggestion: Identifiable & Hashable,
+  SuggestionView: View
+>: View {
+  public typealias ViewState = SearchSuggestionsFieldState<Suggestion>
+  public typealias ViewAction = SearchSuggestionsFieldAction<Suggestion>
 
-  var handled: Bool { self != .notHandled }
-  var orderOut: Bool { self == .close }
-}
-
-public struct SearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
-  @Binding var text: String
-  let showSuggestions: Bool
-  let suggestionsView: () -> SuggestionsView
-
-  let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
+  let store: Store<ViewState, ViewAction>
+  let suggestionView: (Suggestion) -> SuggestionView
 
   public init(
-    text: Binding<String>,
-    showSuggestions: Bool,
-    handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult = { _ in
-      .notHandled
-    },
-    @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
+    store: Store<ViewState, ViewAction>,
+    @ViewBuilder suggestionView: @escaping (Suggestion) -> SuggestionView
   ) {
-    self._text = text
-    self.showSuggestions = showSuggestions
-    self.suggestionsView = suggestionsView
-    self.handleKeyboardEvent = handleKeyboardEvent
+    self.store = store
+    self.suggestionView = suggestionView
   }
 
-  public func makeNSView(context: Context) -> NSTextField {
-    let textField = NSTextField(frame: .zero)
-    textField.delegate = context.coordinator
-
-    // Make text field rounded
-    textField.bezelStyle = .roundedBezel
-
-    return textField
-  }
-
-  public func updateNSView(_ textField: NSTextField, context: Context) {
-    // Update the text field text if this update came from SwiftUI
-    if textField.stringValue != self.text {
-      textField.stringValue = self.text
-    }
-
-    if self.showSuggestions, textField.currentEditor() != nil {
-      // Update the window
-      context.coordinator.wc.showSuggestions(self.suggestionsView, on: textField)
-    } else {
-      context.coordinator.wc.orderOut()
-    }
-  }
-
-  public func makeCoordinator() -> Coordinator {
-    Coordinator(
-      text: self._text,
-      wc: {
-        SuggestionsWindowController(vc: SuggestionsViewController(content: self.suggestionsView))
-      },
-      handleKeyboardEvent: self.handleKeyboardEvent
-    )
-  }
-
-  public final class Coordinator: NSObject, NSTextFieldDelegate {
-    let text: Binding<String>
-
-    let handleKeyboardEvent: (SearchSuggestionEvent) -> SearchSuggestionEventResult
-
-    let _wc: () -> SuggestionsWindowController<SuggestionsView>
-
-    lazy var wc: SuggestionsWindowController<SuggestionsView> = self._wc()
-
-    init(
-      text: Binding<String>,
-      wc: @escaping () -> SuggestionsWindowController<SuggestionsView>,
-      handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> SearchSuggestionEventResult
-    ) {
-      self.text = text
-      self._wc = wc
-      self.handleKeyboardEvent = handleKeyboardEvent
-    }
-
-    public func controlTextDidEndEditing(_: Notification) {
-      // Hide the popover window when the user focuses another control in the app
-      self.wc.orderOut()
-    }
-
-    public func controlTextDidChange(_ notification: Notification) {
-      guard let textField = notification.object as? NSTextField else { return }
-
-      // Send the text update to SwiftUI
-      self.text.wrappedValue = textField.stringValue
-    }
-
-    public func control(
-      _: NSControl,
-      textView _: NSTextView,
-      doCommandBy commandSelector: Selector
-    ) -> Bool {
-      let event: SearchSuggestionEvent
-      switch commandSelector {
-      case #selector(NSResponder.moveUp(_:)):
-        event = .moveUp
-      case #selector(NSResponder.moveDown(_:)):
-        event = .moveDown
-      case #selector(NSResponder.insertNewline(_:)):
-        event = .confirmSelection
-      default:
-        return false
+  public var body: some View {
+    WithViewStore(self.store) { viewStore in
+      VanillaSearchSuggestionsField(
+        text: viewStore.binding(\.$text),
+        showSuggestions: viewStore.showSuggestions,
+        handleKeyboardEvent: { (event: SearchSuggestionEvent) in
+          viewStore.send(.keyboard(event))
+          // NOTE: We cannot know if the event was handled here… so let's suppose it was.
+          return true
+        },
+        suggestionsView: {
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(viewStore.suggestions, id: \.self) { suggestion in
+              self.suggestionView(suggestion)
+                .tag(suggestion.id)
+                .modifier(Selected(suggestion.id == viewStore.selection))
+            }
+          }
+          .padding(8)
+          .frame(maxWidth: .infinity)
+        }
+      )
+      .overlay(alignment: .trailing) {
+        if viewStore.isProcessing {
+          ProgressView()
+            .progressViewStyle(.circular)
+            .scaleEffect(0.5)
+        }
       }
-
-      let res = self.handleKeyboardEvent(event)
-      if res.orderOut { self.wc.orderOut() }
-      return res.handled
     }
+  }
+}
+
+private struct Selected: ViewModifier {
+  let isSelected: Bool
+  let alignment: Alignment
+
+  init(_ isSelected: Bool, alignment: Alignment = .leading) {
+    self.isSelected = isSelected
+    self.alignment = alignment
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .fixedSize()
+      .frame(maxWidth: .infinity, alignment: self.alignment)
+      .padding(.horizontal, 8)
+      .padding(.vertical, 4)
+      .foregroundColor(self.isSelected ? Color.white : nil)
+      .background {
+        if self.isSelected {
+          RoundedRectangle(cornerRadius: 4).fill(Color.accentColor.opacity(0.75))
+        }
+      }
+      .accessibilityAddTraits(self.isSelected ? .isSelected : [])
+  }
+}
+
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+private struct Token: Hashable {}
+public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
+  suggestions: @escaping (String) async -> IdentifiedArrayOf<Suggestion>,
+  stringForSuggestion: @escaping (Suggestion) -> String,
+  closeWhenConfirmingSelection: Bool = true
+) -> Reducer<
+  SearchSuggestionsFieldState<Suggestion>,
+  SearchSuggestionsFieldAction<Suggestion>,
+  SearchSuggestionsFieldEnvironment
+> {
+  Reducer { state, action, environment in
+    @discardableResult func handleKeyboardEvent(event: SearchSuggestionEvent) -> Bool {
+      switch event {
+      case .moveDown:
+        return moveDown()
+      case .moveUp:
+        return moveUp()
+      case .confirmSelection:
+        return confirmSelection()
+      }
+    }
+
+    func moveUp() -> Bool {
+      guard let selection: Suggestion.ID = state.selection else { return false }
+      guard let index: Int = state.suggestions.index(id: selection) else { return false }
+      let newIndex: Int = max(index - 1, 0)
+      state.selection = state.suggestions[newIndex].id
+      return true
+    }
+
+    func moveDown() -> Bool {
+      if let index: Int = state.selection.flatMap(state.suggestions.index(id:)) {
+        let newIndex: Int = min(index + 1, state.suggestions.count - 1)
+        state.selection = state.suggestions[newIndex].id
+      } else {
+        state.selection = state.suggestions[0].id
+      }
+      return true
+    }
+
+    func confirmSelection() -> Bool {
+      guard let selection = state.selection else { return false }
+      guard let index = state.suggestions.index(id: selection) else { return false }
+      state.text = stringForSuggestion(state.suggestions[index])
+      if closeWhenConfirmingSelection {
+        state.showSuggestions = false
+      }
+      return true
+    }
+
+    switch action {
+    case let .textDidChange(text):
+      state.isProcessing = true
+      return Effect.task(priority: .userInitiated) {
+        let suggestions = await suggestions(text)
+        return .showSuggestions(suggestions)
+      }
+      .delay(for: 0.5, scheduler: environment.mainQueue)
+      .eraseToEffect()
+
+    case let .showSuggestions(suggestions):
+      state.isProcessing = false
+      state.suggestions = suggestions
+      state.showSuggestions = !suggestions.isEmpty
+      return .none
+
+    case let .keyboard(event):
+      handleKeyboardEvent(event: event)
+      return .none
+
+    case .binding(\.$text):
+      return Effect(value: .textDidChange(state.text))
+        .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
+        .eraseToEffect()
+
+    default:
+      return .none
+    }
+  }.binding()
+}
+
+// MARK: State
+
+public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Equatable>: Equatable {
+  @BindableState var text: String
+  var suggestions: IdentifiedArrayOf<Suggestion>
+  var showSuggestions: Bool
+  var selection: Suggestion.ID?
+  var isProcessing: Bool
+
+  public init(
+    text: String = "",
+    suggestions: IdentifiedArrayOf<Suggestion> = [],
+    showSuggestions: Bool = false,
+    selection: Suggestion.ID? = nil,
+    isProcessing: Bool = false
+  ) {
+    self.text = text
+    self.suggestions = suggestions
+    self.showSuggestions = showSuggestions
+    self.selection = selection
+    self.isProcessing = isProcessing
+  }
+}
+
+// MARK: Actions
+
+public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Equatable>: Equatable,
+  BindableAction
+{
+  case keyboard(SearchSuggestionEvent)
+  case textDidChange(String), showSuggestions(IdentifiedArrayOf<Suggestion>)
+  case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
+}
+
+// MARK: Environment
+
+public struct SearchSuggestionsFieldEnvironment {
+  var mainQueue: AnySchedulerOf<DispatchQueue>
+
+  public init(
+    mainQueue: AnySchedulerOf<DispatchQueue>
+  ) {
+    self.mainQueue = mainQueue
+  }
+}
+
+public extension SearchSuggestionsFieldEnvironment {
+  static func live(
+    mainQueue: AnySchedulerOf<DispatchQueue> = .main
+  ) -> SearchSuggestionsFieldEnvironment {
+    SearchSuggestionsFieldEnvironment(
+      mainQueue: mainQueue
+    )
   }
 }
