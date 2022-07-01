@@ -24,6 +24,10 @@ public struct SearchSuggestionsField<
     store: Store<ViewState, ViewAction>,
     @ViewBuilder suggestionView: @escaping (Suggestion) -> SuggestionView
   ) {
+    NSTextAttachment.registerViewProviderClass(
+      MyTextAttachmentViewProvider.self,
+      forFileType: MyAttachment.fileType.identifier
+    )
     self.store = store
     self.suggestionView = suggestionView
   }
@@ -38,28 +42,7 @@ public struct SearchSuggestionsField<
           // NOTE: We cannot know if the event was handled here… so let's suppose it was.
           return true
         },
-        suggestionsView: {
-          VStack(alignment: .leading) {
-            ForEach(viewStore.suggestions) { section in
-              VStack(alignment: .leading, spacing: 4) {
-                Text(section.title)
-                  .font(.headline)
-                  .foregroundColor(.secondary)
-                  .padding(.horizontal, 8)
-                  .fixedSize()
-                VStack(alignment: .leading, spacing: 0) {
-                  ForEach(section.items) { suggestion in
-                    self.suggestionView(suggestion)
-                      .tag(suggestion.id)
-                      .modifier(Selected(suggestion.id == viewStore.selection))
-                  }
-                }
-              }
-            }
-          }
-          .padding(8)
-          .frame(maxWidth: .infinity)
-        }
+        suggestionsView: { suggestionsView(viewStore: viewStore) }
       )
       .overlay(alignment: .trailing) {
         if viewStore.isProcessing {
@@ -68,7 +51,41 @@ public struct SearchSuggestionsField<
             .scaleEffect(0.5)
         }
       }
+      .onAppear {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+          let text = NSMutableAttributedString(attributedString: viewStore.text)
+//          let attachment = NSTextAttachment()
+          let attachment = MyAttachment(jid: "remi@prose.org")
+//          let data: Data = "test".data(using: .utf8)!
+//          let attachment = NSTextAttachment(data: data, ofType: UTType.utf8PlainText.identifier)
+          text.append(NSAttributedString(attachment: attachment))
+          viewStore.send(.textDidChange(text))
+        }
+      }
     }
+  }
+
+  func suggestionsView(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
+    VStack(alignment: .leading) {
+      ForEach(viewStore.suggestions) { section in
+        VStack(alignment: .leading, spacing: 4) {
+          Text(section.title)
+            .font(.headline)
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 8)
+            .fixedSize()
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(section.items) { suggestion in
+              self.suggestionView(suggestion)
+                .tag(suggestion.id)
+                .modifier(Selected(suggestion.id == viewStore.selection))
+            }
+          }
+        }
+      }
+    }
+    .padding(8)
+    .frame(maxWidth: .infinity)
   }
 }
 
@@ -107,7 +124,7 @@ enum AutoSuggestToken: CaseIterable, Hashable {
 }
 
 public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
-  stringForSuggestion: @escaping (Suggestion) -> String,
+  stringForSuggestion: @escaping (Suggestion) -> NSAttributedString,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
   SearchSuggestionsFieldState<Suggestion>,
@@ -144,7 +161,7 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       if let index: Int = state.selection.flatMap(suggestions.index(id:)) {
         let newIndex: Int = min(index + 1, suggestions.count - 1)
         state.selection = suggestions[newIndex].id
-      } else {
+      } else if !suggestions.isEmpty {
         state.selection = suggestions[0].id
       }
       return true
@@ -165,9 +182,10 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 
     switch action {
     case let .textDidChange(text):
+      state.text = text
       state.isProcessing = true
-      let excludedTerms: Set<String> = [state.text]
-      return environment.client.loadSuggestions(text, excludedTerms)
+      let excludedTerms: Set<String> = [text.string]
+      return environment.client.loadSuggestions(text.string, excludedTerms)
         .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
         .replaceError(with: [])
         .eraseToEffect()
@@ -177,7 +195,6 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       state.isProcessing = false
       state.suggestions = IdentifiedArray(uniqueElements: suggestions)
       state.showSuggestions = !suggestions.isEmpty
-      print("\(state.suggestions), \(state.showSuggestions)")
       return .none
 
     case let .keyboard(event):
@@ -198,14 +215,14 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 // MARK: State
 
 public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: Equatable {
-  @BindableState var text: String
+  @BindableState var text: NSAttributedString
   var suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>>
   var showSuggestions: Bool
   var selection: Suggestion.ID?
   var isProcessing: Bool
 
   public init(
-    text: String = "",
+    text: NSAttributedString = NSAttributedString(),
     suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>> = [],
     showSuggestions: Bool = false,
     selection: Suggestion.ID? = nil,
@@ -225,6 +242,6 @@ public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Hashable>: E
   BindableAction
 {
   case keyboard(SearchSuggestionEvent)
-  case textDidChange(String), showSuggestions([AutoSuggestSection<Suggestion>])
+  case textDidChange(NSAttributedString), showSuggestions([AutoSuggestSection<Suggestion>])
   case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
 }

@@ -15,14 +15,14 @@ public enum SearchSuggestionEvent: Equatable {
 }
 
 public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
-  @Binding var text: String
+  @Binding var text: NSAttributedString
   let showSuggestions: Bool
   let suggestionsView: () -> SuggestionsView
 
   let handleKeyboardEvent: (SearchSuggestionEvent) -> Bool
 
   public init(
-    text: Binding<String>,
+    text: Binding<NSAttributedString>,
     showSuggestions: Bool,
     handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> Bool = { _ in false },
     @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
@@ -38,15 +38,24 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     textField.delegate = context.coordinator
 
     // Make text field rounded
-    textField.bezelStyle = .roundedBezel
+    textField.bezelStyle = .squareBezel
+//    textField.controlSize = .large
+
+    // Allow display of attachments
+    textField.allowsEditingTextAttributes = true
+
+//    textField.translatesAutoresizingMaskIntoConstraints = false
+//    NSLayoutConstraint.activate([
+//      textField.heightAnchor.constraint(equalToConstant: 64),
+//    ])
 
     return textField
   }
 
   public func updateNSView(_ textField: NSTextField, context: Context) {
     // Update the text field text if this update came from SwiftUI
-    if textField.stringValue != self.text {
-      textField.stringValue = self.text
+    if textField.attributedStringValue != self.text {
+      textField.attributedStringValue = self.text
     }
 
     if self.showSuggestions, textField.currentEditor() != nil {
@@ -68,7 +77,7 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
   }
 
   public final class Coordinator: NSObject, NSTextFieldDelegate {
-    let text: Binding<String>
+    let text: Binding<NSAttributedString>
 
     let handleKeyboardEvent: (SearchSuggestionEvent) -> Bool
 
@@ -77,7 +86,7 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     lazy var wc: SuggestionsWindowController<SuggestionsView> = self._wc()
 
     init(
-      text: Binding<String>,
+      text: Binding<NSAttributedString>,
       wc: @escaping () -> SuggestionsWindowController<SuggestionsView>,
       handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> Bool
     ) {
@@ -95,7 +104,7 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
       guard let textField = notification.object as? NSTextField else { return }
 
       // Send the text update to SwiftUI
-      self.text.wrappedValue = textField.stringValue
+      self.text.wrappedValue = textField.attributedStringValue
     }
 
     public func control(

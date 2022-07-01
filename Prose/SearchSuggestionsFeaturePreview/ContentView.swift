@@ -26,16 +26,16 @@ struct ContentView: View {
   ]
 
   private var suggestions: IdentifiedArrayOf<Suggestion> {
-    IdentifiedArray(uniqueElements: Self.suggestions(for: self.text))
+    IdentifiedArray(uniqueElements: Self.suggestions(for: self.text.string))
   }
 
-  @State private var text: String = ""
+  @State private var text = NSAttributedString()
   @State private var selection: Suggestion.ID?
 
   private let tcaStore = Store(
     initialState: SearchSuggestionsFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      stringForSuggestion: \Suggestion.jid
+      stringForSuggestion: { NSAttributedString(string: $0.jid) }
     ),
     environment: .init(
       client: .chooseFrom([
@@ -69,7 +69,7 @@ struct ContentView: View {
           SuggestionsVStack(
             suggestions: self.suggestions,
             selection: self.$selection,
-            select: { self.text = $0.jid }
+            select: { self.text = NSAttributedString(string: $0.jid) }
           )
         }
       }
@@ -83,7 +83,7 @@ struct ContentView: View {
           SuggestionsList(
             suggestions: self.suggestions,
             selection: self.$selection,
-            select: { self.text = $0.jid }
+            select: { self.text = NSAttributedString(string: $0.jid) }
           )
         }
       }
@@ -137,7 +137,7 @@ struct ContentView: View {
   func confirmSelection() -> Bool {
     guard let selection = self.selection else { return false }
     guard let index = self.suggestions.index(id: selection) else { return false }
-    self.text = self.suggestions[index].jid
+    self.text = NSAttributedString(string: self.suggestions[index].jid)
     return true
   }
 }
