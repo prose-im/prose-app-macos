@@ -11,21 +11,24 @@ struct TokenView: View {
     Button { print("Test") } label: {
       HStack(spacing: 3) {
         Color.white
-          .frame(width: 10, height: 10)
+          .frame(width: 12, height: 12)
           .clipShape(RoundedRectangle(cornerRadius: 2))
+          .frame(alignment: .leadingLastTextBaseline)
         Text("Very long text")
-          .font(.system(size: 10))
-          .foregroundColor(.white)
+          .font(.system(size: 12))
       }
       .padding(.horizontal, 3)
       .padding(.vertical, 1)
-      .frame(width: 128, height: 8)
+//      .frame(width: 128, height: 16)
       .background {
         RoundedRectangle(cornerRadius: 4)
           .fill(Color.blue.opacity(0.25))
       }
     }
+    .frame(alignment: .leadingLastTextBaseline)
+//    .padding(.horizontal, 2)
     .buttonStyle(.plain)
+    .foregroundColor(.white)
     .fixedSize()
   }
 }
@@ -111,4 +114,26 @@ class MyTextAttachmentViewProvider: NSTextAttachmentViewProvider {
 //    view.setFrameSize(NSSize(width: 4, height: 4))
 //    self.view = view
 //  }
+}
+
+extension NSAttributedString {
+  /// Initializes a new `NSAttributedString` with the given `NSTextAttachment` and applies
+  /// `attributes` to it.
+  convenience init(attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) {
+    var attributes = attributes
+    attributes[.attachment] = attachment
+    self.init(
+      string: String(Character(UnicodeScalar(NSTextAttachment.character)!)),
+      attributes: attributes
+    )
+  }
+}
+
+extension AttributedString {
+  /// Appends a space to the receiver.
+  func appendingSpace() -> AttributedString {
+    var copy = self
+    copy.append(AttributedString(" ", attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes)))
+    return copy
+  }
 }
