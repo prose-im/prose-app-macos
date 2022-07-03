@@ -26,16 +26,16 @@ struct ContentView: View {
   ]
 
   private var suggestions: IdentifiedArrayOf<Suggestion> {
-    IdentifiedArray(uniqueElements: Self.suggestions(for: self.text.string))
+    IdentifiedArray(uniqueElements: Self.suggestions(for: self.text.description))
   }
 
-  @State private var text = NSAttributedString()
+  @State private var text = AttributedString()
   @State private var selection: Suggestion.ID?
 
   private let tcaStore = Store(
     initialState: SearchSuggestionsFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      stringForSuggestion: { NSAttributedString(string: $0.jid) }
+      stringForSuggestion: { AttributedString($0.jid) }
     ),
     environment: .init(
       client: .chooseFrom([
@@ -69,7 +69,7 @@ struct ContentView: View {
           SuggestionsVStack(
             suggestions: self.suggestions,
             selection: self.$selection,
-            select: { self.text = NSAttributedString(string: $0.jid) }
+            select: { self.text = AttributedString($0.jid) }
           )
         }
       }
@@ -83,7 +83,7 @@ struct ContentView: View {
           SuggestionsList(
             suggestions: self.suggestions,
             selection: self.$selection,
-            select: { self.text = NSAttributedString(string: $0.jid) }
+            select: { self.text = AttributedString($0.jid) }
           )
         }
       }
@@ -128,16 +128,19 @@ struct ContentView: View {
     if let index: Int = self.selection.flatMap(self.suggestions.index(id:)) {
       let newIndex: Int = min(index + 1, self.suggestions.count - 1)
       self.selection = self.suggestions[newIndex].id
-    } else {
+      return true
+    } else if !self.suggestions.isEmpty {
       self.selection = self.suggestions[0].id
+      return true
+    } else {
+      return false
     }
-    return true
   }
 
   func confirmSelection() -> Bool {
     guard let selection = self.selection else { return false }
     guard let index = self.suggestions.index(id: selection) else { return false }
-    self.text = NSAttributedString(string: self.suggestions[index].jid)
+    self.text = AttributedString(self.suggestions[index].jid)
     return true
   }
 }

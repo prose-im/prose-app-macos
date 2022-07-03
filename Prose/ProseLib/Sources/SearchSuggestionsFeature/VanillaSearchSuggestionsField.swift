@@ -14,15 +14,20 @@ public enum SearchSuggestionEvent: Equatable {
   case confirmSelection
 }
 
+let vanillaSearchSuggestionsFieldDefaultTextAttributes: [NSAttributedString.Key: Any] = [
+  .font: NSFont.preferredFont(forTextStyle: .body),
+  .foregroundColor: NSColor.textColor,
+]
+
 public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
-  @Binding var text: NSAttributedString
+  @Binding var text: AttributedString
   let showSuggestions: Bool
   let suggestionsView: () -> SuggestionsView
 
   let handleKeyboardEvent: (SearchSuggestionEvent) -> Bool
 
   public init(
-    text: Binding<NSAttributedString>,
+    text: Binding<AttributedString>,
     showSuggestions: Bool,
     handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> Bool = { _ in false },
     @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
@@ -33,34 +38,51 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     self.handleKeyboardEvent = handleKeyboardEvent
   }
 
-  public func makeNSView(context: Context) -> NSTextField {
-    let textField = NSTextField(frame: .zero)
-    textField.delegate = context.coordinator
+  public func makeNSView(context: Context) -> NSTextView {
+    let textView = MyTextView(frame: .zero)
+    textView.delegate = context.coordinator
+
+    textView.textStorage?.setAttributedString(NSAttributedString(self.text))
+    textView.typingAttributes = vanillaSearchSuggestionsFieldDefaultTextAttributes
 
     // Make text field rounded
-    textField.bezelStyle = .squareBezel
-//    textField.controlSize = .large
+//    textView.bezelStyle = .squareBezel
+//    textView.controlSize = .large
 
     // Allow display of attachments
-    textField.allowsEditingTextAttributes = true
+//    textView.allowsEditingTextAttributes = true
 
-//    textField.translatesAutoresizingMaskIntoConstraints = false
-//    NSLayoutConstraint.activate([
-//      textField.heightAnchor.constraint(equalToConstant: 64),
-//    ])
+    textView.wantsLayer = true
+    textView.layer!.borderWidth = 1
+    textView.layer!.borderColor = NSColor.separatorColor.cgColor
+    textView.layer!.cornerRadius = 6
 
-    return textField
+    textView.textContainerInset = NSSize(width: 0, height: 2)
+
+    textView.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      textView.heightAnchor.constraint(equalToConstant: 22),
+    ])
+
+    return textView
   }
 
-  public func updateNSView(_ textField: NSTextField, context: Context) {
+  public func updateNSView(_ textView: NSTextView, context: Context) {
+//    var attrs: [AttributedString.Key: Any] = [:]
+//    attrs[.foregroundColor] = NSColor.red
+    // NOTE: [Rémi Bardon] I really don't think this is good, this should use the TextKit 2 APIs
+//    let range = NSMakeRange(0, textView.textStorage!.characters.count)
+//    textView.textStorage!.addAttributes(attrs, range: range)
+
     // Update the text field text if this update came from SwiftUI
-    if textField.attributedStringValue != self.text {
-      textField.attributedStringValue = self.text
+    if AttributedString(textView.attributedString()) != self.text {
+      textView.textStorage?.setAttributedString(NSAttributedString(self.text))
+      textView.typingAttributes = vanillaSearchSuggestionsFieldDefaultTextAttributes
     }
 
-    if self.showSuggestions, textField.currentEditor() != nil {
+    if self.showSuggestions, textView.window?.firstResponder == textView {
       // Update the window
-      context.coordinator.wc.showSuggestions(self.suggestionsView, on: textField)
+      context.coordinator.wc.showSuggestions(self.suggestionsView, on: textView)
     } else {
       context.coordinator.wc.orderOut()
     }
@@ -76,8 +98,8 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     )
   }
 
-  public final class Coordinator: NSObject, NSTextFieldDelegate {
-    let text: Binding<NSAttributedString>
+  public final class Coordinator: NSObject, NSTextViewDelegate {
+    let text: Binding<AttributedString>
 
     let handleKeyboardEvent: (SearchSuggestionEvent) -> Bool
 
@@ -86,7 +108,7 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     lazy var wc: SuggestionsWindowController<SuggestionsView> = self._wc()
 
     init(
-      text: Binding<NSAttributedString>,
+      text: Binding<AttributedString>,
       wc: @escaping () -> SuggestionsWindowController<SuggestionsView>,
       handleKeyboardEvent: @escaping (SearchSuggestionEvent) -> Bool
     ) {
@@ -95,21 +117,22 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
       self.handleKeyboardEvent = handleKeyboardEvent
     }
 
-    public func controlTextDidEndEditing(_: Notification) {
+    public func textDidEndEditing(_: Notification) {
       // Hide the popover window when the user focuses another control in the app
       self.wc.orderOut()
     }
 
-    public func controlTextDidChange(_ notification: Notification) {
-      guard let textField = notification.object as? NSTextField else { return }
+    public func textDidChange(_ notification: Notification) {
+      guard let textView = notification.object as? NSTextView else {
+        fatalError()
+      }
 
       // Send the text update to SwiftUI
-      self.text.wrappedValue = textField.attributedStringValue
+      self.text.wrappedValue = AttributedString(textView.attributedString())
     }
 
-    public func control(
-      _: NSControl,
-      textView _: NSTextView,
+    public func textView(
+      _: NSTextView,
       doCommandBy commandSelector: Selector
     ) -> Bool {
       let event: SearchSuggestionEvent
@@ -127,4 +150,19 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
       return self.handleKeyboardEvent(event)
     }
   }
+}
+
+final class MyTextView: NSTextView {
+
+  override class var defaultFocusRingType: NSFocusRingType { .exterior }
+  override var focusRingMaskBounds: NSRect { self.bounds }
+
+  override func drawFocusRingMask() {
+    if let radius = self.layer?.cornerRadius {
+      NSBezierPath(roundedRect: self.focusRingMaskBounds, xRadius: radius, yRadius: radius).fill()
+    } else {
+      super.drawFocusRingMask()
+    }
+  }
+
 }

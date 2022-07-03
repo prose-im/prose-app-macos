@@ -52,13 +52,15 @@ public struct SearchSuggestionsField<
         }
       }
       .onAppear {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-          let text = NSMutableAttributedString(attributedString: viewStore.text)
-//          let attachment = NSTextAttachment()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+          var text = viewStore.text
+
+          guard let range = text.range(of: "remi@prose.org") else { fatalError() }
+
           let attachment = MyAttachment(jid: "remi@prose.org")
-//          let data: Data = "test".data(using: .utf8)!
-//          let attachment = NSTextAttachment(data: data, ofType: UTType.utf8PlainText.identifier)
-          text.append(NSAttributedString(attachment: attachment))
+          let newString = AttributedString(NSAttributedString(attachment: attachment, attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes))
+          text.replaceSubrange(range, with: newString)
+
           viewStore.send(.textDidChange(text))
         }
       }
@@ -124,7 +126,7 @@ enum AutoSuggestToken: CaseIterable, Hashable {
 }
 
 public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
-  stringForSuggestion: @escaping (Suggestion) -> NSAttributedString,
+  stringForSuggestion: @escaping (Suggestion) -> AttributedString,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
   SearchSuggestionsFieldState<Suggestion>,
@@ -161,10 +163,13 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       if let index: Int = state.selection.flatMap(suggestions.index(id:)) {
         let newIndex: Int = min(index + 1, suggestions.count - 1)
         state.selection = suggestions[newIndex].id
+        return true
       } else if !suggestions.isEmpty {
         state.selection = suggestions[0].id
+        return true
+      } else {
+        return false
       }
-      return true
     }
 
     func confirmSelection() -> Bool {
@@ -184,8 +189,8 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
     case let .textDidChange(text):
       state.text = text
       state.isProcessing = true
-      let excludedTerms: Set<String> = [text.string]
-      return environment.client.loadSuggestions(text.string, excludedTerms)
+      let excludedTerms: Set<String> = [NSAttributedString(text).string]
+      return environment.client.loadSuggestions(NSAttributedString(text).string, excludedTerms)
         .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
         .replaceError(with: [])
         .eraseToEffect()
@@ -215,20 +220,20 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
 // MARK: State
 
 public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: Equatable {
-  @BindableState var text: NSAttributedString
+  @BindableState var text: AttributedString
   var suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>>
   var showSuggestions: Bool
   var selection: Suggestion.ID?
   var isProcessing: Bool
 
   public init(
-    text: NSAttributedString = NSAttributedString(),
+    text: AttributedString? = nil,
     suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>> = [],
     showSuggestions: Bool = false,
     selection: Suggestion.ID? = nil,
     isProcessing: Bool = false
   ) {
-    self.text = text
+    self.text = text ?? AttributedString("remi@prose.org", attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes))
     self.suggestions = suggestions
     self.showSuggestions = showSuggestions
     self.selection = selection
@@ -242,6 +247,6 @@ public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Hashable>: E
   BindableAction
 {
   case keyboard(SearchSuggestionEvent)
-  case textDidChange(NSAttributedString), showSuggestions([AutoSuggestSection<Suggestion>])
+  case textDidChange(AttributedString), showSuggestions([AutoSuggestSection<Suggestion>])
   case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
 }

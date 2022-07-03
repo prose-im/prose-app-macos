@@ -59,10 +59,10 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
     }
   }
 
-  func showSuggestions(_ suggestionsView: () -> Content, on textField: NSTextField) {
+  func showSuggestions(_ suggestionsView: () -> Content, on view: NSView) {
     // Fail gracefully if we cannot show the window
-    guard let textFieldWindow = textField.window else {
-      return logger.error("`textField` has no `window`")
+    guard let viewWindow = view.window else {
+      return logger.error("`view` has no `window`")
     }
     guard let window = self.window else {
       return logger.error("`window` is `nil`")
@@ -71,18 +71,18 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
     // Show the window if needed
     if !window.isVisible {
       // Move the window under the text field
-      var textFieldRect = textField.convert(textField.bounds, to: nil)
-      textFieldRect = textFieldWindow.convertToScreen(textFieldRect)
-      window.setFrameTopLeftPoint(textFieldRect.origin)
+      var viewRect = view.convert(view.bounds, to: nil)
+      viewRect = viewWindow.convertToScreen(viewRect)
+      window.setFrameTopLeftPoint(viewRect.origin)
 
       // Make the window a little bigger than the text field
       var frame = window.frame
-      frame.size.width = textField.frame.width + 16
+      frame.size.width = view.frame.width + 16
       frame.origin.x -= 8
       window.setFrame(frame, display: false)
 
       // Add the window on screen
-      textFieldWindow.addChildWindow(window, ordered: .above)
+      viewWindow.addChildWindow(window, ordered: .above)
 
       logger.trace("Window added on screen")
     }

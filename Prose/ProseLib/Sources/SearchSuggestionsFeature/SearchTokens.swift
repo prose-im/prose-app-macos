@@ -11,22 +11,24 @@ struct TokenView: View {
     Button { print("Test") } label: {
       HStack(spacing: 3) {
         Color.white
-          .frame(width: 10, height: 10)
+          .frame(width: 12, height: 12)
           .clipShape(RoundedRectangle(cornerRadius: 2))
+          .frame(alignment: .leadingLastTextBaseline)
         Text("Very long text")
-          .font(.system(size: 10))
-          .foregroundColor(.white)
       }
       .padding(.horizontal, 3)
       .padding(.vertical, 1)
-      .frame(width: 128, height: 8)
       .background {
         RoundedRectangle(cornerRadius: 4)
           .fill(Color.blue.opacity(0.25))
       }
     }
+//    .font(.system(size: 12))
+//    .padding(.horizontal, 2)
     .buttonStyle(.plain)
+//    .foregroundColor(.white)
     .fixedSize()
+//    .frame(alignment: .leadingLastTextBaseline)
   }
 }
 
@@ -50,29 +52,28 @@ final class MyAttachment: NSTextAttachment {
     proposedLineFragment: CGRect,
     position: CGPoint
   ) -> CGRect {
-    let rect = super.attachmentBounds(
-      for: attributes,
-      location: location,
-      textContainer: textContainer,
-      proposedLineFragment: proposedLineFragment,
-      position: position
+    fatalError("This should not be called (or it should, but AppKit doesn't call this one)")
+  }
+
+  override func attachmentBounds(
+    for textContainer: NSTextContainer?,
+    proposedLineFragment lineFrag: CGRect,
+    glyphPosition position: CGPoint,
+    characterIndex charIndex: Int
+  ) -> CGRect {
+    let bounds = super.attachmentBounds(
+      for: textContainer,
+      proposedLineFragment: lineFrag,
+      glyphPosition: position,
+      characterIndex: charIndex
     )
-    return rect
+    // NOTE: SwiftUI's `.frame(alignment: .leadingLastTextBaseline)` aligns the baselines perfectly,
+    //       but it causes line height issues. The `-4` magic number seems to align pretty well.
+    return bounds.offsetBy(dx: 0, dy: -4)
   }
 }
 
 class MyTextAttachmentViewProvider: NSTextAttachmentViewProvider {
-//  override init(textAttachment: NSTextAttachment, parentView: NSView?, textLayoutManager: NSTextLayoutManager?, location: NSTextLocation) {
-//    super.init(textAttachment: textAttachment, parentView: parentView, textLayoutManager: textLayoutManager, location: location)
-//
-//    let view = NSHostingView(rootView: TokenView())
-  ////    view.setFrameSize(NSSize(width: 24, height: 8))
-  ////    view.backgroundColor = .systemRed
-//    self.view = view
-//
-//    textAttachment.bounds = CGRect(x: 0, y: 0, width: 15, height: 15)
-//  }
-
   override init(
     textAttachment: NSTextAttachment,
     parentView: NSView?,
@@ -90,25 +91,28 @@ class MyTextAttachmentViewProvider: NSTextAttachmentViewProvider {
 
   override func loadView() {
     let view = NSHostingView(rootView: TokenView())
-//    view.setFrameSize(NSSize(width: 24, height: 4))
     self.view = view
   }
+}
 
-  override func attachmentBounds(
-    for _: [NSAttributedString.Key: Any],
-    location _: NSTextLocation,
-    textContainer _: NSTextContainer?,
-    proposedLineFragment _: CGRect,
-    position _: CGPoint
-  ) -> CGRect {
-    fatalError()
+extension NSAttributedString {
+  /// Initializes a new `NSAttributedString` with the given `NSTextAttachment` and applies
+  /// `attributes` to it.
+  convenience init(attachment: NSTextAttachment, attributes: [NSAttributedString.Key: Any]) {
+    var attributes = attributes
+    attributes[.attachment] = attachment
+    self.init(
+      string: String(Character(UnicodeScalar(NSTextAttachment.character)!)),
+      attributes: attributes
+    )
   }
+}
 
-//  override func loadView() {
-//    let view = NSView()
-//    view.wantsLayer = true
-//    view.layer?.backgroundColor = NSColor.purple.cgColor
-//    view.setFrameSize(NSSize(width: 4, height: 4))
-//    self.view = view
-//  }
+extension AttributedString {
+  /// Appends a space to the receiver.
+  func appendingSpace() -> AttributedString {
+    var copy = self
+    copy.append(AttributedString(" ", attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes)))
+    return copy
+  }
 }
