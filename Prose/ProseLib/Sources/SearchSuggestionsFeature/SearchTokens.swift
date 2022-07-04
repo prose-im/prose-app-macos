@@ -26,9 +26,9 @@ struct TokenView: View {
       }
     }
     .frame(alignment: .leadingLastTextBaseline)
-//    .padding(.horizontal, 2)
+    .padding(.horizontal, 2)
     .buttonStyle(.plain)
-    .foregroundColor(.white)
+//    .foregroundColor(.white)
     .fixedSize()
   }
 }

@@ -39,7 +39,7 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
   }
 
   public func makeNSView(context: Context) -> NSTextView {
-    let textView = NSTextView(frame: .zero)
+    let textView = MyTextView(frame: .zero)
     textView.delegate = context.coordinator
 
     textView.textStorage?.setAttributedString(NSAttributedString(self.text))
@@ -52,9 +52,16 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
     // Allow display of attachments
 //    textView.allowsEditingTextAttributes = true
 
+    textView.wantsLayer = true
+    textView.layer!.borderWidth = 1
+    textView.layer!.borderColor = NSColor.separatorColor.cgColor
+    textView.layer!.cornerRadius = 6
+
+    textView.textContainerInset = NSSize(width: 0, height: 2)
+
     textView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
-      textView.heightAnchor.constraint(equalToConstant: 32),
+      textView.heightAnchor.constraint(equalToConstant: 22),
     ])
 
     return textView
@@ -143,4 +150,19 @@ public struct VanillaSearchSuggestionsField<SuggestionsView: View>: NSViewRepres
       return self.handleKeyboardEvent(event)
     }
   }
+}
+
+final class MyTextView: NSTextView {
+
+  override class var defaultFocusRingType: NSFocusRingType { .exterior }
+  override var focusRingMaskBounds: NSRect { self.bounds }
+
+  override func drawFocusRingMask() {
+    if let radius = self.layer?.cornerRadius {
+      NSBezierPath(roundedRect: self.focusRingMaskBounds, xRadius: radius, yRadius: radius).fill()
+    } else {
+      super.drawFocusRingMask()
+    }
+  }
+
 }
