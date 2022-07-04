@@ -55,14 +55,8 @@ public struct SearchSuggestionsField<
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
           var text = viewStore.text
 
-          guard let range = text.range(of: "remi@prose.org") else {
-            fatalError()
-          }
+          guard let range = text.range(of: "remi@prose.org") else { fatalError() }
 
-//          let attachment = NSTextAttachment()
-//          let data: Data = "test".data(using: .utf8)!
-//          let attachment = NSTextAttachment(data: data, ofType: UTType.utf8PlainText.identifier)
-//          text.append(AttributedString(attachment: attachment))
           let attachment = MyAttachment(jid: "remi@prose.org")
           let newString = AttributedString(NSAttributedString(attachment: attachment, attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes))
           text.replaceSubrange(range, with: newString)
