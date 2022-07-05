@@ -33,9 +33,16 @@ struct ContentView: View {
   @State private var selection: Suggestion.ID?
 
   private let tcaStore = Store(
-    initialState: SearchSuggestionsFieldState(),
+    initialState: WithSuggestionsListFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      stringForSuggestion: { AttributedString($0.jid) }
+      attachmentForSuggestion: { JIDAttachment(jid: $0.jid, displayName: $0.name) },
+      stringFromAttachment: { (attachment: NSTextAttachment) -> String? in
+        guard let jid = (attachment as? JIDAttachment)?.jid else {
+          assertionFailure("`attachment` is not a `JIDAttachment`")
+          return nil
+        }
+        return jid
+      }
     ),
     environment: .init(
       client: .chooseFrom([
@@ -43,6 +50,12 @@ struct ContentView: View {
       ], on: { [$0.jid, $0.name] }),
       mainQueue: .main
     )
+  )
+  #warning("Add back the vanilla logic")
+  private let simpleStore = Store(
+    initialState: WithSuggestionsFieldState(),
+    reducer: withSuggestionsFieldReducer,
+    environment: ()
   )
 
   var body: some View {
@@ -55,17 +68,13 @@ struct ContentView: View {
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("TCA, `VStack` content")
-        SearchSuggestionsField(store: self.tcaStore) { suggestion in
+        WithSuggestionsListField(store: self.tcaStore) { suggestion in
           Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
         }
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("Vanilla SwiftUI, `VStack` content")
-        VanillaSearchSuggestionsField(
-          text: self.$text,
-          showSuggestions: !self.suggestions.isEmpty,
-          handleKeyboardEvent: self.handleKeyboardEvent
-        ) {
+        WithSuggestionsField(store: self.simpleStore) {
           SuggestionsVStack(
             suggestions: self.suggestions,
             selection: self.$selection,
@@ -75,11 +84,7 @@ struct ContentView: View {
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("Vanilla SwiftUI, `List` content")
-        VanillaSearchSuggestionsField(
-          text: self.$text,
-          showSuggestions: !self.suggestions.isEmpty,
-          handleKeyboardEvent: self.handleKeyboardEvent
-        ) {
+        WithSuggestionsField(store: self.simpleStore) {
           SuggestionsList(
             suggestions: self.suggestions,
             selection: self.$selection,
