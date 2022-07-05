@@ -132,7 +132,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
       self.wc.orderOut()
     }
 
-    public func textDidChange(_ notification: Notification) {
+    public func textDidChange(_: Notification) {
       self.textViewIsChanging = false
 
       self.isSendingTextChangeToStore = true
@@ -141,7 +141,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
       self.isSendingTextChangeToStore = false
     }
 
-    public func textViewDidChangeSelection(_ notification: Notification) {
+    public func textViewDidChangeSelection(_: Notification) {
       guard !self.textViewIsChanging else { return }
 
       self.viewStore.send(.textSelectionDidChange)
@@ -172,7 +172,6 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
 }
 
 final class MyTextView: NSTextView {
-
   override class var defaultFocusRingType: NSFocusRingType { .exterior }
   override var focusRingMaskBounds: NSRect { self.bounds }
 
@@ -183,7 +182,6 @@ final class MyTextView: NSTextView {
       super.drawFocusRingMask()
     }
   }
-
 }
 
 // MARK: - The Composable Architecture
@@ -214,6 +212,7 @@ public struct WithSuggestionsFieldState: Equatable {
     guard queryRange.length != 0 else { return "" }
     return attributedString.attributedSubstring(from: queryRange).string
   }
+
   #warning("TODO: `excludedTerms`")
   var excludedTerms: Set<String> { [] }
 

@@ -53,7 +53,7 @@ public final class MyAttachment: NSTextAttachment {
     fatalError("init(coder:) has not been implemented")
   }
 
-  public override func attachmentBounds(
+  override public func attachmentBounds(
     for attributes: [NSAttributedString.Key: Any],
     location: NSTextLocation,
     textContainer: NSTextContainer?,
@@ -72,7 +72,7 @@ public final class MyAttachment: NSTextAttachment {
     return bounds.offsetBy(dx: 0, dy: -4)
   }
 
-  public override func attachmentBounds(
+  override public func attachmentBounds(
     for textContainer: NSTextContainer?,
     proposedLineFragment lineFrag: CGRect,
     glyphPosition position: CGPoint,
@@ -131,7 +131,10 @@ extension AttributedString {
   /// Appends a space to the receiver.
   func appendingSpace() -> AttributedString {
     var copy = self
-    copy.append(AttributedString(" ", attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes)))
+    copy.append(AttributedString(
+      " ",
+      attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes)
+    ))
     return copy
   }
 }

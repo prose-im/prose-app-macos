@@ -1,21 +1,19 @@
 //
-//  File.swift
-//  
-//
-//  Created by Rémi Bardon on 05/07/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import Cocoa
 
-fileprivate extension NSRange {
+private extension NSRange {
   init(_ textRange: NSTextRange, in textContentManager: NSTextContentManager) {
     let offset = textContentManager.offset(
       from: textContentManager.documentRange.location,
-        to: textRange.location
+      to: textRange.location
     )
     let length = textContentManager.offset(
       from: textRange.location,
-        to: textRange.endLocation
+      to: textRange.endLocation
     )
     self.init(location: offset, length: length)
   }
@@ -23,7 +21,7 @@ fileprivate extension NSRange {
   init(_ textLocation: NSTextLocation, in textContentManager: NSTextContentManager) {
     let offset = textContentManager.offset(
       from: textContentManager.documentRange.location,
-        to: textLocation
+      to: textLocation
     )
     self.init(location: offset, length: 0)
   }
@@ -52,7 +50,11 @@ extension NSTextContentStorage {
       let range = NSRange(textRange, in: self)
 
       // Find attachment
-      let attachment = attributedString.attribute(.attachment, at: range.location, effectiveRange: nil)
+      let attachment = attributedString.attribute(
+        .attachment,
+        at: range.location,
+        effectiveRange: nil
+      )
 
       // Stop enumerating if we found an attachment
       if attachment != nil {
@@ -68,7 +70,7 @@ extension NSTextContentStorage {
     let endLocation = endLocation ?? self.documentRange.endLocation
 
     let start: Int = self.prose_endIndexOfLastAttachment(before: endLocation) ?? 0
-    let end: NSRange = NSRange(endLocation, in: self)
+    let end = NSRange(endLocation, in: self)
     return NSRange(location: start, length: end.upperBound - start)
   }
 
@@ -78,7 +80,8 @@ extension NSTextContentStorage {
       assertionFailure("`textLayoutManagers` is empty.")
       return NSRange(location: NSNotFound, length: 0)
     }
-    let location: NSTextLocation? = textLayoutManager.textSelections.last?.textRanges.last?.endLocation
+    let location: NSTextLocation? = textLayoutManager.textSelections.last?.textRanges.last?
+      .endLocation
 
     return self.prose_rangeFromLastAttachment(to: location)
   }
