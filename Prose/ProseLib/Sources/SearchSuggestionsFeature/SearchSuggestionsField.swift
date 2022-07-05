@@ -34,14 +34,8 @@ public struct SearchSuggestionsField<
 
   public var body: some View {
     WithViewStore(self.store) { viewStore in
-      VanillaSearchSuggestionsField(
-        text: viewStore.binding(\.$text),
-        showSuggestions: viewStore.showSuggestions,
-        handleKeyboardEvent: { (event: SearchSuggestionEvent) in
-          viewStore.send(.keyboard(event))
-          // NOTE: We cannot know if the event was handled here… so let's suppose it was.
-          return true
-        },
+      WithSuggestionsField(
+        store: self.store.scope(state: \ViewState.field, action: ViewAction.field),
         suggestionsView: { suggestionsView(viewStore: viewStore) }
       )
       .overlay(alignment: .trailing) {
@@ -49,19 +43,6 @@ public struct SearchSuggestionsField<
           ProgressView()
             .progressViewStyle(.circular)
             .scaleEffect(0.5)
-        }
-      }
-      .onAppear {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
-          var text = viewStore.text
-
-          guard let range = text.range(of: "remi@prose.org") else { fatalError() }
-
-          let attachment = MyAttachment(jid: "remi@prose.org")
-          let newString = AttributedString(NSAttributedString(attachment: attachment, attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes))
-          text.replaceSubrange(range, with: newString)
-
-          viewStore.send(.textDidChange(text))
         }
       }
     }
@@ -126,7 +107,7 @@ enum AutoSuggestToken: CaseIterable, Hashable {
 }
 
 public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
-  stringForSuggestion: @escaping (Suggestion) -> AttributedString,
+  attachmentForSuggestion: @escaping (Suggestion) -> NSTextAttachment,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
   SearchSuggestionsFieldState<Suggestion>,
@@ -145,7 +126,7 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       }
     }
 
-    func moveUp() -> Bool {
+    @discardableResult func moveUp() -> Bool {
       guard let selection: Suggestion.ID = state.selection else { return false }
       let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
         uniqueElements: state.suggestions.flatMap(\.items)
@@ -156,7 +137,7 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       return true
     }
 
-    func moveDown() -> Bool {
+    @discardableResult func moveDown() -> Bool {
       let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
         uniqueElements: state.suggestions.flatMap(\.items)
       )
@@ -172,25 +153,42 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
       }
     }
 
-    func confirmSelection() -> Bool {
-      guard let selection = state.selection else { return false }
+    @discardableResult func confirmSelection() -> Bool {
+      guard let selectionId = state.selection else { return false }
       let suggestions: IdentifiedArrayOf<Suggestion> = IdentifiedArray(
         uniqueElements: state.suggestions.flatMap(\.items)
       )
-      guard let index = suggestions.index(id: selection) else { return false }
-      state.text = stringForSuggestion(suggestions[index])
-      if closeWhenConfirmingSelection {
-        state.showSuggestions = false
+      guard let suggestion = suggestions[id: selectionId] else { return false }
+
+      let textContentStorage: NSTextContentStorage = state.field.textContentStorage
+      guard let attributedString: NSAttributedString = textContentStorage.attributedString else {
+        assertionFailure("`textContentStorage.attributedString` should not be `nil`.")
+        return false
       }
+
+      // We recalculate the query range here, as the user might have written more characters
+      // than when we triggered the suggestions fetching.
+      // NOTE: There might be an issue if the user moves the caret, but let's ignore that.
+      let queryRange: NSRange = textContentStorage.prose_rangeFromLastAttachmentToCaret()
+
+      let mutableString = NSMutableAttributedString(attributedString: attributedString)
+      mutableString.replaceCharacters(in: queryRange, with: NSAttributedString(
+        attachment: attachmentForSuggestion(suggestion),
+        attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes
+      ))
+      textContentStorage.attributedString = mutableString
+
+      if closeWhenConfirmingSelection {
+        state.field.showSuggestions = false
+      }
+
       return true
     }
 
     switch action {
-    case let .textDidChange(text):
-      state.text = text
+    case .fetchSuggestions:
       state.isProcessing = true
-      let excludedTerms: Set<String> = [NSAttributedString(text).string]
-      return environment.client.loadSuggestions(NSAttributedString(text).string, excludedTerms)
+      return environment.client.loadSuggestions(state.field.query, state.field.excludedTerms)
         .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
         .replaceError(with: [])
         .eraseToEffect()
@@ -199,43 +197,58 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
     case let .showSuggestions(suggestions):
       state.isProcessing = false
       state.suggestions = IdentifiedArray(uniqueElements: suggestions)
-      state.showSuggestions = !suggestions.isEmpty
+      state.field.showSuggestions = !suggestions.isEmpty
       return .none
 
     case let .keyboard(event):
       handleKeyboardEvent(event: event)
       return .none
 
-    case .binding(\.$text):
-      return Effect(value: .textDidChange(state.text))
+    case .field(.textDidChange):
+      return Effect(value: .fetchSuggestions)
         .debounce(id: AutoSuggestToken.debounce, for: 0.5, scheduler: environment.mainQueue)
         .eraseToEffect()
+
+    case .field(.keyboardEventReceived(.moveUp)):
+      moveUp()
+      return .none
+
+    case .field(.keyboardEventReceived(.moveDown)):
+      moveDown()
+      return .none
+
+    case .field(.keyboardEventReceived(.confirmSelection)):
+      confirmSelection()
+      return .none
 
     default:
       return .none
     }
   }.binding()
+    .combined(with: withSuggestionsFieldReducer.pullback(
+      state: \SearchSuggestionsFieldState<Suggestion>.field,
+      action: CasePath(SearchSuggestionsFieldAction<Suggestion>.field),
+      environment: { _ in () }
+    ))
 }
 
 // MARK: State
 
 public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: Equatable {
-  @BindableState var text: AttributedString
   var suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>>
-  var showSuggestions: Bool
   var selection: Suggestion.ID?
   var isProcessing: Bool
 
+  var field: WithSuggestionsFieldState
+
   public init(
-    text: AttributedString? = nil,
+    field: WithSuggestionsFieldState? = nil,
     suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>> = [],
-    showSuggestions: Bool = false,
     selection: Suggestion.ID? = nil,
     isProcessing: Bool = false
   ) {
-    self.text = text ?? AttributedString("remi@prose.org", attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes))
+    self.field = field ?? WithSuggestionsFieldState()
     self.suggestions = suggestions
-    self.showSuggestions = showSuggestions
     self.selection = selection
     self.isProcessing = isProcessing
   }
@@ -247,6 +260,7 @@ public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Hashable>: E
   BindableAction
 {
   case keyboard(SearchSuggestionEvent)
-  case textDidChange(AttributedString), showSuggestions([AutoSuggestSection<Suggestion>])
+  case fetchSuggestions, showSuggestions([AutoSuggestSection<Suggestion>])
+  case field(WithSuggestionsFieldAction)
   case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
 }

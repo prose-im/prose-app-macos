@@ -35,7 +35,7 @@ struct ContentView: View {
   private let tcaStore = Store(
     initialState: SearchSuggestionsFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      stringForSuggestion: { AttributedString($0.jid) }
+      attachmentForSuggestion: { MyAttachment(jid: $0.jid, displayName: $0.name) }
     ),
     environment: .init(
       client: .chooseFrom([
@@ -43,6 +43,12 @@ struct ContentView: View {
       ], on: { [$0.jid, $0.name] }),
       mainQueue: .main
     )
+  )
+  #warning("Add back the vanilla logic")
+  private let simpleStore = Store(
+    initialState: WithSuggestionsFieldState(),
+    reducer: withSuggestionsFieldReducer,
+    environment: ()
   )
 
   var body: some View {
@@ -61,11 +67,7 @@ struct ContentView: View {
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("Vanilla SwiftUI, `VStack` content")
-        VanillaSearchSuggestionsField(
-          text: self.$text,
-          showSuggestions: !self.suggestions.isEmpty,
-          handleKeyboardEvent: self.handleKeyboardEvent
-        ) {
+        WithSuggestionsField(store: self.simpleStore) {
           SuggestionsVStack(
             suggestions: self.suggestions,
             selection: self.$selection,
@@ -75,11 +77,7 @@ struct ContentView: View {
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("Vanilla SwiftUI, `List` content")
-        VanillaSearchSuggestionsField(
-          text: self.$text,
-          showSuggestions: !self.suggestions.isEmpty,
-          handleKeyboardEvent: self.handleKeyboardEvent
-        ) {
+        WithSuggestionsField(store: self.simpleStore) {
           SuggestionsList(
             suggestions: self.suggestions,
             selection: self.$selection,

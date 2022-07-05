@@ -7,20 +7,22 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct TokenView: View {
+  let name: String
+
   var body: some View {
-    Button { print("Test") } label: {
+    Button { print("Tapped token '\(name)'") } label: {
       HStack(spacing: 3) {
         Color.white
           .frame(width: 12, height: 12)
           .clipShape(RoundedRectangle(cornerRadius: 2))
           .frame(alignment: .leadingLastTextBaseline)
-        Text("Very long text")
+        Text(verbatim: self.name)
       }
       .padding(.horizontal, 3)
       .padding(.vertical, 1)
       .background {
         RoundedRectangle(cornerRadius: 4)
-          .fill(Color.blue.opacity(0.25))
+          .fill(Color.blue.opacity(0.375))
       }
     }
 //    .font(.system(size: 12))
@@ -32,10 +34,16 @@ struct TokenView: View {
   }
 }
 
-final class MyAttachment: NSTextAttachment {
+public final class MyAttachment: NSTextAttachment {
   static let fileType: UTType = .utf8PlainText
 
-  init(jid: String) {
+  let jid: String
+  let displayName: String
+
+  public init(jid: String, displayName: String) {
+    self.jid = jid
+    self.displayName = displayName
+
     let data: Data = jid.data(using: .utf8)!
     super.init(data: data, ofType: Self.fileType.identifier)
   }
@@ -45,22 +53,32 @@ final class MyAttachment: NSTextAttachment {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func attachmentBounds(
+  public override func attachmentBounds(
     for attributes: [NSAttributedString.Key: Any],
     location: NSTextLocation,
     textContainer: NSTextContainer?,
     proposedLineFragment: CGRect,
     position: CGPoint
   ) -> CGRect {
-    fatalError("This should not be called (or it should, but AppKit doesn't call this one)")
+    let bounds = super.attachmentBounds(
+      for: attributes,
+      location: location,
+      textContainer: textContainer,
+      proposedLineFragment: proposedLineFragment,
+      position: position
+    )
+    // NOTE: SwiftUI's `.frame(alignment: .leadingLastTextBaseline)` aligns the baselines perfectly,
+    //       but it causes line height issues. The `-4` magic number seems to align pretty well.
+    return bounds.offsetBy(dx: 0, dy: -4)
   }
 
-  override func attachmentBounds(
+  public override func attachmentBounds(
     for textContainer: NSTextContainer?,
     proposedLineFragment lineFrag: CGRect,
     glyphPosition position: CGPoint,
     characterIndex charIndex: Int
   ) -> CGRect {
+    assertionFailure("This should not be called, but let's make sure")
     let bounds = super.attachmentBounds(
       for: textContainer,
       proposedLineFragment: lineFrag,
@@ -90,7 +108,8 @@ class MyTextAttachmentViewProvider: NSTextAttachmentViewProvider {
   }
 
   override func loadView() {
-    let view = NSHostingView(rootView: TokenView())
+    guard let attachment: MyAttachment = self.textAttachment as? MyAttachment else { fatalError() }
+    let view = NSHostingView(rootView: TokenView(name: attachment.displayName))
     self.view = view
   }
 }
