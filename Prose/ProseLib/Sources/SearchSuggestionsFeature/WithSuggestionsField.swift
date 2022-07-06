@@ -186,8 +186,27 @@ public struct WithSuggestionsFieldState: Equatable {
     return attributedString.attributedSubstring(from: queryRange).string
   }
 
-  #warning("TODO: `excludedTerms`")
-  var excludedTerms: Set<String> { [] }
+  func excludedTerms(stringFromAttachment: (NSTextAttachment) -> String?) -> Set<String> {
+    var excludedTerms = Set<String>()
+
+    guard let attributedString: NSAttributedString = self.textContentStorage.attributedString else {
+      assertionFailure("`textContentStorage.attributedString` should not be `nil`.")
+      return excludedTerms
+    }
+
+    let range = NSRange(0..<attributedString.length)
+    attributedString.enumerateAttribute(.attachment, in: range) { data, _, _ in
+      guard let data: Any = data else { return }
+      guard let attachment: NSTextAttachment = data as? NSTextAttachment else {
+        assertionFailure("`data` is not a `NSTextAttachment`.")
+        return
+      }
+      guard let string: String = stringFromAttachment(attachment) else { return }
+      excludedTerms.insert(string)
+    }
+
+    return excludedTerms
+  }
 
   public init(
     textContentStorage: NSTextContentStorage = NSTextContentStorage(),

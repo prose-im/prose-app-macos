@@ -37,7 +37,7 @@ struct JIDTokenView: View {
 public final class JIDAttachment: NSTextAttachment {
   static let fileType: UTType = .utf8PlainText
 
-  let jid: String
+  public let jid: String
   let displayName: String
 
   public init(jid: String, displayName: String) {

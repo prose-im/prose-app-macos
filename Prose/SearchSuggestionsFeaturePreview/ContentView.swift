@@ -35,7 +35,14 @@ struct ContentView: View {
   private let tcaStore = Store(
     initialState: WithSuggestionsListFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      attachmentForSuggestion: { JIDAttachment(jid: $0.jid, displayName: $0.name) }
+      attachmentForSuggestion: { JIDAttachment(jid: $0.jid, displayName: $0.name) },
+      stringFromAttachment: { (attachment: NSTextAttachment) -> String? in
+        guard let jid = (attachment as? JIDAttachment)?.jid else {
+          assertionFailure("`attachment` is not a `JIDAttachment`")
+          return nil
+        }
+        return jid
+      }
     ),
     environment: .init(
       client: .chooseFrom([

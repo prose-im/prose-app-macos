@@ -113,6 +113,9 @@ enum AutoSuggestToken: CaseIterable, Hashable {
 /// - Parameters:
 ///   - attachmentForSuggestion: A function to transform a `Suggestion` to a ``NSTextAttachment``.
 ///     It's not in the ``WithSuggestionsListFieldState``, as it would break the ``Equatable`` conformance.
+///   - stringFromAttachment: A function to transform a ``NSTextAttachment`` into a ``String``.
+///     This ``String`` value is used to create the list of terms excluded from the suggestions fetch request.
+///     Note that this function can return `nil` if the ``NSTextAttachment`` was not of the correct type.
 ///   - closeWhenConfirmingSelection: A boolean indicating if we should close the companion window when
 ///     the user confirms their selection. It's not in the state, as this information depends on the view
 ///     placement on screen (and in the hierarchy), and not the view state itself.
@@ -120,6 +123,7 @@ enum AutoSuggestToken: CaseIterable, Hashable {
 ///     to `closeWhenConfirmingSelection = false`. This is therefore enforced by the reducer.
 public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
   attachmentForSuggestion: @escaping (Suggestion) -> NSTextAttachment,
+  stringFromAttachment: @escaping (NSTextAttachment) -> String?,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
   WithSuggestionsListFieldState<Suggestion>,
@@ -130,7 +134,10 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
     switch action {
     case .fetchSuggestions:
       state.isProcessing = true
-      return environment.client.loadSuggestions(state.field.query, state.field.excludedTerms)
+
+      let excludedTerms: Set<String> = state.field
+        .excludedTerms(stringFromAttachment: stringFromAttachment)
+      return environment.client.loadSuggestions(state.field.query, excludedTerms)
         .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
         .replaceError(with: [])
         .eraseToEffect()
