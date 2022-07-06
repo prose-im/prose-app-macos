@@ -33,7 +33,7 @@ struct ContentView: View {
   @State private var selection: Suggestion.ID?
 
   private let tcaStore = Store(
-    initialState: WithSuggestionListFieldState(),
+    initialState: WithSuggestionsListFieldState(),
     reducer: searchSuggestionsFieldReducer(
       attachmentForSuggestion: { MyAttachment(jid: $0.jid, displayName: $0.name) }
     ),
