@@ -13,7 +13,7 @@ struct TokenView: View {
     Button { print("Tapped token '\(name)'") } label: {
       HStack(spacing: 3) {
         Color.white
-          .frame(width: 12, height: 12)
+          .frame(width: 13, height: 13)
           .clipShape(RoundedRectangle(cornerRadius: 2))
           .frame(alignment: .leadingLastTextBaseline)
         Text(verbatim: self.name)
@@ -124,6 +124,18 @@ extension NSAttributedString {
       string: String(Character(UnicodeScalar(NSTextAttachment.character)!)),
       attributes: attributes
     )
+  }
+
+  /// Appends a space to the receiver.
+  func appendingSpace() -> NSAttributedString {
+    let mutableCopy = NSMutableAttributedString(attributedString: self)
+    mutableCopy.append(
+      NSAttributedString(
+        string: " ",
+        attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes
+      )
+    )
+    return mutableCopy
   }
 }
 
