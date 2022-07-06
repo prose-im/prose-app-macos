@@ -183,7 +183,9 @@ public struct WithSuggestionsFieldState: Equatable {
     //       but we can just skip if `queryRange.length == 0`.
     //       This way it's less dependant on the implementation details.
     guard queryRange.length != 0 else { return "" }
-    return attributedString.attributedSubstring(from: queryRange).string
+    let fullQuery: String = attributedString.attributedSubstring(from: queryRange).string
+
+    return fullQuery.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
   func excludedTerms(stringFromAttachment: (NSTextAttachment) -> String?) -> Set<String> {
