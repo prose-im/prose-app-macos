@@ -33,7 +33,7 @@ struct ContentView: View {
   @State private var selection: Suggestion.ID?
 
   private let tcaStore = Store(
-    initialState: SearchSuggestionsFieldState(),
+    initialState: WithSuggestionListFieldState(),
     reducer: searchSuggestionsFieldReducer(
       attachmentForSuggestion: { MyAttachment(jid: $0.jid, displayName: $0.name) }
     ),
@@ -61,7 +61,7 @@ struct ContentView: View {
       }
       VStack(alignment: .leading, spacing: 4) {
         Text("TCA, `VStack` content")
-        SearchSuggestionsField(store: self.tcaStore) { suggestion in
+        WithSuggestionsListField(store: self.tcaStore) { suggestion in
           Text(verbatim: "\(suggestion.name) – \(suggestion.jid)")
         }
       }

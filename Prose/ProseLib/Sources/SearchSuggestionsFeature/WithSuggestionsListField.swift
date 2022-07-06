@@ -10,12 +10,12 @@ import SwiftUI
 
 // MARK: - View
 
-public struct SearchSuggestionsField<
+public struct WithSuggestionsListField<
   Suggestion: Identifiable & Hashable,
   SuggestionView: View
 >: View {
-  public typealias ViewState = SearchSuggestionsFieldState<Suggestion>
-  public typealias ViewAction = SearchSuggestionsFieldAction<Suggestion>
+  public typealias ViewState = WithSuggestionsListFieldState<Suggestion>
+  public typealias ViewAction = WithSuggestionsListFieldAction<Suggestion>
 
   let store: Store<ViewState, ViewAction>
   let suggestionView: (Suggestion) -> SuggestionView
@@ -106,10 +106,10 @@ enum AutoSuggestToken: CaseIterable, Hashable {
   case loadSuggestions
 }
 
-/// The reducer for ``SearchSuggestionsField``.
+/// The reducer for ``WithSuggestionsListField``.
 /// - Parameters:
 ///   - attachmentForSuggestion: A function to transform a `Suggestion` to a ``NSTextAttachment``.
-///     It's not in the ``SearchSuggestionsFieldState``, as it would break the ``Equatable`` conformance.
+///     It's not in the ``WithSuggestionsListFieldState``, as it would break the ``Equatable`` conformance.
 ///   - closeWhenConfirmingSelection: A boolean indicating if we should close the companion window when
 ///     the user confirms their selection. It's not in the state, as this information depends on the view
 ///     placement on screen (and in the hierarchy), and not the view state itself.
@@ -119,8 +119,8 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
   attachmentForSuggestion: @escaping (Suggestion) -> NSTextAttachment,
   closeWhenConfirmingSelection: Bool = true
 ) -> Reducer<
-  SearchSuggestionsFieldState<Suggestion>,
-  SearchSuggestionsFieldAction<Suggestion>,
+  WithSuggestionsListFieldState<Suggestion>,
+  WithSuggestionsListFieldAction<Suggestion>,
   AutoSuggestEnvironment<Suggestion>
 > {
   Reducer { state, action, environment in
@@ -131,7 +131,7 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
         .cancellable(id: AutoSuggestToken.loadSuggestions, cancelInFlight: true)
         .replaceError(with: [])
         .eraseToEffect()
-        .map(SearchSuggestionsFieldAction.showSuggestions)
+        .map(WithSuggestionsListFieldAction.showSuggestions)
 
     case let .showSuggestions(suggestions):
       state.isProcessing = false
@@ -167,15 +167,15 @@ public func searchSuggestionsFieldReducer<Suggestion: Identifiable>(
   }
   .binding()
   .combined(with: withSuggestionsFieldReducer.pullback(
-    state: \SearchSuggestionsFieldState<Suggestion>.field,
-    action: CasePath(SearchSuggestionsFieldAction<Suggestion>.field),
+    state: \WithSuggestionsListFieldState<Suggestion>.field,
+    action: CasePath(WithSuggestionsListFieldAction<Suggestion>.field),
     environment: { _ in () }
   ))
 }
 
 // MARK: State
 
-public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: Equatable {
+public struct WithSuggestionsListFieldState<Suggestion: Identifiable & Hashable>: Equatable {
   var suggestions: IdentifiedArrayOf<AutoSuggestSection<Suggestion>>
   var selection: Suggestion.ID?
   var isProcessing: Bool
@@ -252,7 +252,7 @@ public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: 
 
     let replacement = NSAttributedString(
       attachment: attachmentForSuggestion(suggestion),
-      attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes
+      attributes: defaultTextAttributes
     ).appendingSpace()
 
     let mutableString = NSMutableAttributedString(attributedString: attributedString)
@@ -284,10 +284,10 @@ public struct SearchSuggestionsFieldState<Suggestion: Identifiable & Hashable>: 
 
 // MARK: Actions
 
-public enum SearchSuggestionsFieldAction<Suggestion: Identifiable & Hashable>: Equatable,
+public enum WithSuggestionsListFieldAction<Suggestion: Identifiable & Hashable>: Equatable,
   BindableAction
 {
   case fetchSuggestions, showSuggestions([AutoSuggestSection<Suggestion>])
   case field(WithSuggestionsFieldAction)
-  case binding(BindingAction<SearchSuggestionsFieldState<Suggestion>>)
+  case binding(BindingAction<WithSuggestionsListFieldState<Suggestion>>)
 }

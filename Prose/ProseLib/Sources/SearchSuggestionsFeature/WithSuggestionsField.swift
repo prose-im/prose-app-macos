@@ -7,20 +7,6 @@ import Combine
 import ComposableArchitecture
 import SwiftUI
 
-public enum SearchSuggestionEvent: Equatable {
-  /// The user hit the down arrow key.
-  case moveDown
-  /// The user hit the up arrow key.
-  case moveUp
-  /// The user hit the return key.
-  case confirmSelection
-}
-
-let vanillaSearchSuggestionsFieldDefaultTextAttributes: [NSAttributedString.Key: Any] = [
-  .font: NSFont.preferredFont(forTextStyle: .body),
-  .foregroundColor: NSColor.textColor,
-]
-
 // MARK: - View
 
 public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
@@ -50,7 +36,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
 
     textView.delegate = context.coordinator
 
-    textView.typingAttributes = vanillaSearchSuggestionsFieldDefaultTextAttributes
+    textView.typingAttributes = defaultTextAttributes
 
     textView.wantsLayer = true
     assert(textView.layer != nil)
@@ -82,7 +68,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
 //      let text = context.coordinator.viewStore.text
 //      if AttributedString(textView.attributedString()) != text {
 //        textView.textStorage?.setAttributedString(NSAttributedString(text))
-//        textView.typingAttributes = vanillaSearchSuggestionsFieldDefaultTextAttributes
+//        textView.typingAttributes = defaultTextAttributes
 //      }
 //    }
 
@@ -209,6 +195,7 @@ public struct WithSuggestionsFieldState: Equatable {
     let queryRange: NSRange = self.textContentStorage.prose_rangeFromLastAttachmentToCaret()
     // NOTE: We could check `queryRange.location != NSNotFound`,
     //       but we can just skip if `queryRange.length == 0`.
+    //       This way it's less dependant on the implementation details.
     guard queryRange.length != 0 else { return "" }
     return attributedString.attributedSubstring(from: queryRange).string
   }
@@ -225,14 +212,33 @@ public struct WithSuggestionsFieldState: Equatable {
   }
 }
 
+let defaultTextAttributes: [NSAttributedString.Key: Any] = [
+  .font: NSFont.preferredFont(forTextStyle: .body),
+  .foregroundColor: NSColor.textColor,
+]
+
 // MARK: Actions
 
 public enum WithSuggestionsFieldAction: Equatable {
   /// The user changed the contents of the text field.
+  /// - Note: We don't pass any data, as eveything is already contained in
+  ///         ``WithSuggestionsFieldState/textContentStorage``.
   case textDidChange
 
   /// The user changed the selection/insertion position in the text field.
+  /// - Note: We don't pass any data, as eveything is already contained in
+  ///         ``WithSuggestionsFieldState/textContentStorage``.
   case textSelectionDidChange
 
+  /// We received a keyboard event from AppKit's `textView(_:doCommandBy:) -> Bool`.
   case keyboardEventReceived(SearchSuggestionEvent)
+}
+
+public enum SearchSuggestionEvent: Equatable {
+  /// The user hit the down arrow key.
+  case moveDown
+  /// The user hit the up arrow key.
+  case moveUp
+  /// The user hit the return key.
+  case confirmSelection
 }

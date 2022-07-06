@@ -132,7 +132,7 @@ extension NSAttributedString {
     mutableCopy.append(
       NSAttributedString(
         string: " ",
-        attributes: vanillaSearchSuggestionsFieldDefaultTextAttributes
+        attributes: defaultTextAttributes
       )
     )
     return mutableCopy
@@ -145,7 +145,7 @@ extension AttributedString {
     var copy = self
     copy.append(AttributedString(
       " ",
-      attributes: AttributeContainer(vanillaSearchSuggestionsFieldDefaultTextAttributes)
+      attributes: AttributeContainer(defaultTextAttributes)
     ))
     return copy
   }
