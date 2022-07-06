@@ -24,9 +24,12 @@ public struct WithSuggestionsListField<
     store: Store<ViewState, ViewAction>,
     @ViewBuilder suggestionView: @escaping (Suggestion) -> SuggestionView
   ) {
+    // TODO: [Rémi Bardon] I saw some way to attach a view provider on a `NSTextElement` or something
+    //       in TextKit 2. We should use this method instead, as currently we could have conflicts
+    //       on `JIDAttachment.fileType.identifier` (not a custom identifier).
     NSTextAttachment.registerViewProviderClass(
       MyTextAttachmentViewProvider.self,
-      forFileType: MyAttachment.fileType.identifier
+      forFileType: JIDAttachment.fileType.identifier
     )
     self.store = store
     self.suggestionView = suggestionView

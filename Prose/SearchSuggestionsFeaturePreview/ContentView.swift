@@ -35,7 +35,7 @@ struct ContentView: View {
   private let tcaStore = Store(
     initialState: WithSuggestionsListFieldState(),
     reducer: searchSuggestionsFieldReducer(
-      attachmentForSuggestion: { MyAttachment(jid: $0.jid, displayName: $0.name) }
+      attachmentForSuggestion: { JIDAttachment(jid: $0.jid, displayName: $0.name) }
     ),
     environment: .init(
       client: .chooseFrom([

@@ -38,40 +38,24 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
 
     textView.typingAttributes = defaultTextAttributes
 
+    // Replicate the rounded `NSTextField` style
     textView.wantsLayer = true
     assert(textView.layer != nil)
     textView.layer?.borderWidth = 1
     textView.layer?.borderColor = NSColor.separatorColor.cgColor
     textView.layer?.cornerRadius = 6
-
-    textView.textContainerInset = NSSize(width: 0, height: 2)
-
     textView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
       textView.heightAnchor.constraint(equalToConstant: 22),
     ])
 
+    // Fix the text container inset (sticking at the top by default)
+    textView.textContainerInset = NSSize(width: 0, height: 2)
+
     return textView
   }
 
   public func updateNSView(_ textView: NSTextView, context: Context) {
-//    var attrs: [AttributedString.Key: Any] = [:]
-//    attrs[.foregroundColor] = NSColor.red
-    // NOTE: [Rémi Bardon] I really don't think this is good, this should use the TextKit 2 APIs
-//    let range = NSMakeRange(0, textView.textStorage!.characters.count)
-//    textView.textStorage!.addAttributes(attrs, range: range)
-
-    // If `text` changed as a result of the textView being changed (by typing), we don't update
-    // the textView again to prevent the caret from jumping to the end of the textView.
-//    if !context.coordinator.isSendingTextChangeToStore {
-//      // Update the text field text if this update came from SwiftUI
-//      let text = context.coordinator.viewStore.text
-//      if AttributedString(textView.attributedString()) != text {
-//        textView.textStorage?.setAttributedString(NSAttributedString(text))
-//        textView.typingAttributes = defaultTextAttributes
-//      }
-//    }
-
     if context.coordinator.viewStore.showSuggestions, textView.window?.firstResponder == textView {
       // Update the window
       context.coordinator.wc.showSuggestions(self.suggestionsView, on: textView)
@@ -162,7 +146,9 @@ final class MyTextView: NSTextView {
   override var focusRingMaskBounds: NSRect { self.bounds }
 
   override func drawFocusRingMask() {
+    assert(self.layer != nil)
     if let radius = self.layer?.cornerRadius {
+      // Draw the default rounded `NSTextField` focus ring
       NSBezierPath(roundedRect: self.focusRingMaskBounds, xRadius: radius, yRadius: radius).fill()
     } else {
       super.drawFocusRingMask()

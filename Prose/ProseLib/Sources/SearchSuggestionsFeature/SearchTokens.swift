@@ -6,7 +6,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct TokenView: View {
+struct JIDTokenView: View {
   let name: String
 
   var body: some View {
@@ -34,7 +34,7 @@ struct TokenView: View {
   }
 }
 
-public final class MyAttachment: NSTextAttachment {
+public final class JIDAttachment: NSTextAttachment {
   static let fileType: UTType = .utf8PlainText
 
   let jid: String
@@ -104,12 +104,14 @@ class MyTextAttachmentViewProvider: NSTextAttachmentViewProvider {
       textLayoutManager: textLayoutManager,
       location: location
     )
+    // NOTE: [Rémi Bardon] This is a `{ get set }` property, so I couldn't simply override it.
     self.tracksTextAttachmentViewBounds = true
   }
 
   override func loadView() {
-    guard let attachment: MyAttachment = self.textAttachment as? MyAttachment else { fatalError() }
-    let view = NSHostingView(rootView: TokenView(name: attachment.displayName))
+    guard let attachment: JIDAttachment = self.textAttachment as? JIDAttachment
+    else { fatalError() }
+    let view = NSHostingView(rootView: JIDTokenView(name: attachment.displayName))
     self.view = view
   }
 }
@@ -129,24 +131,7 @@ extension NSAttributedString {
   /// Appends a space to the receiver.
   func appendingSpace() -> NSAttributedString {
     let mutableCopy = NSMutableAttributedString(attributedString: self)
-    mutableCopy.append(
-      NSAttributedString(
-        string: " ",
-        attributes: defaultTextAttributes
-      )
-    )
+    mutableCopy.append(NSAttributedString(string: " ", attributes: defaultTextAttributes))
     return mutableCopy
-  }
-}
-
-extension AttributedString {
-  /// Appends a space to the receiver.
-  func appendingSpace() -> AttributedString {
-    var copy = self
-    copy.append(AttributedString(
-      " ",
-      attributes: AttributeContainer(defaultTextAttributes)
-    ))
-    return copy
   }
 }
