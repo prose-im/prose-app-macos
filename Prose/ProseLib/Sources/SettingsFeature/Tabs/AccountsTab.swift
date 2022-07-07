@@ -4,6 +4,7 @@
 //
 
 import AppLocalization
+import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Settings.Accounts.self
@@ -56,11 +57,13 @@ struct AccountsTab: View {
           Divider()
           HStack(spacing: 0) {
             TableFooterButton(
-              actionName: "plus"
-            )
+              systemImage: "plus",
+              trailingDivider: true
+            ) { logger.debug("Plus button tapped") }
             TableFooterButton(
-              actionName: "minus"
-            )
+              systemImage: "minus",
+              trailingDivider: true
+            ) { logger.debug("Minus button tapped") }
             Spacer()
           }
         }

@@ -16,6 +16,7 @@ let package = Package(
       "AuthenticationFeature",
       "ConversationFeature",
       "ConversationInfoFeature",
+      "EditProfileFeature",
       "MainWindowFeature",
       "ProseUI",
       "SettingsFeature",
@@ -77,6 +78,7 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
+    .target(name: "EditProfileFeature", dependencies: [.featureBase]),
     .target(
       name: "AuthenticationFeature",
       dependencies: [
