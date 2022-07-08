@@ -29,7 +29,7 @@ struct SecondaryRow<Content: View>: View {
 
 struct SecondaryRow_Previews: PreviewProvider {
   static var previews: some View {
-    VStack {
+    VStack(alignment: .leading) {
       SecondaryRow("Status:") {
         HStack(spacing: 4) {
           Image(systemName: "location.fill")
