@@ -45,7 +45,7 @@ struct Sidebar: View {
       .fixedSize()
     }
     .safeAreaInset(edge: .top, spacing: 0) {
-      SidebarHeader {}
+      SidebarHeader { logger.trace("Edit profile picture tapped") }
         .padding([.horizontal, .top], 24)
         .padding(.bottom, 8)
     }

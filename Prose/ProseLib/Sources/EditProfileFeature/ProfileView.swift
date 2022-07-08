@@ -11,6 +11,18 @@ import SwiftUI
 private let l10n = L10n.EditProfile.Profile.self
 
 struct ProfileView: View {
+  @State var organization: String = "Crisp"
+  @State var jobTitle: String = "CEO"
+  @State var autoDetectLocation: Bool = true
+  @State var location: String = "Nantes, France"
+  @State var isLocationPermissionAllowed: Bool = true
+
+  var locationPermissionLabel: String {
+    self.isLocationPermissionAllowed
+      ? l10n.LocationPermission.StateAllowed.label
+      : l10n.LocationPermission.StateDenied.label
+  }
+
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
       VStack(spacing: 24) {
@@ -20,12 +32,12 @@ struct ProfileView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.Organization.Header.label) {
-              TextField(l10n.Organization.TextField.label, text: .constant("Crisp"))
+              TextField(l10n.Organization.TextField.label, text: self.$organization)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             }
             ThreeColumns(l10n.JobTitle.Header.label) {
-              TextField(l10n.JobTitle.TextField.label, text: .constant("CEO"))
+              TextField(l10n.JobTitle.TextField.label, text: self.$jobTitle)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             }
@@ -40,15 +52,15 @@ struct ProfileView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.AutoDetectLocation.Header.label) {
-              Toggle(l10n.AutoDetectLocation.Toggle.label, isOn: .constant(true))
+              Toggle(l10n.AutoDetectLocation.Toggle.label, isOn: self.$autoDetectLocation)
                 .toggleStyle(.switch)
                 .labelsHidden()
             }
             ThreeColumns(l10n.Location.Header.label) {
-              TextField(l10n.Location.TextField.label, text: .constant("Nantes, France"))
+              TextField(l10n.Location.TextField.label, text: self.$location)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
-                .disabled(true)
+                .disabled(self.autoDetectLocation)
             }
             SecondaryRow(l10n.LocationStatus.Header.label) {
               HStack(spacing: 4) {
@@ -60,10 +72,11 @@ struct ProfileView: View {
               .accessibilityElement(children: .combine)
             }
             SecondaryRow(l10n.LocationPermission.Header.label) {
-              Text(verbatim: l10n.LocationPermission.StateAllowed.label)
-//              Text(verbatim: l10n.LocationPermission.StateDenied.label)
-              Button(l10n.LocationPermission.ManageAction.label) {}
-                .controlSize(.small)
+              Text(verbatim: self.locationPermissionLabel)
+              Button(l10n.LocationPermission.ManageAction.label) {
+                self.isLocationPermissionAllowed.toggle()
+              }
+              .controlSize(.small)
             }
           }
           .padding(.horizontal)

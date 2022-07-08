@@ -10,6 +10,11 @@ import SwiftUI
 private let l10n = L10n.EditProfile.Identity.self
 
 struct IdentityView: View {
+  @State var firstName: String = "Baptiste"
+  @State var lastName: String = "Jamin"
+  @State var email: String = "baptiste@crisp.chat"
+  @State var phone: String = "+33631893345"
+
   @State var isNameVerified: Bool = false
   @State var isEmailVerified: Bool = true
   @State var isPhoneVerified: Bool = false
@@ -23,14 +28,14 @@ struct IdentityView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.FirstName.Header.label) {
-              TextField(l10n.FirstName.TextField.label, text: .constant("Baptiste"))
+              TextField(l10n.FirstName.TextField.label, text: self.$firstName)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             } column3: {
               self.verify(\._isNameVerified)
             }
             ThreeColumns(l10n.LastName.Header.label) {
-              TextField(l10n.LastName.TextField.label, text: .constant("Jamin"))
+              TextField(l10n.LastName.TextField.label, text: self.$lastName)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             }
@@ -45,14 +50,14 @@ struct IdentityView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.Email.Header.label) {
-              TextField(l10n.Email.TextField.label, text: .constant("baptiste@crisp.chat"))
+              TextField(l10n.Email.TextField.label, text: self.$email)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             } column3: {
               self.verify(\._isEmailVerified)
             }
             ThreeColumns(l10n.Phone.Header.label) {
-              TextField(l10n.Phone.TextField.label, text: .constant("+33631893345"))
+              TextField(l10n.Phone.TextField.label, text: self.$phone)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
             } column3: {

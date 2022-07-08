@@ -17,6 +17,9 @@ private let l10n = L10n.EditProfile.Encryption.self
   #error("OS not supported, add a case")
 #endif
 
+private let appVersion: String = "Prose 1.0.0"
+private let omemoVersion: String = "OMEMO v0.7.0"
+
 struct EncryptionView: View {
   struct Device: Equatable, Identifiable {
     let id: String
@@ -29,6 +32,12 @@ struct EncryptionView: View {
     .Comparator(options: [.caseInsensitive, .diacriticInsensitive, .numeric])
   static let deviceIdComparator = String.Comparator(options: [.numeric])
   static let securityHashComparator = String.Comparator(.lexical)
+
+  @Environment(\EnvironmentValues.font) private var font: Font?
+
+  let deviceName: String = "Prose (MacBook Baptiste)"
+  let deviceId: String = "120645"
+  @State var deviceSecurityHash: String = "ERT65"
 
   @State var devices: IdentifiedArrayOf<Device> = [
     Device(
@@ -86,11 +95,11 @@ struct EncryptionView: View {
             VStack(alignment: .leading, spacing: 4) {
               Text(verbatim: platform)
                 .font(.headline)
-              Text(verbatim: "Prose 1.0.0")
+              Text(verbatim: appVersion)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             }
-            Text(verbatim: "OMEMO v0.7.0")
+            Text(verbatim: omemoVersion)
               .font(.footnote)
               .foregroundColor(.blue)
           }
@@ -98,15 +107,19 @@ struct EncryptionView: View {
         Divider()
         VStack(alignment: .leading, spacing: 8) {
           SecondaryRow(l10n.CurrentDeviceName.Header.label) {
-            Text(verbatim: "Prose (MacBook Baptiste)")
+            Text(verbatim: self.deviceName)
           }
           SecondaryRow(l10n.CurrentDeviceId.Header.label) {
-            Text(verbatim: "120645")
+            Text(verbatim: self.deviceId)
+              .font(.body.monospaced())
           }
           SecondaryRow(l10n.CurrentDeviceSecurityHash.Header.label) {
-            Text(verbatim: "ERT65")
-            Button(l10n.RollSecurityHashAction.label) {}
-              .controlSize(.small)
+            Text(verbatim: self.deviceSecurityHash)
+              .font(.body.monospaced())
+            Button(l10n.RollSecurityHashAction.label) {
+              self.deviceSecurityHash = String(UUID().uuidString.prefix(5))
+            }
+            .controlSize(.small)
           }
         }
       }
@@ -157,6 +170,7 @@ struct EncryptionView: View {
         comparator: Self.deviceIdComparator
       ) { (device: Device) in
         Text(verbatim: device.id)
+          .font(.body.monospaced())
       }
       .width(min: 48, ideal: 64, max: 128)
       TableColumn(
@@ -166,8 +180,11 @@ struct EncryptionView: View {
       ) { (device: Device) in
         HStack {
           Text(verbatim: device.securityHash)
+            .font(.body.monospaced())
             .frame(maxWidth: .infinity, alignment: .leading)
-          Button {} label: {
+          Button {
+            logger.trace("Device \(device.id) info tapped")
+          } label: {
             Image(systemName: "info.circle")
           }
           .buttonStyle(.plain)
@@ -189,7 +206,9 @@ struct EncryptionView: View {
           }
         }
         Spacer()
-        TableFooterButton(systemImage: "gear", disclosureIndicator: true) {}
+        TableFooterButton(systemImage: "gear", disclosureIndicator: true) {
+          logger.trace("Devices settings tapped")
+        }
       }
     }
     .frame(height: 22)

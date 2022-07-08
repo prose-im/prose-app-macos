@@ -11,6 +11,16 @@ import SwiftUI
 private let l10n = L10n.EditProfile.Authentication.self
 
 struct AuthenticationView: View {
+  let recoveryEmail: String = "baptiste@jamin.me"
+  let recoveryPhone: String = "+33631893345"
+  var isMfaEnabled: Bool = true
+
+  var mfaStateLabel: String {
+    self.isMfaEnabled
+      ? l10n.MfaStatus.StateEnabled.label
+      : l10n.MfaStatus.StateDisabled.label
+  }
+
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
       VStack(spacing: 24) {
@@ -20,16 +30,18 @@ struct AuthenticationView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.Password.Header.label) {
-              Button {} label: {
+              Button { logger.trace("Change password tapped") } label: {
                 Text(verbatim: l10n.Password.ChangePasswordAction.label)
                   .frame(maxWidth: .infinity)
               }
               .controlSize(.large)
             }
             SecondaryRow(l10n.RecoveryEmail.Header.label) {
-              Text(verbatim: "baptiste@jamin.me")
-              Button(l10n.RecoveryEmail.EditAction.label) {}
-                .controlSize(.small)
+              Text(verbatim: self.recoveryEmail)
+              Button(l10n.RecoveryEmail.EditAction.label) {
+                logger.trace("Edit recovery email tapped")
+              }
+              .controlSize(.small)
             }
           }
           .padding(.horizontal)
@@ -42,7 +54,7 @@ struct AuthenticationView: View {
         ) {
           VStack(alignment: .leading) {
             ThreeColumns(l10n.MfaToken.Header.label) {
-              Button {} label: {
+              Button { logger.trace("Disable MFA tapped") } label: {
                 Text(verbatim: l10n.MfaToken.DisableMfaAction.label)
                   .frame(maxWidth: .infinity)
               }
@@ -53,14 +65,13 @@ struct AuthenticationView: View {
                 // TODO: Change this to a more general purpose indicator
                 OnlineStatusIndicator(.online)
                   .accessibilityHidden(true)
-                Text(verbatim: l10n.MfaStatus.StateEnabled.label)
-//                Text(verbatim: l10n.MfaStatus.StateDisabled.label)
+                Text(verbatim: self.mfaStateLabel)
               }
               .accessibilityElement(children: .combine)
             }
             SecondaryRow(l10n.RecoveryPhone.Header.label) {
-              Text(verbatim: "+33631893345")
-              Button(l10n.RecoveryPhone.EditAction.label) {}
+              Text(verbatim: self.recoveryPhone)
+              Button(l10n.RecoveryPhone.EditAction.label) { logger.trace("Edit recovery phone tapped") }
                 .controlSize(.small)
             }
           }

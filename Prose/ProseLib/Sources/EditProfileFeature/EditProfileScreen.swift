@@ -24,10 +24,10 @@ struct EditProfileScreen: View {
         .frame(minWidth: 480, minHeight: 512)
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
           HStack {
-            Button {} label: {
+            Button { logger.trace("Cancel profile editing tapped") } label: {
               Text("Cancel")
             }
-            Button {} label: {
+            Button { logger.trace("Save profile tapped") } label: {
               Text("Save profile")
             }
             .buttonStyle(.borderedProminent)
