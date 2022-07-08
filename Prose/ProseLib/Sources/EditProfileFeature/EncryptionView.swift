@@ -3,10 +3,19 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import Assets
 import IdentifiedCollections
 import ProseUI
 import SwiftUI
+
+private let l10n = L10n.EditProfile.Encryption.self
+
+#if os(macOS)
+  private let platform: String = "macOS"
+#else
+  #error("OS not supported, add a case")
+#endif
 
 struct EncryptionView: View {
   struct Device: Equatable, Identifiable {
@@ -64,25 +73,18 @@ struct EncryptionView: View {
 
   func currentDeviceView() -> some View {
     ContentSection(
-      header: "Current device",
-      footer: """
-      Your security key fingerprint is shown as a short hash, which you can use to compare with the one your contacts see on their end. **Both must match.**
-
-      **You may roll it anytime.** This will not make your message history unreadable.
-      """
+      header: l10n.CurrentDeviceSection.Header.label,
+      footer: l10n.CurrentDeviceSection.Footer.label
     ) {
       HStack(spacing: 16) {
         HStack {
-          ZStack {
-            RoundedRectangle(cornerRadius: 2)
-              .fill(Color.white)
-            RoundedRectangle(cornerRadius: 2)
-              .stroke(Color.primary.opacity(0.5))
-          }
-          .frame(width: 48, height: 64)
+          Image(nsImage: Images.platformLogo.image)
+            .resizable()
+            .frame(width: 48, height: 64)
+            .accessibilityHidden(true)
           VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 4) {
-              Text(verbatim: "macOS")
+              Text(verbatim: platform)
                 .font(.headline)
               Text(verbatim: "Prose 1.0.0")
                 .font(.subheadline)
@@ -95,24 +97,16 @@ struct EncryptionView: View {
         }
         Divider()
         VStack(alignment: .leading, spacing: 8) {
-          HStack {
-            Text(verbatim: "Device name:")
-              .bold()
+          SecondaryRow(l10n.CurrentDeviceName.Header.label) {
             Text(verbatim: "Prose (MacBook Baptiste)")
           }
-          HStack {
-            Text(verbatim: "Device ID:")
-              .bold()
+          SecondaryRow(l10n.CurrentDeviceId.Header.label) {
             Text(verbatim: "120645")
           }
-          HStack {
-            Text(verbatim: "Security hash:")
-              .bold()
+          SecondaryRow(l10n.CurrentDeviceSecurityHash.Header.label) {
             Text(verbatim: "ERT65")
-            Button {} label: {
-              Text(verbatim: "Roll")
-            }
-            .controlSize(.small)
+            Button(l10n.RollSecurityHashAction.label) {}
+              .controlSize(.small)
           }
         }
       }
@@ -122,10 +116,8 @@ struct EncryptionView: View {
 
   func otherDevicesView() -> some View {
     ContentSection(
-      header: "Other devices",
-      footer: """
-      Removing a device will not sign out from account. It prevents all messages sent to you from being decrypted by this device, until you reconnect with this device.
-      """
+      header: l10n.OtherDevicesSection.Header.label,
+      footer: l10n.OtherDevicesSection.Footer.label
     ) {
       VStack(spacing: 0) {
         Divider()
@@ -143,8 +135,8 @@ struct EncryptionView: View {
       selection: self.$selectedDevice,
       sortOrder: self.$sortOrder
     ) {
-      TableColumn("") { (device: Device) in
-        Toggle("Enabled?", isOn: Binding(
+      TableColumn(String("")) { (device: Device) in
+        Toggle(l10n.DeviceEnabled.Toggle.label, isOn: Binding(
           get: { device.isEnabled },
           set: { self.devices[id: device.id]?.isEnabled = $0 }
         ))
@@ -152,7 +144,7 @@ struct EncryptionView: View {
       }
       .width(16)
       TableColumn(
-        "Device Name",
+        l10n.DeviceName.Column.label,
         value: \Device.name,
         comparator: Self.deviceNameComparator
       ) { (device: Device) in
@@ -160,7 +152,7 @@ struct EncryptionView: View {
       }
       .width(ideal: 196)
       TableColumn(
-        "Device ID",
+        l10n.DeviceId.Column.label,
         value: \Device.id,
         comparator: Self.deviceIdComparator
       ) { (device: Device) in
@@ -168,7 +160,7 @@ struct EncryptionView: View {
       }
       .width(min: 48, ideal: 64, max: 128)
       TableColumn(
-        "Security Hash",
+        l10n.DeviceSecurityHash.Column.label,
         value: \Device.securityHash,
         comparator: Self.securityHashComparator
       ) { (device: Device) in
@@ -178,7 +170,8 @@ struct EncryptionView: View {
           Button {} label: {
             Image(systemName: "info.circle")
           }
-          .buttonStyle(.link)
+          .buttonStyle(.plain)
+          .foregroundColor(.blue)
         }
       }
       .width(min: 80, ideal: 96, max: 128)

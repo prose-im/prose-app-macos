@@ -18,6 +18,8 @@ struct ContentSection<Content: View>: View {
         .foregroundColor(.secondary)
         .multilineTextAlignment(.leading)
         .padding(.horizontal)
+        // Ignore as it's already the container label
+        .accessibilityHidden(true)
       content()
         .layoutPriority(1)
       Text(footer.asMarkdown)
@@ -27,6 +29,8 @@ struct ContentSection<Content: View>: View {
         .padding(.horizontal)
         .fixedSize(horizontal: false, vertical: true)
     }
+    .accessibilityElement(children: .contain)
+    .accessibilityLabel(header)
   }
 }
 

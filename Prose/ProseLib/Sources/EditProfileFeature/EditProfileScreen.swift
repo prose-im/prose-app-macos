@@ -39,7 +39,11 @@ struct EditProfileScreen: View {
             RoundedRectangle(cornerRadius: 8)
               .fill(Material.regular)
           }
-          .padding()
+          .padding([.horizontal, .bottom])
+          // Make sure accessibility frame isn't inset by the window's rounded corners
+          .contentShape(Rectangle())
+          // Make footer have a higher priority, to be accessible over the scroll view
+          .accessibilitySortPriority(1)
         }
     }
   }

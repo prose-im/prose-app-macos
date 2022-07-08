@@ -45,6 +45,14 @@ xcassets:
         params:
           bundle: Bundle.fixedModule
           publicAccess: true
+  - inputs: [Assets/Resources/Images.xcassets]
+    outputs:
+      - templateName: swift5
+        output: Assets/Generated/Images+Generated.swift
+        params:
+          bundle: Bundle.fixedModule
+          publicAccess: true
+          enumName: Images
 
 files:
   - inputs: [ConversationFeature/Resources/Views]

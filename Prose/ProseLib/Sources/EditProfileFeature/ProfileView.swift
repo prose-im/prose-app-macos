@@ -3,38 +3,31 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import Assets
 import ProseUI
 import SwiftUI
+
+private let l10n = L10n.EditProfile.Profile.self
 
 struct ProfileView: View {
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
       VStack(spacing: 24) {
         ContentSection(
-          header: "Job information",
-          footer: """
-          Your current organization and job title are shared with your team members and contacts to identify your position within your company.
-          """
+          header: l10n.JobSection.Header.label,
+          footer: l10n.JobSection.Footer.label
         ) {
           VStack(alignment: .leading) {
-            ThreeColumns {
-              Text("Organization:")
-            } column2: {
-              TextField(text: .constant("Crisp"), label: { Text("Label") })
+            ThreeColumns(l10n.Organization.Header.label) {
+              TextField(l10n.Organization.TextField.label, text: .constant("Crisp"))
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
-            } column3: {
-              EmptyView()
             }
-            ThreeColumns {
-              Text("Title:")
-            } column2: {
-              TextField(text: .constant("CEO"), label: { Text("Label") })
+            ThreeColumns(l10n.JobTitle.Header.label) {
+              TextField(l10n.JobTitle.TextField.label, text: .constant("CEO"))
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
-            } column3: {
-              EmptyView()
             }
           }
           .padding(.horizontal)
@@ -42,50 +35,35 @@ struct ProfileView: View {
         Divider()
           .padding(.horizontal)
         ContentSection(
-          header: "Current location",
-          footer: """
-          You can opt-in to automatic location updates based on your last used device location. It is handy if you travel a lot, and would like this to be auto-managed. Your current city and country will be shared, not your exact GPS location.
-
-          **Note that geolocation permissions are required for automatic mode.**
-          """
+          header: l10n.LocationSection.Header.label,
+          footer: l10n.LocationSection.Footer.label
         ) {
           VStack(alignment: .leading) {
-            ThreeColumns {
-              Text("Auto-detect:")
-            } column2: {
-              Toggle(isOn: .constant(true), label: { Text("Label") })
+            ThreeColumns(l10n.AutoDetectLocation.Header.label) {
+              Toggle(l10n.AutoDetectLocation.Toggle.label, isOn: .constant(true))
                 .toggleStyle(.switch)
                 .labelsHidden()
-            } column3: {
-              EmptyView()
             }
-            ThreeColumns {
-              Text("Location:")
-            } column2: {
-              TextField(text: .constant("Nantes, France"), label: { Text("Label") })
+            ThreeColumns(l10n.Location.Header.label) {
+              TextField(l10n.Location.TextField.label, text: .constant("Nantes, France"))
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
                 .disabled(true)
-            } column3: {
-              EmptyView()
             }
-            HStack {
-              Text(verbatim: "Status:")
-                .bold()
+            SecondaryRow(l10n.LocationStatus.Header.label) {
               HStack(spacing: 4) {
                 Image(systemName: "location.fill")
                   .foregroundColor(.blue)
-                Text(verbatim: "Automatic")
+                  .accessibilityHidden(true)
+                Text(verbatim: l10n.LocationStatus.StateAuto.label)
               }
+              .accessibilityElement(children: .combine)
             }
-            HStack {
-              Text(verbatim: "Geolocation permission:")
-                .bold()
-              Text(verbatim: "Allowed")
-              Button {} label: {
-                Text(verbatim: "Manage")
-              }
-              .controlSize(.small)
+            SecondaryRow(l10n.LocationPermission.Header.label) {
+              Text(verbatim: l10n.LocationPermission.StateAllowed.label)
+//              Text(verbatim: l10n.LocationPermission.StateDenied.label)
+              Button(l10n.LocationPermission.ManageAction.label) {}
+                .controlSize(.small)
             }
           }
           .padding(.horizontal)

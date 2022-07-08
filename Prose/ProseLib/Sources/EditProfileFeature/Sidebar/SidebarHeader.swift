@@ -3,30 +3,45 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import ProseUI
 import SwiftUI
 
+private let l10n = L10n.EditProfile.Sidebar.Header.self
+
 struct SidebarHeader: View {
+  let avatar: AvatarImage = .placeholder
+  let fullName: String = "Baptiste Jamin"
+  let jid: String = "baptiste@crisp.chat"
+
   @State var isAvatarHovered: Bool = false
 
   let action: () -> Void
 
   var body: some View {
     VStack {
-      Button(action: action, label: avatar)
+      Button(action: self.action, label: self.avatarView)
         .buttonStyle(.plain)
-      Text(verbatim: "Baptiste Jamin")
-        .font(.headline)
-      Text(verbatim: "baptiste@crisp.chat")
-        .font(.subheadline.monospaced())
-        .foregroundColor(.secondary)
+        .accessibilityLabel(l10n.ChangeAvatarAction.axLabel)
+        .accessibilityHint(l10n.ChangeAvatarAction.axHint)
+      VStack {
+        Text(verbatim: self.fullName)
+          .font(.headline)
+        Text(verbatim: self.jid)
+          .font(.subheadline.monospaced())
+          .foregroundColor(.secondary)
+      }
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(l10n.ProfileDetails.axLabel(self.fullName, self.jid))
+      // Higher priority on the profile label
+      .accessibilitySortPriority(1)
     }
     .multilineTextAlignment(.center)
   }
 
   @ViewBuilder
-  func avatar() -> some View {
-    let avatar = Avatar(.placeholder, size: 80, cornerRadius: 12)
+  func avatarView() -> some View {
+    let avatar = Avatar(self.avatar, size: 80, cornerRadius: 12)
     avatar
       .overlay {
         ZStack(alignment: .bottom) {

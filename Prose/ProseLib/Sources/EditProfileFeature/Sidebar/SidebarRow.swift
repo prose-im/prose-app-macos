@@ -3,7 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import SwiftUI
+
+private let l10n = L10n.EditProfile.Sidebar.Row.self
 
 struct SidebarRow: View {
   let icon: String
@@ -53,6 +56,7 @@ struct SidebarRow: View {
         .symbolVariant(.fill)
         .foregroundColor(isSelected ? Color.blue : Color.white)
         .frame(width: 24, height: 24)
+        .accessibilityHidden(true)
         VStack(alignment: .leading, spacing: 0) {
           Text(verbatim: headline)
           Text(verbatim: subheadline)
@@ -60,16 +64,21 @@ struct SidebarRow: View {
             .foregroundColor(foregroundColor.opacity(0.75))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(l10n.axLabel(headline, subheadline))
         Image(systemName: "chevron.forward.circle.fill")
           .symbolVariant(.fill)
           .foregroundColor(isSelected ? .white : .primary)
           .opacity(isSelected || isHovered ? 1 : 0)
+          .accessibilityHidden(true)
       }
       .font(.headline)
       .padding(.vertical, 4)
       .padding(.horizontal, 8)
     }
     .foregroundColor(foregroundColor)
+    .accessibilityElement(children: .combine)
+    .accessibilityAddTraits(self.isSelected ? .isSelected : [])
   }
 }
 
