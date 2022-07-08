@@ -3,7 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import SwiftUI
+
+private let l10n = L10n.EditProfile.self
 
 struct EditProfileScreen: View {
   @State var route: SidebarRoute = .identity
@@ -24,14 +27,10 @@ struct EditProfileScreen: View {
         .frame(minWidth: 480, minHeight: 512)
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
           HStack {
-            Button { logger.trace("Cancel profile editing tapped") } label: {
-              Text("Cancel")
-            }
-            Button { logger.trace("Save profile tapped") } label: {
-              Text("Save profile")
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(self.isSaveProfileButtonDisabled)
+            Button(l10n.CancelAction.label) { logger.trace("Cancel profile editing tapped") }
+            Button(l10n.SaveProfileAction.label) { logger.trace("Save profile tapped") }
+              .buttonStyle(.borderedProminent)
+              .disabled(self.isSaveProfileButtonDisabled)
           }
           .controlSize(.large)
           .padding(4)

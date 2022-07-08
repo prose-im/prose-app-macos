@@ -71,8 +71,10 @@ struct AuthenticationView: View {
             }
             SecondaryRow(l10n.RecoveryPhone.Header.label) {
               Text(verbatim: self.recoveryPhone)
-              Button(l10n.RecoveryPhone.EditAction.label) { logger.trace("Edit recovery phone tapped") }
-                .controlSize(.small)
+              Button(l10n.RecoveryPhone.EditAction.label) {
+                logger.trace("Edit recovery phone tapped")
+              }
+              .controlSize(.small)
             }
           }
           .padding(.horizontal)

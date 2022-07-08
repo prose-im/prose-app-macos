@@ -456,6 +456,11 @@ public enum L10n {
       }
     }
 
+    public enum CancelAction {
+      /// Cancel
+      public static let label = L10n.tr("Localizable", "edit_profile.cancel_action.label")
+    }
+
     public enum Encryption {
       public enum CurrentDeviceId {
         public enum Header {
@@ -865,6 +870,11 @@ public enum L10n {
           )
         }
       }
+    }
+
+    public enum SaveProfileAction {
+      /// Save profile
+      public static let label = L10n.tr("Localizable", "edit_profile.save_profile_action.label")
     }
 
     public enum Sidebar {

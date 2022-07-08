@@ -45,6 +45,8 @@
 "edit_profile.sidebar.header.change_avatar_action.ax_hint" = "Opens a file selector to choose for a new profile picture";
 "edit_profile.sidebar.row.ax_label" = "%s (%s)";
 
+"edit_profile.cancel_action.label" = "Cancel";
+"edit_profile.save_profile_action.label" = "Save profile";
 "edit_profile.get_verified.action.label" = "Get verified";
 "edit_profile.get_verified.state_verified.label" = "Verified";
 
