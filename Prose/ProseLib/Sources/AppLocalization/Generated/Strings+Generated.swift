@@ -878,6 +878,29 @@ public enum L10n {
     }
 
     public enum Sidebar {
+      public enum Authentication {
+        /// Authentication
+        public static let label = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.authentication.label"
+        )
+        /// Password, MFA
+        public static let sublabel = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.authentication.sublabel"
+        )
+      }
+
+      public enum Encryption {
+        /// Encryption
+        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.encryption.label")
+        /// Certificates, Keys
+        public static let sublabel = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.encryption.sublabel"
+        )
+      }
+
       public enum Header {
         public enum ChangeAvatarAction {
           /// Opens a file selector to choose for a new profile picture
@@ -901,6 +924,23 @@ public enum L10n {
             L10n.tr("Localizable", "edit_profile.sidebar.header.profile_details.ax_label", p1, p2)
           }
         }
+      }
+
+      public enum Identity {
+        /// Identity
+        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.identity.label")
+        /// Name, Phone, Email
+        public static let sublabel = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.identity.sublabel"
+        )
+      }
+
+      public enum Profile {
+        /// Profile
+        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.profile.label")
+        /// Job, Location
+        public static let sublabel = L10n.tr("Localizable", "edit_profile.sidebar.profile.sublabel")
       }
 
       public enum Row {

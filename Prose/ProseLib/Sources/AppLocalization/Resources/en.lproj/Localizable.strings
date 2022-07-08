@@ -44,6 +44,14 @@
 "edit_profile.sidebar.header.change_avatar_action.ax_label" = "Edit your profile picture";
 "edit_profile.sidebar.header.change_avatar_action.ax_hint" = "Opens a file selector to choose for a new profile picture";
 "edit_profile.sidebar.row.ax_label" = "%s (%s)";
+"edit_profile.sidebar.identity.label" = "Identity";
+"edit_profile.sidebar.identity.sublabel" = "Name, Phone, Email";
+"edit_profile.sidebar.authentication.label" = "Authentication";
+"edit_profile.sidebar.authentication.sublabel" = "Password, MFA";
+"edit_profile.sidebar.profile.label" = "Profile";
+"edit_profile.sidebar.profile.sublabel" = "Job, Location";
+"edit_profile.sidebar.encryption.label" = "Encryption";
+"edit_profile.sidebar.encryption.sublabel" = "Certificates, Keys";
 
 "edit_profile.cancel_action.label" = "Cancel";
 "edit_profile.save_profile_action.label" = "Save profile";

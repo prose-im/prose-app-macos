@@ -3,7 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import SwiftUI
+
+private let l10n = L10n.EditProfile.Sidebar.self
 
 enum SidebarRoute: Equatable {
   case identity, authentication, profile, encryption
@@ -17,26 +20,26 @@ struct Sidebar: View {
       VStack(alignment: .leading) {
         SidebarRow(
           icon: "person.text.rectangle",
-          headline: "Identity",
-          subheadline: "Name, Phone, Email",
+          headline: l10n.Identity.label,
+          subheadline: l10n.Identity.sublabel,
           isSelected: route == .identity
         ) { route = .identity }
         SidebarRow(
           icon: "lock",
-          headline: "Authentication",
-          subheadline: "Password, MFA",
+          headline: l10n.Authentication.label,
+          subheadline: l10n.Authentication.sublabel,
           isSelected: route == .authentication
         ) { route = .authentication }
         SidebarRow(
           icon: "person",
-          headline: "Profile",
-          subheadline: "Job, Location",
+          headline: l10n.Profile.label,
+          subheadline: l10n.Profile.sublabel,
           isSelected: route == .profile
         ) { route = .profile }
         SidebarRow(
           icon: "key",
-          headline: "Encryption",
-          subheadline: "Certificates, Keys",
+          headline: l10n.Encryption.label,
+          subheadline: l10n.Encryption.sublabel,
           isSelected: route == .encryption
         ) { route = .encryption }
       }
