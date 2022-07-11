@@ -1331,6 +1331,55 @@ public enum L10n {
     }
   }
 
+  public enum JoinGroup {
+    public enum CancelAction {
+      /// Cancel
+      public static let label = L10n.tr("Localizable", "join_group.cancel_action.label")
+    }
+
+    public enum CreateGroupAction {
+      /// Create Group
+      public static let label = L10n.tr("Localizable", "join_group.create_group_action.label")
+    }
+
+    public enum Header {
+      /// Create a new group and invite people, or join an existing group.
+      public static let subtitle = L10n.tr("Localizable", "join_group.header.subtitle")
+      /// Create or join a group
+      public static let title = L10n.tr("Localizable", "join_group.header.title")
+    }
+
+    public enum JoinGroupAction {
+      /// Join Group
+      public static let label = L10n.tr("Localizable", "join_group.join_group_action.label")
+    }
+
+    public enum State {
+      public enum Existing {
+        /// This group exists, and is open. You will be able to join it immediately.
+        public static let label = L10n.tr("Localizable", "join_group.state.existing.label")
+        /// %u people are currently in this group. They will see that you joined.
+        public static func sublabel(_ p1: Int) -> String {
+          L10n.tr("Localizable", "join_group.state.existing.sublabel", p1)
+        }
+      }
+
+      public enum Unknown {
+        /// This group doesn't exist yet.
+        public static let label = L10n.tr("Localizable", "join_group.state.unknown.label")
+        /// You can create it now and invite people later.
+        public static let sublabel = L10n.tr("Localizable", "join_group.state.unknown.sublabel")
+      }
+    }
+
+    public enum TextField {
+      /// Group chat address
+      public static let label = L10n.tr("Localizable", "join_group.text_field.label")
+      /// groupname@domain.tld
+      public static let prompt = L10n.tr("Localizable", "join_group.text_field.prompt")
+    }
+  }
+
   public enum Server {
     public enum ConnectedTo {
       /// Connected to %s
