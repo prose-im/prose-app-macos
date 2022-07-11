@@ -17,70 +17,29 @@ private let l10n = L10n.EditProfile.Encryption.self
   #error("OS not supported, add a case")
 #endif
 
-private let appVersion: String = "Prose 1.0.0"
-private let omemoVersion: String = "OMEMO v0.7.0"
-
 struct EncryptionView: View {
-  struct Device: Equatable, Identifiable {
-    let id: String
-    let name: String
-    let securityHash: String
-    var isEnabled: Bool
-  }
-
-  static let deviceNameComparator = String
-    .Comparator(options: [.caseInsensitive, .diacriticInsensitive, .numeric])
-  static let deviceIdComparator = String.Comparator(options: [.numeric])
-  static let securityHashComparator = String.Comparator(.lexical)
+  typealias ViewState = EncryptionState
+  typealias ViewAction = EncryptionAction
 
   @Environment(\EnvironmentValues.font) private var font: Font?
 
-  let deviceName: String = "Prose (MacBook Baptiste)"
-  let deviceId: String = "120645"
-  @State var deviceSecurityHash: String = "ERT65"
-
-  @State var devices: IdentifiedArrayOf<Device> = [
-    Device(
-      id: "938173",
-      name: "Prose (iPhone Baptiste)",
-      securityHash: "Z29QD",
-      isEnabled: true
-    ),
-    Device(
-      id: "163012",
-      name: "Prose (iPad Baptiste)",
-      securityHash: "OB21A",
-      isEnabled: false
-    ),
-    Device(
-      id: "129",
-      name: "Gajim (Ubuntu VM)",
-      securityHash: "AQW02",
-      isEnabled: false
-    ),
-  ]
-  @State var sortOrder: [KeyPathComparator<EncryptionView.Device>] = [
-    KeyPathComparator(\Device.name, comparator: Self.deviceNameComparator, order: .reverse),
-  ]
-  @State private var selectedDevice: Device.ID?
-
-  var sortedDevices: [Device] {
-    self.devices.sorted(using: self.sortOrder)
-  }
+  let store: Store<ViewState, ViewAction>
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
-      VStack(spacing: 24) {
-        self.currentDeviceView()
-        Divider()
-          .padding(.horizontal)
-        self.otherDevicesView()
+      WithViewStore(self.store) { viewStore in
+        VStack(spacing: 24) {
+          self.currentDeviceView(viewStore: viewStore)
+          Divider()
+            .padding(.horizontal)
+          self.otherDevicesView(viewStore: viewStore)
+        }
+        .padding(.vertical, 24)
       }
-      .padding(.vertical, 24)
     }
   }
 
-  func currentDeviceView() -> some View {
+  func currentDeviceView(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
     ContentSection(
       header: l10n.CurrentDeviceSection.Header.label,
       footer: l10n.CurrentDeviceSection.Footer.label
@@ -95,11 +54,11 @@ struct EncryptionView: View {
             VStack(alignment: .leading, spacing: 4) {
               Text(verbatim: platform)
                 .font(.headline)
-              Text(verbatim: appVersion)
+              Text(verbatim: viewStore.appVersion)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             }
-            Text(verbatim: omemoVersion)
+            Text(verbatim: viewStore.omemoVersion)
               .font(.footnote)
               .foregroundColor(.blue)
           }
@@ -107,17 +66,17 @@ struct EncryptionView: View {
         Divider()
         VStack(alignment: .leading, spacing: 8) {
           SecondaryRow(l10n.CurrentDeviceName.Header.label) {
-            Text(verbatim: self.deviceName)
+            Text(verbatim: viewStore.deviceName)
           }
           SecondaryRow(l10n.CurrentDeviceId.Header.label) {
-            Text(verbatim: self.deviceId)
+            Text(verbatim: viewStore.deviceId)
               .font(.body.monospaced())
           }
           SecondaryRow(l10n.CurrentDeviceSecurityHash.Header.label) {
-            Text(verbatim: self.deviceSecurityHash)
+            Text(verbatim: viewStore.deviceSecurityHash)
               .font(.body.monospaced())
             Button(l10n.RollSecurityHashAction.label) {
-              self.deviceSecurityHash = String(UUID().uuidString.prefix(5))
+              viewStore.send(.rollSecurityHashTapped)
             }
             .controlSize(.small)
           }
@@ -127,64 +86,62 @@ struct EncryptionView: View {
     }
   }
 
-  func otherDevicesView() -> some View {
+  func otherDevicesView(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
     ContentSection(
       header: l10n.OtherDevicesSection.Header.label,
       footer: l10n.OtherDevicesSection.Footer.label
     ) {
       VStack(spacing: 0) {
         Divider()
-        self.table()
-          .safeAreaInset(edge: .bottom, spacing: 0, content: self.tableFooter)
+        self.table(viewStore: viewStore)
+          .safeAreaInset(edge: .bottom, spacing: 0) { self.tableFooter(viewStore: viewStore) }
         Divider()
       }
       .frame(height: 196)
     }
   }
 
-  func table() -> some View {
-    Table<Device, _, _>(
-      self.sortedDevices,
-      selection: self.$selectedDevice,
-      sortOrder: self.$sortOrder
+  func table(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
+    Table<ViewState.Device, _, _>(
+      viewStore.sortedDevices,
+      selection: viewStore.binding(\.$selectedDevice),
+      sortOrder: viewStore.binding(\.$sortOrder)
     ) {
-      TableColumn(String("")) { (device: Device) in
+      TableColumn(String("")) { (device: ViewState.Device) in
         Toggle(l10n.DeviceEnabled.Toggle.label, isOn: Binding(
           get: { device.isEnabled },
-          set: { self.devices[id: device.id]?.isEnabled = $0 }
+          set: { viewStore.send(.setEnabled(device.id, $0)) }
         ))
         .labelsHidden()
       }
       .width(16)
       TableColumn(
         l10n.DeviceName.Column.label,
-        value: \Device.name,
-        comparator: Self.deviceNameComparator
-      ) { (device: Device) in
+        value: \.name,
+        comparator: ViewState.deviceNameComparator
+      ) { (device: ViewState.Device) in
         Text(verbatim: device.name)
       }
       .width(ideal: 196)
       TableColumn(
         l10n.DeviceId.Column.label,
-        value: \Device.id,
-        comparator: Self.deviceIdComparator
-      ) { (device: Device) in
+        value: \.id,
+        comparator: ViewState.deviceIdComparator
+      ) { (device: ViewState.Device) in
         Text(verbatim: device.id)
           .font(.body.monospaced())
       }
       .width(min: 48, ideal: 64, max: 128)
       TableColumn(
         l10n.DeviceSecurityHash.Column.label,
-        value: \Device.securityHash,
-        comparator: Self.securityHashComparator
-      ) { (device: Device) in
+        value: \.securityHash,
+        comparator: ViewState.securityHashComparator
+      ) { (device: ViewState.Device) in
         HStack {
           Text(verbatim: device.securityHash)
             .font(.body.monospaced())
             .frame(maxWidth: .infinity, alignment: .leading)
-          Button {
-            logger.trace("Device \(device.id) info tapped")
-          } label: {
+          Button { viewStore.send(.deviceInfoTapped(device.id)) } label: {
             Image(systemName: "info.circle")
           }
           .buttonStyle(.plain)
@@ -195,19 +152,16 @@ struct EncryptionView: View {
     }
   }
 
-  func tableFooter() -> some View {
+  func tableFooter(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
     VStack(spacing: 0) {
       Divider()
       HStack(spacing: 0) {
         TableFooterButton(systemImage: "minus") {
-          if let selection = self.selectedDevice {
-            self.devices.remove(id: selection)
-            self.selectedDevice = nil
-          }
+          viewStore.send(.removeDeviceTapped)
         }
         Spacer()
         TableFooterButton(systemImage: "gear", disclosureIndicator: true) {
-          logger.trace("Devices settings tapped")
+          viewStore.send(.devicesSettingsTapped)
         }
       }
     }
@@ -216,9 +170,145 @@ struct EncryptionView: View {
   }
 }
 
+import ComposableArchitecture
+
+// MARK: - View
+
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let encryptionReducer = Reducer<
+  EncryptionState,
+  EncryptionAction,
+  Void
+> { state, action, _ in
+  switch action {
+  case .rollSecurityHashTapped:
+    state.deviceSecurityHash = String(UUID().uuidString.prefix(5))
+    return .none
+
+  case .removeDeviceTapped:
+    if let selection = state.selectedDevice {
+      state.devices.remove(id: selection)
+      state.selectedDevice = nil
+    }
+    return .none
+
+  case .devicesSettingsTapped:
+    logger.trace("Devices settings tapped")
+    return .none
+
+  case let .deviceInfoTapped(deviceId):
+    logger.trace("Device \(deviceId) info tapped")
+    return .none
+
+  case let .setEnabled(deviceId, isEnabled):
+    state.devices[id: deviceId]?.isEnabled = isEnabled
+    return .none
+
+  case .binding:
+    return .none
+  }
+}.binding()
+
+// MARK: State
+
+public struct EncryptionState: Equatable {
+  public struct Device: Equatable, Identifiable {
+    public let id: String
+    let name: String
+    let securityHash: String
+    var isEnabled: Bool
+
+    public init(
+      id: String,
+      name: String,
+      securityHash: String,
+      isEnabled: Bool
+    ) {
+      self.id = id
+      self.name = name
+      self.securityHash = securityHash
+      self.isEnabled = isEnabled
+    }
+  }
+
+  static let deviceNameComparator = String
+    .Comparator(options: [.caseInsensitive, .diacriticInsensitive, .numeric])
+  static let deviceIdComparator = String.Comparator(options: [.numeric])
+  static let securityHashComparator = String.Comparator(.lexical)
+
+  let appVersion: String = "Prose 1.0.0"
+  let omemoVersion: String = "OMEMO v0.7.0"
+
+  let deviceName: String
+  let deviceId: String
+
+  @BindableState var deviceSecurityHash: String
+
+  @BindableState var devices: IdentifiedArrayOf<Device>
+  @BindableState var sortOrder: [KeyPathComparator<Device>]
+  @BindableState var selectedDevice: Device.ID?
+
+  var sortedDevices: [Device] {
+    self.devices.sorted(using: self.sortOrder)
+  }
+
+  public init(
+    deviceName: String = "Prose (MacBook Baptiste)",
+    deviceId: String = "120645",
+    deviceSecurityHash: String = "ERT65",
+    devices: IdentifiedArrayOf<Device> = [
+      Device(
+        id: "938173",
+        name: "Prose (iPhone Baptiste)",
+        securityHash: "Z29QD",
+        isEnabled: true
+      ),
+      Device(
+        id: "163012",
+        name: "Prose (iPad Baptiste)",
+        securityHash: "OB21A",
+        isEnabled: false
+      ),
+      Device(
+        id: "129",
+        name: "Gajim (Ubuntu VM)",
+        securityHash: "AQW02",
+        isEnabled: false
+      ),
+    ],
+    sortOrder: [KeyPathComparator<Device>]? = nil
+  ) {
+    self.deviceName = deviceName
+    self.deviceId = deviceId
+    self.deviceSecurityHash = deviceSecurityHash
+    self.devices = devices
+    self.sortOrder = sortOrder ?? [
+      KeyPathComparator(\Device.name, comparator: Self.deviceNameComparator, order: .reverse),
+    ]
+  }
+}
+
+// MARK: Actions
+
+public enum EncryptionAction: Equatable, BindableAction {
+  case rollSecurityHashTapped, removeDeviceTapped, devicesSettingsTapped
+  case setEnabled(EncryptionState.Device.ID, Bool)
+  case deviceInfoTapped(EncryptionState.Device.ID)
+  case binding(BindingAction<EncryptionState>)
+}
+
+// MARK: - Previews
+
 struct EncryptionView_Previews: PreviewProvider {
   static var previews: some View {
-    EncryptionView()
-      .frame(width: 480, height: 544)
+    EncryptionView(store: Store(
+      initialState: EncryptionState(),
+      reducer: encryptionReducer,
+      environment: ()
+    ))
+    .frame(width: 480, height: 544)
   }
 }

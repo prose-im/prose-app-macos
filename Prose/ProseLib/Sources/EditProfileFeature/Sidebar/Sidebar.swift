@@ -4,66 +4,146 @@
 //
 
 import AppLocalization
+import ComposableArchitecture
+import IdentifiedCollections
 import SwiftUI
 
 private let l10n = L10n.EditProfile.Sidebar.self
 
-enum SidebarRoute: Equatable {
-  case identity, authentication, profile, encryption
-}
+// MARK: - View
 
 struct Sidebar: View {
-  @Binding var route: SidebarRoute
+  typealias ViewState = SidebarState
+  typealias ViewAction = SidebarAction
+
+  let store: Store<ViewState, ViewAction>
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
       VStack(alignment: .leading) {
-        SidebarRow(
-          icon: "person.text.rectangle",
-          headline: l10n.Identity.label,
-          subheadline: l10n.Identity.sublabel,
-          isSelected: route == .identity
-        ) { route = .identity }
-        SidebarRow(
-          icon: "lock",
-          headline: l10n.Authentication.label,
-          subheadline: l10n.Authentication.sublabel,
-          isSelected: route == .authentication
-        ) { route = .authentication }
-        SidebarRow(
-          icon: "person",
-          headline: l10n.Profile.label,
-          subheadline: l10n.Profile.sublabel,
-          isSelected: route == .profile
-        ) { route = .profile }
-        SidebarRow(
-          icon: "key",
-          headline: l10n.Encryption.label,
-          subheadline: l10n.Encryption.sublabel,
-          isSelected: route == .encryption
-        ) { route = .encryption }
+        WithViewStore(self.store.scope(state: \ViewState.selection)) { _ in
+          ForEachStore(
+            self.store.scope(state: \.rows, action: ViewAction.row),
+            content: SidebarRow.init(store:)
+          )
+        }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding(16)
       .fixedSize()
     }
     .safeAreaInset(edge: .top, spacing: 0) {
-      SidebarHeader { logger.trace("Edit profile picture tapped") }
+      SidebarHeader(store: self.store.scope(state: \.header, action: ViewAction.header))
         .padding([.horizontal, .top], 24)
         .padding(.bottom, 8)
     }
   }
 }
 
-struct Sidebar_Previews: PreviewProvider {
-  struct Preview: View {
-    @State var route: SidebarRoute = .identity
-    var body: some View {
-      Sidebar(route: $route)
-    }
-  }
+// MARK: - The Composable Architecture
 
+// MARK: Reducer
+
+public let sidebarReducer = Reducer<
+  SidebarState,
+  SidebarAction,
+  EditProfileEnvironment
+>.combine([
+  sidebarHeaderReducer.pullback(
+    state: \SidebarState.header,
+    action: CasePath(SidebarAction.header),
+    environment: { $0 }
+  ),
+  Reducer { state, action, _ in
+    if case .row(_, .rowTapped) = action {
+      state.rows[id: state.selection]?.isSelected = false
+    }
+    return .none
+  },
+  sidebarRowReducer.forEach(
+    state: \SidebarState.rows,
+    action: CasePath(SidebarAction.row),
+    environment: { $0 }
+  ),
+  Reducer { state, action, _ in
+    switch action {
+    case let .row(id, .rowTapped):
+      state.rows[id: id]?.isSelected = true
+      state.selection = id
+      return .none
+
+    default:
+      return .none
+    }
+  }.binding(),
+])
+
+// MARK: State
+
+public struct SidebarState: Equatable {
+  var header: SidebarHeaderState
+  var rows: IdentifiedArrayOf<SidebarRowState> = [
+    .init(
+      id: .identity,
+      icon: "person.text.rectangle",
+      headline: l10n.Identity.label,
+      subheadline: l10n.Identity.sublabel
+    ),
+    .init(
+      id: .authentication,
+      icon: "lock",
+      headline: l10n.Authentication.label,
+      subheadline: l10n.Authentication.sublabel
+    ),
+    .init(
+      id: .profile,
+      icon: "person",
+      headline: l10n.Profile.label,
+      subheadline: l10n.Profile.sublabel
+    ),
+    .init(
+      id: .encryption,
+      icon: "key",
+      headline: l10n.Encryption.label,
+      subheadline: l10n.Encryption.sublabel
+    ),
+  ]
+
+  public internal(set) var selection: Selection
+
+  public init(
+    header: SidebarHeaderState,
+    selection: Selection
+  ) {
+    self.header = header
+    self.selection = selection
+  }
+}
+
+public extension SidebarState {
+  enum Selection: Equatable {
+    case identity, authentication, profile, encryption
+  }
+}
+
+// MARK: Actions
+
+public enum SidebarAction: Equatable, BindableAction {
+  case header(SidebarHeaderAction), row(id: SidebarState.Selection, SidebarRowAction)
+  case binding(BindingAction<SidebarState>)
+}
+
+// MARK: - Previews
+
+struct Sidebar_Previews: PreviewProvider {
   static var previews: some View {
-    Preview()
+    Sidebar(store: Store(
+      initialState: SidebarState(
+        header: .init(),
+        selection: .identity
+      ),
+      reducer: sidebarReducer,
+      environment: .live()
+    ))
   }
 }

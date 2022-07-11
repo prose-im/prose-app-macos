@@ -4,44 +4,47 @@
 //
 
 import AppLocalization
+import ComposableArchitecture
 import ProseUI
 import SwiftUI
 
 private let l10n = L10n.EditProfile.Sidebar.Header.self
 
+// MARK: - View
+
 struct SidebarHeader: View {
-  let avatar: AvatarImage = .placeholder
-  let fullName: String = "Baptiste Jamin"
-  let jid: String = "baptiste@crisp.chat"
+  typealias ViewState = SidebarHeaderState
+  typealias ViewAction = SidebarHeaderAction
 
-  @State var isAvatarHovered: Bool = false
-
-  let action: () -> Void
+  let store: Store<ViewState, ViewAction>
 
   var body: some View {
     VStack {
-      Button(action: self.action, label: self.avatarView)
+      WithViewStore(self.store) { viewStore in
+        Button { viewStore.send(.editAvatarTapped) } label: { Self.avatarView(viewStore: viewStore)
+        }
         .buttonStyle(.plain)
         .accessibilityLabel(l10n.ChangeAvatarAction.axLabel)
         .accessibilityHint(l10n.ChangeAvatarAction.axHint)
-      VStack {
-        Text(verbatim: self.fullName)
-          .font(.headline)
-        Text(verbatim: self.jid)
-          .font(.subheadline.monospaced())
-          .foregroundColor(.secondary)
+        VStack {
+          Text(verbatim: viewStore.fullName)
+            .font(.headline)
+          Text(verbatim: viewStore.jid)
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(l10n.ProfileDetails.axLabel(viewStore.fullName, viewStore.jid))
+        // Higher priority on the profile label
+        .accessibilitySortPriority(1)
       }
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel(l10n.ProfileDetails.axLabel(self.fullName, self.jid))
-      // Higher priority on the profile label
-      .accessibilitySortPriority(1)
     }
     .multilineTextAlignment(.center)
   }
 
   @ViewBuilder
-  func avatarView() -> some View {
-    let avatar = Avatar(self.avatar, size: 80, cornerRadius: 12)
+  static func avatarView(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
+    let avatar = Avatar(viewStore.avatar, size: 80, cornerRadius: 12)
     avatar
       .overlay {
         ZStack(alignment: .bottom) {
@@ -52,28 +55,85 @@ struct SidebarHeader: View {
             .padding(8)
         }
         .clipShape(avatar.shape)
-        .opacity(isAvatarHovered ? 1 : 0)
+        .opacity(viewStore.isAvatarHovered ? 1 : 0)
       }
-      .onHover {
-        self.isAvatarHovered = $0
-        // FIXME: Use TCA and in-flight effect cancellation to avoid running `NSCursor.pop()` if some other view is asking for `NSCursor.pointingHand.push()`.
-        DispatchQueue.main.async {
-          if self.isAvatarHovered {
-            NSCursor.pointingHand.push()
-          } else {
-            NSCursor.pop()
-          }
-        }
-      }
+      .onHover { viewStore.send(.onHoverAvatar($0)) }
   }
 }
 
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let sidebarHeaderReducer = Reducer<
+  SidebarHeaderState,
+  SidebarHeaderAction,
+  EditProfileEnvironment
+> { state, action, environment in
+  switch action {
+  case let .onHoverAvatar(isHovered):
+    state.isAvatarHovered = isHovered
+    if isHovered {
+      environment.cursorClient.push(.interactiveHover)
+    } else {
+      environment.cursorClient.pop()
+    }
+    return .none
+
+  case .editAvatarTapped:
+    logger.trace("Edit profile picture tapped")
+    return .none
+
+  case .binding:
+    return .none
+  }
+}.binding()
+
+// MARK: State
+
+public struct SidebarHeaderState: Equatable {
+  let avatar: AvatarImage
+  let fullName: String
+  let jid: String
+
+  @BindableState var isAvatarHovered: Bool
+
+  public init(
+    avatar: AvatarImage = .placeholder,
+    fullName: String = "Baptiste Jamin",
+    jid: String = "baptiste@crisp.chat",
+    isAvatarHovered: Bool = false
+  ) {
+    self.avatar = avatar
+    self.fullName = fullName
+    self.jid = jid
+    self.isAvatarHovered = isAvatarHovered
+  }
+}
+
+// MARK: Actions
+
+public enum SidebarHeaderAction: Equatable, BindableAction {
+  case editAvatarTapped
+  case onHoverAvatar(Bool)
+  case binding(BindingAction<SidebarHeaderState>)
+}
+
+// MARK: - Previews
+
 struct SidebarHeader_Previews: PreviewProvider {
   static var previews: some View {
-    SidebarHeader {}
-      .padding()
-    SidebarHeader(isAvatarHovered: true) {}
-      .padding()
+    Self.preview(state: .init())
+    Self.preview(state: .init(isAvatarHovered: true))
       .previewDisplayName("Avatar hovered")
+  }
+
+  static func preview(state _: SidebarHeaderState) -> some View {
+    SidebarHeader(store: Store(
+      initialState: SidebarHeaderState(),
+      reducer: sidebarHeaderReducer,
+      environment: .live()
+    ))
+    .padding()
   }
 }
