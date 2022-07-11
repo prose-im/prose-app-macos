@@ -23,7 +23,6 @@
 		46A46C7828635B9000F27E40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7728635B9000F27E40 /* Assets.xcassets */; };
 		46A46C7B28635B9000F27E40 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7A28635B9000F27E40 /* Preview Assets.xcassets */; };
 		46A46C81286362B300F27E40 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 46A46C80286362B300F27E40 /* App */; };
-		46B1135F286C40EC009820C7 /* SuggestionsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B1135E286C40EC009820C7 /* SuggestionsList.swift */; };
 		46D1758D2851D3A500C72BC0 /* ProseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D1758C2851D3A500C72BC0 /* ProseApp.swift */; };
 		46D306EB287C249200CCA25F /* EditProfileFeaturePreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */; };
 		46D306EF287C249300CCA25F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46D306EE287C249300CCA25F /* Assets.xcassets */; };
@@ -73,7 +72,6 @@
 		46A46C7728635B9000F27E40 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		46A46C7A28635B9000F27E40 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		46A46C7C28635B9000F27E40 /* ConversationFeaturePreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConversationFeaturePreview.entitlements; sourceTree = "<group>"; };
-		46B1135E286C40EC009820C7 /* SuggestionsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionsList.swift; sourceTree = "<group>"; };
 		46D1758C2851D3A500C72BC0 /* ProseApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProseApp.swift; sourceTree = "<group>"; };
 		46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EditProfileFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileFeaturePreviewApp.swift; sourceTree = "<group>"; };
