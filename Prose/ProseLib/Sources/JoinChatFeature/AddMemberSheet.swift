@@ -10,14 +10,15 @@ import ProseCoreTCA
 import ProseUI
 import SwiftUI
 
+private let l10n = L10n.AddMember.self
+
 // MARK: - View
 
 public struct AddMemberSheet: View {
   public typealias ViewState = AddMemberSheetState
   public typealias ViewAction = AddMemberSheetAction
 
-  private let store: Store<ViewState, ViewAction>
-  private var actions: ViewStore<Void, ViewAction> { ViewStore(self.store.stateless) }
+  let store: Store<ViewState, ViewAction>
 
   public init(store: Store<ViewState, ViewAction>) {
     self.store = store
@@ -27,9 +28,9 @@ public struct AddMemberSheet: View {
     WithViewStore(self.store) { viewStore in
       VStack(spacing: 16) {
         VStack(alignment: .leading) {
-          Text(verbatim: "Add a new member")
+          Text(verbatim: l10n.Header.title)
             .font(.headline)
-          Text(verbatim: "Add an existing chat address, or invite an email to join your team.")
+          Text(verbatim: l10n.Header.subtitle)
             .font(.subheadline)
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -37,9 +38,9 @@ public struct AddMemberSheet: View {
         // TODO: [Rémi Bardon] Refactor `BasicAuthView.chatAddressHelpButton` so we can add the button here too.
         // TODO: [Rémi Bardon] Maybe we could even create a `JIDField`, which supports all of this out of the box.
         TextField(
-          "Text field",
+          l10n.TextField.label,
           text: viewStore.binding(\.$text),
-          prompt: Text("someone@domain.tld")
+          prompt: Text(verbatim: l10n.TextField.prompt)
         )
         .textFieldStyle(.roundedBorder)
         .onSubmit(of: .text) { viewStore.send(.submitTapped) }
@@ -50,14 +51,14 @@ public struct AddMemberSheet: View {
           .redacted(reason: viewStore.isProcessing ? .placeholder : [])
         HStack {
           Button { viewStore.send(.cancelTapped) } label: {
-            Text("Cancel")
+            Text(verbatim: l10n.CancelAction.label)
           }
           .buttonStyle(.bordered)
           Button { viewStore.send(.submitTapped) } label: {
             if case .unknown = viewStore.info {
-              Label("Invite", systemImage: "link.circle.fill")
+              Label(l10n.InviteAction.label, systemImage: "link.circle.fill")
             } else {
-              Label("Send Request", systemImage: "person.crop.circle.fill.badge.plus")
+              Label(l10n.SendRequestAction.label, systemImage: "person.crop.circle.fill.badge.plus")
             }
           }
           .buttonStyle(.borderedProminent)
@@ -79,15 +80,15 @@ public struct AddMemberSheet: View {
     case .unknown:
       self.infoMessage(
         icon: "person.crop.circle.badge.questionmark",
-        label: "This chat address doesn't exist yet.",
-        secondaryLabel: "You can invite this person to join your team.",
+        label: l10n.State.Unknown.label,
+        secondaryLabel: l10n.State.Unknown.sublabel,
         color: .orange
       )
     case let .existing(name):
       self.infoMessage(
         icon: "person.crop.circle.badge.checkmark",
-        label: "A contact request will be sent to **\(name)**.",
-        secondaryLabel: "Once **\(name)** accepts your request, you will be able to chat and call.",
+        label: l10n.State.Existing.label(name),
+        secondaryLabel: l10n.State.Existing.sublabel(name),
         color: Colors.State.green.color
       )
     }
