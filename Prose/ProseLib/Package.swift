@@ -77,6 +77,7 @@ let package = Package(
     .target(name: "SidebarFeature", dependencies: [
       .featureBase,
       "EditProfileFeature",
+      "JoinChatFeature",
     ]),
     .target(
       name: "ConversationFeature",
