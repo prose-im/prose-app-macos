@@ -114,20 +114,6 @@ public struct AddMemberSheet: View {
   }
 }
 
-extension VerticalAlignment {
-  struct CustomAlignment: AlignmentID {
-    static func defaultValue(in context: ViewDimensions) -> CGFloat {
-      context[VerticalAlignment.bottom]
-    }
-  }
-
-  static let custom = VerticalAlignment(CustomAlignment.self)
-}
-
-extension Alignment {
-  static let custom = Alignment(horizontal: .center, vertical: .custom)
-}
-
 // MARK: - The Composable Architecture
 
 // MARK: Reducer
