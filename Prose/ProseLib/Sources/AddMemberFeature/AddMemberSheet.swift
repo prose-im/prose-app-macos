@@ -44,33 +44,6 @@ public struct AddMemberSheet: View {
         .textFieldStyle(.roundedBorder)
         .onSubmit(of: .text) { viewStore.send(.submitTapped) }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .custom) {
-          if !viewStore.suggestions.isEmpty {
-//          ScrollView(.vertical) {
-            VStack(alignment: .leading) {
-              ForEach(viewStore.suggestions, id: \.self) { suggestion in
-                Button { print("\(suggestion) tapped") } label: {
-                  HStack(spacing: 4) {
-                    Avatar(.placeholder, size: 16)
-                    Text(verbatim: suggestion)
-                  }
-                }
-              }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-//          }
-            .buttonStyle(.plain)
-            .frame(maxHeight: 256)
-            .background(Material.regular, in: RoundedRectangle(cornerRadius: 8))
-            // Apply the shadow to the whole view, not every child view
-            .compositingGroup()
-            .shadow(radius: 1, y: 1)
-            // Offset a bit to avoid the text field outline
-            .alignmentGuide(.custom) { $0[VerticalAlignment.top] - 3 }
-          }
-        }
-        .zIndex(1)
         Self.infoMessage(for: viewStore.info)
           .symbolVariant(.fill)
           .fixedSize(horizontal: false, vertical: true)
@@ -172,12 +145,6 @@ public let addMemberReducer = Reducer<
 
   case let .didCheckText(text):
     state.isProcessing = false
-    state.suggestions = ["Valerian Saliou – valerian@prose.org"]
-//    "Marc Bauer – marc@prose.org"
-//    "Rémi Bardon – remi@prose.org"
-//    "The other Valerian – nairelav@prose.org"
-//    "The other Marc – cram@prose.org"
-//    "The other Rémi – imer@prose.org"
 
     switch text {
     case "":
@@ -220,8 +187,6 @@ public struct AddMemberSheetState: Equatable {
   var info: InfoMessage
   var isProcessing: Bool
 
-  var suggestions: [String]
-
   @BindableState var text: String
 
   var isFormValid: Bool {
@@ -236,13 +201,11 @@ public struct AddMemberSheetState: Equatable {
   public init(
     text: String = "",
     info: InfoMessage = .none,
-    isProcessing: Bool = false,
-    suggestions: [String] = ["Valerian Saliou – valerian@prose.org"]
+    isProcessing: Bool = false
   ) {
     self.text = text
     self.info = info
     self.isProcessing = isProcessing
-    self.suggestions = suggestions
   }
 }
 
