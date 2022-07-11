@@ -5,6 +5,18 @@
 // Created by Valerian Saliou on 11/15/21.
 //
 
+"add_member.header.title" = "Add a new member";
+"add_member.header.subtitle" = "Add an existing chat address, or invite an email to join your team.";
+"add_member.text_field.label" = "Chat address";
+"add_member.text_field.prompt" = "someone@domain.tld";
+"add_member.cancel_action.label" = "Cancel";
+"add_member.invite_action.label" = "Invite";
+"add_member.send_request_action.label" = "Send Request";
+"add_member.state.unknown.label" = "This chat address doesn't exist yet.";
+"add_member.state.unknown.sublabel" = "You can invite this person to join your team.";
+"add_member.state.existing.label" = "A contact request will be sent to **%s**.";
+"add_member.state.existing.sublabel" = "Once **%s** accepts your request, you will be able to chat and call.";
+
 "authentication.basic_auth.alert.bad_credentials.title" = "Bad credentials";
 "authentication.basic_auth.cancel.action.title" = "Cancel";
 "authentication.basic_auth.chat_address.popover.content" = "A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain].";
