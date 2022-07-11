@@ -5,7 +5,9 @@
 
 import AppLocalization
 import ComposableArchitecture
+import JoinChatFeature
 import SwiftUI
+import SwiftUINavigation
 
 public struct SidebarView: View {
   public typealias State = SidebarState
@@ -13,41 +15,64 @@ public struct SidebarView: View {
 
   typealias Tag = SidebarState.Selection
 
-  let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+  struct ViewState: Equatable {
+    let selection: State.Selection?
+    let sheet: State.Sheet?
+  }
 
   @Environment(\.redactionReasons) private var redactionReasons
 
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<ViewState, Action>
+
   public init(store: Store<State, Action>) {
     self.store = store
+    self.viewStore = ViewStore(store.scope(state: ViewState.init))
   }
 
   public var body: some View {
-    WithViewStore(store.scope(state: \.selection)) { viewStore in
-      List(selection: viewStore.binding(
-        get: { $0 },
-        send: SidebarAction.selection
-      )) {
-        self.spotlightSection
-        self.contactsSection
-        self.groupsSection
-      }
-      .listStyle(.sidebar)
-      .frame(minWidth: 280)
-      .safeAreaInset(edge: .bottom, spacing: 0) {
-        Footer(store: self.store.scope(state: \.footer, action: Action.footer))
-          // Make sure accessibility frame isn't inset by the window's rounded corners
-          .contentShape(Rectangle())
-          // Make footer have a higher priority, to be accessible over the scroll view
-          .accessibilitySortPriority(1)
-      }
-      .toolbar {
-        Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
-      }
-      .disabled(redactionReasons.contains(.placeholder))
-      .onAppear { viewStore.send(.onAppear) }
-      .onDisappear { viewStore.send(.onDisappear) }
+    List(selection: self.viewStore.binding(
+      get: \.selection,
+      send: SidebarAction.selection
+    )) {
+      self.spotlightSection
+      self.contactsSection
+      self.groupsSection
     }
+    .listStyle(.sidebar)
+    .frame(minWidth: 280)
+    .safeAreaInset(edge: .bottom, spacing: 0) {
+      Footer(store: self.store.scope(state: \.footer, action: Action.footer))
+        // Make sure accessibility frame isn't inset by the window's rounded corners
+        .contentShape(Rectangle())
+        // Make footer have a higher priority, to be accessible over the scroll view
+        .accessibilitySortPriority(1)
+    }
+    .toolbar {
+      Toolbar(store: self.store.scope(state: \.toolbar, action: Action.toolbar))
+    }
+    .disabled(redactionReasons.contains(.placeholder))
+    .sheet(unwrapping: self.viewStore.binding(
+      get: \.sheet,
+      send: SidebarAction.showSheet
+    )) { _ in
+      IfLetStore(self.store.scope(state: \.sheet)) { store in
+        SwitchStore(store) {
+          CaseLet(
+            state: CasePath(State.Sheet.addMember).extract(from:),
+            action: Action.addMember,
+            then: AddMemberSheet.init(store:)
+          )
+          CaseLet(
+            state: CasePath(State.Sheet.joinGroup).extract(from:),
+            action: Action.joinGroup,
+            then: JoinGroupSheet.init(store:)
+          )
+        }
+      }
+    }
+    .onAppear { self.viewStore.send(.onAppear) }
+    .onDisappear { self.viewStore.send(.onDisappear) }
   }
 
   private var spotlightSection: some View {
@@ -96,10 +121,17 @@ public struct SidebarView: View {
       IconRow(title: "My group", icon: .group)
         .opacity(0.5)
       ActionButton(title: L10n.Sidebar.Groups.Add.label) {
-        self.actions.send(.addGroupButtonTapped)
+        self.viewStore.send(.addGroupButtonTapped)
       }
     }
     // https://github.com/prose-im/prose-app-macos/issues/45
     .disabled(true)
+  }
+}
+
+private extension SidebarView.ViewState {
+  init(_ state: SidebarState) {
+    self.selection = state.selection
+    self.sheet = state.sheet
   }
 }

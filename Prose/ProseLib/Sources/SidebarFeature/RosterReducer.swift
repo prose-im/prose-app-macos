@@ -125,7 +125,7 @@ extension Reducer where
           return .none
 
         case .onDisappear, .selection, .addContactButtonTapped, .addGroupButtonTapped,
-             .footer, .toolbar:
+             .footer, .toolbar, .addMember, .joinGroup, .showSheet:
           return .none
         }
       }

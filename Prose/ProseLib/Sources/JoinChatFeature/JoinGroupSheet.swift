@@ -48,8 +48,11 @@ public struct JoinGroupSheet: View {
         Self.infoMessage(for: viewStore.info)
           .symbolVariant(.fill)
           .fixedSize(horizontal: false, vertical: true)
-          .redacted(reason: viewStore.isProcessing ? .placeholder : [])
         HStack {
+          if viewStore.isProcessing {
+            ProgressView()
+              .scaleEffect(0.5, anchor: .center)
+          }
           Button { viewStore.send(.cancelTapped) } label: {
             Text(verbatim: l10n.CancelAction.label)
           }
@@ -246,7 +249,7 @@ struct JoinGroupSheet_Previews: PreviewProvider {
       .previewDisplayName("Unknown")
     preview(.init(text: "remi@notfinished", info: .invalid))
       .previewDisplayName("Not finished")
-    preview(.init(text: "remi@prose.org", info: .invalid, isProcessing: true))
+    preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
       .previewDisplayName("Processing")
     Text("Preview")
       .frame(width: 480, height: 360)

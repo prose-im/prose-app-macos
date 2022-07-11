@@ -48,8 +48,11 @@ public struct AddMemberSheet: View {
         Self.infoMessage(for: viewStore.info)
           .symbolVariant(.fill)
           .fixedSize(horizontal: false, vertical: true)
-          .redacted(reason: viewStore.isProcessing ? .placeholder : [])
         HStack {
+          if viewStore.isProcessing {
+            ProgressView()
+              .scaleEffect(0.5, anchor: .center)
+          }
           Button { viewStore.send(.cancelTapped) } label: {
             Text(verbatim: l10n.CancelAction.label)
           }
@@ -62,7 +65,7 @@ public struct AddMemberSheet: View {
             }
           }
           .buttonStyle(.borderedProminent)
-          .disabled(!viewStore.isFormValid)
+          .disabled(!viewStore.isSubmitButtonEnabled)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
       }
@@ -164,15 +167,15 @@ public let addMemberReducer = Reducer<
 // MARK: State
 
 public struct AddMemberSheetState: Equatable {
-  public enum InfoMessage: Equatable {
+  enum InfoMessage: Equatable {
     case none
     case invalid
     case unknown
     case existing(String)
   }
 
-  var info: InfoMessage
-  var isProcessing: Bool
+  var info: InfoMessage = .none
+  var isProcessing: Bool = false
 
   @BindableState var text: String
 
@@ -180,19 +183,27 @@ public struct AddMemberSheetState: Equatable {
     switch self.info {
     case .existing, .unknown:
       return true
-    default:
+    case .none, .invalid:
       return false
     }
   }
 
-  public init(
-    text: String = "",
+  var isSubmitButtonEnabled: Bool {
+    self.isFormValid && !self.isProcessing
+  }
+
+  init(
+    text: String,
     info: InfoMessage = .none,
     isProcessing: Bool = false
   ) {
     self.text = text
     self.info = info
     self.isProcessing = isProcessing
+  }
+
+  public init(text: String = "") {
+    self.text = text
   }
 }
 
@@ -246,7 +257,7 @@ struct AddMemberSheet_Previews: PreviewProvider {
       .previewDisplayName("Unknown")
     preview(.init(text: "remi@notfinished", info: .invalid))
       .previewDisplayName("Not finished")
-    preview(.init(text: "remi@prose.org", info: .invalid, isProcessing: true))
+    preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
       .previewDisplayName("Processing")
     Text("Preview")
       .frame(width: 480, height: 360)
