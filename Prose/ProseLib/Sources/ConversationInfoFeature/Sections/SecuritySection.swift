@@ -7,6 +7,7 @@ import AppLocalization
 import Assets
 import ComposableArchitecture
 import SwiftUI
+import SwiftUINavigation
 
 private let l10n = L10n.Content.MessageDetails.Security.self
 
@@ -50,7 +51,15 @@ struct SecuritySection: View {
           }
         }
       }
-      infoButton(action: { actions.send(.showIdVerificationInfoTapped) })
+      WithViewStore(self.store, removeDuplicates: { $0.identityPopover == $1.identityPopover }) { viewStore in
+        infoButton(action: { actions.send(.showIdVerificationInfoTapped) })
+          .popover(unwrapping: viewStore.binding(\.$identityPopover)) { _ in
+            IfLetStore(
+              self.store.scope(state: \State.identityPopover, action: Action.identityPopover),
+              then: IdentityPopover.init(store:)
+            )
+          }
+      }
     }
   }
 
@@ -92,21 +101,24 @@ struct SecuritySection: View {
 
 // MARK: Reducer
 
-public let securitySectionReducer: Reducer<
+public let securitySectionReducer = Reducer<
   SecuritySectionState,
   SecuritySectionAction,
   Void
-> = Reducer { _, action, _ in
+> { state, action, _ in
   switch action {
   case .showIdVerificationInfoTapped:
-    logger.info("Show ID verification info tapped")
+    state.identityPopover = IdentityPopoverState()
+    return .none
 
   case .showEncryptionInfoTapped:
     logger.info("Show encryption info tapped")
-  }
+    return .none
 
-  return .none
-}
+  case .identityPopover, .binding:
+    return .none
+  }
+}.binding()
 
 // MARK: State
 
@@ -114,13 +126,7 @@ public struct SecuritySectionState: Equatable {
   let isIdentityVerified: Bool
   let encryptionFingerprint: String?
 
-  public init(
-    isIdentityVerified: Bool,
-    encryptionFingerprint: String?
-  ) {
-    self.isIdentityVerified = isIdentityVerified
-    self.encryptionFingerprint = encryptionFingerprint
-  }
+  @BindableState var identityPopover: IdentityPopoverState?
 }
 
 extension SecuritySectionState {
@@ -134,9 +140,11 @@ extension SecuritySectionState {
 
 // MARK: Actions
 
-public enum SecuritySectionAction: Equatable {
+public enum SecuritySectionAction: Equatable, BindableAction {
   case showIdVerificationInfoTapped
   case showEncryptionInfoTapped
+  case identityPopover(IdentityPopoverAction)
+  case binding(BindingAction<SecuritySectionState>)
 }
 
 // MARK: - Previews
