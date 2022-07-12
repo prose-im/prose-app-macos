@@ -20,36 +20,52 @@ struct FooterAvatar: View {
   typealias State = FooterAvatarState
   typealias Action = FooterAvatarAction
 
+  struct ViewState: Equatable {
+    let avatar: AvatarImage
+    let availability: Availability
+    let isShowingPopover: Bool
+    let isShowingSheet: Bool
+  }
+
+  struct PopoverState: Equatable {
+    let availability: Availability
+    let fullName: String
+    let jid: String
+    let statusIcon: Character
+  }
+
   @Environment(\.redactionReasons) private var redactionReasons
 
-  let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<ViewState, Action>
+  @ObservedObject private var popoverViewStore: ViewStore<PopoverState, Action>
+
+  public init(store: Store<State, Action>) {
+    self.store = store
+    self.viewStore = ViewStore(store.scope(state: ViewState.init))
+    self.popoverViewStore = ViewStore(store.scope(state: PopoverState.init))
+  }
 
   var body: some View {
-    WithViewStore(self.store, removeDuplicates: {
-      $0.isShowingPopover == $1.isShowingPopover
-        && $0.isShowingSheet == $1.isShowingSheet
-    }) { viewStore in
-      Button(action: { actions.send(.avatarTapped) }) {
-        WithViewStore(self.store.scope(state: \.avatar)) { viewStore in
-          Avatar(viewStore.state, size: 32)
-        }
-      }
-      .buttonStyle(.plain)
-      .accessibilityLabel(l10n.label)
-      .overlay(alignment: .bottomTrailing) {
-        WithViewStore(self.store.scope(state: \.availability)) { viewStore in
-          AvailabilityIndicator(availability: viewStore.state)
-          // Offset of half the size minus 2 points (otherwise it looks odd)
-            .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
-            .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
-        }
-      }
-      .popover(isPresented: viewStore.binding(\State.$isShowingPopover), content: popover)
-      .sheet(unwrapping: viewStore.binding(\State.$sheet)) { _ in
-        self.sheet()
-      }
+    Button(action: { self.viewStore.send(.avatarTapped) }) {
+      Avatar(self.viewStore.avatar, size: 32)
     }
+    .buttonStyle(.plain)
+    .accessibilityLabel(l10n.label)
+    .overlay(alignment: .bottomTrailing) {
+      AvailabilityIndicator(availability: self.viewStore.availability)
+        // Offset of half the size minus 2 points (otherwise it looks odd)
+        .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
+        .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
+    }
+    .popover(
+      isPresented: self.viewStore.binding(get: \.isShowingPopover, send: .dismissPopover),
+      content: self.popover
+    )
+    .sheet(
+      isPresented: self.viewStore.binding(get: \.isShowingSheet, send: .dismissSheet),
+      content: self.sheet
+    )
   }
 
   func sheet() -> some View {
@@ -65,120 +81,133 @@ struct FooterAvatar: View {
   }
 
   private func popover() -> some View {
-    Self.popover(store: self.store, redactionReasons: self.redactionReasons)
+    Self.popover(viewStore: self.popoverViewStore, redactionReasons: self.redactionReasons)
   }
 
   fileprivate static func popover(
-    store: Store<State, Action>,
+    viewStore: ViewStore<PopoverState, Action>,
     redactionReasons: RedactionReasons
   ) -> some View {
-    WithViewStore(store) { viewStore in
-      VStack(alignment: .leading, spacing: 16) {
-        // TODO: [Rémi Bardon] Refactor this view out
-        HStack {
-          #if DEBUG
-            // TODO: [Rémi Bardon] Change this to Crisp icon
-            Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 32)
-          #else
-            Avatar(.placeholder, size: 32)
-          #endif
-          VStack(alignment: .leading) {
-            Text(verbatim: viewStore.fullName)
-              .font(.headline)
-            Text(verbatim: viewStore.jid)
-              .font(.subheadline)
-              .foregroundColor(.secondary)
-          }
-          .foregroundColor(.primary)
+    VStack(alignment: .leading, spacing: 16) {
+      // TODO: [Rémi Bardon] Refactor this view out
+      HStack {
+        #if DEBUG
+          // TODO: [Rémi Bardon] Change this to Crisp icon
+          Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 32)
+        #else
+          Avatar(.placeholder, size: 32)
+        #endif
+        VStack(alignment: .leading) {
+          Text(verbatim: viewStore.fullName)
+            .font(.headline)
+          Text(verbatim: viewStore.jid)
+            .font(.subheadline)
+            .foregroundColor(.secondary)
         }
-        // Make hit box full width
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(l10n.Header.label(viewStore.fullName, viewStore.jid))
-
-        GroupBox {
-          Button { viewStore.send(.updateMoodTapped) } label: {
-            HStack(spacing: 4) {
-              Text(String(viewStore.statusIcon))
-                .accessibilityHidden(true)
-              Text(verbatim: l10n.UpdateMood.title)
-                .unredacted()
-            }
-            .disclosureIndicator()
-          }
-          Menu(l10n.ChangeAvailability.title) {
-            Self.availabilityMenu(
-              store: store,
-              redactionReasons: redactionReasons
-            )
-          }
-          // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
-          .padding(.leading, -3)
-          // NOTE: [Rémi Bardon] Having the disclosure indicator outside the menu label
-          //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
-          //       places the `Image` on the leading edge.
-          .disclosureIndicator()
-          .unredacted()
-          Button { viewStore.send(.pauseNotificationsTapped) } label: {
-            Text(verbatim: l10n.PauseNotifications.title)
-              .disclosureIndicator()
-          }
-          .unredacted()
-        }
-        GroupBox {
-          Button(l10n.EditProfile.title) { viewStore.send(.editProfileTapped) }
-            .unredacted()
-          Button(l10n.AccountSettings.title) { viewStore.send(.accountSettingsTapped) }
-            .unredacted()
-        }
-        GroupBox {
-          Button { viewStore.send(.offlineModeTapped) } label: {
-            Text(verbatim: l10n.OfflineMode.title)
-              .disclosureIndicator()
-          }
-          .unredacted()
-        }
-        GroupBox {
-          Button(l10n.SignOut.title, role: .destructive) { viewStore.send(.signOutTapped)
-          }
-          .unredacted()
-        }
+        .foregroundColor(.primary)
       }
-      .menuStyle(.borderlessButton)
-      .menuIndicator(.hidden)
-      .buttonStyle(SidebarFooterPopoverButtonStyle())
-      .groupBoxStyle(VStackGroupBoxStyle(alignment: .leading, spacing: 6))
-      .multilineTextAlignment(.leading)
-      .padding(12)
-      .frame(width: 196)
-      .disabled(redactionReasons.contains(.placeholder))
+      // Make hit box full width
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(Rectangle())
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel(l10n.Header.label(viewStore.fullName, viewStore.jid))
+
+      GroupBox {
+        Button { viewStore.send(.updateMoodTapped) } label: {
+          HStack(spacing: 4) {
+            Text(String(viewStore.statusIcon))
+              .accessibilityHidden(true)
+            Text(verbatim: l10n.UpdateMood.title)
+              .unredacted()
+          }
+          .disclosureIndicator()
+        }
+        Menu(l10n.ChangeAvailability.title) {
+          Self.availabilityMenu(
+            viewStore: viewStore,
+            redactionReasons: redactionReasons
+          )
+        }
+        // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
+        .padding(.leading, -3)
+        // NOTE: [Rémi Bardon] Having the disclosure indicator outside the menu label
+        //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
+        //       places the `Image` on the leading edge.
+        .disclosureIndicator()
+        .unredacted()
+        Button { viewStore.send(.pauseNotificationsTapped) } label: {
+          Text(verbatim: l10n.PauseNotifications.title)
+            .disclosureIndicator()
+        }
+        .unredacted()
+      }
+      GroupBox {
+        Button(l10n.EditProfile.title) { viewStore.send(.editProfileTapped) }
+          .unredacted()
+        Button(l10n.AccountSettings.title) { viewStore.send(.accountSettingsTapped) }
+          .unredacted()
+      }
+      GroupBox {
+        Button { viewStore.send(.offlineModeTapped) } label: {
+          Text(verbatim: l10n.OfflineMode.title)
+            .disclosureIndicator()
+        }
+        .unredacted()
+      }
+      GroupBox {
+        Button(l10n.SignOut.title, role: .destructive) { viewStore.send(.signOutTapped) }
+          .unredacted()
+      }
     }
+    .menuStyle(.borderlessButton)
+    .menuIndicator(.hidden)
+    .buttonStyle(SidebarFooterPopoverButtonStyle())
+    .groupBoxStyle(VStackGroupBoxStyle(alignment: .leading, spacing: 6))
+    .multilineTextAlignment(.leading)
+    .padding(12)
+    .frame(width: 196)
+    .disabled(redactionReasons.contains(.placeholder))
   }
 
   static func availabilityMenu(
-    store: Store<State, Action>,
+    viewStore: ViewStore<PopoverState, Action>,
     redactionReasons: RedactionReasons
   ) -> some View {
-    WithViewStore(store) { viewStore in
-      ForEach(Availability.allCases, id: \.self) { availability in
-        Button { viewStore.send(.changeAvailabilityTapped(availability)) } label: {
-          HStack {
-            // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
-            //       to add the colored dot, but `Menu`s don't display it.
-            Text(availability.localizedDescription)
-            if viewStore.availability == availability {
-              Spacer()
-              Image(systemName: "checkmark")
-            }
+    ForEach(Availability.allCases, id: \.self) { availability in
+      Button { viewStore.send(.changeAvailabilityTapped(availability)) } label: {
+        HStack {
+          // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
+          //       to add the colored dot, but `Menu`s don't display it.
+          Text(availability.localizedDescription)
+          if viewStore.availability == availability {
+            Spacer()
+            Image(systemName: "checkmark")
           }
         }
-        .tag(availability)
-        .disabled(viewStore.availability == availability)
       }
+      .tag(availability)
+      .disabled(viewStore.availability == availability)
     }
     .unredacted()
     .disabled(redactionReasons.contains(.placeholder))
+  }
+}
+
+extension FooterAvatar.ViewState {
+  init(_ state: FooterAvatar.State) {
+    self.avatar = state.avatar
+    self.availability = state.availability
+    self.isShowingPopover = state.isShowingPopover
+    self.isShowingSheet = state.sheet != nil
+  }
+}
+
+extension FooterAvatar.PopoverState {
+  init(_ state: FooterAvatar.State) {
+    self.availability = state.availability
+    self.fullName = state.fullName
+    self.jid = state.jid
+    self.statusIcon = state.statusIcon
   }
 }
 
@@ -265,6 +294,14 @@ public let footerAvatarReducer = Reducer<
       ))
       return .none
 
+    case .dismissPopover:
+      state.isShowingPopover = false
+      return .none
+
+    case .dismissSheet, .editProfile(.cancelTapped):
+      state.sheet = nil
+      return .none
+
     case .editProfile, .binding:
       return .none
 
@@ -288,8 +325,6 @@ public struct FooterAvatarState: Equatable {
 
   @BindableState var isShowingPopover: Bool
   @BindableState var sheet: Sheet?
-
-  var isShowingSheet: Bool { self.sheet != nil }
 
   public init(
     avatar: AvatarImage,
@@ -330,6 +365,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
   case accountSettingsTapped
   case offlineModeTapped
   case signOutTapped
+  case dismissPopover, dismissSheet
   case editProfile(EditProfileAction)
   case binding(BindingAction<FooterAvatarState>)
 }
@@ -369,11 +405,11 @@ extension SidebarEnvironment {
             ),
             reducer: footerAvatarReducer,
             environment: .init(proseClient: .noop, mainQueue: .main)
-          )
+          ).scope(state: FooterAvatar.PopoverState.init)
           Text("The popover 👇")
           Text("(Previews can't display it)")
           FooterAvatar.popover(
-            store: store,
+            viewStore: ViewStore(store),
             redactionReasons: redactionReasons
           )
           .border(Color.gray)
@@ -381,7 +417,7 @@ extension SidebarEnvironment {
           Text("(Previews can't display it)")
           VStack(alignment: .leading) {
             FooterAvatar.availabilityMenu(
-              store: store,
+              viewStore: ViewStore(store),
               redactionReasons: redactionReasons
             )
           }
