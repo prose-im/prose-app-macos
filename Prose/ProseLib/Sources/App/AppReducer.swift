@@ -28,16 +28,6 @@ public let appReducer: Reducer<
   AppAction,
   AppEnvironment
 > = Reducer.combine([
-  authenticationReducer.optional().pullback(
-    state: \AppState.auth,
-    action: CasePath(AppAction.auth),
-    environment: { $0.auth }
-  ),
-  mainWindowReducer.pullback(
-    state: \AppState.main,
-    action: CasePath(AppAction.main),
-    environment: { $0.main }
-  ).disabled(when: \.isMainWindowDisabled),
   Reducer { state, action, environment in
     func proceedToMainFlow(with credentials: Credentials) {
       state.main = MainScreenState(jid: credentials.jid)
@@ -136,10 +126,28 @@ public let appReducer: Reducer<
     case let .didReceiveMessage(message):
       return environment.notifications.scheduleLocalNotification(message).fireAndForget()
 
+    case .dismissAuthenticationSheet:
+      if state.main.isPlaceholder {
+        // We don't have a valid account and the user wants to dismiss the authentication sheet.
+        exit(0)
+      }
+      state.auth = nil
+      return .none
+
     case .onAppear, .auth, .main:
       return .none
     }
   },
+  authenticationReducer.optional().pullback(
+    state: \AppState.auth,
+    action: CasePath(AppAction.auth),
+    environment: { $0.auth }
+  ),
+  mainWindowReducer.pullback(
+    state: \AppState.main,
+    action: CasePath(AppAction.main),
+    environment: { $0.main }
+  ).disabled(when: \.isMainWindowDisabled),
 ])
 
 extension Reducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
@@ -185,6 +193,7 @@ public enum URLOpeningError: Error, Equatable {
 
 public enum AppAction: Equatable {
   case onAppear
+  case dismissAuthenticationSheet
 
   case authenticationResult(Result<Credentials?, EquatableError>)
   case connectionResult(Result<None, EquatableError>)
