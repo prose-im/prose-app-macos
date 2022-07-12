@@ -29,6 +29,8 @@ public struct MainScreen: View {
   public var body: some View {
     NavigationView {
       SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("Sidebar")
 
       SwitchStore(self.store.scope(state: \.route)) {
         CaseLet(
@@ -45,6 +47,8 @@ public struct MainScreen: View {
           Text("Not implemented.")
         }
       }
+      .accessibilityElement(children: .contain)
+      .accessibilityIdentifier("MainContent")
     }
   }
 }

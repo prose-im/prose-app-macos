@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "AA58C178-605B-4A55-B48D-7D8B07E8DD8D",
+      "id" : "0D940990-E17C-4D24-AEBC-3F70CD687104",
       "name" : "Configuration 1",
       "options" : {
 
@@ -14,20 +14,6 @@
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
-    {
-      "target" : {
-        "containerPath" : "container:ProseLib",
-        "identifier" : "CredentialsClientTests",
-        "name" : "CredentialsClientTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:ProseLib",
-        "identifier" : "ProseCoreTCATests",
-        "name" : "ProseCoreTCATests"
-      }
-    },
     {
       "target" : {
         "containerPath" : "container:Prose.xcodeproj",

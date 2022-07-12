@@ -30,6 +30,8 @@ public struct ConversationScreen: View {
           // Make footer have a higher priority, to be accessible over the scroll view
           .accessibilitySortPriority(1)
       }
+      .accessibilityIdentifier("ChatWebView")
+      .accessibilityElement(children: .contain)
       .onAppear { actions.send(.onAppear) }
       .onDisappear { actions.send(.onDisappear) }
       .safeAreaInset(edge: .trailing, spacing: 0) {
