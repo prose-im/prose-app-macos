@@ -7,6 +7,7 @@ import SwiftUI
 
 // MARK: - View
 
+/// A pre-styled button that presents a popover with the provided content when tapped.
 public struct HelpButton<Content: View>: View {
   @Environment(\.redactionReasons) private var redactionReasons
 
