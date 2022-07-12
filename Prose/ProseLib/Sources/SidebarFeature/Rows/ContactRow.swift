@@ -20,7 +20,7 @@ struct ContactRow: View {
       HStack(alignment: .firstTextBaseline, spacing: 4) {
         Text(title)
 
-        OnlineStatusIndicator(status: self.status)
+        OnlineStatusIndicator(self.status)
       }
 
       Spacer()

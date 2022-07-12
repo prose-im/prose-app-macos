@@ -17,11 +17,9 @@ public struct ContentCommonNameStatusComponent: View {
 
   public var body: some View {
     HStack {
-      OnlineStatusIndicator(
-        status: status
-      )
-      .offset(x: 3, y: 1)
-      .accessibilitySortPriority(1)
+      OnlineStatusIndicator(status)
+        .offset(x: 3, y: 1)
+        .accessibilitySortPriority(1)
 
       Text(verbatim: name)
         .font(.system(size: 14).bold())

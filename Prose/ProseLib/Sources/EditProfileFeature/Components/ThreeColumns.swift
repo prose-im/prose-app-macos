@@ -37,11 +37,11 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
   init(
     _ label: String,
     @ViewBuilder column2: () -> Column2
-  ) where Column1 == Text, Column3 == EmptyView {
+  ) where Column1 == Text, Column3 == AnyView {
     self.label = label
     self.column1 = Text(verbatim: label)
     self.column2 = column2()
-    self.column3 = EmptyView()
+    self.column3 = AnyView(Color.clear.fixedSize())
   }
 
   /// - Note: The ``ZStack``s allow SwiftUI to keep some space for views.

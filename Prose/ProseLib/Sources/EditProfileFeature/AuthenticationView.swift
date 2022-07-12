@@ -61,8 +61,7 @@ struct AuthenticationView: View {
               }
               SecondaryRow(l10n.MfaStatus.Header.label) {
                 HStack(spacing: 4) {
-                  // TODO: Change this to a more general purpose indicator
-                  OnlineStatusIndicator(viewStore.isMfaEnabled ? .online : .offline)
+                  BooleanIndicator(viewStore.isMfaEnabled)
                     .accessibilityHidden(true)
                   Text(verbatim: viewStore.mfaStateLabel)
                 }
