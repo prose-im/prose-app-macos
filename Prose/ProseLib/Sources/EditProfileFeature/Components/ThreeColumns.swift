@@ -7,41 +7,41 @@ import SwiftUI
 
 struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
   let label: String
-  let column1: () -> Column1
-  let column2: () -> Column2
-  let column3: () -> Column3
+  let column1: Column1
+  let column2: Column2
+  let column3: Column3
 
   init(
     label: String,
-    @ViewBuilder column1: @escaping () -> Column1,
-    @ViewBuilder column2: @escaping () -> Column2,
-    @ViewBuilder column3: @escaping () -> Column3
+    @ViewBuilder column1: () -> Column1,
+    @ViewBuilder column2: () -> Column2,
+    @ViewBuilder column3: () -> Column3
   ) {
     self.label = label
-    self.column1 = column1
-    self.column2 = column2
-    self.column3 = column3
+    self.column1 = column1()
+    self.column2 = column2()
+    self.column3 = column3()
   }
 
   init(
     _ label: String,
-    @ViewBuilder column2: @escaping () -> Column2,
-    @ViewBuilder column3: @escaping () -> Column3
+    @ViewBuilder column2: () -> Column2,
+    @ViewBuilder column3: () -> Column3
   ) where Column1 == Text {
     self.label = label
-    self.column1 = { Text(verbatim: label) }
-    self.column2 = column2
-    self.column3 = column3
+    self.column1 = Text(verbatim: label)
+    self.column2 = column2()
+    self.column3 = column3()
   }
 
   init(
     _ label: String,
-    @ViewBuilder column2: @escaping () -> Column2
+    @ViewBuilder column2: () -> Column2
   ) where Column1 == Text, Column3 == EmptyView {
     self.label = label
-    self.column1 = { Text(verbatim: label) }
-    self.column2 = column2
-    self.column3 = EmptyView.init
+    self.column1 = Text(verbatim: label)
+    self.column2 = column2()
+    self.column3 = EmptyView()
   }
 
   /// - Note: The ``ZStack``s allow SwiftUI to keep some space for views.
@@ -49,14 +49,14 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
   ///         all the way until the trailing edge, which is not what we want.
   var body: some View {
     HStack {
-      ZStack(content: column1)
+      ZStack { column1 }
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
         // Ignore as it's already the container label
         .accessibilityHidden(true)
-      ZStack(content: column2)
+      ZStack { column2 }
         .frame(maxWidth: .infinity, alignment: .leading)
-      ZStack(content: column3)
+      ZStack { column3 }
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
     }
