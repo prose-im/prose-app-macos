@@ -19,7 +19,7 @@ extension Roster {
 }
 
 private extension Roster.Group {
-  init(name: String, users: some Sequence<RNDResult>) {
+  init<T: Sequence>(name: String, users: T) where T.Element == RNDResult {
     self.init(
       name: name,
       items: users.map { user in
