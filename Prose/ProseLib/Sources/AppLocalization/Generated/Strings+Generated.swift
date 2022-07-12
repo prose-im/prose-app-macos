@@ -317,6 +317,100 @@ public enum L10n {
     }
   }
 
+  public enum Info {
+    public enum Identity {
+      public enum Popover {
+        public enum Email {
+          public enum StateNotVerified {
+            /// Email not verified
+            public static let label = L10n.tr(
+              "Localizable",
+              "info.identity.popover.email.state_not_verified.label"
+            )
+          }
+
+          public enum StateVerified {
+            /// Email verified: %s
+            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+              L10n.tr("Localizable", "info.identity.popover.email.state_verified.label", p1)
+            }
+          }
+        }
+
+        public enum Fingerprint {
+          public enum StateNotVerified {
+            /// User signature fingerprint not verified
+            public static let label = L10n.tr(
+              "Localizable",
+              "info.identity.popover.fingerprint.state_not_verified.label"
+            )
+          }
+
+          public enum StateVerified {
+            /// User signature fingerprint verified: %s
+            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+              L10n.tr("Localizable", "info.identity.popover.fingerprint.state_verified.label", p1)
+            }
+          }
+        }
+
+        public enum Footer {
+          /// User data is verified on your configured identity server, which is %s.
+          public static func label(_ p1: UnsafePointer<CChar>) -> String {
+            L10n.tr("Localizable", "info.identity.popover.footer.label", p1)
+          }
+        }
+
+        public enum GovernmentId {
+          public enum StateNotProvided {
+            /// Government ID not verified (not provided yet)
+            public static let label = L10n.tr(
+              "Localizable",
+              "info.identity.popover.government_id.state_not_provided.label"
+            )
+          }
+
+          public enum StateVerified {
+            /// Government ID verified
+            public static let label = L10n.tr(
+              "Localizable",
+              "info.identity.popover.government_id.state_verified.label"
+            )
+          }
+        }
+
+        public enum Header {
+          /// Prose checked on the identity server for matches. It could verify this user.
+          public static let subtitle = L10n.tr(
+            "Localizable",
+            "info.identity.popover.header.subtitle"
+          )
+          /// Looks like this is the real %s
+          public static func title(_ p1: UnsafePointer<CChar>) -> String {
+            L10n.tr("Localizable", "info.identity.popover.header.title", p1)
+          }
+        }
+
+        public enum Phone {
+          public enum StateNotVerified {
+            /// Phone not verified
+            public static let label = L10n.tr(
+              "Localizable",
+              "info.identity.popover.phone.state_not_verified.label"
+            )
+          }
+
+          public enum StateVerified {
+            /// Phone verified: %s
+            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+              L10n.tr("Localizable", "info.identity.popover.phone.state_verified.label", p1)
+            }
+          }
+        }
+      }
+    }
+  }
+
   public enum Server {
     public enum ConnectedTo {
       /// Connected to %s

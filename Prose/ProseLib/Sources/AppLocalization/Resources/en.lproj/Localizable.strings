@@ -40,6 +40,18 @@
 "authentication.account_error_alert.go_to_account_settings_action.title" = "Account settings";
 "authentication.account_error_alert.work_offline_action.title" = "Work offline";
 
+"info.identity.popover.header.title" = "Looks like this is the real %s";
+"info.identity.popover.header.subtitle" = "Prose checked on the identity server for matches. It could verify this user.";
+"info.identity.popover.fingerprint.state_verified.label" = "User signature fingerprint verified: %s";
+"info.identity.popover.fingerprint.state_not_verified.label" = "User signature fingerprint not verified";
+"info.identity.popover.email.state_verified.label" = "Email verified: %s";
+"info.identity.popover.email.state_not_verified.label" = "Email not verified";
+"info.identity.popover.phone.state_verified.label" = "Phone verified: %s";
+"info.identity.popover.phone.state_not_verified.label" = "Phone not verified";
+"info.identity.popover.government_id.state_verified.label" = "Government ID verified";
+"info.identity.popover.government_id.state_not_provided.label" = "Government ID not verified (not provided yet)";
+"info.identity.popover.footer.label" = "User data is verified on your configured identity server, which is %s.";
+
 "sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";
 "sidebar.spotlight.replies" = "Replies";
