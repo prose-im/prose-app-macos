@@ -9,7 +9,7 @@ import ProseCoreTCA
 public extension Message {
   static func mock(
     from: JID = "jane.doe@prose.org",
-    id: String = "message-id",
+    id: String = UUID().uuidString,
     kind: MessageKind? = .chat,
     body: String = "Hello World!",
     timestamp: Date = Date(),
