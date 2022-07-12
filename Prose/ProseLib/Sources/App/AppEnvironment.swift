@@ -32,6 +32,22 @@ public struct AppEnvironment {
   var mainQueue: AnySchedulerOf<DispatchQueue>
 
   var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
+
+  public init(
+    userDefaults: UserDefaultsClient,
+    credentials: CredentialsClient,
+    proseClient: ProseClient,
+    notifications: NotificationsClient,
+    mainQueue: AnySchedulerOf<DispatchQueue>,
+    openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
+  ) {
+    self.userDefaults = userDefaults
+    self.credentials = credentials
+    self.proseClient = proseClient
+    self.notifications = notifications
+    self.mainQueue = mainQueue
+    self.openURL = openURL
+  }
 }
 
 public extension AppEnvironment {
