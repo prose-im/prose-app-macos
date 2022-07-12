@@ -5,7 +5,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import EditProfileFeature
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
@@ -24,7 +23,6 @@ struct FooterAvatar: View {
     let avatar: AvatarImage
     let availability: Availability
     let isShowingPopover: Bool
-    let isShowingSheet: Bool
   }
 
   struct PopoverState: Equatable {
@@ -62,22 +60,6 @@ struct FooterAvatar: View {
       isPresented: self.viewStore.binding(get: \.isShowingPopover, send: .dismissPopover),
       content: self.popover
     )
-    .sheet(
-      isPresented: self.viewStore.binding(get: \.isShowingSheet, send: .dismissSheet),
-      content: self.sheet
-    )
-  }
-
-  func sheet() -> some View {
-    IfLetStore(self.store.scope(state: \.sheet)) { store in
-      SwitchStore(store) {
-        CaseLet(
-          state: CasePath(State.Sheet.editProfile).extract(from:),
-          action: Action.editProfile,
-          then: EditProfileScreen.init(store:)
-        )
-      }
-    }
   }
 
   private func popover() -> some View {
@@ -198,7 +180,6 @@ extension FooterAvatar.ViewState {
     self.avatar = state.avatar
     self.availability = state.availability
     self.isShowingPopover = state.isShowingPopover
-    self.isShowingSheet = state.sheet != nil
   }
 }
 
@@ -262,56 +243,35 @@ extension View {
 public let footerAvatarReducer = Reducer<
   FooterAvatarState,
   FooterAvatarAction,
-  SidebarEnvironment
->.combine([
-  editProfileReducer.pullback(
-    state: CasePath(FooterAvatarState.Sheet.editProfile),
-    action: CasePath(FooterAvatarAction.editProfile),
-    environment: { (env: SidebarEnvironment) in env.editProfile }
-  ).optional().pullback(
-    state: \FooterAvatarState.sheet,
-    action: .self,
-    environment: { $0 }
-  ),
-  Reducer { state, action, _ in
-    switch action {
-    case .avatarTapped:
-      state.isShowingPopover = true
-      return .none
+  Void
+> { state, action, _ in
+  switch action {
+  case .avatarTapped:
+    state.isShowingPopover = true
+    return .none
 
-    case let .changeAvailabilityTapped(availability):
-      state.availability = availability
-      return .none
+  case let .changeAvailabilityTapped(availability):
+    state.availability = availability
+    return .none
 
-    case .signOutTapped:
-      state.isShowingPopover = false
-      return .none
+  case .signOutTapped:
+    state.isShowingPopover = false
+    return .none
 
-    case .editProfileTapped:
-      state.sheet = .editProfile(EditProfileState(
-        sidebarHeader: SidebarHeaderState(),
-        route: .identity(IdentityState())
-      ))
-      return .none
+  case .dismissPopover:
+    state.isShowingPopover = false
+    return .none
 
-    case .dismissPopover:
-      state.isShowingPopover = false
-      return .none
+  case .binding:
+    return .none
 
-    case .dismissSheet, .editProfile(.cancelTapped):
-      state.sheet = nil
-      return .none
-
-    case .editProfile, .binding:
-      return .none
-
-    case .updateMoodTapped, .pauseNotificationsTapped, .accountSettingsTapped, .offlineModeTapped:
-      // TODO: [Rémi Bardon] Handle actions
-      logger.notice("Received unhandled action: \(String(describing: action))")
-      return .none
-    }
-  }.binding(),
-])
+  case .updateMoodTapped, .pauseNotificationsTapped, .editProfileTapped, .accountSettingsTapped,
+       .offlineModeTapped:
+    // TODO: [Rémi Bardon] Handle actions
+    logger.notice("Received unhandled action: \(String(describing: action))")
+    return .none
+  }
+}.binding()
 
 // MARK: State
 
@@ -324,7 +284,6 @@ public struct FooterAvatarState: Equatable {
   var statusMessage: String
 
   @BindableState var isShowingPopover: Bool
-  @BindableState var sheet: Sheet?
 
   public init(
     avatar: AvatarImage,
@@ -333,8 +292,7 @@ public struct FooterAvatarState: Equatable {
     jid: String = "baptiste@crisp.chat",
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
-    isShowingPopover: Bool = false,
-    sheet: Sheet? = nil
+    isShowingPopover: Bool = false
   ) {
     self.avatar = avatar
     self.availability = availability
@@ -344,13 +302,6 @@ public struct FooterAvatarState: Equatable {
     self.statusIcon = statusIcon
     self.statusMessage = statusMessage
     self.isShowingPopover = isShowingPopover
-    self.sheet = sheet
-  }
-}
-
-public extension FooterAvatarState {
-  enum Sheet: Equatable {
-    case editProfile(EditProfileState)
   }
 }
 
@@ -365,17 +316,8 @@ public enum FooterAvatarAction: Equatable, BindableAction {
   case accountSettingsTapped
   case offlineModeTapped
   case signOutTapped
-  case dismissPopover, dismissSheet
-  case editProfile(EditProfileAction)
+  case dismissPopover
   case binding(BindingAction<FooterAvatarState>)
-}
-
-// MARK: Environment
-
-extension SidebarEnvironment {
-  var editProfile: EditProfileEnvironment {
-    EditProfileEnvironment()
-  }
 }
 
 // MARK: - Previews
@@ -404,7 +346,7 @@ extension SidebarEnvironment {
               availability: .available
             ),
             reducer: footerAvatarReducer,
-            environment: .init(proseClient: .noop, mainQueue: .main)
+            environment: ()
           ).scope(state: FooterAvatar.PopoverState.init)
           Text("The popover 👇")
           Text("(Previews can't display it)")
@@ -433,7 +375,7 @@ extension SidebarEnvironment {
         FooterAvatar(store: Store(
           initialState: state,
           reducer: footerAvatarReducer,
-          environment: .init(proseClient: .noop, mainQueue: .main)
+          environment: ()
         ))
       }
     }

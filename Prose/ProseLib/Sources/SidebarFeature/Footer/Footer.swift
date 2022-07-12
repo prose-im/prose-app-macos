@@ -5,6 +5,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import EditProfileFeature
 import SwiftUI
 
 private let l10n = L10n.Sidebar.Footer.self
@@ -16,9 +17,19 @@ struct Footer: View {
   typealias State = FooterState
   typealias Action = FooterAction
 
+  struct ViewState: Equatable {
+    let isShowingSheet: Bool
+  }
+
   static let height: CGFloat = 64
 
-  let store: Store<State, Action>
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<ViewState, Action>
+
+  public init(store: Store<State, Action>) {
+    self.store = store
+    self.viewStore = ViewStore(store.scope(state: ViewState.init))
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -40,8 +51,7 @@ struct Footer: View {
 
         // Quick actions button
         FooterActionMenu(
-          store: self.store
-            .scope(state: \.actionButton, action: Action.actionButton)
+          store: self.store.scope(state: \.actionButton, action: Action.actionButton)
         )
       }
       .padding(.leading, 20.0)
@@ -51,6 +61,28 @@ struct Footer: View {
     .frame(height: Self.height)
     .accessibilityElement(children: .contain)
     .accessibilityLabel(l10n.label)
+    .sheet(
+      isPresented: self.viewStore.binding(get: \.isShowingSheet, send: .dismissSheet),
+      content: self.sheet
+    )
+  }
+
+  func sheet() -> some View {
+    IfLetStore(self.store.scope(state: \.sheet)) { store in
+      SwitchStore(store) {
+        CaseLet(
+          state: CasePath(State.Sheet.editProfile).extract(from:),
+          action: Action.editProfile,
+          then: EditProfileScreen.init(store:)
+        )
+      }
+    }
+  }
+}
+
+extension Footer.ViewState {
+  init(_ state: Footer.State) {
+    self.isShowingSheet = state.sheet != nil
   }
 }
 
@@ -71,13 +103,39 @@ let footerReducer: Reducer<
   footerAvatarReducer.pullback(
     state: \FooterState.avatar,
     action: CasePath(FooterAction.avatar),
-    environment: { $0 }
+    environment: { _ in () }
   ),
+  editProfileReducer.pullback(
+    state: CasePath(FooterState.Sheet.editProfile),
+    action: .self,
+    environment: { $0 }
+  ).optional().pullback(
+    state: \FooterState.sheet,
+    action: CasePath(FooterAction.editProfile),
+    environment: { (env: SidebarEnvironment) in env.editProfile }
+  ),
+  Reducer { state, action, _ in
+    switch action {
+    case .dismissSheet, .editProfile(.cancelTapped):
+      state.sheet = nil
+      return .none
+
+    case .avatar(.editProfileTapped):
+      state.sheet = .editProfile(EditProfileState(
+        sidebarHeader: SidebarHeaderState(),
+        route: .identity(IdentityState())
+      ))
+      return .none
+
+    case .actionButton, .avatar, .editProfile, .binding:
+      return .none
+    }
+  }.binding(),
 ])
 
 // MARK: State
 
-struct FooterState: Equatable {
+public struct FooterState: Equatable {
   let credentials: UserCredentials
   let teamName: String
   let statusIcon: Character
@@ -86,13 +144,16 @@ struct FooterState: Equatable {
   var avatar: FooterAvatarState
   var actionButton: FooterActionMenuState
 
+  @BindableState var sheet: Sheet?
+
   init(
     credentials: UserCredentials,
     teamName: String = "Crisp",
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
     avatar: FooterAvatarState = .init(avatar: .placeholder),
-    actionButton: FooterActionMenuState = .init()
+    actionButton: FooterActionMenuState = .init(),
+    sheet: Sheet? = nil
   ) {
     self.credentials = credentials
     self.teamName = teamName
@@ -100,14 +161,32 @@ struct FooterState: Equatable {
     self.statusMessage = statusMessage
     self.avatar = avatar
     self.actionButton = actionButton
+    self.sheet = sheet
+  }
+}
+
+public extension FooterState {
+  enum Sheet: Equatable {
+    case editProfile(EditProfileState)
   }
 }
 
 // MARK: Actions
 
-public enum FooterAction: Equatable {
+public enum FooterAction: Equatable, BindableAction {
+  case dismissSheet
   case avatar(FooterAvatarAction)
   case actionButton(FooterActionMenuAction)
+  case editProfile(EditProfileAction)
+  case binding(BindingAction<FooterState>)
+}
+
+// MARK: Environment
+
+extension SidebarEnvironment {
+  var editProfile: EditProfileEnvironment {
+    EditProfileEnvironment()
+  }
 }
 
 // MARK: - Previews
