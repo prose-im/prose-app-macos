@@ -7,6 +7,7 @@ import AppLocalization
 import ComposableArchitecture
 import EditProfileFeature
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Sidebar.Footer.self
 
@@ -105,14 +106,10 @@ let footerReducer: Reducer<
     action: CasePath(FooterAction.avatar),
     environment: { _ in () }
   ),
-  editProfileReducer.pullback(
-    state: CasePath(FooterState.Sheet.editProfile),
-    action: .self,
-    environment: { $0 }
-  ).optional().pullback(
-    state: \FooterState.sheet,
+  editProfileReducer._pullback(
+    state: (\FooterState.sheet).case(CasePath(FooterState.Sheet.editProfile)),
     action: CasePath(FooterAction.editProfile),
-    environment: { (env: SidebarEnvironment) in env.editProfile }
+    environment: { $0.editProfile }
   ),
   Reducer { state, action, _ in
     switch action {
