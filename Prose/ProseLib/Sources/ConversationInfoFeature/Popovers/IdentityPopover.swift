@@ -5,19 +5,25 @@
 
 import AppLocalization
 import Assets
+import ComposableArchitecture
 import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Info.Identity.Popover.self
 
+// MARK: - View
+
 struct IdentityPopover: View {
-  var fullName: String = "Valerian Saliou"
-  var signatureFingerprint: VerifiableWithData = .verified("C648A")
-  var email: VerifiableWithData = .verified("valerian@crisp.chat")
-  var phone: VerifiableWithData = .verified("+33631210280")
-  var governmentId: Verifiable = .notVerified
-  // NOTE: We're using `[…](…)` here, because the default Markdown parser doesn't recognize the link.
-  var identityServer: String = "[id.prose.org](id.prose.org)"
+  typealias ViewState = IdentityPopoverState
+  typealias ViewAction = IdentityPopoverAction
+
+  let store: Store<ViewState, ViewAction>
+  @ObservedObject var viewStore: ViewStore<ViewState, ViewAction>
+
+  init(store: Store<ViewState, ViewAction>) {
+    self.store = store
+    self.viewStore = ViewStore(store)
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -31,7 +37,7 @@ struct IdentityPopover: View {
         }
         .accessibilityHidden(true)
         VStack(alignment: .leading) {
-          Text(verbatim: l10n.Header.title(self.fullName))
+          Text(verbatim: l10n.Header.title(viewStore.fullName))
             .font(.headline)
           Text(verbatim: l10n.Header.subtitle)
             .font(.subheadline)
@@ -43,7 +49,7 @@ struct IdentityPopover: View {
       Divider()
       VStack(alignment: .labelIconCenter, spacing: 8) {
         HStack {
-          Self.label(self.signatureFingerprint, icon: "key") {
+          Self.label(viewStore.signatureFingerprint, icon: "key") {
             $0.text(
               notVerified: l10n.Fingerprint.StateNotVerified.label,
               verified: l10n.Fingerprint.StateVerified.label
@@ -53,7 +59,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(self.email, icon: "envelope") {
+          Self.label(viewStore.email, icon: "envelope") {
             $0.text(
               notVerified: l10n.Email.StateNotVerified.label,
               verified: l10n.Email.StateVerified.label
@@ -63,7 +69,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(self.phone, icon: "phone") {
+          Self.label(viewStore.phone, icon: "phone") {
             $0.text(
               notVerified: l10n.Phone.StateNotVerified.label,
               verified: l10n.Phone.StateVerified.label
@@ -73,7 +79,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(self.governmentId, icon: "signature") {
+          Self.label(viewStore.governmentId, icon: "signature") {
             $0.text(
               notVerified: l10n.GovernmentId.StateNotProvided.label,
               verified: l10n.GovernmentId.StateVerified.label
@@ -90,7 +96,7 @@ struct IdentityPopover: View {
       .padding(.vertical, 12)
       .background(Color(nsColor: .windowBackgroundColor))
       Divider()
-      Text(l10n.Footer.label(self.identityServer).asMarkdown)
+      Text(l10n.Footer.label(viewStore.identityServer).asMarkdown)
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -101,17 +107,17 @@ struct IdentityPopover: View {
   }
 
   static func label(
-    _ item: VerifiableWithData,
+    _ item: ViewState.VerifiableWithData,
     icon: String,
-    text: (VerifiableWithData) -> String
+    text: (ViewState.VerifiableWithData) -> String
   ) -> some View {
     Self.label(icon: icon, text: text(item), color: item.color)
   }
 
   static func label(
-    _ item: Verifiable,
+    _ item: ViewState.Verifiable,
     icon: String,
-    text: (Verifiable) -> String
+    text: (ViewState.Verifiable) -> String
   ) -> some View {
     Self.label(icon: icon, text: text(item), color: item.color)
   }
@@ -147,7 +153,29 @@ private extension HorizontalAlignment {
   static let labelIconCenter: HorizontalAlignment = .init(LabelIconCenter.self)
 }
 
-extension IdentityPopover {
+// MARK: - The Composable Architecture
+
+// MARK: Reducer
+
+public let identityPopoverReducer = Reducer<
+  IdentityPopoverState,
+  IdentityPopoverAction,
+  Void
+>.empty
+
+// MARK: State
+
+public struct IdentityPopoverState: Equatable {
+  var fullName: String = "Valerian Saliou"
+  var signatureFingerprint: VerifiableWithData = .verified("C648A")
+  var email: VerifiableWithData = .verified("valerian@crisp.chat")
+  var phone: VerifiableWithData = .verified("+33631210280")
+  var governmentId: Verifiable = .notVerified
+  // NOTE: We're using `[…](…)` here, because the default Markdown parser doesn't recognize the link.
+  var identityServer: String = "[id.prose.org](id.prose.org)"
+}
+
+extension IdentityPopoverState {
   enum VerifiableWithData: Equatable {
     case notVerified, verified(String)
 
@@ -185,18 +213,34 @@ extension IdentityPopover {
   }
 }
 
+// MARK: Actions
+
+public enum IdentityPopoverAction: Equatable {}
+
+// MARK: - Previews
+
 struct IdentityPopover_Previews: PreviewProvider {
   struct Preview: View {
     @State private var isShowingPopover: Bool = true
     var body: some View {
       Button("Show popover") { self.isShowingPopover = true }
-        .popover(isPresented: self.$isShowingPopover, content: IdentityPopover.init)
+        .popover(isPresented: self.$isShowingPopover) {
+          IdentityPopover(store: Store(
+            initialState: IdentityPopoverState(),
+            reducer: identityPopoverReducer,
+            environment: ()
+          ))
+        }
         .padding()
     }
   }
 
   static var previews: some View {
-    IdentityPopover()
+    IdentityPopover(store: Store(
+      initialState: IdentityPopoverState(),
+      reducer: identityPopoverReducer,
+      environment: ()
+    ))
     Preview()
   }
 }
