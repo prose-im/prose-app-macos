@@ -23,15 +23,15 @@ import UserDefaultsClient
 #endif
 
 public struct AppEnvironment {
-  var userDefaults: UserDefaultsClient
-  var credentials: CredentialsClient
+  public var userDefaults: UserDefaultsClient
+  public var credentials: CredentialsClient
 
-  var proseClient: ProseClient
-  var notifications: NotificationsClient
+  public var proseClient: ProseClient
+  public var notifications: NotificationsClient
 
-  var mainQueue: AnySchedulerOf<DispatchQueue>
+  public var mainQueue: AnySchedulerOf<DispatchQueue>
 
-  var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
+  public var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
 
   public init(
     userDefaults: UserDefaultsClient,
