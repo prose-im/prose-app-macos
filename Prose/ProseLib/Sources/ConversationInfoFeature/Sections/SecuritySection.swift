@@ -51,7 +51,10 @@ struct SecuritySection: View {
           }
         }
       }
-      WithViewStore(self.store, removeDuplicates: { $0.identityPopover == $1.identityPopover }) { viewStore in
+      WithViewStore(
+        self.store,
+        removeDuplicates: { $0.identityPopover == $1.identityPopover }
+      ) { viewStore in
         infoButton(action: { actions.send(.showIdVerificationInfoTapped) })
           .popover(unwrapping: viewStore.binding(\.$identityPopover)) { _ in
             IfLetStore(
