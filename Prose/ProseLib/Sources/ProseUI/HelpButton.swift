@@ -1,8 +1,6 @@
 //
-//  HelpButton.swift
-//  
-//
-//  Created by Rémi Bardon on 11/07/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import SwiftUI

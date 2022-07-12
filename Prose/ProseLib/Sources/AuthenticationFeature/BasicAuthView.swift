@@ -66,7 +66,7 @@ struct BasicAuthView: View {
         .disableAutocorrection(true)
         .focused($focusedField, equals: .address)
         .overlay(alignment: .trailing) {
-          chatAddressHelpButton(viewStore: viewStore)
+          HelpButton(content: Self.chatAddressPopover)
             .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
         }
       SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
@@ -77,12 +77,6 @@ struct BasicAuthView: View {
     }
     .disabled(viewStore.isLoading || self.redactionReasons.contains(.placeholder))
     .unredacted()
-  }
-
-  func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
-    HelpButton {
-      Self.chatAddressPopover()
-    }
   }
 
   func logInButton(viewStore: ViewStore<State, Action>) -> some View {
