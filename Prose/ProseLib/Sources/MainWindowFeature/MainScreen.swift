@@ -111,6 +111,8 @@ public let mainWindowReducer = Reducer<
 
 public struct MainScreenState: Equatable {
   public var sidebar: SidebarState
+  public private(set) var isPlaceholder = false
+
   var route = Route.unreadStack(.init())
 
   public init(jid: JID) {
@@ -129,9 +131,13 @@ extension MainScreenState {
 }
 
 public extension MainScreenState {
-  static var placeholder = MainScreenState(
-    jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
-  )
+  static var placeholder: MainScreenState = {
+    var state = MainScreenState(
+      jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
+    )
+    state.isPlaceholder = true
+    return state
+  }()
 }
 
 // MARK: Actions
