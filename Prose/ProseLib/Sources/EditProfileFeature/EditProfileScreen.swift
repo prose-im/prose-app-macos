@@ -101,7 +101,7 @@ public let editProfileReducer = Reducer<
       logger.trace("Cancel profile editing tapped")
       return .none
 
-    default:
+    case .sidebar, .identity, .authentication, .profile, .encryption:
       return .none
     }
   },
