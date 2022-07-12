@@ -9,6 +9,7 @@ let package = Package(
   platforms: [.macOS(.v12)],
   products: [
     .library(name: "App", targets: ["App"]),
+    .library(name: "TestHostApp", targets: ["TestHostApp"]),
     // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
     .library(name: "Previews", targets: [
       "AddressBookFeature",
@@ -45,6 +46,11 @@ let package = Package(
         "UserDefaultsClient",
         "NotificationsClient",
       ]
+    ),
+
+    .target(
+      name: "TestHostApp",
+      dependencies: ["App", "Mocks"]
     ),
 
     .target(name: "MainWindowFeature", dependencies: [
@@ -134,6 +140,12 @@ let package = Package(
     .testTarget(name: "ProseCoreTCATests", dependencies: ["ProseCoreTCA", "TestHelpers"]),
 
     .target(name: "TestHelpers"),
+
+    .target(
+      name: "Mocks",
+      dependencies: ["ProseCoreTCA"],
+      resources: [.copy("RandomUser/random_user.json")]
+    ),
   ]
 )
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1330"
+   LastUpgradeVersion = "1400"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -32,6 +32,12 @@
             reference = "container:Prose/AllTests.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Prose/UITests.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Prose/UnitTests.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
@@ -44,6 +50,16 @@
                BuildableName = "CredentialsClientTests"
                BlueprintName = "CredentialsClientTests"
                ReferencedContainer = "container:ProseLib">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2CBFFE66287D7B0B00A53992"
+               BuildableName = "ProseUITests.xctest"
+               BlueprintName = "ProseUITests"
+               ReferencedContainer = "container:Prose.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
