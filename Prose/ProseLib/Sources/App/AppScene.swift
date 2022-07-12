@@ -13,8 +13,6 @@ public struct AppScene: Scene {
   private let store: Store<AppState, AppAction>
   private var actions: ViewStore<Void, AppAction> { ViewStore(self.store.stateless) }
 
-  @SwiftUI.State var mainWindow: NSWindow?
-
   public init(store: Store<AppState, AppAction> = Store(
     initialState: AppState(),
     reducer: appReducer,
@@ -24,11 +22,6 @@ public struct AppScene: Scene {
   }
 
   public var body: some Scene {
-    mainWindowGroup()
-  }
-
-  @SceneBuilder
-  private func mainWindowGroup() -> some Scene {
     WindowGroup {
       WithViewStore(self.store.scope(state: \.auth)) { authViewStore in
         WithViewStore(
@@ -39,12 +32,6 @@ public struct AppScene: Scene {
             .redacted(reason: isMainWindowRedacted.state ? .placeholder : [])
             .frame(minWidth: 1280, minHeight: 720)
             .onAppear { actions.send(.onAppear) }
-            .background(WindowAccessor(window: $mainWindow))
-            .onChange(of: mainWindow) { newValue in
-              guard let window = newValue else { return }
-
-              window.makeKeyAndOrderFront(nil)
-            }
             .sheet(unwrapping: .constant(authViewStore.state)) { $state in
               AuthenticationScreen(store: self.store.scope(
                 state: { _ in $state.wrappedValue },
