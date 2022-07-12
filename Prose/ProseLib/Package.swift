@@ -78,10 +78,7 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
-    .target(name: "EditProfileFeature", dependencies: [
-      .featureBase,
-      "CursorClient",
-    ]),
+    .target(name: "EditProfileFeature", dependencies: [.featureBase]),
     .target(
       name: "AuthenticationFeature",
       dependencies: [
@@ -105,8 +102,6 @@ let package = Package(
 
     .target(name: "UserDefaultsClient", dependencies: [.base]),
     .target(name: "NotificationsClient", dependencies: [.base]),
-
-    .target(name: "CursorClient", dependencies: [.base]),
 
     .target(
       name: "FeatureBase",

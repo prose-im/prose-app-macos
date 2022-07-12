@@ -5,7 +5,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import CursorClient
 import SwiftUI
 import TcaHelpers
 
@@ -90,7 +89,7 @@ public let editProfileReducer = Reducer<
   sidebarReducer.pullback(
     state: \EditProfileState.sidebar,
     action: CasePath(EditProfileAction.sidebar),
-    environment: { $0 }
+    environment: { _ in () }
   ),
   Reducer { _, action, _ in
     switch action {
@@ -182,17 +181,7 @@ public enum EditProfileAction: Equatable {
 
 // MARK: Environment
 
-public struct EditProfileEnvironment {
-  var cursorClient: CursorClient
-}
-
-public extension EditProfileEnvironment {
-  static func live() -> EditProfileEnvironment {
-    EditProfileEnvironment(
-      cursorClient: .live()
-    )
-  }
-}
+public struct EditProfileEnvironment {}
 
 // MARK: - Previews
 
@@ -204,7 +193,7 @@ struct EditProfileScreen_Previews: PreviewProvider {
         route: .identity(.init())
       ),
       reducer: editProfileReducer,
-      environment: .live()
+      environment: EditProfileEnvironment()
     ))
   }
 }

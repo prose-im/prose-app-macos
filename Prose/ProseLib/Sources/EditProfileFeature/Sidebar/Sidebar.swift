@@ -47,7 +47,7 @@ struct Sidebar: View {
 public let sidebarReducer = Reducer<
   SidebarState,
   SidebarAction,
-  EditProfileEnvironment
+  Void
 >.combine([
   sidebarHeaderReducer.pullback(
     state: \SidebarState.header,
@@ -143,7 +143,7 @@ struct Sidebar_Previews: PreviewProvider {
         selection: .identity
       ),
       reducer: sidebarReducer,
-      environment: .live()
+      environment: ()
     ))
   }
 }

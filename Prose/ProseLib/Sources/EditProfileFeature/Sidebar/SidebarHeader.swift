@@ -68,16 +68,11 @@ struct SidebarHeader: View {
 public let sidebarHeaderReducer = Reducer<
   SidebarHeaderState,
   SidebarHeaderAction,
-  EditProfileEnvironment
-> { state, action, environment in
+  Void
+> { state, action, _ in
   switch action {
   case let .onHoverAvatar(isHovered):
     state.isAvatarHovered = isHovered
-    if isHovered {
-      environment.cursorClient.push(.interactiveHover)
-    } else {
-      environment.cursorClient.pop()
-    }
     return .none
 
   case .editAvatarTapped:
@@ -132,7 +127,7 @@ struct SidebarHeader_Previews: PreviewProvider {
     SidebarHeader(store: Store(
       initialState: SidebarHeaderState(),
       reducer: sidebarHeaderReducer,
-      environment: .live()
+      environment: ()
     ))
     .padding()
   }

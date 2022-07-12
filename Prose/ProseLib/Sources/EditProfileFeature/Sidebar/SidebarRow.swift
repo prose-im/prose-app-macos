@@ -75,16 +75,11 @@ struct SidebarRow: View {
 public let sidebarRowReducer = Reducer<
   SidebarRowState,
   SidebarRowAction,
-  EditProfileEnvironment
-> { state, action, environment in
+  Void
+> { state, action, _ in
   switch action {
   case let .onHover(isHovered):
     state.isHovered = isHovered
-    if isHovered {
-      environment.cursorClient.push(.interactiveHover)
-    } else {
-      environment.cursorClient.pop()
-    }
     return .none
 
   case .rowTapped, .binding:
@@ -179,7 +174,7 @@ struct SidebarRow_Previews: PreviewProvider {
     SidebarRow(store: Store(
       initialState: state,
       reducer: sidebarRowReducer,
-      environment: .live()
+      environment: ()
     ))
   }
 }
