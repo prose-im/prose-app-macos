@@ -5,6 +5,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import ProseUI
 import SwiftUI
 import SwiftUINavigation
 import TcaHelpers
@@ -65,7 +66,7 @@ struct BasicAuthView: View {
         .disableAutocorrection(true)
         .focused($focusedField, equals: .address)
         .overlay(alignment: .trailing) {
-          chatAddressHelpButton(viewStore: viewStore)
+          HelpButton(content: Self.chatAddressPopover)
             .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
         }
       SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
@@ -76,20 +77,6 @@ struct BasicAuthView: View {
     }
     .disabled(viewStore.isLoading || self.redactionReasons.contains(.placeholder))
     .unredacted()
-  }
-
-  func chatAddressHelpButton(viewStore: ViewStore<State, Action>) -> some View {
-    Button { actions.send(.showPopoverTapped(.chatAddress)) } label: {
-      Image(systemName: "questionmark")
-    }
-    .buttonStyle(CircleButtonStyle())
-    .unredacted()
-    .disabled(self.redactionReasons.contains(.placeholder))
-    .popover(
-      unwrapping: viewStore.binding(\.$popover),
-      case: CasePath(State.Popover.chatAddress),
-      content: { _ in Self.chatAddressPopover() }
-    )
   }
 
   func logInButton(viewStore: ViewStore<State, Action>) -> some View {
@@ -155,26 +142,6 @@ struct BasicAuthView: View {
     }
     .groupBoxStyle(PopoverGroupBoxStyle())
     .unredacted()
-  }
-}
-
-private struct CircleButtonStyle: ButtonStyle {
-  @Environment(\.isEnabled) private var isEnabled
-  func makeBody(configuration: Self.Configuration) -> some View {
-    configuration.label
-      .font(.system(size: 12, weight: .semibold, design: .rounded))
-      .frame(width: 20, height: 20)
-      .contentShape(Circle())
-      .background {
-        Circle()
-          .fill(Color(nsColor: .controlColor))
-          .shadow(color: Color.black.opacity(0.25), radius: 0, y: 0.5)
-      }
-      .overlay {
-        Circle()
-          .strokeBorder(Color.black.opacity(0.15), lineWidth: 0.5)
-      }
-      .opacity((configuration.isPressed || !self.isEnabled) ? 0.5 : 1)
   }
 }
 
