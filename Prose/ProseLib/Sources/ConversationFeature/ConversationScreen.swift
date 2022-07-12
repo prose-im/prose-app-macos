@@ -24,7 +24,7 @@ public struct ConversationScreen: View {
   }
 
   public var body: some View {
-    Chat(store: self.store.scope(state: \State.chat).actionless)
+    Chat(store: self.store.scope(state: \.chat, action: Action.chat))
       .safeAreaInset(edge: .bottom, spacing: 0) {
         MessageBar(store: self.store.scope(state: \.messageBar, action: Action.messageBar))
           // Make footer have a higher priority, to be accessible over the scroll view
@@ -84,6 +84,11 @@ public let conversationReducer: Reducer<
     action: CasePath(ConversationAction.toolbar),
     environment: { _ in () }
   ),
+  chatReducer.pullback(
+    state: \.chat,
+    action: CasePath(ConversationAction.chat),
+    environment: { _ in }
+  ),
   Reducer { state, action, environment in
     switch action {
     case .onAppear:
@@ -109,7 +114,7 @@ public let conversationReducer: Reducer<
         .fireAndForget()
 
     case let .messagesResult(.success(messages)):
-      state.messages = messages
+      state.chat.messages = messages
       return environment.proseClient.markMessagesReadInChat(state.chatId).fireAndForget()
 
     case let .messagesResult(.failure(error)):
@@ -124,7 +129,7 @@ public let conversationReducer: Reducer<
       }
       return .none
 
-    case .info, .toolbar, .messageBar:
+    case .info, .toolbar, .messageBar, .chat:
       return .none
     }
   },
@@ -137,7 +142,7 @@ public struct ConversationState: Equatable {
   var info: ConversationInfoState?
   var toolbar: ToolbarState
   var messageBar: MessageBarState
-  var messages = [Message]()
+  var chat = ChatState()
 
   public init(chatId: JID) {
     self.chatId = chatId
@@ -156,12 +161,6 @@ public struct ConversationState: Equatable {
   }
 }
 
-extension ConversationState {
-  var chat: ChatState {
-    .init(messages: self.messages)
-  }
-}
-
 // MARK: Actions
 
 public enum ConversationAction: Equatable {
@@ -173,6 +172,7 @@ public enum ConversationAction: Equatable {
   case info(ConversationInfoAction)
   case toolbar(ToolbarAction)
   case messageBar(MessageBarAction)
+  case chat(ChatAction)
 }
 
 // MARK: Environment

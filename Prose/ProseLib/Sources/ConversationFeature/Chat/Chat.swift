@@ -4,6 +4,7 @@
 //
 
 import Assets
+import Combine
 import ComposableArchitecture
 import OSLog
 import ProseCoreTCA
@@ -42,7 +43,13 @@ struct ProseCoreViewsMessage: Encodable {
 
 struct Chat: NSViewRepresentable {
   typealias ViewState = ChatState
-  typealias ViewAction = Never
+  typealias ViewAction = ChatAction
+
+  final class ChatCoordinator {
+    var cancellables = Set<AnyCancellable>()
+
+    init() {}
+  }
 
   let signpostID = signposter.makeSignpostID()
 
@@ -54,14 +61,24 @@ struct Chat: NSViewRepresentable {
     self.viewStore = ViewStore(store)
   }
 
-  func makeNSView(context _: Context) -> WKWebView {
+  func makeCoordinator() -> ChatCoordinator {
+    ChatCoordinator()
+  }
+
+  func makeNSView(context: Context) -> WKWebView {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     let configuration = WKWebViewConfiguration()
     let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
-
     signposter.endInterval(#function, interval)
+
+    webView.publisher(for: \.isLoading)
+      .filter { isLoading in !isLoading }
+      .prefix(1)
+      .sink(receiveValue: { [viewStore] _ in
+        viewStore.send(.webViewReady)
+      }).store(in: &context.coordinator.cancellables)
 
     return webView
   }
@@ -90,5 +107,18 @@ struct Chat: NSViewRepresentable {
 }
 
 struct ChatState: Equatable {
+  var isWebViewReady = false
   var messages = [Message]()
+}
+
+public enum ChatAction: Equatable {
+  case webViewReady
+}
+
+let chatReducer = Reducer<ChatState, ChatAction, Void> { state, action, _ in
+  switch action {
+  case .webViewReady:
+    state.isWebViewReady = true
+    return .none
+  }
 }
