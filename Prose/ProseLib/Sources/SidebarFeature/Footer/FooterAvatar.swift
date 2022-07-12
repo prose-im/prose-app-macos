@@ -5,9 +5,11 @@
 
 import AppLocalization
 import ComposableArchitecture
+import EditProfileFeature
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
+import SwiftUINavigation
 
 private let l10n = L10n.Sidebar.Footer.Actions.Account.self
 
@@ -24,19 +26,41 @@ struct FooterAvatar: View {
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
   var body: some View {
-    WithViewStore(self.store) { viewStore in
+    WithViewStore(self.store, removeDuplicates: {
+      $0.isShowingPopover == $1.isShowingPopover
+        && $0.isShowingSheet == $1.isShowingSheet
+    }) { viewStore in
       Button(action: { actions.send(.avatarTapped) }) {
-        Avatar(viewStore.avatar, size: 32)
+        WithViewStore(self.store.scope(state: \.avatar)) { viewStore in
+          Avatar(viewStore.state, size: 32)
+        }
       }
       .buttonStyle(.plain)
       .accessibilityLabel(l10n.label)
       .overlay(alignment: .bottomTrailing) {
-        AvailabilityIndicator(availability: viewStore.availability)
+        WithViewStore(self.store.scope(state: \.availability)) { viewStore in
+          AvailabilityIndicator(availability: viewStore.state)
           // Offset of half the size minus 2 points (otherwise it looks odd)
-          .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
-          .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
+            .alignmentGuide(.trailing) { d in d.width / 2 + 2 }
+            .alignmentGuide(.bottom) { d in d.height / 2 + 2 }
+        }
       }
-      .popover(isPresented: viewStore.binding(\State.$showingPopover), content: popover)
+      .popover(isPresented: viewStore.binding(\State.$isShowingPopover), content: popover)
+      .sheet(unwrapping: viewStore.binding(\State.$sheet)) { _ in
+        self.sheet()
+      }
+    }
+  }
+
+  func sheet() -> some View {
+    IfLetStore(self.store.scope(state: \.sheet)) { store in
+      SwitchStore(store) {
+        CaseLet(
+          state: CasePath(State.Sheet.editProfile).extract(from:),
+          action: Action.editProfile,
+          then: EditProfileScreen.init(store:)
+        )
+      }
     }
   }
 
@@ -206,31 +230,51 @@ extension View {
 
 // MARK: Reducer
 
-public let footerAvatarReducer: Reducer<
+public let footerAvatarReducer = Reducer<
   FooterAvatarState,
   FooterAvatarAction,
-  Void
-> = Reducer { state, action, _ in
-  switch action {
-  case .avatarTapped:
-    state.showingPopover = true
+  SidebarEnvironment
+>.combine([
+  editProfileReducer.pullback(
+    state: CasePath(FooterAvatarState.Sheet.editProfile),
+    action: CasePath(FooterAvatarAction.editProfile),
+    environment: { (env: SidebarEnvironment) in env.editProfile }
+  ).optional().pullback(
+    state: \FooterAvatarState.sheet,
+    action: .self,
+    environment: { $0 }
+  ),
+  Reducer { state, action, _ in
+    switch action {
+    case .avatarTapped:
+      state.isShowingPopover = true
+      return .none
 
-  case let .changeAvailabilityTapped(availability):
-    state.availability = availability
+    case let .changeAvailabilityTapped(availability):
+      state.availability = availability
+      return .none
 
-  case .signOutTapped:
-    state.showingPopover = false
+    case .signOutTapped:
+      state.isShowingPopover = false
+      return .none
 
-  case .binding:
-    break
+    case .editProfileTapped:
+      state.sheet = .editProfile(EditProfileState(
+        sidebarHeader: SidebarHeaderState(),
+        route: .identity(IdentityState())
+      ))
+      return .none
 
-  default:
-    // TODO: [Rémi Bardon] Handle actions
-    logger.notice("Received unhandled action: \(String(describing: action))")
-  }
+    case .editProfile, .binding:
+      return .none
 
-  return .none
-}.binding()
+    case .updateMoodTapped, .pauseNotificationsTapped, .accountSettingsTapped, .offlineModeTapped:
+      // TODO: [Rémi Bardon] Handle actions
+      logger.notice("Received unhandled action: \(String(describing: action))")
+      return .none
+    }
+  }.binding(),
+])
 
 // MARK: State
 
@@ -242,7 +286,10 @@ public struct FooterAvatarState: Equatable {
   var statusIcon: Character
   var statusMessage: String
 
-  @BindableState var showingPopover: Bool
+  @BindableState var isShowingPopover: Bool
+  @BindableState var sheet: Sheet?
+
+  var isShowingSheet: Bool { self.sheet != nil }
 
   public init(
     avatar: AvatarImage,
@@ -251,16 +298,24 @@ public struct FooterAvatarState: Equatable {
     jid: String = "baptiste@crisp.chat",
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
-    showingPopover: Bool = false
+    isShowingPopover: Bool = false,
+    sheet: Sheet? = nil
   ) {
     self.avatar = avatar
     self.availability = availability
-    self.showingPopover = showingPopover
+    self.isShowingPopover = isShowingPopover
     self.fullName = fullName
     self.jid = jid
     self.statusIcon = statusIcon
     self.statusMessage = statusMessage
-    self.showingPopover = showingPopover
+    self.isShowingPopover = isShowingPopover
+    self.sheet = sheet
+  }
+}
+
+public extension FooterAvatarState {
+  enum Sheet: Equatable {
+    case editProfile(EditProfileState)
   }
 }
 
@@ -275,7 +330,16 @@ public enum FooterAvatarAction: Equatable, BindableAction {
   case accountSettingsTapped
   case offlineModeTapped
   case signOutTapped
+  case editProfile(EditProfileAction)
   case binding(BindingAction<FooterAvatarState>)
+}
+
+// MARK: Environment
+
+extension SidebarEnvironment {
+  var editProfile: EditProfileEnvironment {
+    EditProfileEnvironment()
+  }
 }
 
 // MARK: - Previews
@@ -304,7 +368,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
               availability: .available
             ),
             reducer: footerAvatarReducer,
-            environment: ()
+            environment: .init(proseClient: .noop, mainQueue: .main)
           )
           Text("The popover 👇")
           Text("(Previews can't display it)")
@@ -333,7 +397,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
         FooterAvatar(store: Store(
           initialState: state,
           reducer: footerAvatarReducer,
-          environment: ()
+          environment: .init(proseClient: .noop, mainQueue: .main)
         ))
       }
     }

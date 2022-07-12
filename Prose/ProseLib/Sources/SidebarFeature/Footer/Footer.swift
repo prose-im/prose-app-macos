@@ -28,7 +28,7 @@ struct Footer: View {
         // User avatar
         FooterAvatar(store: self.store.scope(state: \.avatar, action: Action.avatar))
 
-        WithViewStore(self.store, removeDuplicates: ==) { viewStore in
+        WithViewStore(self.store) { viewStore in
           // Team name + user status
           FooterDetails(
             teamName: viewStore.credentials.jidString,
@@ -61,15 +61,15 @@ struct Footer: View {
 let footerReducer: Reducer<
   FooterState,
   FooterAction,
-  Void
+  SidebarEnvironment
 > = Reducer.combine([
   footerActionMenuReducer.pullback(
-    state: \.actionButton,
+    state: \FooterState.actionButton,
     action: CasePath(FooterAction.actionButton),
-    environment: { $0 }
+    environment: { _ in () }
   ),
   footerAvatarReducer.pullback(
-    state: \.avatar,
+    state: \FooterState.avatar,
     action: CasePath(FooterAction.avatar),
     environment: { $0 }
   ),
@@ -123,7 +123,7 @@ public enum FooterAction: Equatable {
         Footer(store: Store(
           initialState: state,
           reducer: footerReducer,
-          environment: ()
+          environment: .init(proseClient: .noop, mainQueue: .main)
         ))
       }
     }

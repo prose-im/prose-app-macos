@@ -77,7 +77,7 @@ public let sidebarReducer: Reducer<
   footerReducer.pullback(
     state: \SidebarState.footer,
     action: CasePath(SidebarAction.footer),
-    environment: { _ in () }
+    environment: { $0 }
   ),
   toolbarReducer.pullback(
     state: \SidebarState.toolbar,

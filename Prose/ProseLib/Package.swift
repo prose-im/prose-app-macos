@@ -68,7 +68,10 @@ let package = Package(
       "ProseCoreTCA",
     ]),
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
-    .target(name: "SidebarFeature", dependencies: [.featureBase]),
+    .target(name: "SidebarFeature", dependencies: [
+      .featureBase,
+      "EditProfileFeature",
+    ]),
     .target(
       name: "ConversationFeature",
       dependencies: [

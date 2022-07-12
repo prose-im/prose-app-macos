@@ -181,7 +181,9 @@ public enum EditProfileAction: Equatable {
 
 // MARK: Environment
 
-public struct EditProfileEnvironment {}
+public struct EditProfileEnvironment {
+  public init() {}
+}
 
 // MARK: - Previews
 
