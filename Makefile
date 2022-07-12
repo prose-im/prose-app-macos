@@ -55,4 +55,5 @@ release_build: XCBEAUTIFY
 build_preview_apps: XCBEAUTIFY
 	@$(XCODEBUILD) \
 		-project $(XCPROJ) \
-		-scheme ConversationFeaturePreview | $(XCBEAUTIFY)
+		-scheme ConversationFeaturePreview \
+		-scheme EditProfileFeaturePreview | $(XCBEAUTIFY)
