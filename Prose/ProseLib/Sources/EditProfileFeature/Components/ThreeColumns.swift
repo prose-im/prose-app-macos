@@ -34,6 +34,9 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
     self.column3 = column3()
   }
 
+  /// - Note: `AnyView(Color.clear.fixedSize())` allows SwiftUI to keep some space for views.
+  ///         If we were using `EmptyView`, the second column (of a ``ThreeColumns<_, _, EmptyView>``)
+  ///         would span all the way until the trailing edge, which is not what we want.
   init(
     _ label: String,
     @ViewBuilder column2: () -> Column2
@@ -44,19 +47,16 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
     self.column3 = AnyView(Color.clear.fixedSize())
   }
 
-  /// - Note: The ``ZStack``s allow SwiftUI to keep some space for views.
-  ///         Without it, the second column of a ``ThreeColumns<_, _, EmptyView>`` would span
-  ///         all the way until the trailing edge, which is not what we want.
   var body: some View {
     HStack {
-      ZStack { column1 }
+      column1
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
         // Ignore as it's already the container label
         .accessibilityHidden(true)
-      ZStack { column2 }
+      column2
         .frame(maxWidth: .infinity, alignment: .leading)
-      ZStack { column3 }
+      column3
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
     }
