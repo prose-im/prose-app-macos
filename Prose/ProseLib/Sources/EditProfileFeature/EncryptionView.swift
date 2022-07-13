@@ -83,6 +83,7 @@ struct EncryptionView: View {
         }
       }
       .padding(.horizontal)
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
   }
 
