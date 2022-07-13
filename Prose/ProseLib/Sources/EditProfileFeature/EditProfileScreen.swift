@@ -93,6 +93,26 @@ public let editProfileReducer = Reducer<
     action: CasePath(EditProfileAction.sidebar),
     environment: { _ in () }
   ),
+  identityReducer._pullback(
+    state: (\EditProfileState.route).case(CasePath(EditProfileState.Route.identity)),
+    action: CasePath(EditProfileAction.identity),
+    environment: { _ in () }
+  ),
+  authenticationReducer._pullback(
+    state: (\EditProfileState.route).case(CasePath(EditProfileState.Route.authentication)),
+    action: CasePath(EditProfileAction.authentication),
+    environment: { _ in () }
+  ),
+  profileReducer._pullback(
+    state: (\EditProfileState.route).case(CasePath(EditProfileState.Route.profile)),
+    action: CasePath(EditProfileAction.profile),
+    environment: { _ in () }
+  ),
+  encryptionReducer._pullback(
+    state: (\EditProfileState.route).case(CasePath(EditProfileState.Route.encryption)),
+    action: CasePath(EditProfileAction.encryption),
+    environment: { _ in () }
+  ),
   Reducer { _, action, _ in
     switch action {
     case .saveProfileTapped:
