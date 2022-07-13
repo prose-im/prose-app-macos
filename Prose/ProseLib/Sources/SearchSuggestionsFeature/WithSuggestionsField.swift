@@ -141,7 +141,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
   }
 }
 
-final class MyTextView: NSTextView {
+private final class MyTextView: NSTextView {
   override class var defaultFocusRingType: NSFocusRingType { .exterior }
   override var focusRingMaskBounds: NSRect { self.bounds }
 
