@@ -30,6 +30,10 @@ let package = Package(
       .upToNextMajor(from: "0.33.1")
     ),
     .package(
+      url: "https://github.com/pointfreeco/swift-case-paths",
+      .upToNextMajor(from: "0.9.1")
+    ),
+    .package(
       url: "https://github.com/pointfreeco/swiftui-navigation",
       .upToNextMajor(from: "0.1.0")
     ),
