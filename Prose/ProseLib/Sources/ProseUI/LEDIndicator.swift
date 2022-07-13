@@ -7,22 +7,26 @@ import Assets
 import ProseCoreTCA
 import SwiftUI
 
-public struct BooleanIndicator: View {
+public struct LEDIndicator: View {
   @Environment(\.redactionReasons) private var redactionReasons
 
-  let bool: Bool
+  public enum State {
+    case off, on
+  }
+
+  let state: State
   let size: CGFloat
 
   public init(
-    bool: Bool = false,
-    size: CGFloat = 8.0
+    state: State = .off,
+    size: CGFloat = 8
   ) {
-    self.bool = bool
+    self.state = state
     self.size = size
   }
 
-  public init(_ bool: Bool) {
-    self.init(bool: bool)
+  public init(_ state: State) {
+    self.init(state: state)
   }
 
   public var body: some View {
@@ -34,29 +38,40 @@ public struct BooleanIndicator: View {
       Circle()
         // Using `Color.clear` keeps identity, and thus animations
         .fill(
-          redactionReasons
-            .contains(.placeholder) ? .gray : (bool.fillColor ?? Color.clear)
+          self.redactionReasons.contains(.placeholder)
+            ? .gray
+            : (self.state.fillColor ?? Color.clear)
         )
     }
-    .frame(width: size, height: size)
+    .frame(width: self.size, height: self.size)
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(String(describing: bool))
+    .accessibilityLabel(String(describing: self.state))
   }
 }
 
-private extension Bool {
+public extension LEDIndicator {
+  init(isOn: Bool, size: CGFloat) {
+    self.init(state: isOn ? .on : .off, size: size)
+  }
+
+  init(isOn: Bool) {
+    self.init(state: isOn ? .on : .off)
+  }
+}
+
+private extension LEDIndicator.State {
   var fillColor: Color? {
-    self ? .some(Colors.State.green.color) : .none
+    self == .on ? .some(Colors.State.green.color) : .none
   }
 }
 
-struct BooleanIndicator_Previews: PreviewProvider {
+struct LEDIndicator_Previews: PreviewProvider {
   private struct Preview: View {
     var body: some View {
       HStack {
-        BooleanIndicator()
-        BooleanIndicator(false)
-        BooleanIndicator(true)
+        LEDIndicator()
+        LEDIndicator(.on)
+        LEDIndicator(.off)
       }
       .padding()
       .previewLayout(.sizeThatFits)

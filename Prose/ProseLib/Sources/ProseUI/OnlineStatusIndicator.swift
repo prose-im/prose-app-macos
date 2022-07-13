@@ -7,18 +7,18 @@ import Assets
 import ProseCoreTCA
 import SwiftUI
 
-public typealias OnlineStatusIndicator = BooleanIndicator
+public typealias OnlineStatusIndicator = LEDIndicator
 
 public extension OnlineStatusIndicator {
   init(
     status: OnlineStatus,
     size: CGFloat
   ) {
-    self.init(bool: status == .online, size: size)
+    self.init(isOn: status == .online, size: size)
   }
 
   init(_ status: OnlineStatus) {
-    self.init(status == .online)
+    self.init(isOn: status == .online)
   }
 }
 

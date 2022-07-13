@@ -61,7 +61,7 @@ struct AuthenticationView: View {
               }
               SecondaryRow(l10n.MfaStatus.Header.label) {
                 HStack(spacing: 4) {
-                  BooleanIndicator(viewStore.isMfaEnabled)
+                  LEDIndicator(isOn: viewStore.isMfaEnabled)
                     .accessibilityHidden(true)
                   Text(verbatim: viewStore.mfaStateLabel)
                 }
