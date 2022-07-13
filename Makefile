@@ -33,6 +33,7 @@ XCBEAUTIFY = ./BuildTools/.build/release/xcbeautify
 XCODEBUILD = set -o pipefail && xcodebuild
 XCPROJ = Prose/Prose.xcodeproj
 XCSCHEME = Prose
+PREVIEW_SCHEMES = ConversationFeaturePreview EditProfileFeaturePreview
 
 preflight: lint test release_build build_preview_apps
 
@@ -52,8 +53,9 @@ release_build: XCBEAUTIFY
 		-scheme $(XCSCHEME) \
 		-configuration Release | $(XCBEAUTIFY))
 
-build_preview_apps: XCBEAUTIFY
+build_preview_apps: XCBEAUTIFY $(PREVIEW_SCHEMES)
+
+$(PREVIEW_SCHEMES): XCBEAUTIFY
 	@$(XCODEBUILD) \
 		-project $(XCPROJ) \
-		-scheme ConversationFeaturePreview \
-		-scheme EditProfileFeaturePreview | $(XCBEAUTIFY)
+		-scheme $@ | $(XCBEAUTIFY)

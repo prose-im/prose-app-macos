@@ -17,7 +17,7 @@ struct EditProfileFeaturePreviewApp: App {
           route: .profile(.init())
         ),
         reducer: editProfileReducer,
-        environment: .live()
+        environment: EditProfileEnvironment()
       ))
     }
   }
