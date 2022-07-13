@@ -4,56 +4,56 @@
 //
 
 import AutoSuggestClient
+import Combine
 import CombineSchedulers
-// import ComposableArchitecture
-// import Foundation
-// import Toolbox
-//
-// public extension DispatchQueue.SchedulerTimeType.Stride {
-//  static let autoSuggestDebounceDuration: Self = .milliseconds(300)
-// }
-//
-// public struct AutoSuggestState<T: Hashable & Identifiable>: Equatable {
-////  /// Our token for cancelling effects. We need a one token per instance of auto-suggest reducer
-////  /// otherwise [Effect.throttle](x-source-tag://Effect.throttle) won't work as expected, because
-////  /// of its side-effecty behavior. While not a problem in practice it would still break our tests.
-////  fileprivate var debounceToken = Toolbox.Current.uuid()
-////  fileprivate var loadSuggestionsToken = Toolbox.Current.uuid()
-//
-////  /// - Note: `internal` for testing, could be `fileprivate` otherwise.
-////  internal var isFirstSearchQuery = true
-//
-//  public var noResultText: String
-//
-//  var content: Loadable<[AutoSuggestSection<T>]>
-//
-//  public init(noResultText: String) {
-//    self.noResultText = noResultText
-//  }
-// }
-//
-// public struct AutoSuggestState<T: Hashable>: Equatable {
-//
-//  public var sections = [AutoSuggestSection<T>]()
-//  public var loadingState: LoadingState?
-//  var searchQuery: String?
-//
-//  /// Trim search query on both sides.
-//  public var trimmedQuery: String? {
-//    let trimmed = self.searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines)
-//    return trimmed.flatMap { $0.isEmpty ? nil : $0 }
-//  }
-// }
-//
-// public enum AutoSuggestAction<T: Hashable>: Equatable {
-//  case onAppear
-//  case onDisappear
-//
-//  case searchQueryChanged(String?)
-//  case itemSelected(T)
-//  case autoSuggestResponse(Result<[AutoSuggestSection<T>], EquatableError>)
-//  case retryButtonTapped
-// }
+import ComposableArchitecture
+import Toolbox
+
+public extension DispatchQueue.SchedulerTimeType.Stride {
+  static let autoSuggestDebounceDuration: Self = .milliseconds(300)
+}
+
+struct UniqueCancellationToken: Hashable {
+  let uuid: UUID
+  static func uuid() -> Self { Self(uuid: UUID()) }
+}
+
+public struct AutoSuggestState<T: Hashable & Identifiable>: Equatable {
+  /// Our token for cancelling effects. We need a one token per instance of auto-suggest reducer
+  /// otherwise [Effect.throttle](x-source-tag://Effect.throttle) won't work as expected, because
+  /// of its side-effecty behavior. While not a problem in practice it would still break our tests.
+  fileprivate var debounceToken = UniqueCancellationToken.uuid()
+  fileprivate var loadSuggestionsToken = UniqueCancellationToken.uuid()
+
+  /// - Note: `internal` for testing, could be `fileprivate` otherwise.
+  internal var isFirstSearchQuery = true
+
+  var searchQuery: String?
+
+  var content: Loadable<[AutoSuggestSection<T>]> = .notRequested
+
+  var noResultText: String
+
+  /// Trim search query on both sides.
+  public var trimmedQuery: String? {
+    let trimmed = self.searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.flatMap { $0.isEmpty ? nil : $0 }
+  }
+
+  public init(noResultText: String) {
+    self.noResultText = noResultText
+  }
+}
+
+public enum AutoSuggestAction<T: Hashable>: Equatable {
+  case onAppear
+  case onDisappear
+
+  case searchQueryChanged(String?)
+  case itemSelected(T)
+  case autoSuggestResponse(Result<[AutoSuggestSection<T>], EquatableError>)
+  case retryButtonTapped
+}
 
 public struct AutoSuggestEnvironment<T: Hashable> {
   /// The client performing search queries.
@@ -68,105 +68,114 @@ public struct AutoSuggestEnvironment<T: Hashable> {
   }
 }
 
-// public extension Reducer {
-//  /// Enhances a reducer with auto-suggest logic.
-//  func autoSuggest<T: Hashable>(
-//    state: WritableKeyPath<State, AutoSuggestState<T>>,
-//    action: CasePath<Action, AutoSuggestAction<T>>,
-//    environment: @escaping (Environment) -> AutoSuggestEnvironment<T>
-//  ) -> Reducer {
-//    Reducer.combine(
-//      self,
-//      Reducer<
-//        AutoSuggestState<T>,
-//        AutoSuggestAction<T>,
-//        AutoSuggestEnvironment<T>
-//      > { state, action, environment in
-//        switch action {
-//        case let .searchQueryChanged(query):
-//          let query: String? = state.trimmedQuery
-//          state.searchQuery = query
-//
-//          // Only show loading indicator if we don't have any results currently.
-//          if state.sections.isEmpty {
-//            state.loadingState = .loading
-//          }
-//
-//          let debounceToken = state.debounceToken
-//          let isFirstSearchQuery = state.isFirstSearchQuery
-//
-//          state.isFirstSearchQuery = false
-//
-//          return Just(query)
-//            .setFailureType(to: EquatableError.self)
-//            .flatMap { query -> Effect<String?, EquatableError> in
-//              // Don't debounce the first query. This removes the initial delay when the
-//              // AutoSuggestViewController is presented the first time.
-//              if isFirstSearchQuery {
-//                return Just(query)
-//                  .setFailureType(to: EquatableError.self)
-//                  .eraseToEffect()
-//              }
-//              return Just(query)
-//                .setFailureType(to: EquatableError.self)
-//                .eraseToEffect()
-//                .debounce(
-//                  id: debounceToken,
-//                  for: .autoSuggestDebounceDuration,
-//                  scheduler: environment.mainQueue
-//                )
-//            }
-//            .flatMap { _ -> AnyPublisher<[AutoSuggestSection<T>], EquatableError> in
-//              environment.client.loadSuggestions(query)
-//                .mapError(EquatableError.init)
-//                .eraseToAnyPublisher()
-//            }
-//            .receive(on: environment.mainQueue)
-//            .catchToEffect()
-//            .map(AutoSuggestAction.autoSuggestResponse)
-//            .cancellable(id: state.loadSuggestionsToken, cancelInFlight: true)
-//
-//        case .itemSelected:
-//          return .none
-//
-//        case let .autoSuggestResponse(.success(sections)):
-//          state.sections = sections.filter { !$0.items.isEmpty }
-//          state.loadingState = state.sections.isEmpty
-//            ? .empty(message: state.noResultText)
-//            : nil
-//          return .none
-//
-//        case let .autoSuggestResponse(.failure(error)):
-//          state.sections = []
-//          state.loadingState = .error(EquatableError(error))
-//          return .none
-//
-//        case .retryButtonTapped:
-//          state.loadingState = .loading
-//
-//          return environment.client.loadSuggestions(state.trimmedQuery)
-//            .mapError(EquatableError.init)
-//            .receive(on: environment.mainQueue)
-//            .catchToEffect()
-//            .map(AutoSuggestAction.autoSuggestResponse)
-//            .cancellable(id: state.loadSuggestionsToken, cancelInFlight: true)
-//
-//        case .onAppear:
-//          state.isFirstSearchQuery = true
-//          return .none
-//
-//        case .onDisappear:
-//          state.searchQuery = nil
-//          state.loadingState = nil
-//          state.sections = []
-//
-//          return .merge(
-//            .cancel(id: state.debounceToken),
-//            .cancel(id: state.loadSuggestionsToken)
-//          )
-//        }
-//      }
-//      .pullback(state: state, action: action, environment: environment)
-//    )
-//  }
-// }
+public extension Reducer {
+  /// Enhances a reducer with auto-suggest logic.
+  func autoSuggest<T: Hashable>(
+    state: WritableKeyPath<State, AutoSuggestState<T>>,
+    action: CasePath<Action, AutoSuggestAction<T>>,
+    environment: @escaping (Environment) -> AutoSuggestEnvironment<T>
+  ) -> Reducer {
+    Reducer.combine(
+      self,
+      Reducer<
+      AutoSuggestState<T>,
+      AutoSuggestAction<T>,
+      AutoSuggestEnvironment<T>
+      > { state, action, environment in
+        switch action {
+        case let .searchQueryChanged(query):
+          state.searchQuery = query
+
+          guard let query: String = state.trimmedQuery else {
+            // There is nothing to do if the query is empty (e.g. just spaces)
+            return .none
+          }
+
+          // Only show loading indicator if we don't have any results currently.
+          if state.content.value == nil {
+            state.content.transitionToLoading()
+          }
+
+          let debounceToken = state.debounceToken
+          let isFirstSearchQuery = state.isFirstSearchQuery
+
+          state.isFirstSearchQuery = false
+
+          func debounceIfNeeded(_ query: String) -> Effect<String, EquatableError> {
+            // Don't debounce the first query. This removes the initial delay when the
+            // `AutoSuggestViewController` is presented the first time.
+            if isFirstSearchQuery {
+              return Just(query)
+                .setFailureType(to: EquatableError.self)
+                .eraseToEffect()
+            }
+            return Just(query)
+              .setFailureType(to: EquatableError.self)
+              .eraseToEffect()
+              .debounce(
+                id: debounceToken,
+                for: .autoSuggestDebounceDuration,
+                scheduler: environment.mainQueue
+              )
+          }
+
+          func executeQuery(_ query: String) -> AnyPublisher<[AutoSuggestSection<T>], EquatableError> {
+            environment.client.loadSuggestions(query, Set())
+              .mapError(EquatableError.init)
+              .eraseToAnyPublisher()
+          }
+
+          return Just(query)
+            .setFailureType(to: EquatableError.self)
+            .flatMap(debounceIfNeeded)
+            .flatMap(executeQuery)
+            .receive(on: environment.mainQueue)
+            .catchToEffect()
+            .map(AutoSuggestAction.autoSuggestResponse)
+            .cancellable(id: state.loadSuggestionsToken, cancelInFlight: true)
+
+        case .itemSelected:
+          return .none
+
+        case let .autoSuggestResponse(.success(sections)):
+          let sections: [AutoSuggestSection<T>] = sections.filter { !$0.items.isEmpty }
+          state.content = .loaded(sections)
+          return .none
+
+        case let .autoSuggestResponse(.failure(error)):
+          state.content.transitionToError(EquatableError(error))
+          return .none
+
+        case .retryButtonTapped:
+          guard let query = state.trimmedQuery else {
+            // There is nothing to do if the query is empty (e.g. just spaces)
+            return .none
+          }
+
+          state.content.transitionToLoading()
+
+          return environment.client.loadSuggestions(query, Set())
+            .mapError(EquatableError.init)
+            .receive(on: environment.mainQueue)
+            .catchToEffect()
+            .map(AutoSuggestAction.autoSuggestResponse)
+            .cancellable(id: state.loadSuggestionsToken, cancelInFlight: true)
+
+        case .onAppear:
+          state.isFirstSearchQuery = true
+          return .none
+
+        case .onDisappear:
+          state.searchQuery = nil
+          state.content = .notRequested
+
+          return Effect.merge(
+            Effect.cancel(id: state.debounceToken),
+            Effect.cancel(id: state.loadSuggestionsToken)
+          )
+        }
+      }
+        .pullback(state: state, action: action, environment: environment)
+    )
+  }
+}
