@@ -19,6 +19,9 @@ struct Footer: View {
 
   struct ViewState: Equatable {
     let isShowingSheet: Bool
+    let jidString: String
+    let statusIcon: Character
+    let statusMessage: String
   }
 
   static let height: CGFloat = 64
@@ -39,14 +42,12 @@ struct Footer: View {
         // User avatar
         FooterAvatar(store: self.store.scope(state: \.avatar, action: Action.avatar))
 
-        WithViewStore(self.store) { viewStore in
-          // Team name + user status
-          FooterDetails(
-            teamName: viewStore.credentials.jidString,
-            statusIcon: viewStore.statusIcon,
-            statusMessage: viewStore.statusMessage
-          )
-        }
+        // Team name + user status
+        FooterDetails(
+          teamName: self.viewStore.jidString,
+          statusIcon: self.viewStore.statusIcon,
+          statusMessage: self.viewStore.statusMessage
+        )
         .layoutPriority(1)
 
         // Quick actions button
@@ -83,6 +84,9 @@ struct Footer: View {
 extension Footer.ViewState {
   init(_ state: Footer.State) {
     self.isShowingSheet = state.sheet != nil
+    self.jidString = state.credentials.jidString
+    self.statusIcon = state.statusIcon
+    self.statusMessage = state.statusMessage
   }
 }
 
