@@ -52,27 +52,29 @@ public struct EditProfileScreen: View {
   }
 
   func detailView() -> some View {
-    SwitchStore(self.store.scope(state: \.route)) {
-      CaseLet(
-        state: CasePath(ViewState.Route.identity).extract,
-        action: ViewAction.identity,
-        then: IdentityView.init(store:)
-      )
-      CaseLet(
-        state: CasePath(ViewState.Route.authentication).extract,
-        action: ViewAction.authentication,
-        then: AuthenticationView.init(store:)
-      )
-      CaseLet(
-        state: CasePath(ViewState.Route.profile).extract,
-        action: ViewAction.profile,
-        then: ProfileView.init(store:)
-      )
-      CaseLet(
-        state: CasePath(ViewState.Route.encryption).extract,
-        action: ViewAction.encryption,
-        then: EncryptionView.init(store:)
-      )
+    IfLetStore(self.store.scope(state: \.route)) { store in
+      SwitchStore(store) {
+        CaseLet(
+          state: CasePath(ViewState.Route.identity).extract,
+          action: ViewAction.identity,
+          then: IdentityView.init(store:)
+        )
+        CaseLet(
+          state: CasePath(ViewState.Route.authentication).extract,
+          action: ViewAction.authentication,
+          then: AuthenticationView.init(store:)
+        )
+        CaseLet(
+          state: CasePath(ViewState.Route.profile).extract,
+          action: ViewAction.profile,
+          then: ProfileView.init(store:)
+        )
+        CaseLet(
+          state: CasePath(ViewState.Route.encryption).extract,
+          action: ViewAction.encryption,
+          then: EncryptionView.init(store:)
+        )
+      }
     }
   }
 }
@@ -114,7 +116,7 @@ public let editProfileReducer = Reducer<
 // MARK: State
 
 public struct EditProfileState: Equatable {
-  var route: Route
+  var route: Route?
 
   var sidebar: SidebarState
 
@@ -122,7 +124,7 @@ public struct EditProfileState: Equatable {
     switch self.route {
     case .identity, .profile:
       return false
-    case .authentication, .encryption:
+    case .authentication, .encryption, .none:
       return true
     }
   }
@@ -154,8 +156,10 @@ public extension EditProfileState {
     case encryption(EncryptionState)
   }
 
-  static func route(for selection: SidebarState.Selection) -> Route {
+  static func route(for selection: SidebarState.Selection?) -> Route? {
     switch selection {
+    case .none:
+      return nil
     case .identity:
       return .identity(.init())
     case .authentication:

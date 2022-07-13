@@ -19,18 +19,15 @@ struct Sidebar: View {
   let store: Store<ViewState, ViewAction>
 
   var body: some View {
-    ScrollView(.vertical, showsIndicators: false) {
-      VStack(alignment: .leading) {
-        WithViewStore(self.store.scope(state: \ViewState.selection)) { _ in
-          ForEachStore(
-            self.store.scope(state: \.rows, action: ViewAction.row),
-            content: SidebarRow.init(store:)
-          )
-        }
+    WithViewStore(self.store, removeDuplicates: { $0.selection == $1.selection }) { viewStore in
+      List(selection: viewStore.binding(\.$selection)) {
+        ForEachStore(
+          self.store.scope(state: \.rows, action: ViewAction.row),
+          content: SidebarRow.init(store:)
+        )
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(16)
-      .fixedSize()
+      .listStyle(.sidebar)
+      .frame(minWidth: 228)
     }
     .safeAreaInset(edge: .top, spacing: 0) {
       SidebarHeader(store: self.store.scope(state: \.header, action: ViewAction.header))
@@ -59,18 +56,16 @@ public let sidebarReducer = Reducer<
     action: CasePath(SidebarAction.row),
     environment: { $0 }
   ),
-  Reducer { state, action, _ in
-    switch action {
-    case let .row(id, .rowTapped):
-      state.rows[id: state.selection]?.isSelected = false
-      state.rows[id: id]?.isSelected = true
-      state.selection = id
+  Reducer.empty.binding()
+    .onChange(of: \.selection) { previousSelection, newSelection, state, _, _ in
+      if let previousSelection = previousSelection {
+        state.rows[id: previousSelection]?.isSelected = false
+      }
+      if let newSelection = newSelection {
+        state.rows[id: newSelection]?.isSelected = true
+      }
       return .none
-
-    default:
-      return .none
-    }
-  }.binding(),
+    },
 ])
 
 // MARK: State
@@ -104,7 +99,7 @@ public struct SidebarState: Equatable {
     ),
   ]
 
-  public internal(set) var selection: Selection
+  @BindableState public internal(set) var selection: Selection?
 
   public init(
     header: SidebarHeaderState,
@@ -141,5 +136,6 @@ struct Sidebar_Previews: PreviewProvider {
       reducer: sidebarReducer,
       environment: ()
     ))
+    .frame(maxWidth: 300)
   }
 }
