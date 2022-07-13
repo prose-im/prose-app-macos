@@ -90,14 +90,16 @@ public struct TCATextView: NSViewRepresentable {
       self.isSendingTextChangeToStore = true
       assert(self.textContentStorage.attributedString != nil)
       self.viewStore.send(.textDidChange(AttributedString(attributedString)))
-      self.viewStore.send(.selectionsDidChange(self.textLayoutManager.textSelections))
+      let selectionRange: NSRange? = self.textContentStorage.prose_selectionRange()
+      self.viewStore.send(.selectionDidChange(selectionRange))
       self.isSendingTextChangeToStore = false
     }
 
     public func textViewDidChangeSelection(_: Notification) {
       guard !self.textViewIsChanging else { return }
 
-      self.viewStore.send(.selectionsDidChange(self.textLayoutManager.textSelections))
+      let selectionRange: NSRange? = self.textContentStorage.prose_selectionRange()
+      self.viewStore.send(.selectionDidChange(selectionRange))
     }
 
     public func textView(
@@ -161,8 +163,8 @@ public let textViewReducer = Reducer<
     state.text = text
     return .none
 
-  case let .selectionsDidChange(selections):
-    state.textSelections = selections
+  case let .selectionDidChange(range):
+    state.selection = range
     return .none
 
   case .keyboardEventReceived:
@@ -172,21 +174,37 @@ public let textViewReducer = Reducer<
 
 // MARK: State
 
-/// - Note: The default values replicate the rounded `NSTextField` style.
 public struct TCATextViewState: Equatable {
-  var text: AttributedString = ""
-  var textSelections: [NSTextSelection] = []
-  var height: CGFloat = 22
-  var borderWidth: CGFloat = 1
-  var cornerRadius: CGFloat = 6
-  var showFocusRing: Bool = true
+  var text: AttributedString
+  var selection: NSRange?
+  var height: CGFloat
+  var borderWidth: CGFloat
+  var cornerRadius: CGFloat
+  var showFocusRing: Bool
+
+  /// - Note: The default values replicate the rounded `NSTextField` style.
+  public init(
+    text: AttributedString = "",
+    selection: NSRange? = nil,
+    height: CGFloat = 22,
+    borderWidth: CGFloat = 1,
+    cornerRadius: CGFloat = 6,
+    showFocusRing: Bool = true
+  ) {
+    self.text = text
+    self.selection = selection
+    self.height = height
+    self.borderWidth = borderWidth
+    self.cornerRadius = cornerRadius
+    self.showFocusRing = showFocusRing
+  }
 }
 
 // MARK: Actions
 
 public enum TCATextViewAction: Equatable {
   case textDidChange(AttributedString)
-  case selectionsDidChange([NSTextSelection])
+  case selectionDidChange(NSRange?)
   case keyboardEventReceived(KeyEvent)
 }
 
@@ -206,21 +224,33 @@ struct TCATextView_Previews: PreviewProvider {
       VStack(alignment: .leading) {
         TCATextView(store: self.store)
         WithViewStore(self.store) { viewStore in
-          Text("Text: \"\(NSAttributedString(viewStore.text).string)\"")
+          let attributedString = NSAttributedString(viewStore.text)
+
+          Text("Text: \"\(attributedString.string)\"")
+          Text("Length: \(attributedString.length)")
           Text(
-            "Contains attachments: \(String(describing: NSAttributedString(viewStore.text).containsAttachments))"
+            "Contains attachments: \(String(describing: attributedString.containsAttachments))"
           )
-          Text(
-            "Selections:\n\(viewStore.textSelections.map(Self.selectionDescription(_:)).joined(separator: "\n"))"
-          )
+
+          Text("Selection range: \(String(describing: viewStore.selection))")
+
+          let selectedText: NSAttributedString? = viewStore.selection
+            .map(attributedString.attributedSubstring(from:))
+          Text("Selected text: \(String(describing: selectedText?.string))")
+
+          let rangeFromLastAttachment: NSRange? = viewStore.selection
+            .map( attributedString.prose_rangeFromLastAttachmentToCaret(selectionRange:))
+          Text("Range to last attachment: \(String(describing: rangeFromLastAttachment))")
+
+          let textFromLastAttachment: NSAttributedString? = rangeFromLastAttachment
+            .map(attributedString.attributedSubstring(from:))
+          Text("Text to last attachment: \(String(describing: textFromLastAttachment?.string))")
         }
       }
       .padding()
       .background(Color.white)
-    }
-
-    static func selectionDescription(_ selection: NSTextSelection) -> String {
-      "- \(String(describing: selection.textRanges))"
+      .frame(width: 300)
+      .fixedSize()
     }
   }
 
@@ -230,8 +260,6 @@ struct TCATextView_Previews: PreviewProvider {
       reducer: textViewReducer,
       environment: ()
     ))
-    .frame(width: 300)
-    .fixedSize()
     .previewDisplayName("Rounded")
     Preview(store: Store(
       initialState: TCATextViewState(
@@ -243,8 +271,6 @@ struct TCATextView_Previews: PreviewProvider {
       reducer: textViewReducer,
       environment: ()
     ))
-    .frame(width: 300)
-    .fixedSize()
     .previewDisplayName("Squared")
   }
 }

@@ -29,6 +29,21 @@ private extension NSRange {
 
 @available(macOS 12.0, *)
 extension NSTextContentStorage {
+  /// - Warning: This implementation is naive. If there are multiple selections, we take the last range.
+  func prose_selectionRange() -> NSRange? {
+    guard let textLayoutManager = self.textLayoutManagers.first else {
+      assertionFailure("`textLayoutManagers` is empty.")
+      return nil
+    }
+
+    guard let textRange = textLayoutManager.textSelections.last?.textRanges.last else {
+      // There is no selection
+      return nil
+    }
+
+    return NSRange(textRange, in: self)
+  }
+
   func prose_endIndexOfLastAttachment(before startLocation: NSTextLocation? = nil) -> Int? {
     guard let textLayoutManager = self.textLayoutManagers.first else {
       assertionFailure("`textLayoutManagers` is empty.")
