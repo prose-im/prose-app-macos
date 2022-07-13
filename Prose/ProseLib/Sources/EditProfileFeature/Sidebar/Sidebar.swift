@@ -54,12 +54,6 @@ public let sidebarReducer = Reducer<
     action: CasePath(SidebarAction.header),
     environment: { $0 }
   ),
-  Reducer { state, action, _ in
-    if case .row(_, .rowTapped) = action {
-      state.rows[id: state.selection]?.isSelected = false
-    }
-    return .none
-  },
   sidebarRowReducer.forEach(
     state: \SidebarState.rows,
     action: CasePath(SidebarAction.row),
@@ -68,6 +62,7 @@ public let sidebarReducer = Reducer<
   Reducer { state, action, _ in
     switch action {
     case let .row(id, .rowTapped):
+      state.rows[id: state.selection]?.isSelected = false
       state.rows[id: id]?.isSelected = true
       state.selection = id
       return .none
