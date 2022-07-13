@@ -152,8 +152,7 @@ public struct FooterState: Equatable {
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
     avatar: FooterAvatarState = .init(avatar: .placeholder),
-    actionButton: FooterActionMenuState = .init(),
-    sheet: Sheet? = nil
+    actionButton: FooterActionMenuState = .init()
   ) {
     self.credentials = credentials
     self.teamName = teamName
@@ -161,7 +160,6 @@ public struct FooterState: Equatable {
     self.statusMessage = statusMessage
     self.avatar = avatar
     self.actionButton = actionButton
-    self.sheet = sheet
   }
 }
 
