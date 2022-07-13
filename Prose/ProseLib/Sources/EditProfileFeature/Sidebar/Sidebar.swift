@@ -112,6 +112,7 @@ public struct SidebarState: Equatable {
   ) {
     self.header = header
     self.selection = selection
+    self.rows[id: selection]?.isSelected = true
   }
 }
 
