@@ -16,6 +16,8 @@ public struct EditProfileScreen: View {
   public typealias ViewState = EditProfileState
   public typealias ViewAction = EditProfileAction
 
+  static let minContentWidth: CGFloat = 480
+
   let store: Store<ViewState, ViewAction>
 
   public init(store: Store<ViewState, ViewAction>) {
@@ -26,7 +28,7 @@ public struct EditProfileScreen: View {
     NavigationView {
       Sidebar(store: self.store.scope(state: \.sidebar, action: ViewAction.sidebar))
       detailView()
-        .frame(minWidth: 480, minHeight: 512)
+        .frame(minWidth: Self.minContentWidth, minHeight: 512)
         .safeAreaInset(edge: .bottom, alignment: .trailing) {
           HStack {
             WithViewStore(self.store.scope(state: \.isSaveProfileButtonDisabled)) { viewStore in
@@ -49,6 +51,8 @@ public struct EditProfileScreen: View {
           .accessibilitySortPriority(1)
         }
     }
+    // NOTE: +1 for the separator width…
+    .frame(minWidth: Self.minContentWidth + Sidebar.minWidth + 1)
   }
 
   func detailView() -> some View {

@@ -16,6 +16,8 @@ struct Sidebar: View {
   typealias ViewState = SidebarState
   typealias ViewAction = SidebarAction
 
+  static let minWidth: CGFloat = 228
+
   let store: Store<ViewState, ViewAction>
 
   var body: some View {
@@ -27,7 +29,7 @@ struct Sidebar: View {
         )
       }
       .listStyle(.sidebar)
-      .frame(minWidth: 228)
+      .frame(minWidth: Self.minWidth)
     }
     .safeAreaInset(edge: .top, spacing: 0) {
       SidebarHeader(store: self.store.scope(state: \.header, action: ViewAction.header))
