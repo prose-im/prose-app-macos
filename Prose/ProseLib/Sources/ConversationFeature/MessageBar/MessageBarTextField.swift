@@ -39,7 +39,7 @@ struct MessageBarTextField: View {
         Button { actions.send(.sendTapped) } label: {
           Image(systemName: "paperplane.circle.fill")
             .font(.system(size: 22, weight: .regular))
-            .foregroundColor(Colors.Button.primary.color)
+            .foregroundColor(.accentColor)
             .padding(3)
         }
         .buttonStyle(.plain)

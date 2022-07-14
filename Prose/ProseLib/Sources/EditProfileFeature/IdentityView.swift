@@ -79,7 +79,7 @@ struct IdentityView: View {
     } else {
       Button(L10n.EditProfile.GetVerified.Action.label, action: action)
         .buttonStyle(.plain)
-        .foregroundColor(.blue)
+        .foregroundColor(.accentColor)
     }
   }
 

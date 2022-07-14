@@ -77,7 +77,7 @@ struct ProfileView: View {
         SecondaryRow(l10n.LocationStatus.Header.label) {
           HStack(spacing: 4) {
             Image(systemName: "location.fill")
-              .foregroundColor(.blue)
+              .foregroundColor(.accentColor)
               .accessibilityHidden(true)
             Text(verbatim: l10n.LocationStatus.StateAuto.label)
           }

@@ -74,7 +74,7 @@ struct SecuritySection: View {
             Text("Encrypted (\(fingerprint))")
           } icon: {
             Image(systemName: "lock.fill")
-              .foregroundColor(Colors.State.blue.color)
+              .foregroundColor(.accentColor)
           }
         } else {
           Label {

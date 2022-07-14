@@ -60,7 +60,7 @@ struct EncryptionView: View {
             }
             Text(verbatim: viewStore.omemoVersion)
               .font(.footnote)
-              .foregroundColor(.blue)
+              .foregroundColor(.accentColor)
           }
         }
         Divider()
@@ -146,7 +146,7 @@ struct EncryptionView: View {
             Image(systemName: "info.circle")
           }
           .buttonStyle(.plain)
-          .foregroundColor(.blue)
+          .foregroundColor(.accentColor)
         }
       }
       .width(min: 80, ideal: 96, max: 128)
