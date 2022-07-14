@@ -5,6 +5,7 @@
 
 import AppLocalization
 import ComposableArchitecture
+import EditProfileFeature
 import SwiftUI
 
 private let l10n = L10n.Sidebar.Footer.self
@@ -16,9 +17,22 @@ struct Footer: View {
   typealias State = FooterState
   typealias Action = FooterAction
 
+  struct ViewState: Equatable {
+    let isShowingSheet: Bool
+    let jidString: String
+    let statusIcon: Character
+    let statusMessage: String
+  }
+
   static let height: CGFloat = 64
 
-  let store: Store<State, Action>
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<ViewState, Action>
+
+  public init(store: Store<State, Action>) {
+    self.store = store
+    self.viewStore = ViewStore(store.scope(state: ViewState.init))
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -28,20 +42,17 @@ struct Footer: View {
         // User avatar
         FooterAvatar(store: self.store.scope(state: \.avatar, action: Action.avatar))
 
-        WithViewStore(self.store, removeDuplicates: ==) { viewStore in
-          // Team name + user status
-          FooterDetails(
-            teamName: viewStore.credentials.jidString,
-            statusIcon: viewStore.statusIcon,
-            statusMessage: viewStore.statusMessage
-          )
-        }
+        // Team name + user status
+        FooterDetails(
+          teamName: self.viewStore.jidString,
+          statusIcon: self.viewStore.statusIcon,
+          statusMessage: self.viewStore.statusMessage
+        )
         .layoutPriority(1)
 
         // Quick actions button
         FooterActionMenu(
-          store: self.store
-            .scope(state: \.actionButton, action: Action.actionButton)
+          store: self.store.scope(state: \.actionButton, action: Action.actionButton)
         )
       }
       .padding(.leading, 20.0)
@@ -51,6 +62,31 @@ struct Footer: View {
     .frame(height: Self.height)
     .accessibilityElement(children: .contain)
     .accessibilityLabel(l10n.label)
+    .sheet(
+      isPresented: self.viewStore.binding(get: \.isShowingSheet, send: .dismissSheet),
+      content: self.sheet
+    )
+  }
+
+  func sheet() -> some View {
+    IfLetStore(self.store.scope(state: \.sheet)) { store in
+      SwitchStore(store) {
+        CaseLet(
+          state: CasePath(State.Sheet.editProfile).extract(from:),
+          action: Action.editProfile,
+          then: EditProfileScreen.init(store:)
+        )
+      }
+    }
+  }
+}
+
+extension Footer.ViewState {
+  init(_ state: Footer.State) {
+    self.isShowingSheet = state.sheet != nil
+    self.jidString = state.credentials.jidString
+    self.statusIcon = state.statusIcon
+    self.statusMessage = state.statusMessage
   }
 }
 
@@ -61,23 +97,45 @@ struct Footer: View {
 let footerReducer: Reducer<
   FooterState,
   FooterAction,
-  Void
+  SidebarEnvironment
 > = Reducer.combine([
   footerActionMenuReducer.pullback(
-    state: \.actionButton,
+    state: \FooterState.actionButton,
     action: CasePath(FooterAction.actionButton),
-    environment: { $0 }
+    environment: { _ in () }
   ),
   footerAvatarReducer.pullback(
-    state: \.avatar,
+    state: \FooterState.avatar,
     action: CasePath(FooterAction.avatar),
-    environment: { $0 }
+    environment: { _ in () }
   ),
+  editProfileReducer._pullback(
+    state: (\FooterState.sheet).case(CasePath(FooterState.Sheet.editProfile)),
+    action: CasePath(FooterAction.editProfile),
+    environment: { $0.editProfile }
+  ),
+  Reducer { state, action, _ in
+    switch action {
+    case .dismissSheet, .editProfile(.cancelTapped):
+      state.sheet = nil
+      return .none
+
+    case .avatar(.editProfileTapped):
+      state.sheet = .editProfile(EditProfileState(
+        sidebarHeader: SidebarHeaderState(),
+        route: .identity(IdentityState())
+      ))
+      return .none
+
+    case .actionButton, .avatar, .editProfile, .binding:
+      return .none
+    }
+  }.binding(),
 ])
 
 // MARK: State
 
-struct FooterState: Equatable {
+public struct FooterState: Equatable {
   let credentials: UserCredentials
   let teamName: String
   let statusIcon: Character
@@ -85,6 +143,8 @@ struct FooterState: Equatable {
 
   var avatar: FooterAvatarState
   var actionButton: FooterActionMenuState
+
+  @BindableState var sheet: Sheet?
 
   init(
     credentials: UserCredentials,
@@ -103,11 +163,28 @@ struct FooterState: Equatable {
   }
 }
 
+public extension FooterState {
+  enum Sheet: Equatable {
+    case editProfile(EditProfileState)
+  }
+}
+
 // MARK: Actions
 
-public enum FooterAction: Equatable {
+public enum FooterAction: Equatable, BindableAction {
+  case dismissSheet
   case avatar(FooterAvatarAction)
   case actionButton(FooterActionMenuAction)
+  case editProfile(EditProfileAction)
+  case binding(BindingAction<FooterState>)
+}
+
+// MARK: Environment
+
+extension SidebarEnvironment {
+  var editProfile: EditProfileEnvironment {
+    EditProfileEnvironment()
+  }
 }
 
 // MARK: - Previews
@@ -123,7 +200,7 @@ public enum FooterAction: Equatable {
         Footer(store: Store(
           initialState: state,
           reducer: footerReducer,
-          environment: ()
+          environment: .init(proseClient: .noop, mainQueue: .main)
         ))
       }
     }

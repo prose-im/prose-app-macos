@@ -16,6 +16,7 @@ let package = Package(
       "AuthenticationFeature",
       "ConversationFeature",
       "ConversationInfoFeature",
+      "EditProfileFeature",
       "MainWindowFeature",
       "ProseUI",
       "SettingsFeature",
@@ -27,6 +28,10 @@ let package = Package(
     .package(
       url: "https://github.com/pointfreeco/swift-composable-architecture",
       .upToNextMajor(from: "0.33.1")
+    ),
+    .package(
+      url: "https://github.com/pointfreeco/swift-case-paths",
+      .upToNextMajor(from: "0.9.1")
     ),
     .package(
       url: "https://github.com/pointfreeco/swiftui-navigation",
@@ -67,7 +72,10 @@ let package = Package(
       "ProseCoreTCA",
     ]),
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
-    .target(name: "SidebarFeature", dependencies: [.featureBase]),
+    .target(name: "SidebarFeature", dependencies: [
+      .featureBase,
+      "EditProfileFeature",
+    ]),
     .target(
       name: "ConversationFeature",
       dependencies: [
@@ -77,6 +85,7 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
+    .target(name: "EditProfileFeature", dependencies: [.featureBase]),
     .target(
       name: "AuthenticationFeature",
       dependencies: [

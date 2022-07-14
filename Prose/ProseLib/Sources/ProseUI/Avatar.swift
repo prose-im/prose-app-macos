@@ -25,10 +25,20 @@ public extension AvatarImage {
 public struct Avatar: View {
   private let avatar: AvatarImage
   private let size: CGFloat
+  private let cornerRadius: CGFloat
 
-  public init(_ avatar: AvatarImage, size: CGFloat) {
+  public var shape: some InsettableShape {
+    RoundedRectangle(cornerRadius: self.cornerRadius)
+  }
+
+  public init(
+    _ avatar: AvatarImage,
+    size: CGFloat,
+    cornerRadius: CGFloat = 4
+  ) {
     self.avatar = avatar
     self.size = size
+    self.cornerRadius = cornerRadius
   }
 
   init(_ url: URL?, size: CGFloat) {
@@ -36,13 +46,14 @@ public struct Avatar: View {
   }
 
   public var body: some View {
+    let shape = self.shape
     image()
       .scaledToFill()
       .frame(width: size, height: size)
       .background(Colors.Border.secondary.color)
-      .clipShape(RoundedRectangle(cornerRadius: 4))
+      .clipShape(shape)
       .overlay {
-        RoundedRectangle(cornerRadius: 4)
+        shape
           .strokeBorder(Color(nsColor: .separatorColor))
       }
   }

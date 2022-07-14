@@ -21,6 +21,9 @@
 		46A46C7B28635B9000F27E40 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7A28635B9000F27E40 /* Preview Assets.xcassets */; };
 		46A46C81286362B300F27E40 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 46A46C80286362B300F27E40 /* App */; };
 		46D1758D2851D3A500C72BC0 /* ProseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D1758C2851D3A500C72BC0 /* ProseApp.swift */; };
+		46D306EB287C249200CCA25F /* EditProfileFeaturePreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */; };
+		46D306EF287C249300CCA25F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46D306EE287C249300CCA25F /* Assets.xcassets */; };
+		46D306FA287C24E200CCA25F /* Previews in Frameworks */ = {isa = PBXBuildFile; productRef = 46D306F9287C24E200CCA25F /* Previews */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +65,10 @@
 		46A46C7A28635B9000F27E40 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		46A46C7C28635B9000F27E40 /* ConversationFeaturePreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConversationFeaturePreview.entitlements; sourceTree = "<group>"; };
 		46D1758C2851D3A500C72BC0 /* ProseApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProseApp.swift; sourceTree = "<group>"; };
+		46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EditProfileFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileFeaturePreviewApp.swift; sourceTree = "<group>"; };
+		46D306EE287C249300CCA25F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		46D306F3287C249300CCA25F /* EditProfileFeaturePreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EditProfileFeaturePreview.entitlements; sourceTree = "<group>"; };
 		52EA116E274C23C2007DA1C5 /* Prose.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prose.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52EA117A274C23C3007DA1C5 /* Prose.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Prose.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,6 +94,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				46A46C81286362B300F27E40 /* App in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46D306E5287C249100CCA25F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46D306FA287C24E200CCA25F /* Previews in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,12 +196,23 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		46D306E9287C249100CCA25F /* EditProfileFeaturePreview */ = {
+			isa = PBXGroup;
+			children = (
+				46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */,
+				46D306EE287C249300CCA25F /* Assets.xcassets */,
+				46D306F3287C249300CCA25F /* EditProfileFeaturePreview.entitlements */,
+			);
+			path = EditProfileFeaturePreview;
+			sourceTree = "<group>";
+		};
 		52EA1165274C23C2007DA1C5 = {
 			isa = PBXGroup;
 			children = (
 				2C4F3D0D27F713E5004B79F3 /* ProseLib */,
 				52EA1170274C23C2007DA1C5 /* Prose */,
 				46A46C7228635B8E00F27E40 /* ConversationFeaturePreview */,
+				46D306E9287C249100CCA25F /* EditProfileFeaturePreview */,
 				2CBFFE4F287D6DFE00A53992 /* UITestHost */,
 				2CBFFE68287D7B0B00A53992 /* ProseUITests */,
 				52EA116F274C23C2007DA1C5 /* Products */,
@@ -200,6 +226,7 @@
 			children = (
 				52EA116E274C23C2007DA1C5 /* Prose.app */,
 				46A46C7128635B8E00F27E40 /* ConversationFeaturePreview.app */,
+				46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */,
 				2CBFFE4E287D6DFE00A53992 /* UITestHost.app */,
 				2CBFFE67287D7B0B00A53992 /* ProseUITests.xctest */,
 			);
@@ -281,6 +308,26 @@
 			productReference = 46A46C7128635B8E00F27E40 /* ConversationFeaturePreview.app */;
 			productType = "com.apple.product-type.application";
 		};
+		46D306E7287C249100CCA25F /* EditProfileFeaturePreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46D306F6287C249300CCA25F /* Build configuration list for PBXNativeTarget "EditProfileFeaturePreview" */;
+			buildPhases = (
+				46D306E4287C249100CCA25F /* Sources */,
+				46D306E5287C249100CCA25F /* Frameworks */,
+				46D306E6287C249100CCA25F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EditProfileFeaturePreview;
+			packageProductDependencies = (
+				46D306F9287C24E200CCA25F /* Previews */,
+			);
+			productName = EditProfileFeaturePreview;
+			productReference = 46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */;
+			productType = "com.apple.product-type.application";
+		};
 		52EA116D274C23C2007DA1C5 /* Prose */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 52EA117D274C23C3007DA1C5 /* Build configuration list for PBXNativeTarget "Prose" */;
@@ -322,6 +369,9 @@
 					46A46C7028635B8E00F27E40 = {
 						CreatedOnToolsVersion = 14.0;
 					};
+					46D306E7287C249100CCA25F = {
+						CreatedOnToolsVersion = 14.0;
+					};
 					52EA116D274C23C2007DA1C5 = {
 						CreatedOnToolsVersion = 13.1;
 					};
@@ -344,6 +394,7 @@
 			targets = (
 				52EA116D274C23C2007DA1C5 /* Prose */,
 				46A46C7028635B8E00F27E40 /* ConversationFeaturePreview */,
+				46D306E7287C249100CCA25F /* EditProfileFeaturePreview */,
 				2CBFFE4D287D6DFE00A53992 /* UITestHost */,
 				2CBFFE66287D7B0B00A53992 /* ProseUITests */,
 			);
@@ -373,6 +424,14 @@
 			files = (
 				46A46C7B28635B9000F27E40 /* Preview Assets.xcassets in Resources */,
 				46A46C7828635B9000F27E40 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46D306E6287C249100CCA25F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46D306EF287C249300CCA25F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +469,14 @@
 			files = (
 				46A46C7628635B8E00F27E40 /* ContentView.swift in Sources */,
 				46A46C7428635B8E00F27E40 /* ConversationFeaturePreviewApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46D306E4287C249100CCA25F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46D306EB287C249200CCA25F /* EditProfileFeaturePreviewApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -579,6 +646,58 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.prose.ConversationFeaturePreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		46D306F4287C249300CCA25F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EditProfileFeaturePreview/EditProfileFeaturePreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Prose. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.prose.EditProfileFeaturePreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		46D306F5287C249300CCA25F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EditProfileFeaturePreview/EditProfileFeaturePreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Prose. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.prose.EditProfileFeaturePreview;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -788,6 +907,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		46D306F6287C249300CCA25F /* Build configuration list for PBXNativeTarget "EditProfileFeaturePreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46D306F4287C249300CCA25F /* Debug */,
+				46D306F5287C249300CCA25F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		52EA1169274C23C2007DA1C5 /* Build configuration list for PBXProject "Prose" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -820,6 +948,10 @@
 		46A46C80286362B300F27E40 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = App;
+		};
+		46D306F9287C24E200CCA25F /* Previews */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Previews;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
