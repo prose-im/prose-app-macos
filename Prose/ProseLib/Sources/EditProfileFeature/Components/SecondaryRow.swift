@@ -33,7 +33,7 @@ struct SecondaryRow_Previews: PreviewProvider {
       SecondaryRow("Status:") {
         HStack(spacing: 4) {
           Image(systemName: "location.fill")
-            .foregroundColor(.accentColor)
+            .foregroundColor(.blue)
           Text(verbatim: "Automatic")
         }
       }
