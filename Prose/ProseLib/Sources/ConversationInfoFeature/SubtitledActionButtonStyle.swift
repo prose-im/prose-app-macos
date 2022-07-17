@@ -11,15 +11,7 @@ struct SubtitledActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
       VStack(spacing: 3) {
         ZStack {
-          Circle()
-            .fill(Colors.Button.actionGradientFromText.color)
-            // TODO: [Rémi Bardon] We could remove this. It was 0.14, which is barely visible. I changed it to a finite binary float.
-            .shadow(
-              color: Colors.Button.actionShadow.color.opacity(0.15625),
-              radius: 1,
-              y: 1
-            )
-
+          Circle().fill(Color.accentColor)
           configuration.icon
             .font(.system(size: 12))
             .foregroundColor(.white)
@@ -30,7 +22,7 @@ struct SubtitledActionButtonStyle: ButtonStyle {
         configuration.title
           // TODO: [Rémi Bardon] 9.5 is probably too small for accessibility checks
           .font(.system(size: 9.5))
-          .foregroundColor(Colors.Button.actionText.color)
+          .foregroundColor(.accentColor)
           .layoutPriority(1)
       }
       // Allow hit testing between the label and the icon

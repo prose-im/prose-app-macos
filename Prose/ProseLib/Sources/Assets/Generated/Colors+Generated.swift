@@ -30,16 +30,7 @@ public enum Colors {
     public static let tertiaryLight = ColorAsset(name: "border/tertiaryLight")
   }
 
-  public enum Button {
-    public static let actionGradientFromText = ColorAsset(name: "button/actionGradientFromText")
-    public static let actionGradientToText = ColorAsset(name: "button/actionGradientToText")
-    public static let actionShadow = ColorAsset(name: "button/actionShadow")
-    public static let actionText = ColorAsset(name: "button/actionText")
-    public static let primary = ColorAsset(name: "button/primary")
-  }
-
   public enum State {
-    public static let blue = ColorAsset(name: "state/blue")
     public static let green = ColorAsset(name: "state/green")
     public static let greenLight = ColorAsset(name: "state/greenLight")
     public static let grey = ColorAsset(name: "state/grey")

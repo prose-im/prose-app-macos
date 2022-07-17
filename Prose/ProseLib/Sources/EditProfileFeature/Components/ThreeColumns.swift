@@ -77,7 +77,7 @@ struct ThreeColumns_Previews: PreviewProvider {
           Text("Get verified")
         }
         .buttonStyle(.plain)
-        .foregroundColor(.blue)
+        .foregroundColor(.accentColor)
       }
       ThreeColumns("Password:") {
         Button {} label: {
