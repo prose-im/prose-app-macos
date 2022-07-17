@@ -1,14 +1,19 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.b584d770.css"><script src="messaging.cba2fe66.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.02552910.css"><script src="messaging.232c440f.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
       'app--' + $context.style.theme,
       {
         'app--visible': isReady
       }
-    ]">  <div class="entry" v-for="entry in $store.feed.entries" v-scope="Entry(entry)" v-once="" :key="dayChangeCount + '/' + $context.i18n.code + '/' + entry.id + '@' + (entry.updatedAt || 0)"> <div class="message" v-if="message" v-scope="Message(message)"> <span class="avatar message-avatar" v-scope="Avatar(user)" @vue:mounted="mounted"> <span v-if="avatarUrl" :style="{
+    ]">  <div class="entry" v-for="entry in $store.feed.entries" v-scope="Entry(entry)" v-once="" :key="dayChangeCount + '/' + $context.i18n.code + '/' + entry.id + '@' + (entry.updatedAt || 0)"> <div class="message" v-if="message" v-scope="Message(message)" :data-entry-id="entry.id"> <span class="avatar message-avatar" v-scope="Avatar(user)" @vue:mounted="mounted"> <span v-if="avatarUrl" :style="{
               backgroundImage: ('url(\'' + avatarUrl + '\')')
             }" class="avatar-image"></span> <span v-else="" :style="{ backgroundColor: defaultPalette }" class="avatar-image avatar-image--placeholder"> <span v-if="defaultInitials" class="avatar-initials"> {{ defaultInitials }} </span> </span> </span> <div class="message-inner" @vue:mounted="mounted"> <div class="message-origin"> <span class="message-origin-name">{{ user.name || user.jid }}</span> <span v-if="date" class="message-origin-date">{{ date }}</span> <span v-if="attributes && attributes.length > 0" class="message-origin-attributes"> <span v-for="attribute in attributes" :title="$context.i18n._.attributes[attribute] || ''" :class="[
                   'message-origin-attribute',
                   'message-origin-attribute--' + attribute
-                ]"></span> </span> </div> <div class="message-content"> <p v-for="line in content" :key="line.id" :id="'message-' + line.id" class="message-content-line"> <span v-if="line.type === 'text'" v-scope="MessageLineText(line)" @vue:mounted="mounted" class="message-text"></span> <span v-else-if="line.type === 'file'" v-scope="MessageLineFile(line)" @vue:mounted="mounted" class="message-file"></span> <span v-else="" class="message-other">(?)</span> </p> </div> </div> </div> <div class="separator" v-else-if="separator" v-scope="Separator(separator)"> <span class="separator-label">{{ label }}</span> </div> </div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> </template> <template id="template-message-line-file"> <span :class="[
+                ]"></span> </span> </div> <div class="message-content"> <p v-for="line in content" :key="line.id" :data-line-id="line.id" :id="'message-' + line.id" :class="[
+                'message-content-line',
+                {
+                  'message-content-line--highlighted': (line.properties && line.properties.highlighted)
+                }
+              ]"> <span v-if="line.type === 'text'" v-scope="MessageLineText(line)" @vue:mounted="mounted" class="message-text"></span> <span v-else-if="line.type === 'file'" v-scope="MessageLineFile(line)" @vue:mounted="mounted" class="message-file"></span> <span v-else="" class="message-other">(?)</span> </p> </div> </div> </div> <div class="separator" v-else-if="separator" v-scope="Separator(separator)"> <span class="separator-label">{{ label }}</span> </div> </div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> </template> <template id="template-message-line-file"> <span :class="[
           'message-file-inner',
           {
             'message-file-inner--expanded': isExpanded
