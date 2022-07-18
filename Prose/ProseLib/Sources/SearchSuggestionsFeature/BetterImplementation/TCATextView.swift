@@ -5,6 +5,7 @@
 
 import AppKit
 import ComposableArchitecture
+import ProseUI
 import SwiftUI
 
 // MARK: - View
@@ -208,13 +209,6 @@ public enum TCATextViewAction: Equatable {
   case keyboardEventReceived(KeyEvent)
 }
 
-public enum KeyEvent: Equatable {
-  case up
-  case down
-  case newline
-  case escape
-}
-
 // MARK: - Previews
 
 struct TCATextView_Previews: PreviewProvider {
@@ -239,7 +233,7 @@ struct TCATextView_Previews: PreviewProvider {
           Text("Selected text: \(String(describing: selectedText?.string))")
 
           let rangeFromLastAttachment: NSRange? = viewStore.selection
-            .map( attributedString.prose_rangeFromLastAttachmentToCaret(selectionRange:))
+            .map(attributedString.prose_rangeFromLastAttachmentToCaret(selectionRange:))
           Text("Range to last attachment: \(String(describing: rangeFromLastAttachment))")
 
           let textFromLastAttachment: NSAttributedString? = rangeFromLastAttachment

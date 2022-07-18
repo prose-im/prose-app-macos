@@ -82,6 +82,7 @@ extension SidebarEnvironment {
   var addMember: AddMemberSheetEnvironment {
     AddMemberSheetEnvironment(mainQueue: self.mainQueue)
   }
+
   var joinGroup: JoinGroupSheetEnvironment {
     JoinGroupSheetEnvironment(mainQueue: self.mainQueue)
   }

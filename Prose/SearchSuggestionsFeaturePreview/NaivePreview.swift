@@ -15,7 +15,7 @@ struct Suggestion: Identifiable, Hashable {
   var id: String { self.jid }
 }
 
-struct ContentView: View {
+struct NaivePreview: View {
   private static let allSuggestions: [Suggestion] = [
     .init(jid: "remi@prose.org", name: "Rémi Bardon"),
     .init(jid: "imer@prose.org", name: "The other Rémi Bardon"),

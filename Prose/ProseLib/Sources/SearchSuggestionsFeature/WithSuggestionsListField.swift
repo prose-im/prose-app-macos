@@ -38,7 +38,7 @@ public struct WithSuggestionsListField<
   public var body: some View {
     WithViewStore(self.store) { viewStore in
       WithSuggestionsField(
-        store: self.store.scope(state: \ViewState.field, action: ViewAction.field),
+        store: self.store.scope(state: \.field, action: ViewAction.field),
         suggestionsView: { suggestionsView(viewStore: viewStore) }
       )
       .overlay(alignment: .trailing) {

@@ -30,9 +30,7 @@ public struct AutoSuggestState<T: Hashable & Identifiable>: Equatable {
 
   var searchQuery: String?
 
-  var content: Loadable<[AutoSuggestSection<T>]> = .notRequested
-
-  var noResultText: String
+  public var content: Loadable<[AutoSuggestSection<T>]>
 
   /// Trim search query on both sides.
   public var trimmedQuery: String? {
@@ -40,12 +38,24 @@ public struct AutoSuggestState<T: Hashable & Identifiable>: Equatable {
     return trimmed.flatMap { $0.isEmpty ? nil : $0 }
   }
 
-  public init(noResultText: String) {
-    self.noResultText = noResultText
+  public init(
+    content: Loadable<[AutoSuggestSection<T>]> = .notRequested
+  ) {
+    self.content = content
+  }
+
+  /// - Warning: This implementation is not very efficient, but as we only have a few results,
+  ///            let's ignore the issue.
+  public func item(withId id: T.ID) -> T? {
+    self.content.value?
+      .compactMap { section in
+        section.items.first(where: { $0.id == id })
+      }
+      .first
   }
 }
 
-public enum AutoSuggestAction<T: Hashable>: Equatable {
+public enum AutoSuggestAction<T: Hashable & Identifiable>: Equatable {
   case onAppear
   case onDisappear
 
@@ -78,9 +88,9 @@ public extension Reducer {
     Reducer.combine(
       self,
       Reducer<
-      AutoSuggestState<T>,
-      AutoSuggestAction<T>,
-      AutoSuggestEnvironment<T>
+        AutoSuggestState<T>,
+        AutoSuggestAction<T>,
+        AutoSuggestEnvironment<T>
       > { state, action, environment in
         switch action {
         case let .searchQueryChanged(query):
@@ -119,7 +129,9 @@ public extension Reducer {
               )
           }
 
-          func executeQuery(_ query: String) -> AnyPublisher<[AutoSuggestSection<T>], EquatableError> {
+          func executeQuery(_ query: String)
+            -> AnyPublisher<[AutoSuggestSection<T>], EquatableError>
+          {
             environment.client.loadSuggestions(query, Set())
               .mapError(EquatableError.init)
               .eraseToAnyPublisher()
@@ -175,7 +187,7 @@ public extension Reducer {
           )
         }
       }
-        .pullback(state: state, action: action, environment: environment)
+      .pullback(state: state, action: action, environment: environment)
     )
   }
 }
