@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.fd482460.css"><script src="messaging.9aa9c190.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.600bf6f5.css"><script src="messaging.33ec36c2.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
       'app--' + $context.style.theme,
       {
         'app--visible': isReady
@@ -13,7 +13,12 @@
                 {
                   'message-content-line--highlighted': (line.properties && line.properties.highlighted)
                 }
-              ]"> <span v-if="line.type === 'text'" v-scope="MessageLineText(line)" @vue:mounted="mounted" class="message-text"></span> <span v-else-if="line.type === 'file'" v-scope="MessageLineFile(line)" @vue:mounted="mounted" class="message-file"></span> <span v-else="" class="message-other">(?)</span> <span class="message-actions"> <span class="message-action message-action--more" @click="onActionMoreClick($event, line.id)"></span> </span> </p> </div> </div> </div> <div class="separator" v-else-if="separator" v-scope="Separator(separator)"> <span class="separator-label">{{ label }}</span> </div> </div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> </template> <template id="template-message-line-file"> <span :class="[
+              ]"> <span v-if="line.type === 'text'" v-scope="MessageLineText(line)" @vue:mounted="mounted" class="message-text"></span> <span v-else-if="line.type === 'file'" v-scope="MessageLineFile(line)" @vue:mounted="mounted" class="message-file"></span> <span v-else="" class="message-other">(?)</span> <span v-if="line.reactions" class="message-reactions"> <span v-for="(reactionAuthors, reactionImage) in line.reactions" @click="onReactionClick(line.id, reactionImage, reactionAuthors)" :key="'reaction/' + reactionImage" :class="[
+                    'message-reaction',
+                    {
+                      'message-reaction--active': ($context.account.jid && reactionAuthors.includes($context.account.jid))
+                    }
+                  ]"> <span class="message-reaction-image"> {{ reactionImage }} </span> <span class="message-reaction-count"> {{ (reactionAuthors.length || 1) }} </span> </span> </span> <span class="message-actions"> <span @click="onActionReactionsClick($event, line.id)" :title="$context.i18n._.actions.reactions" class="message-action message-action--reactions"></span> <span @click="onActionMoreClick($event, line.id)" :title="$context.i18n._.actions.more" class="message-action message-action--more"></span> </span> </p> </div> </div> </div> <div class="separator" v-else-if="separator" v-scope="Separator(separator)"> <span class="separator-label">{{ label }}</span> </div> </div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> </template> <template id="template-message-line-file"> <span :class="[
           'message-file-inner',
           {
             'message-file-inner--expanded': isExpanded
