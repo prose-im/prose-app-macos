@@ -128,7 +128,7 @@ struct AutoSuggestWindowPreview: View {
               .frame(maxWidth: .infinity)
               .padding()
           }
-          .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+          .clipShape(RoundedRectangle(cornerRadius: attachedWindowControllerCornerRadius))
         }
     }
     .padding()

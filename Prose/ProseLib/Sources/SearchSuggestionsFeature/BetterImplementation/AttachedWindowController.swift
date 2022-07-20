@@ -6,6 +6,8 @@
 import Cocoa
 import SwiftUI
 
+public let attachedWindowControllerCornerRadius: CGFloat = 8
+
 class AttachedWindowController<Content: View>: NSWindowController {
   let vc: AttachedViewController<Content>
 
@@ -29,7 +31,7 @@ class AttachedWindowController<Content: View>: NSWindowController {
     // Allow corner clipping (otherwise the radius won't apply)
     background.wantsLayer = true
     // Set the corner radius
-    background.layer?.cornerRadius = 8
+    background.layer?.cornerRadius = attachedWindowControllerCornerRadius
 
     let contentView = window.contentView!
     // Add the background under the hosted view
