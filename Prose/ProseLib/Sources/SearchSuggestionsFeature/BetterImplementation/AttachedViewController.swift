@@ -6,12 +6,12 @@
 import AppKit
 import SwiftUI
 
-final class SuggestionsViewController<Content: View>: NSViewController {
-  var content: () -> Content
+final class AttachedViewController<Content: View>: NSViewController {
+  var content: Content
 
-  lazy var hc = NSHostingController(rootView: self.content())
+  lazy var hc = NSHostingController(rootView: self.content)
 
-  init(content: @escaping () -> Content) {
+  init(content: Content) {
     self.content = content
     super.init(nibName: nil, bundle: nil)
   }

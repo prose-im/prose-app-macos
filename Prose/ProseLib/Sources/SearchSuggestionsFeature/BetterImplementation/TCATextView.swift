@@ -14,10 +14,12 @@ public struct TCATextView: NSViewRepresentable {
   public typealias ViewState = TCATextViewState
   public typealias ViewAction = TCATextViewAction
 
-  let store: Store<ViewState, ViewAction>
+  private let store: Store<ViewState, ViewAction>
+  @ObservedObject private var viewStore: ViewStore<ViewState, ViewAction>
 
   public init(store: Store<ViewState, ViewAction>) {
     self.store = store
+    self.viewStore = ViewStore(store)
   }
 
   public func makeNSView(context: Context) -> NSTextView {
@@ -30,15 +32,15 @@ public struct TCATextView: NSViewRepresentable {
 
     textView.wantsLayer = true
     assert(textView.layer != nil)
-    textView.layer?.borderWidth = context.coordinator.viewStore.borderWidth
+    textView.layer?.borderWidth = self.viewStore.borderWidth
     textView.layer?.borderColor = NSColor.separatorColor.cgColor
-    textView.layer?.cornerRadius = context.coordinator.viewStore.cornerRadius
+    textView.layer?.cornerRadius = self.viewStore.cornerRadius
     textView.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
-      textView.heightAnchor.constraint(equalToConstant: context.coordinator.viewStore.height),
+      textView.heightAnchor.constraint(equalToConstant: self.viewStore.height),
     ])
 
-    textView.hasFocusRing = context.coordinator.viewStore.showFocusRing
+    textView.hasFocusRing = self.viewStore.showFocusRing
 
     // Fix the text container inset (sticking at the top by default)
     textView.textContainerInset = NSSize(width: 0, height: 2)
@@ -46,10 +48,17 @@ public struct TCATextView: NSViewRepresentable {
     return textView
   }
 
-  public func updateNSView(_: NSTextView, context _: Context) {}
+  public func updateNSView(_ textView: NSTextView, context: Context) {
+    if !context.coordinator.isSendingTextChangeToStore,
+       self.viewStore.text != AttributedString(textView.attributedString())
+    {
+      assert(textView.textStorage != nil)
+      textView.textStorage?.setAttributedString(NSAttributedString(self.viewStore.text))
+    }
+  }
 
   public func makeCoordinator() -> Coordinator {
-    Coordinator(store: self.store)
+    Coordinator(viewStore: self.viewStore)
   }
 
   public final class Coordinator: NSObject, NSTextViewDelegate {
@@ -67,8 +76,8 @@ public struct TCATextView: NSViewRepresentable {
     /// make sense) we keep track of what's going on.
     var textViewIsChanging = false
 
-    init(store: Store<ViewState, ViewAction>) {
-      self.viewStore = ViewStore(store)
+    init(viewStore: ViewStore<ViewState, ViewAction>) {
+      self.viewStore = viewStore
 
       // Create and initialize the supporting layout, container, and storage management.
       self.textLayoutManager = NSTextLayoutManager()
@@ -176,7 +185,7 @@ public let textViewReducer = Reducer<
 // MARK: State
 
 public struct TCATextViewState: Equatable {
-  var text: AttributedString
+  public var text: AttributedString
   var selection: NSRange?
   var height: CGFloat
   var borderWidth: CGFloat

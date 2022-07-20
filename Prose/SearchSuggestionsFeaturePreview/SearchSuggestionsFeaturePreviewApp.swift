@@ -11,20 +11,21 @@ struct SearchSuggestionsFeaturePreviewApp: App {
     WindowGroup {
 //      NaivePreview()
 //        .frame(maxWidth: 512)
-      AutoSuggestListPreview(.init(
+//      AutoSuggestListPreview(.init(
+      AutoSuggestWindowPreview(.init(
         content: .loaded([
           .init(
             title: "Section 1",
-            items: Array(repeating: AutoSuggestListPreview.State.Item.init, count: 4).map { $0() }
+            items: Array(repeating: AutoSuggestWindowPreview.State.Item.init, count: 4).map { $0() }
           ),
           .init(
             title: "Section 2",
-            items: Array(repeating: AutoSuggestListPreview.State.Item.init, count: 1).map { $0() }
+            items: Array(repeating: AutoSuggestWindowPreview.State.Item.init, count: 1).map { $0() }
           ),
           .init(title: "Section 3", items: []),
           .init(
             title: "Section 4",
-            items: Array(repeating: AutoSuggestListPreview.State.Item.init, count: 3).map { $0() }
+            items: Array(repeating: AutoSuggestWindowPreview.State.Item.init, count: 3).map { $0() }
           ),
         ])
       ))

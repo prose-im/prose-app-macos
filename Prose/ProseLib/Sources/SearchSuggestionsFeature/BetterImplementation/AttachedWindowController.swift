@@ -6,10 +6,10 @@
 import Cocoa
 import SwiftUI
 
-class SuggestionsWindowController<Content: View>: NSWindowController {
-  let vc: SuggestionsViewController<Content>
+class AttachedWindowController<Content: View>: NSWindowController {
+  let vc: AttachedViewController<Content>
 
-  init(vc: SuggestionsViewController<Content>) {
+  init(vc: AttachedViewController<Content>) {
     self.vc = vc
 
     let window = NSWindow(contentViewController: vc)
@@ -59,7 +59,7 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
     }
   }
 
-  func showSuggestions(_ suggestionsView: () -> Content, on view: NSView) {
+  func showWindow(_ content: Content, on view: NSView) {
     // Fail gracefully if we cannot show the window
     guard let viewWindow = view.window else {
       return logger.error("`view` has no `window`")
@@ -88,6 +88,6 @@ class SuggestionsWindowController<Content: View>: NSWindowController {
     }
 
     // Update the view
-    self.vc.hc.rootView = suggestionsView()
+    self.vc.hc.rootView = content
   }
 }

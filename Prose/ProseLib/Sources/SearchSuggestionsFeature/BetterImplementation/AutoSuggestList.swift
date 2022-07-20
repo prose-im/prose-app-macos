@@ -9,6 +9,12 @@ import ProseUI
 import SwiftUI
 import TcaHelpers
 
+// NOTE: [Rémi Bardon] Those magic numbers come from debugging the view hierarchy of a basic list.
+//       The calculations will break if rows/headers do not have the default height.
+private let headerHeight: CGFloat = 28
+private let rowHeight: CGFloat = 24
+private let listSectionVerticalPadding: CGFloat = 20
+
 public struct AutoSuggestList<
   Item: Hashable & Identifiable,
   ItemView: View,
@@ -33,24 +39,30 @@ public struct AutoSuggestList<
 
   public var body: some View {
     WithViewStore(self.store) { (viewStore: ViewStore<State, Action>) in
-      if let sections = viewStore.state.content.value {
+      if let sections = viewStore.state.content.value,
+         !sections.filter({ !$0.items.isEmpty }).isEmpty
+      {
         List(selection: viewStore.binding(get: \.selection, send: Action.selectionDidChange)) {
           ForEach(sections) { section in
             if !section.items.isEmpty {
               Section(section.title) {
                 ForEach(section.items) { item in
-//                  Button { viewStore.send(.didSelect(item)) } label: {
                   viewForItem(item)
                     .tag(item.id)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                     .onTapGesture { viewStore.send(.didSelect(item)) }
-//                  }
-//                  .buttonStyle(.plain)
                 }
               }
             }
           }
         }
-        .onKeyDown(.newline) { viewStore.send(.newlineTapped) }
+        // TODO: We should find a way to avoid those calculations.
+        .frame(
+          height: CGFloat(sections.reduce(0) { $0 + $1.items.count }) * rowHeight
+            + CGFloat(sections.filter { !$0.items.isEmpty }.count) *
+            (headerHeight + listSectionVerticalPadding)
+        )
       } else {
         self.placeholder
       }
@@ -81,11 +93,38 @@ public struct AutoSuggestList<
     get { self.state[keyPath: keyPath] }
     set { self.state[keyPath: keyPath] = newValue }
   }
+
+  @discardableResult mutating func moveUp() -> Bool {
+    guard let selection: T.ID = self.selection else { return false }
+    guard let sections: [AutoSuggestSection<T>] = self.state.content.value else { return false }
+    let items: [T] = sections.flatMap(\.items)
+    guard let index: Int = items.firstIndex(where: { $0.id == selection }) else { return false }
+    let newIndex: Int = max(index - 1, 0)
+    self.selection = items[newIndex].id
+    return true
+  }
+
+  @discardableResult mutating func moveDown() -> Bool {
+    guard let sections: [AutoSuggestSection<T>] = self.state.content.value else { return false }
+    let items: [T] = sections.flatMap(\.items)
+    if let selection: T.ID = self.selection,
+       let index: Int = items.firstIndex(where: { $0.id == selection })
+    {
+      let newIndex: Int = min(index + 1, items.count - 1)
+      self.selection = items[newIndex].id
+      return true
+    } else if !items.isEmpty {
+      self.selection = items[0].id
+      return true
+    } else {
+      return false
+    }
+  }
 }
 
 public enum AutoSuggestListAction<T: Hashable & Identifiable>: Equatable {
   case selectionDidChange(T.ID?)
-  case newlineTapped
+  case keyboardEventReceived(KeyEvent)
   case didSelect(T)
 }
 
@@ -113,15 +152,33 @@ public extension Reducer where Action: Equatable {
           state.selection = item.id
           return .none
 
-        case .newlineTapped:
+        case .keyboardEventReceived:
           // Handled in the more global reducer
           return .none
         }
       }
       .pullback(state: toLocalState, action: toLocalAction, environment: toLocalEnvironment),
-      Reducer<State, Action, Environment> { state, action, _ in
+      Reducer<State, Action, Environment> { _, action, _ in
         switch toLocalAction.extract(from: action) {
-        case .newlineTapped:
+        case let .didSelect(item):
+          return Effect(value: autoSuggestAction(.itemSelected(item)))
+        default:
+          return .none
+        }
+      },
+    ])
+  }
+
+  func autoSuggestListNavigation<T: Hashable & Identifiable>(
+    state toLocalState: WritableKeyPath<State, AutoSuggestListState<T>>,
+    action toLocalAction: CasePath<Action, AutoSuggestListAction<T>>,
+    textViewAction: CasePath<Action, TCATextViewAction>
+  ) -> Reducer {
+    Reducer.combine([
+      self,
+      Reducer { state, action, _ in
+        switch textViewAction.extract(from: action) {
+        case .keyboardEventReceived(.newline):
           guard let id: T.ID = state[keyPath: toLocalState].selection else {
             return .none
           }
@@ -129,10 +186,15 @@ public extension Reducer where Action: Equatable {
             assertionFailure("Selected item could not be found.")
             return .none
           }
-          return Effect(value: autoSuggestAction(.itemSelected(item)))
+          return Effect(value: toLocalAction.embed(.didSelect(item)))
 
-        case let .didSelect(item):
-          return Effect(value: autoSuggestAction(.itemSelected(item)))
+        case .keyboardEventReceived(.down):
+          state[keyPath: toLocalState].moveDown()
+          return .none
+
+        case .keyboardEventReceived(.up):
+          state[keyPath: toLocalState].moveUp()
+          return .none
 
         default:
           return .none

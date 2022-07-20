@@ -14,14 +14,14 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
   public typealias ViewAction = WithSuggestionsFieldAction
 
   let store: Store<ViewState, ViewAction>
-  let suggestionsView: () -> SuggestionsView
+  let suggestionsView: SuggestionsView
 
   public init(
     store: Store<ViewState, ViewAction>,
-    @ViewBuilder suggestionsView: @escaping () -> SuggestionsView
+    @ViewBuilder suggestionsView: () -> SuggestionsView
   ) {
     self.store = store
-    self.suggestionsView = suggestionsView
+    self.suggestionsView = suggestionsView()
   }
 
   public func makeNSView(context: Context) -> NSTextView {
@@ -58,7 +58,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
   public func updateNSView(_ textView: NSTextView, context: Context) {
     if context.coordinator.viewStore.showSuggestions, textView.window?.firstResponder == textView {
       // Update the window
-      context.coordinator.wc.showSuggestions(self.suggestionsView, on: textView)
+      context.coordinator.wc.showWindow(self.suggestionsView, on: textView)
     } else {
       context.coordinator.wc.orderOut()
     }
@@ -68,7 +68,7 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
     Coordinator(
       store: self.store,
       wc: {
-        SuggestionsWindowController(vc: SuggestionsViewController(content: self.suggestionsView))
+        AttachedWindowController(vc: AttachedViewController(content: self.suggestionsView))
       }
     )
   }
@@ -85,13 +85,13 @@ public struct WithSuggestionsField<SuggestionsView: View>: NSViewRepresentable {
     /// make sense) we keep track of what's going on.
     var textViewIsChanging = false
 
-    let _wc: () -> SuggestionsWindowController<SuggestionsView>
+    let _wc: () -> AttachedWindowController<SuggestionsView>
 
-    lazy var wc: SuggestionsWindowController<SuggestionsView> = self._wc()
+    lazy var wc: AttachedWindowController<SuggestionsView> = self._wc()
 
     init(
       store: Store<ViewState, ViewAction>,
-      wc: @escaping () -> SuggestionsWindowController<SuggestionsView>
+      wc: @escaping () -> AttachedWindowController<SuggestionsView>
     ) {
       self.viewStore = ViewStore(store)
       self._wc = wc
