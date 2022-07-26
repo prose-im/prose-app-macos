@@ -73,6 +73,41 @@ public struct CustomList<SelectionValue: Hashable, Content: View>: View {
   public init<Section, Header, Element, Row>(
     _ sections: IdentifiedArrayOf<Section>,
     elements: KeyPath<Section, IdentifiedArrayOf<Element>>,
+    selection: Binding<SelectionValue?>,
+    @ViewBuilder row: @escaping (Element) -> Row,
+    @ViewBuilder header: @escaping (Section) -> Header
+  ) where SelectionValue == Element.ID,
+    Content == ForEach<
+      IdentifiedArrayOf<Section>,
+      Section.ID,
+      CustomListSection<
+        CustomListSectionHeader<Header>,
+        SelectionValue,
+        BaseContent<Element, Row>
+      >
+    >
+  {
+    self.init(
+      content: ForEach(sections, id: sections.id) { section in
+        CustomListSection(
+          header: CustomListSectionHeader {
+            header(section)
+          },
+          content: CustomList<SelectionValue, BaseContent<Element, Row>>(
+            section[keyPath: elements],
+            selection: selection,
+            padding: 0,
+            row: row
+          )
+        )
+      },
+      spacing: 16
+    )
+  }
+
+  public init<Section, Header, Element, Row>(
+    _ sections: IdentifiedArrayOf<Section>,
+    elements: KeyPath<Section, IdentifiedArrayOf<Element>>,
     selection: Binding<Set<SelectionValue>>,
     @ViewBuilder row: @escaping (Element) -> Row,
     @ViewBuilder header: @escaping (Section) -> Header
