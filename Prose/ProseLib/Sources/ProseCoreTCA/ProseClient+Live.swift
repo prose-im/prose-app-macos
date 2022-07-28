@@ -145,6 +145,47 @@ public extension ProseClient {
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
+      addReaction: { to, id, reaction in
+        guard let client = client else {
+          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        }
+
+        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        }
+
+        let jid = JID(bareJid: client.jid)
+
+        #warning("TODO: Update message using the client")
+
+        delegate.activeChats[to]?.updateMessage(id: id) { message in
+          message.reactions[reaction, default: Set<JID>()].insert(jid)
+        }
+
+        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
+      toggleReaction: { to, id, reaction in
+        guard let client = client else {
+          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        }
+
+        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        }
+
+        let jid = JID(bareJid: client.jid)
+
+        #warning("TODO: Update message using the client")
+
+        delegate.activeChats[to]?.updateMessage(id: id) { message in
+          message.reactions.prose_toggle(jid, forKey: reaction)
+        }
+
+        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
+      retractMessage: { _ in
+        fatalError("Not implemented yet.")
+      },
       sendChatState: { to, kind in
         guard let client = client else {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))

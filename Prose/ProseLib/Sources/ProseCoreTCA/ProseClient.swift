@@ -39,6 +39,17 @@ public struct ProseClient {
     _ id: Message.ID,
     _ body: String
   ) -> Effect<None, EquatableError>
+  public var addReaction: (
+    _ to: JID,
+    _ id: Message.ID,
+    _ reaction: Character
+  ) -> Effect<None, EquatableError>
+  public var toggleReaction: (
+    _ to: JID,
+    _ id: Message.ID,
+    _ reaction: Character
+  ) -> Effect<None, EquatableError>
+  public var retractMessage: (_ id: Message.ID) -> Effect<None, EquatableError>
 
   public var sendChatState: (_ to: JID, _ state: ChatState.Kind) -> Effect<None, EquatableError>
   public var sendPresence: (

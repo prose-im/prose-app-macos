@@ -26,6 +26,15 @@
       updateMessage: { _, _, _ in
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
+      addReaction: { _, _, _ in
+        Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
+      toggleReaction: { _, _, _ in
+        Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
+      retractMessage: { _ in
+        Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
       sendChatState: { _, _ in
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },

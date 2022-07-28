@@ -91,7 +91,7 @@ public let mainWindowReducer = Reducer<
     state.route = .peopleAndGroups
   case let .chat(jid):
     var priorRoute = state.route
-    var conversationState = ConversationState(chatId: jid)
+    var conversationState = ConversationState(chatId: jid, loggedInUserJID: state.jid)
     var effects = Effect<MainScreenAction, Never>.none
 
     // If another chat was selected already, we'll manually send the `.onAppear` and
@@ -114,12 +114,14 @@ public let mainWindowReducer = Reducer<
 // MARK: State
 
 public struct MainScreenState: Equatable {
+  let jid: JID
   public var sidebar: SidebarState
   public private(set) var isPlaceholder = false
 
   var route = Route.unreadStack(.init())
 
   public init(jid: JID) {
+    self.jid = jid
     self.sidebar = .init(credentials: jid)
   }
 }

@@ -89,7 +89,7 @@ public let conversationReducer: Reducer<
   chatReducer.pullback(
     state: \.chat,
     action: CasePath(ConversationAction.chat),
-    environment: { _ in }
+    environment: { $0 }
   ),
   Reducer { state, action, environment in
     switch action {
@@ -144,9 +144,9 @@ public struct ConversationState: Equatable {
   var info: ConversationInfoState?
   var toolbar: ToolbarState
   var messageBar: MessageBarState
-  var chat = ChatState()
+  var chat: ChatState
 
-  public init(chatId: JID) {
+  public init(chatId: JID, loggedInUserJID: JID) {
     self.chatId = chatId
     self.toolbar = .init(user: .init(
       jid: chatId,
@@ -160,6 +160,10 @@ public struct ConversationState: Equatable {
       location: "The Internets"
     ))
     self.messageBar = .init(textField: .init(recipient: chatId.jidString))
+    self.chat = ChatState(
+      loggedInUserJID: loggedInUserJID,
+      chatId: chatId
+    )
   }
 }
 
@@ -200,7 +204,10 @@ public struct ConversationEnvironment {
     private struct Preview: View {
       var body: some View {
         ConversationScreen(store: Store(
-          initialState: ConversationState(chatId: "alexandre@crisp.chat"),
+          initialState: ConversationState(
+            chatId: "alexandre@crisp.chat",
+            loggedInUserJID: "preview@prose.org"
+          ),
           reducer: conversationReducer,
           environment: .init(proseClient: .noop, mainQueue: .main)
         ))

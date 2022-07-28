@@ -25,6 +25,7 @@ public struct Message: Equatable, Identifiable {
   public var timestamp: Date
   public var isRead: Bool
   public var isEdited: Bool
+  public var reactions: [Character: Set<JID>]
 
   public init(
     from: JID,
@@ -33,7 +34,8 @@ public struct Message: Equatable, Identifiable {
     body: String,
     timestamp: Date,
     isRead: Bool,
-    isEdited: Bool
+    isEdited: Bool,
+    reactions: [Character: Set<JID>] = [:]
   ) {
     self.from = from
     self.id = id
@@ -42,6 +44,7 @@ public struct Message: Equatable, Identifiable {
     self.timestamp = timestamp
     self.isRead = isRead
     self.isEdited = isEdited
+    self.reactions = reactions
   }
 }
 
