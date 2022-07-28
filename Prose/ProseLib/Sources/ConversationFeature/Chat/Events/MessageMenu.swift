@@ -10,10 +10,13 @@ import WebKit
 
 struct MessageMenuHandler: WebMessageHandler {
   struct Body: Decodable {
+    struct Point: Decodable {
+      let x, y: Double
+      var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
+    }
+
     let ids: [Message.ID]
-    /// - Note: We should write a custom decoder to enforce the fact that this array has two values.
-    let origin: [Double]
-    var originPoint: CGPoint { CGPoint(x: self.origin[0], y: self.origin[1]) }
+    let origin: Point
   }
 
   static let jsHandlerName: String = "messageRightClick"
@@ -25,7 +28,7 @@ struct MessageMenuHandler: WebMessageHandler {
   func handle(_ message: WKScriptMessage, body: Body) {
     logger
       .trace(
-        "Received right click at \(String(describing: body.originPoint)) on \(String(describing: body.ids))"
+        "Received right click at \(String(describing: body.origin)) on \(String(describing: body.ids))"
       )
 
     guard let webView = message.webView else {
@@ -53,7 +56,7 @@ struct MessageMenuHandler: WebMessageHandler {
       assert(self.viewStore != nil)
       self.viewStore?.send(.didCreateMenu(menu, for: body.ids))
 
-      menu.popUp(positioning: nil, at: body.originPoint, in: webView)
+      menu.popUp(positioning: nil, at: body.origin.cgPoint, in: webView)
 
     #else
       #warning("Show a menu")
