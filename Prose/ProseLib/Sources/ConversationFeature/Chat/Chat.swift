@@ -89,6 +89,8 @@ struct ChatView: NSViewRepresentable {
     }
   }
 
+  @Environment(\.colorScheme) private var colorScheme
+
   let store: Store<State, Action>
   let viewStore: ViewStore<State, Action>
 
@@ -184,7 +186,18 @@ struct ChatView: NSViewRepresentable {
     return webView
   }
 
-  func updateNSView(_: WKWebView, context _: Context) {}
+  func updateNSView(_ webView: WKWebView, context _: Context) {
+    let interval = signposter.beginInterval(#function, id: self.signpostID)
+
+    if !webView.isLoading {
+      // TODO: Maybe remove duplicates (see if signpost interval becomes too long)
+      self.updateColorScheme(of: webView)
+    } else {
+      logger.trace("Skipping \(Self.self) update: JavaScript is not loaded.")
+    }
+
+    signposter.endInterval(#function, interval)
+  }
 
   func updateMessages(to messages: [ProseCoreViewsMessage], in webView: WKWebView) {
     logger.trace("Updating \(Self.self): \(messages.count, privacy: .public) messages")
@@ -260,6 +273,27 @@ struct ChatView: NSViewRepresentable {
     #if os(macOS)
       context.coordinator.menu = nil
     #endif
+  }
+
+  func updateColorScheme(of webView: WKWebView) {
+    let theme: String? = {
+      switch self.colorScheme {
+      case .light:
+        return "light"
+      case .dark:
+        return "dark"
+      @unknown default:
+        return nil
+      }
+    }()
+    if let theme: String = theme {
+      let jsonData: Data = try! JSONEncoder().encode(theme)
+      let json = String(data: jsonData, encoding: .utf8) ?? "''"
+      let script = """
+      MessagingContext.setStyleTheme(\(json));
+      """
+      webView.evaluateJavaScript(script, domain: "Color scheme")
+    }
   }
 }
 
