@@ -11,7 +11,7 @@ import WebKit
 public enum MessageMenuAction: Equatable {
   case copyText(Message.ID)
   case edit(Message.ID)
-  case addReaction(Message.ID)
+  case addReaction(Message.ID, origin: CGPoint, webView: WKWebView)
   case remove(Message.ID)
 }
 
@@ -165,6 +165,6 @@ public final class MessageMenu: NSMenu {
       return assertionFailure()
     }
 
-    viewStore.send(.messageMenuItemTapped(action))
+    viewStore.send(.messageMenu(action))
   }
 }

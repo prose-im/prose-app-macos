@@ -3,10 +3,14 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+#warning("TODO: Remove Cocoa dependency")
+import Cocoa
 import ComposableArchitecture
 import CoreGraphics
 import IdentifiedCollections
 import ProseCoreTCA
+#warning("TODO: Remove WebKit dependency")
+import WebKit
 
 // MARK: State
 
@@ -33,7 +37,13 @@ public struct MessageMenuHandlerPayload: Equatable, Decodable {
 }
 
 public struct ShowReactionsHandlerPayload: Equatable, Decodable {
+  struct Point: Equatable, Decodable {
+    let x, y: Double
+    var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
+  }
+
   let ids: [Message.ID]
+  let origin: Point
 }
 
 public struct ToggleReactionHandlerPayload: Equatable, Decodable {
@@ -65,7 +75,9 @@ extension JSEventError: CustomDebugStringConvertible {
 public enum ChatAction: Equatable {
   case webViewReady, alertDismissed
   case navigateUp, navigateDown
-  case messageMenuItemTapped(MessageMenu.Action), menuDidClose
+  case showReactions(Message.ID, origin: CGPoint, webView: WKWebView)
+  case addReaction(Character, on: Message.ID)
+  case messageMenu(MessageMenuAction), menuDidClose
   case message(MessageAction)
   case jsEventError(JSEventError)
 }
@@ -112,33 +124,9 @@ let chatReducer = Reducer<
     }
     return .none
 
-  case .menuDidClose:
-    state.menu = nil
-    return .none
-
-  case let .messageMenuItemTapped(action):
-    switch action {
-    case let .copyText(messageId):
-      logger.trace("Copying text of \(String(describing: messageId))…")
-      if let message = state.messages[id: messageId] {
-        environment.pasteboard.copyString(message.body)
-      } else {
-        logger.notice("Could not copy text: Message \(String(describing: messageId)) not found")
-      }
-
-    case let .edit(id):
-      logger.trace("Editing \(String(describing: id))…")
-
-    case let .addReaction(id):
-      logger.trace("Reacting to \(String(describing: id))…")
-      return environment.proseClient.addReaction(state.chatId, id, "👍").fireAndForget()
-
-    case let .remove(id):
-      logger.trace("Retracting \(String(describing: id))…")
-      // NOTE: No need to `state.messages.removeAll(where:)` because the view will be automatically updated
-      return environment.proseClient.retractMessage(id).fireAndForget()
-    }
-    return .none
+  case let .addReaction(reaction, messageId):
+    logger.trace("Reacting '\(String(describing: reaction))' to \(String(describing: messageId))…")
+    return environment.proseClient.addReaction(state.chatId, messageId, reaction).fireAndForget()
 
   case let .message(.showMenu(payload)):
     logger.trace(
@@ -147,9 +135,13 @@ let chatReducer = Reducer<
 
     let items: [MessageMenuItem]
     if let id: Message.ID = payload.ids.first {
+      #error("WKWebView() will be removed after rebasing")
       items = [
         .item(.action(.copyText(id), title: "Copy text")),
-        .item(.action(.addReaction(id), title: "Add reaction…")),
+        .item(.action(
+          .addReaction(id, origin: payload.origin.cgPoint, webView: WKWebView()),
+          title: "Add reaction…"
+        )),
         .separator,
         .item(.action(.edit(id), title: "Edit…", isDisabled: true)),
         .item(.action(.remove(id), title: "Remove message", isDisabled: true)),
@@ -178,12 +170,57 @@ let chatReducer = Reducer<
 
     return .none
 
+  case let .messageMenu(.copyText(messageId)):
+    logger.trace("Copying text of \(String(describing: messageId))…")
+    if let message = state.messages[id: messageId] {
+      environment.pasteboard.copyString(message.body)
+    } else {
+      logger.notice("Could not copy text: Message \(String(describing: messageId)) not found")
+    }
+    return .none
+
+  case let .messageMenu(.edit(id)):
+    logger.trace("Editing \(String(describing: id))…")
+    return .none
+
+  case let .showReactions(messageId, origin, webView),
+       let .messageMenu(.addReaction(messageId, origin, webView)):
+    logger.trace("Reacting to \(String(describing: messageId))…")
+
+    return Effect.future { completion in
+      let picker = EmojiPicker(origin: origin)
+      picker.onSelection = { emoji in
+        guard let emoji = emoji else { return }
+        completion(.success(.addReaction(emoji, on: messageId)))
+      }
+
+      webView.addSubview(picker)
+
+      assert(webView.window != nil)
+      webView.window?.makeFirstResponder(picker)
+      NSApp.orderFrontCharacterPalette(picker)
+    }
+    .receive(on: environment.mainQueue)
+    .eraseToEffect()
+
+  case let .messageMenu(.remove(id)):
+    logger.trace("Retracting \(String(describing: id))…")
+    // NOTE: No need to `state.messages.removeAll(where:)`
+    //       because the view will be automatically updated
+    return environment.proseClient.retractMessage(id).fireAndForget()
+
+  case .menuDidClose:
+    state.menu = nil
+    return .none
+
   case let .message(.showReactions(payload)):
     logger.trace("Showing reactions for \(String(describing: payload.ids))…")
 
     if let messageId: Message.ID = payload.ids.first {
-      #warning("To be replaced")
-      return environment.proseClient.addReaction(state.chatId, messageId, "👍").fireAndForget()
+      #error("WKWebView() will be removed after rebasing")
+      return Effect(
+        value: .showReactions(messageId, origin: payload.origin.cgPoint, webView: WKWebView())
+      )
     } else {
       logger.notice("Cannot show reactions: No message selected")
     }
