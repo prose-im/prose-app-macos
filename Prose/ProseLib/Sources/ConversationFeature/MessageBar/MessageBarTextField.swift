@@ -18,6 +18,8 @@ struct MessageBarTextField: View {
 
   @Environment(\.redactionReasons) private var redactionReasons
 
+  @FocusState private var isFocused: Bool
+
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -28,6 +30,7 @@ struct MessageBarTextField: View {
           l10n.fieldPlaceholder(viewStore.recipient),
           text: viewStore.binding(\State.$message)
         )
+        .focused(self.$isFocused)
         .padding(.vertical, 7.0)
         .padding(.leading, 16.0)
         .padding(.trailing, 4.0)
@@ -54,6 +57,7 @@ struct MessageBarTextField: View {
             .strokeBorder(Colors.Border.secondary.color)
         }
       )
+      .synchronize(viewStore.binding(\.$isFocused), self.$isFocused)
     }
   }
 }
@@ -83,6 +87,7 @@ public let messageBarTextFieldReducer: Reducer<
 public struct MessageBarTextFieldState: Equatable {
   var recipient: String
   @BindableState var message: String
+  @BindableState var isFocused: Bool = false
 
   public init(
     recipient: String,

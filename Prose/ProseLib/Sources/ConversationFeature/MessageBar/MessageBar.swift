@@ -72,8 +72,11 @@ struct MessageBar: View {
       Button { actions.send(.addAttachmentTapped) } label: {
         Image(systemName: "paperclip")
       }
-      Button { actions.send(.showEmojisTapped) } label: {
-        Image(systemName: "face.smiling")
+      WithViewStore(self.store.scope(state: \.textField.isFocused)) { isFocused in
+        Button { actions.send(.showEmojisTapped) } label: {
+          Image(systemName: "face.smiling")
+        }
+        .disabled(!isFocused.state)
       }
     }
     .buttonStyle(.plain)
@@ -96,7 +99,18 @@ public let messageBarReducer: Reducer<
     action: CasePath(MessageBarAction.textField),
     environment: { $0 }
   ),
-  Reducer.empty.binding(),
+  Reducer { state, action, _ in
+    switch action {
+    case .showEmojisTapped:
+      if state.textField.isFocused {
+        NSApp.orderFrontCharacterPalette(nil)
+      }
+      return .none
+
+    default:
+      return .none
+    }
+  }.binding(),
 ])
 
 // MARK: State
