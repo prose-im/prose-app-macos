@@ -319,8 +319,7 @@ let chatReducer = Reducer<
     case let .copyText(id):
       logger.trace("Copying text of \(String(describing: id))…")
       if let message = state.messages.last(where: { $0.id == id }) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(message.body, forType: .string)
+        environment.pasteboard.copyString(message.body)
       } else {
         logger.notice("Could not copy text: Message \(String(describing: id)) not found")
       }

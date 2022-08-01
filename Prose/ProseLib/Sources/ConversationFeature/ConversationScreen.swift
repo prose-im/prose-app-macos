@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
+import PasteboardClient
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
@@ -185,13 +186,16 @@ public enum ConversationAction: Equatable {
 
 public struct ConversationEnvironment {
   var proseClient: ProseClient
+  var pasteboard: PasteboardClient
   var mainQueue: AnySchedulerOf<DispatchQueue>
 
   public init(
     proseClient: ProseClient,
+    pasteboard: PasteboardClient,
     mainQueue: AnySchedulerOf<DispatchQueue>
   ) {
     self.proseClient = proseClient
+    self.pasteboard = pasteboard
     self.mainQueue = mainQueue
   }
 }
@@ -209,7 +213,7 @@ public struct ConversationEnvironment {
             loggedInUserJID: "preview@prose.org"
           ),
           reducer: conversationReducer,
-          environment: .init(proseClient: .noop, mainQueue: .main)
+          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
         ))
         .previewLayout(.sizeThatFits)
       }

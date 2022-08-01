@@ -79,8 +79,9 @@ let package = Package(
     .target(
       name: "ConversationFeature",
       dependencies: [
-        "ConversationInfoFeature",
         .featureBase,
+        "ConversationInfoFeature",
+        "PasteboardClient",
       ],
       resources: [.process("Resources")]
     ),
@@ -109,6 +110,7 @@ let package = Package(
 
     .target(name: "UserDefaultsClient", dependencies: [.base]),
     .target(name: "NotificationsClient", dependencies: [.base]),
+    .target(name: "PasteboardClient", dependencies: [.base]),
 
     .target(
       name: "FeatureBase",

@@ -91,6 +91,7 @@ struct ContentView: View {
       reducer: conversationReducer,
       environment: ConversationEnvironment(
         proseClient: client,
+        pasteboard: .live(),
         mainQueue: .main
       )
     )
