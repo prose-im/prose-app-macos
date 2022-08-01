@@ -71,6 +71,10 @@ struct Chat: View {
   }
 }
 
+public final class ChatWebView: WKWebView {
+  lazy var emojiPicker = EmojiPicker(origin: .zero)
+}
+
 struct ChatView: NSViewRepresentable {
   typealias State = ChatState
   typealias Action = ChatAction
@@ -103,7 +107,7 @@ struct ChatView: NSViewRepresentable {
 
   func makeCoordinator() -> Coordinator { Coordinator(viewStore: ViewStore(self.store.stateless)) }
 
-  func makeNSView(context: Context) -> WKWebView {
+  func makeNSView(context: Context) -> ChatWebView {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     let contentController = WKUserContentController()
@@ -131,7 +135,7 @@ struct ChatView: NSViewRepresentable {
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController
 
-    let webView = WKWebView(frame: .zero, configuration: configuration)
+    let webView = ChatWebView(frame: .zero, configuration: configuration)
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     signposter.endInterval(#function, interval)
@@ -192,7 +196,7 @@ struct ChatView: NSViewRepresentable {
     return webView
   }
 
-  func updateNSView(_ webView: WKWebView, context _: Context) {
+  func updateNSView(_ webView: ChatWebView, context _: Context) {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     if !webView.isLoading {

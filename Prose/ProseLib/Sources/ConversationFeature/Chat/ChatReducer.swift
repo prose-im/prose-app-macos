@@ -75,7 +75,7 @@ extension JSEventError: CustomDebugStringConvertible {
 public enum ChatAction: Equatable {
   case webViewReady, alertDismissed
   case navigateUp, navigateDown
-  case showReactions(Message.ID, origin: CGPoint, webView: WKWebView)
+  case showReactions(Message.ID, origin: CGPoint, webView: ChatWebView)
   case addReaction(Character, on: Message.ID)
   case messageMenu(MessageMenuAction), menuDidClose
   case message(MessageAction)
@@ -135,11 +135,11 @@ let chatReducer = Reducer<
 
     let items: [MessageMenuItem]
     if let id: Message.ID = payload.ids.first {
-      #error("WKWebView() will be removed after rebasing")
+      #error("ChatWebView() will be removed after rebasing")
       items = [
         .item(.action(.copyText(id), title: "Copy text")),
         .item(.action(
-          .addReaction(id, origin: payload.origin.cgPoint, webView: WKWebView()),
+          .addReaction(id, origin: payload.origin.cgPoint, webView: ChatWebView()),
           title: "Add reaction…"
         )),
         .separator,
@@ -188,7 +188,8 @@ let chatReducer = Reducer<
     logger.trace("Reacting to \(String(describing: messageId))…")
 
     return Effect.future { completion in
-      let picker = EmojiPicker(origin: origin)
+      let picker = webView.emojiPicker
+      picker.frame.origin = origin
       picker.onSelection = { emoji in
         guard let emoji = emoji else { return }
         completion(.success(.addReaction(emoji, on: messageId)))
@@ -217,9 +218,9 @@ let chatReducer = Reducer<
     logger.trace("Showing reactions for \(String(describing: payload.ids))…")
 
     if let messageId: Message.ID = payload.ids.first {
-      #error("WKWebView() will be removed after rebasing")
+      #error("ChatWebView() will be removed after rebasing")
       return Effect(
-        value: .showReactions(messageId, origin: payload.origin.cgPoint, webView: WKWebView())
+        value: .showReactions(messageId, origin: payload.origin.cgPoint, webView: ChatWebView())
       )
     } else {
       logger.notice("Cannot show reactions: No message selected")

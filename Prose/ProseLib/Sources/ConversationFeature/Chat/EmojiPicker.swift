@@ -22,9 +22,11 @@ final class EmojiPicker: NSTextView {
 
     self.textContainerInset = NSSize.zero
     self.textContainer?.lineFragmentPadding = 0
-
-    self.backgroundColor = .systemRed
     self.font = .systemFont(ofSize: 1)
+
+//    #if DEBUG
+//    self.backgroundColor = .systemRed
+//    #endif
 
     self.delegate = self._delegate
   }
