@@ -31,7 +31,7 @@ struct ProseCoreViewsMessage: Encodable {
   let date: String
   let content: String
   let from: User
-  let reactions: [String: [String]]
+  let reactions: MessageReactions
 
   init(from message: Message) {
     self.id = message.id
@@ -41,11 +41,7 @@ struct ProseCoreViewsMessage: Encodable {
       jid: message.from.jidString,
       name: message.from.jidString
     )
-    var reactions = [String: [String]]()
-    for (reaction, jids) in message.reactions {
-      reactions[String(reaction)] = jids.map(\.jidString)
-    }
-    self.reactions = reactions
+    self.reactions = message.reactions
   }
 }
 

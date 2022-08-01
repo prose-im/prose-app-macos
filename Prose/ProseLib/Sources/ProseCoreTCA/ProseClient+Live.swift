@@ -159,7 +159,7 @@ public extension ProseClient {
         #warning("TODO: Update message using the client")
 
         delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions[reaction, default: Set<JID>()].insert(jid)
+          message.reactions.addReaction(reaction, for: jid)
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
@@ -178,7 +178,7 @@ public extension ProseClient {
         #warning("TODO: Update message using the client")
 
         delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions.prose_toggle(jid, forKey: reaction)
+          message.reactions.toggleReaction(reaction, for: jid)
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()

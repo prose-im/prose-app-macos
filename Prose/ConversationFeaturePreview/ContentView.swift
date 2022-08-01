@@ -67,13 +67,13 @@ struct ContentView: View {
     }
     client.addReaction = { _, id, reaction in
       if let index: Int = chatSubject.value.firstIndex(where: { $0.id == id }) {
-        chatSubject.value[index].reactions[reaction, default: Set<JID>()].insert(jid)
+        chatSubject.value[index].reactions.addReaction(reaction, for: jid)
       }
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.toggleReaction = { _, id, reaction in
       if let index: Int = chatSubject.value.firstIndex(where: { $0.id == id }) {
-        chatSubject.value[index].reactions.prose_toggle(jid, forKey: reaction)
+        chatSubject.value[index].reactions.toggleReaction(reaction, for: jid)
       }
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
