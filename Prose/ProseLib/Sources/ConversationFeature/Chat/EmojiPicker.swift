@@ -24,11 +24,11 @@ final class EmojiPicker: NSTextView {
     self.textContainer?.lineFragmentPadding = 0
     self.font = .systemFont(ofSize: 1)
 
+    self.delegate = self._delegate
+
 //    #if DEBUG
 //    self.backgroundColor = .systemRed
 //    #endif
-
-    self.delegate = self._delegate
   }
 
   @available(*, unavailable)
@@ -36,9 +36,7 @@ final class EmojiPicker: NSTextView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  deinit {
-    print("deinit")
-  }
+  override func accessibilityIsIgnored() -> Bool { true }
 }
 
 final class EmojiPickerDelegate: NSObject, NSTextViewDelegate {
