@@ -189,13 +189,15 @@ let chatReducer = Reducer<
 
     return Effect.future { completion in
       let picker = webView.emojiPicker
-      picker.frame.origin = origin
+      picker.setFrameOrigin(origin)
       picker.onSelection = { emoji in
         guard let emoji = emoji else { return }
         completion(.success(.addReaction(emoji, on: messageId)))
       }
 
-      webView.addSubview(picker)
+      if picker.superview == nil {
+        webView.addSubview(picker)
+      }
 
       assert(webView.window != nil)
       webView.window?.makeFirstResponder(picker)

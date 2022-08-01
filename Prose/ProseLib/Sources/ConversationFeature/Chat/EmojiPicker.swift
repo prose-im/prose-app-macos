@@ -26,8 +26,13 @@ final class EmojiPicker: NSTextView {
 
     self.delegate = self._delegate
 
+    // Make insertion caret transparent
+    self.insertionPointColor = .clear
 //    #if DEBUG
 //    self.backgroundColor = .systemRed
+//    #else
+    // Remove the default white background
+    self.backgroundColor = .clear
 //    #endif
   }
 
@@ -45,6 +50,7 @@ final class EmojiPickerDelegate: NSObject, NSTextViewDelegate {
   func textDidChange(_ notification: Notification) {
     guard let textView = notification.object as? NSTextView else { return }
     self.onSelection?(textView.string.first)
+    textView.string = ""
     textView.removeFromSuperview()
   }
 }
