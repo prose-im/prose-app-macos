@@ -1,8 +1,6 @@
 //
-//  File.swift
-//  
-//
-//  Created by Rémi Bardon on 02/08/2022.
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
 //
 
 import ComposableArchitecture
@@ -163,7 +161,8 @@ let chatReducer = Reducer<
     guard let reaction = payload.reaction.first else { return .none }
 
     if let messageId = payload.ids.first {
-      return environment.proseClient.toggleReaction(state.chatId, messageId, reaction).fireAndForget()
+      return environment.proseClient.toggleReaction(state.chatId, messageId, reaction)
+        .fireAndForget()
     } else {
       logger.notice("Could not toggle reaction: No message selected")
       return .none

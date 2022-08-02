@@ -218,7 +218,7 @@ struct ChatView: NSViewRepresentable {
 }
 
 extension ChatView.Coordinator: NSMenuDelegate {
-  func menuDidClose(_ menu: NSMenu) {
+  func menuDidClose(_: NSMenu) {
     self.viewStore.send(.menuDidClose)
   }
 }
@@ -282,7 +282,7 @@ final class ViewStoreScriptMessageHandler: NSObject, WKScriptMessageHandler {
 
 extension WKUserContentController {
   func addEventHandler(_ handler: JSEventHandler, viewStore: ViewStore<Void, MessageAction>) {
-    let handlerName: String = "handler_" + handler.event.replacingOccurrences(of: ":", with: "_")
+    let handlerName = "handler_" + handler.event.replacingOccurrences(of: ":", with: "_")
 
     self.add(
       ViewStoreScriptMessageHandler(handler: handler, viewStore: viewStore),

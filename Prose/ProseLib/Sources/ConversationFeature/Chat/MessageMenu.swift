@@ -17,15 +17,6 @@ public enum MessageMenuAction: Equatable {
   enum Tag: Int {
     case copyText, edit, addReaction, remove
 
-    var keyEquivalent: String {
-      switch self {
-      case .copyText: return "c"
-      case .edit: return "e"
-      case .addReaction: return "r"
-      case .remove: return "d"
-      }
-    }
-
     var systemImage: String? {
       switch self {
       case .copyText: return "doc.on.clipboard"
@@ -61,11 +52,7 @@ public final class MessageMenu: NSMenu {
     action: Action?,
     isDisabled: Bool = false
   ) -> NSMenuItem {
-    let item = NSMenuItem(
-      title: title,
-      action: #selector(self.itemTapped(_:)),
-      keyEquivalent: action?.tag.keyEquivalent ?? ""
-    )
+    let item = NSMenuItem(title: title, action: #selector(self.itemTapped(_:)), keyEquivalent: "")
 
     // Set target to receive the events
     item.target = self
