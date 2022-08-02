@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
+import IdentifiedCollections
 import PasteboardClient
 import ProseCoreTCA
 import SwiftUI
@@ -174,7 +175,7 @@ public enum ConversationAction: Equatable {
   case onAppear
   case onDisappear
 
-  case messagesResult(Result<[Message], EquatableError>)
+  case messagesResult(Result<IdentifiedArrayOf<Message>, EquatableError>)
 
   case info(ConversationInfoAction)
   case toolbar(ToolbarAction)

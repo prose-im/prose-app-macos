@@ -6,6 +6,7 @@
 import Assets
 import Combine
 import ComposableArchitecture
+import IdentifiedCollections
 import OSLog
 import ProseCoreTCA
 import ProseUI
@@ -243,7 +244,7 @@ struct ChatState: Equatable {
   let loggedInUserJID: JID
   let chatId: JID
   var isWebViewReady = false
-  var messages = [Message]()
+  var messages = IdentifiedArrayOf<Message>()
   var selectedMessageId: Message.ID?
 }
 
@@ -267,7 +268,7 @@ let chatReducer = Reducer<
 
   case .navigateUp:
     if let messageId = state.selectedMessageId,
-       let index = state.messages.lastIndex(where: { $0.id == messageId })
+       let index = state.messages.index(id: messageId)
     {
       if index > 0 {
         state.selectedMessageId = state.messages[index - 1].id
@@ -281,7 +282,7 @@ let chatReducer = Reducer<
 
   case .navigateDown:
     if let messageId = state.selectedMessageId,
-       let index = state.messages.lastIndex(where: { $0.id == messageId })
+       let index = state.messages.index(id: messageId)
     {
       if index + 1 < state.messages.count {
         state.selectedMessageId = state.messages[index + 1].id
@@ -296,8 +297,8 @@ let chatReducer = Reducer<
   case let .didCreateMenu(menu, messageIds):
     let loggedInUserJID: JID = state.loggedInUserJID
 
-    if let id = messageIds.first,
-       let message = state.messages.last(where: { $0.id == id }),
+    if let messageId = messageIds.first,
+       let message = state.messages[id: messageId],
        message.from == loggedInUserJID
     {
       return .fireAndForget {
@@ -312,12 +313,12 @@ let chatReducer = Reducer<
 
   case let .messageMenuItemTapped(action):
     switch action {
-    case let .copyText(id):
-      logger.trace("Copying text of \(String(describing: id))…")
-      if let message = state.messages.last(where: { $0.id == id }) {
+    case let .copyText(messageId):
+      logger.trace("Copying text of \(String(describing: messageId))…")
+      if let message = state.messages[id: messageId] {
         environment.pasteboard.copyString(message.body)
       } else {
-        logger.notice("Could not copy text: Message \(String(describing: id)) not found")
+        logger.notice("Could not copy text: Message \(String(describing: messageId)) not found")
       }
 
     case let .edit(id):

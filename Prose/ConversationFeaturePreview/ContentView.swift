@@ -6,6 +6,7 @@
 import Combine
 import ComposableArchitecture
 import ConversationFeature
+import IdentifiedCollections
 import ProseCoreTCA
 import SwiftUI
 import Toolbox
@@ -18,7 +19,7 @@ struct ContentView: View {
     let chatId: JID = "valerian@prose.org"
     var client = ProseClient.noop
 
-    let chatSubject = CurrentValueSubject<[Message], Never>([
+    let chatSubject = CurrentValueSubject<IdentifiedArrayOf<Message>, Never>([
       Message(
         from: chatId,
         id: .init(rawValue: UUID().uuidString),
@@ -65,21 +66,17 @@ struct ContentView: View {
         )
       }
     }
-    client.addReaction = { _, id, reaction in
-      if let index: Int = chatSubject.value.firstIndex(where: { $0.id == id }) {
-        chatSubject.value[index].reactions.addReaction(reaction, for: jid)
-      }
+    client.addReaction = { _, messageId, reaction in
+      chatSubject.value[id: messageId]?.reactions.addReaction(reaction, for: jid)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
-    client.toggleReaction = { _, id, reaction in
-      if let index: Int = chatSubject.value.firstIndex(where: { $0.id == id }) {
-        chatSubject.value[index].reactions.toggleReaction(reaction, for: jid)
-      }
+    client.toggleReaction = { _, messageId, reaction in
+      chatSubject.value[id: messageId]?.reactions.toggleReaction(reaction, for: jid)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
-    client.retractMessage = { id in
+    client.retractMessage = { messageId in
       // TODO: Send an error if message is not found?
-      chatSubject.value.removeAll(where: { $0.id == id })
+      chatSubject.value.remove(id: messageId)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.messagesInChat = { _ in

@@ -116,6 +116,7 @@ struct StringCodingKey: CodingKey {
   init(stringValue: String) {
     self.stringValue = stringValue
   }
+
   init(_ character: Character) {
     self.init(stringValue: String(describing: character))
   }
