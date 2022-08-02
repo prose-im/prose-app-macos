@@ -8,63 +8,6 @@ import ComposableArchitecture
 import ProseCoreTCA
 import WebKit
 
-struct MessageMenuHandler: WebMessageHandler {
-  struct Body: Decodable {
-    struct Point: Decodable {
-      let x, y: Double
-      var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
-    }
-
-    let ids: [Message.ID]
-    let origin: Point
-  }
-
-  static let jsHandlerName: String = "messageRightClick"
-  static let jsEventName: String = "message:actions:view"
-  static let jsFunctionName: String = "messageRightClick"
-
-  weak var viewStore: ViewStore<ChatView.State, ChatView.Action>?
-
-  func handle(_ message: WKScriptMessage, body: Body) {
-    logger
-      .trace(
-        "Received right click at \(String(describing: body.origin)) on \(String(describing: body.ids))"
-      )
-
-    guard let webView = message.webView else {
-      logger.fault("`WKScriptMessage` should always be attached to a `WKWebView`")
-      return assertionFailure()
-    }
-
-    #if os(macOS)
-      let menu = MessageMenu(title: "Actions")
-      menu.viewStore = self.viewStore
-
-      if let id: Message.ID = body.ids.first {
-        menu.addItem(withTitle: "Copy text", action: .copyText(id))
-        menu.addItem(withTitle: "Add reaction…", action: .addReaction(id))
-        menu.addItem(.separator())
-        menu.addItem(withTitle: "Edit…", action: .edit(id), isDisabled: true)
-        menu.addItem(withTitle: "Remove message", action: .remove(id), isDisabled: true)
-      } else {
-        menu.addItem(withTitle: "No action", action: nil)
-      }
-
-      // Enable items, which are disabled by default because the responder chain doesn't handle the actions
-      menu.autoenablesItems = false
-
-      assert(self.viewStore != nil)
-      self.viewStore?.send(.didCreateMenu(menu, for: body.ids))
-
-      menu.popUp(positioning: nil, at: body.origin.cgPoint, in: webView)
-
-    #else
-      #warning("Show a menu")
-      // NOTE: UIKit has [`UIMenuController.showMenu(from:rect:)`](https://developer.apple.com/documentation/uikit/uimenucontroller/3044217-showmenu), but it will be deprecated in iOS 16
-    #endif
-  }
-}
-
 public enum MessageMenuAction: Equatable {
   case copyText(Message.ID)
   case edit(Message.ID)
@@ -101,6 +44,11 @@ public enum MessageMenuAction: Equatable {
     case .remove: return .remove
     }
   }
+}
+
+struct MessageMenuState: Equatable {
+  let ids: [Message.ID]
+  let origin: CGPoint
 }
 
 public final class MessageMenu: NSMenu {

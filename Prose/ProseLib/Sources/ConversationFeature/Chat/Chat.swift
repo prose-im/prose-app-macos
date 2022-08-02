@@ -47,14 +47,16 @@ struct ProseCoreViewsMessage: Encodable {
 }
 
 struct Chat: View {
+  let store: Store<ChatView.State, ChatView.Action>
   @ObservedObject var viewStore: ViewStore<ChatView.State, ChatView.Action>
 
   init(store: Store<ChatView.State, ChatView.Action>) {
+    self.store = store
     self.viewStore = ViewStore(store)
   }
 
   var body: some View {
-    ChatView(viewStore: self.viewStore)
+    ChatView(store: self.store)
       .onKeyDown { key in
         switch key {
         case .up:
@@ -68,54 +70,6 @@ struct Chat: View {
   }
 }
 
-protocol WebMessageHandler {
-  associatedtype Body: Decodable
-  static var jsHandlerName: String { get }
-  static var jsEventName: String { get }
-  static var jsFunctionName: String { get }
-  static var script: WKUserScript { get }
-  func handle(_ message: WKScriptMessage)
-  func handle(_ message: WKScriptMessage, body: Body)
-}
-
-extension WebMessageHandler {
-  static var script: WKUserScript {
-    let script = """
-    function \(Self.jsFunctionName)(content) {
-      // We need to send a parameter, or the call will not be forwarded to the `WKScriptMessageHandler`
-      window.webkit.messageHandlers.\(Self.jsHandlerName)
-        .postMessage(JSON.stringify(content));
-    }
-    MessagingEvent.on("\(Self.jsEventName)", \(Self.jsFunctionName));
-    """
-    return WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-  }
-
-  func handle(_ message: WKScriptMessage) {
-    guard let bodyString: String = message.body as? String,
-          let bodyData: Data = bodyString.data(using: .utf8)
-    else {
-      logger.fault("JS message body should be serialized as a String")
-      return assertionFailure()
-    }
-    guard let body: Self.Body = try? JSONDecoder().decode(Self.Body.self, from: bodyData) else {
-      logger.warning("JS message body could not be decoded as `Self.Body`. Content: \(bodyString)")
-      return assertionFailure()
-    }
-    self.handle(message, body: body)
-  }
-}
-
-final class UserContentController: WKUserContentController {
-  func add<Handler: WebMessageHandler>(
-    _ scriptMessageHandler: WKScriptMessageHandler,
-    for _: Handler.Type
-  ) {
-    self.add(scriptMessageHandler, name: Handler.jsHandlerName)
-    self.addUserScript(Handler.script)
-  }
-}
-
 struct ChatView: NSViewRepresentable {
   typealias State = ChatState
   typealias Action = ChatAction
@@ -123,35 +77,49 @@ struct ChatView: NSViewRepresentable {
   final class Coordinator: NSObject {
     var cancellables = Set<AnyCancellable>()
 
-    let viewStore: ViewStore<State, Action>
+    let viewStore: ViewStore<Void, Action>
 
-    init(viewStore: ViewStore<State, Action>) {
+    init(viewStore: ViewStore<Void, Action>) {
       self.viewStore = viewStore
     }
   }
 
+  let store: Store<State, Action>
   let viewStore: ViewStore<State, Action>
 
   let signpostID = signposter.makeSignpostID()
 
-  func makeCoordinator() -> Coordinator {
-    Coordinator(viewStore: self.viewStore)
+  init(store: Store<State, Action>) {
+    self.store = store
+    self.viewStore = ViewStore(store)
   }
+
+  func makeCoordinator() -> Coordinator { Coordinator(viewStore: ViewStore(self.store.stateless)) }
 
   func makeNSView(context: Context) -> WKWebView {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
-    let contentController = UserContentController()
+    let contentController = WKUserContentController()
 
     // Set logged in user JID
     contentController.addUserScript(self.setAccountJIDScript)
 
+    let actions = ViewStore(self.store.scope(state: { _ in () }, action: Action.message))
     // Allow right clicking messages
-    contentController.add(context.coordinator, for: MessageMenuHandler.self)
+    contentController.addEventHandler(
+      JSEventHandler(event: "message:actions:view", action: MessageAction.showMenu),
+      viewStore: actions
+    )
     // Allow toggling reactions
-    contentController.add(context.coordinator, for: ToggleReactionHandler.self)
-    // Enable reactions shortcut
-    contentController.add(context.coordinator, for: ShowReactionsHandler.self)
+    contentController.addEventHandler(
+      JSEventHandler(event: "message:reactions:react", action: MessageAction.toggleReaction),
+      viewStore: actions
+    )
+    // Enable reactions picker shortcut
+    contentController.addEventHandler(
+      JSEventHandler(event: "message:reactions:view", action: MessageAction.showReactions),
+      viewStore: actions
+    )
 
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController
@@ -173,7 +141,7 @@ struct ChatView: NSViewRepresentable {
     return webView
   }
 
-  func updateNSView(_ webView: WKWebView, context _: Context) {
+  func updateNSView(_ webView: WKWebView, context: Context) {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     if !webView.isLoading {
@@ -203,11 +171,55 @@ struct ChatView: NSViewRepresentable {
         """
         webView.evaluateJavaScript(script, domain: "Highlight message")
       }
+
+      do {
+        #warning("TODO: Remove duplicates, not to show the menu multiple times")
+        if let menu = self.viewStore.menu {
+          self.showMenu(menu, on: webView, context: context)
+        }
+      }
     } else {
       logger.trace("Skipping \(Self.self) update: JavaScript is not loaded.")
     }
 
     signposter.endInterval(#function, interval)
+  }
+
+  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, context: Context) {
+    #if os(macOS)
+      let menu = MessageMenu(title: "Actions")
+      menu.viewStore = self.viewStore
+
+      if let id: Message.ID = menuState.ids.first {
+        menu.addItem(withTitle: "Copy text", action: .copyText(id))
+        menu.addItem(withTitle: "Add reaction…", action: .addReaction(id))
+        menu.addItem(.separator())
+        menu.addItem(withTitle: "Edit…", action: .edit(id), isDisabled: true)
+        menu.addItem(withTitle: "Remove message", action: .remove(id), isDisabled: true)
+      } else {
+        menu.addItem(withTitle: "No action", action: nil)
+      }
+
+      // Enable items, which are disabled by default because the responder chain doesn't handle the actions
+      menu.autoenablesItems = false
+
+      menu.delegate = context.coordinator
+
+      self.viewStore.send(.didCreateMenu(menu, for: menuState.ids))
+
+      DispatchQueue.main.async {
+        menu.popUp(positioning: nil, at: menuState.origin, in: webView)
+      }
+    #else
+      #warning("Show a menu")
+      // NOTE: UIKit has [`UIMenuController.showMenu(from:rect:)`](https://developer.apple.com/documentation/uikit/uimenucontroller/3044217-showmenu), but it will be deprecated in iOS 16
+    #endif
+  }
+}
+
+extension ChatView.Coordinator: NSMenuDelegate {
+  func menuDidClose(_ menu: NSMenu) {
+    self.viewStore.send(.menuDidClose)
   }
 }
 
@@ -222,125 +234,71 @@ extension ChatView {
   }
 }
 
-extension ChatView.Coordinator: WKScriptMessageHandler {
-  func userContentController(
-    _: WKUserContentController,
-    didReceive message: WKScriptMessage
-  ) {
-    switch message.name {
-    case MessageMenuHandler.jsHandlerName:
-      MessageMenuHandler(viewStore: self.viewStore).handle(message)
-    case ToggleReactionHandler.jsHandlerName:
-      ToggleReactionHandler(viewStore: self.viewStore).handle(message)
-    case ShowReactionsHandler.jsHandlerName:
-      ShowReactionsHandler(viewStore: self.viewStore).handle(message)
-    case let name:
-      logger.info("Received message \(String(describing: name))")
+struct JSEventHandler {
+  var event: String
+  var actionFromMessage: (WKScriptMessage) throws -> MessageAction
+
+  init<Payload: Decodable>(event: String, action: @escaping (Payload) -> MessageAction) {
+    self.event = event
+    self.actionFromMessage = { message in
+      guard let bodyString: String = message.body as? String,
+            let bodyData: Data = bodyString.data(using: .utf8)
+      else {
+        logger.fault("JS message body should be serialized as a String")
+        #warning("TODO: Throw an exception instead of `fatalError`")
+        fatalError()
+      }
+
+      guard let payload = try? JSONDecoder().decode(Payload.self, from: bodyData) else {
+        logger
+          .warning("JS message body could not be decoded as `Self.Body`. Content: \(bodyString)")
+        #warning("TODO: Throw an exception instead of `fatalError`")
+        fatalError()
+      }
+
+      return action(payload)
     }
   }
 }
 
-struct ChatState: Equatable {
-  let loggedInUserJID: JID
-  let chatId: JID
-  var isWebViewReady = false
-  var messages = IdentifiedArrayOf<Message>()
-  var selectedMessageId: Message.ID?
+final class ViewStoreScriptMessageHandler: NSObject, WKScriptMessageHandler {
+  let viewStore: ViewStore<Void, MessageAction>
+  let handler: JSEventHandler
+
+  init(handler: JSEventHandler, viewStore: ViewStore<Void, MessageAction>) {
+    self.handler = handler
+    self.viewStore = viewStore
+    super.init()
+  }
+
+  func userContentController(
+    _: WKUserContentController,
+    didReceive message: WKScriptMessage
+  ) {
+    #warning("TODO: Handle exception")
+    try! self.viewStore.send(self.handler.actionFromMessage(message))
+  }
 }
 
-public enum ChatAction: Equatable {
-  case webViewReady
-  case navigateUp, navigateDown
-  case didCreateMenu(MessageMenu, for: [Message.ID])
-  case messageMenuItemTapped(MessageMenu.Action)
-  case toggleReaction(Character, for: [Message.ID])
-}
+extension WKUserContentController {
+  func addEventHandler(_ handler: JSEventHandler, viewStore: ViewStore<Void, MessageAction>) {
+    let handlerName: String = "handler_" + handler.event.replacingOccurrences(of: ":", with: "_")
 
-let chatReducer = Reducer<
-  ChatState,
-  ChatAction,
-  ConversationEnvironment
-> { state, action, environment in
-  switch action {
-  case .webViewReady:
-    state.isWebViewReady = true
-    return .none
+    self.add(
+      ViewStoreScriptMessageHandler(handler: handler, viewStore: viewStore),
+      name: handlerName
+    )
 
-  case .navigateUp:
-    if let messageId = state.selectedMessageId,
-       let index = state.messages.index(id: messageId)
-    {
-      if index > 0 {
-        state.selectedMessageId = state.messages[index - 1].id
-      } else {
-        state.selectedMessageId = nil
-      }
-    } else {
-      state.selectedMessageId = state.messages.last?.id
+    let script = """
+    function \(handlerName)(content) {
+      // We need to send a parameter, or the call will not be forwarded to the `WKScriptMessageHandler`
+      window.webkit.messageHandlers.\(handlerName).postMessage(JSON.stringify(content));
     }
-    return .none
+    MessagingEvent.on("\(handler.event)", \(handlerName));
+    """
 
-  case .navigateDown:
-    if let messageId = state.selectedMessageId,
-       let index = state.messages.index(id: messageId)
-    {
-      if index + 1 < state.messages.count {
-        state.selectedMessageId = state.messages[index + 1].id
-      } else {
-        state.selectedMessageId = nil
-      }
-    } else {
-      state.selectedMessageId = state.messages.first?.id
-    }
-    return .none
-
-  case let .didCreateMenu(menu, messageIds):
-    let loggedInUserJID: JID = state.loggedInUserJID
-
-    if let messageId = messageIds.first,
-       let message = state.messages[id: messageId],
-       message.from == loggedInUserJID
-    {
-      return .fireAndForget {
-        // TODO: Uncomment once we support message edition
-//        menu.item(withTag: .edit)!.isEnabled = true
-        menu.item(withTag: .remove)!.isEnabled = true
-      }
-      .receive(on: environment.mainQueue)
-      .eraseToEffect()
-    }
-    return .none
-
-  case let .messageMenuItemTapped(action):
-    switch action {
-    case let .copyText(messageId):
-      logger.trace("Copying text of \(String(describing: messageId))…")
-      if let message = state.messages[id: messageId] {
-        environment.pasteboard.copyString(message.body)
-      } else {
-        logger.notice("Could not copy text: Message \(String(describing: messageId)) not found")
-      }
-
-    case let .edit(id):
-      logger.trace("Editing \(String(describing: id))…")
-
-    case let .addReaction(id):
-      logger.trace("Reacting to \(String(describing: id))…")
-      return environment.proseClient.addReaction(state.chatId, id, "👍").fireAndForget()
-
-    case let .remove(id):
-      logger.trace("Retracting \(String(describing: id))…")
-      // NOTE: No need to `state.messages.removeAll(where:)` because the view will be automatically updated
-      return environment.proseClient.retractMessage(id).fireAndForget()
-    }
-    return .none
-
-  case let .toggleReaction(reaction, messageIds):
-    if let id = messageIds.first {
-      return environment.proseClient.toggleReaction(state.chatId, id, reaction).fireAndForget()
-    } else {
-      logger.notice("Could not toggle reaction: No message selected")
-      return .none
-    }
+    self.addUserScript(
+      WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+    )
   }
 }
