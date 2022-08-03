@@ -148,6 +148,9 @@ struct ChatView: NSViewRepresentable {
       .drop(while: { !$0.isWebViewReady })
       .map(\.messages)
       .map { $0.map(ProseCoreViewsMessage.init(from:)) }
+      // Do not run `updateMessages` until there are messages to show,
+      // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
+      .drop(while: \.isEmpty)
       .removeDuplicates()
       .sink { messages in
         self.updateMessages(to: messages, in: webView)
@@ -158,6 +161,9 @@ struct ChatView: NSViewRepresentable {
     self.viewStore.publisher
       .drop(while: { !$0.isWebViewReady })
       .map(\.selectedMessageId)
+      // Do not run `highlightMessage` while `selectedMessageId`,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
       .removeDuplicates()
       .sink { messageId in
         self.highlightMessage(messageId, in: webView)
