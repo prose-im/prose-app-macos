@@ -118,7 +118,11 @@ public final class MessageMenu: NSMenu {
   weak var viewStore: ViewStore<ChatView.State, ChatView.Action>?
 
   func createItem(for itemState: MessageMenuItemState) -> NSMenuItem {
-    let item = NSMenuItem(title: itemState.title, action: #selector(self.itemTapped(_:)), keyEquivalent: "")
+    let item = NSMenuItem(
+      title: itemState.title,
+      action: #selector(self.itemTapped(_:)),
+      keyEquivalent: ""
+    )
 
     // Set target to receive the events
     item.target = self
