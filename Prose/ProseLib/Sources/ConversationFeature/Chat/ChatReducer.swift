@@ -49,8 +49,7 @@ public enum MessageAction: Equatable {
 public enum ChatAction: Equatable {
   case webViewReady
   case navigateUp, navigateDown
-  case didCreateMenu(MessageMenu, for: [Message.ID]), menuDidClose
-  case messageMenuItemTapped(MessageMenu.Action)
+  case messageMenuItemTapped(MessageMenu.Action), menuDidClose
   case message(MessageAction)
 }
 
@@ -92,23 +91,6 @@ let chatReducer = Reducer<
     }
     return .none
 
-  case let .didCreateMenu(menu, messageIds):
-    let loggedInUserJID: JID = state.loggedInUserJID
-
-    if let messageId = messageIds.first,
-       let message = state.messages[id: messageId],
-       message.from == loggedInUserJID
-    {
-      return .fireAndForget {
-        // TODO: Uncomment once we support message edition
-        //        menu.item(withTag: .edit)!.isEnabled = true
-        menu.item(withTag: .remove)!.isEnabled = true
-      }
-      .receive(on: environment.mainQueue)
-      .eraseToEffect()
-    }
-    return .none
-
   case .menuDidClose:
     state.menu = nil
     return .none
@@ -141,7 +123,38 @@ let chatReducer = Reducer<
     logger.trace(
       "Received right click at \(String(describing: payload.origin)) on \(String(describing: payload.ids))"
     )
-    state.menu = MessageMenuState(ids: payload.ids, origin: payload.origin.cgPoint)
+
+    let items: [MessageMenuItem]
+    if let id: Message.ID = payload.ids.first {
+      items = [
+        .item(.action(.copyText(id), title: "Copy text")),
+        .item(.action(.addReaction(id), title: "Add reaction…")),
+        .separator,
+        .item(.action(.edit(id), title: "Edit…", isDisabled: true)),
+        .item(.action(.remove(id), title: "Remove message", isDisabled: true)),
+      ]
+    } else {
+      items = [.item(.staticText("No action"))]
+    }
+    var menu = MessageMenuState(ids: payload.ids, origin: payload.origin.cgPoint, items: items)
+
+    let loggedInUserJID: JID = state.loggedInUserJID
+
+    if let messageId = payload.ids.first,
+       let message = state.messages[id: messageId],
+       message.from == loggedInUserJID
+    {
+      // TODO: Uncomment once we support message edition
+//      menu.updateItem(withTag: .edit) {
+//        $0.isDisabled = false
+//      }
+      menu.updateItem(withTag: .remove) {
+        $0.isDisabled = false
+      }
+    }
+
+    state.menu = menu
+
     return .none
 
   case let .message(.showReactions(payload)):

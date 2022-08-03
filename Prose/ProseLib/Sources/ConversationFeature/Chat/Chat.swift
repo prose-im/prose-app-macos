@@ -79,6 +79,10 @@ struct ChatView: NSViewRepresentable {
 
     let viewStore: ViewStore<Void, Action>
 
+    #if os(macOS)
+      var menu: MessageMenu?
+    #endif
+
     init(viewStore: ViewStore<Void, Action>) {
       self.viewStore = viewStore
     }
@@ -162,10 +166,17 @@ struct ChatView: NSViewRepresentable {
     // Show message menu
     self.viewStore.publisher
       .drop(while: { !$0.isWebViewReady })
-      .compactMap(\.menu)
+      .map(\.menu)
+      // Do not run `hideMenu` if the menu was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
       .removeDuplicates()
-      .sink { menu in
-        self.showMenu(menu, on: webView, context: context)
+      .sink { menuState in
+        if let menuState: MessageMenuState = menuState {
+          self.showMenu(menuState, on: webView, context: context)
+        } else {
+          self.hideMenu(context: context)
+        }
       }
       .store(in: &context.coordinator.cancellables)
 
@@ -211,32 +222,42 @@ struct ChatView: NSViewRepresentable {
     logger.trace("Showing message menu…")
 
     #if os(macOS)
-      let menu = MessageMenu(title: "Actions")
-      menu.viewStore = self.viewStore
+      let menu: MessageMenu = context.coordinator.menu ?? {
+        let menu = MessageMenu(title: "Actions")
+        menu.viewStore = self.viewStore
 
-      if let id: Message.ID = menuState.ids.first {
-        menu.addItem(withTitle: "Copy text", action: .copyText(id))
-        menu.addItem(withTitle: "Add reaction…", action: .addReaction(id))
-        menu.addItem(.separator())
-        menu.addItem(withTitle: "Edit…", action: .edit(id), isDisabled: true)
-        menu.addItem(withTitle: "Remove message", action: .remove(id), isDisabled: true)
-      } else {
-        menu.addItem(withTitle: "No action", action: nil)
-      }
+        // Enable items, which are disabled by default because the responder chain doesn't handle the actions
+        menu.autoenablesItems = false
 
-      // Enable items, which are disabled by default because the responder chain doesn't handle the actions
-      menu.autoenablesItems = false
+        menu.delegate = context.coordinator
 
-      menu.delegate = context.coordinator
+        DispatchQueue.main.async {
+          menu.popUp(positioning: nil, at: menuState.origin, in: webView)
+        }
 
-      self.viewStore.send(.didCreateMenu(menu, for: menuState.ids))
+        return menu
+      }()
 
-      DispatchQueue.main.async {
-        menu.popUp(positioning: nil, at: menuState.origin, in: webView)
+      menu.removeAllItems()
+      for item in menuState.items {
+        switch item {
+        case let .item(itemState):
+          menu.addItem(itemState)
+        case .separator:
+          menu.addItem(.separator())
+        }
       }
     #else
       #warning("Show a menu")
       // NOTE: UIKit has [`UIMenuController.showMenu(from:rect:)`](https://developer.apple.com/documentation/uikit/uimenucontroller/3044217-showmenu), but it will be deprecated in iOS 16
+    #endif
+  }
+
+  func hideMenu(context: Context) {
+    logger.trace("Hiding message menu…")
+
+    #if os(macOS)
+      context.coordinator.menu = nil
     #endif
   }
 }
