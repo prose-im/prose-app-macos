@@ -15,8 +15,8 @@ import WebKit
 
 // MARK: - View
 
-struct ProseCoreViewsMessage: Encodable {
-  struct User: Encodable {
+struct ProseCoreViewsMessage: Equatable, Encodable {
+  struct User: Equatable, Encodable {
     let jid: String
     let name: String
   }
@@ -133,59 +133,83 @@ struct ChatView: NSViewRepresentable {
     webView.publisher(for: \.isLoading)
       .filter { isLoading in !isLoading }
       .prefix(1)
-      .sink(receiveValue: { [viewStore] _ in
+      .sink { [viewStore] _ in
         viewStore.send(.webViewReady)
-      })
+      }
+      .store(in: &context.coordinator.cancellables)
+
+    // Update messages
+    self.viewStore.publisher
+      .drop(while: { !$0.isWebViewReady })
+      .map(\.messages)
+      .map { $0.map(ProseCoreViewsMessage.init(from:)) }
+      .removeDuplicates()
+      .sink { messages in
+        self.updateMessages(to: messages, in: webView)
+      }
+      .store(in: &context.coordinator.cancellables)
+
+    // Update highlighted message
+    self.viewStore.publisher
+      .drop(while: { !$0.isWebViewReady })
+      .map(\.selectedMessageId)
+      .removeDuplicates()
+      .sink { messageId in
+        self.highlightMessage(messageId, in: webView)
+      }
+      .store(in: &context.coordinator.cancellables)
+
+    // Show message menu
+    self.viewStore.publisher
+      .drop(while: { !$0.isWebViewReady })
+      .compactMap(\.menu)
+      .removeDuplicates()
+      .sink { menu in
+        self.showMenu(menu, on: webView, context: context)
+      }
       .store(in: &context.coordinator.cancellables)
 
     return webView
   }
 
-  func updateNSView(_ webView: WKWebView, context: Context) {
+  func updateNSView(_: WKWebView, context _: Context) {}
+
+  func updateMessages(to messages: [ProseCoreViewsMessage], in webView: WKWebView) {
+    logger.trace("Updating \(Self.self): \(messages.count, privacy: .public) messages")
+
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
-    if !webView.isLoading {
-      do {
-        // TODO: Maybe remove duplicates (see if signpost interval becomes too long)
-        let jsonEncoder = JSONEncoder()
-        // NOTE: We sort keys so that reaction emojis are always sorted the same.
-        //       We could use `OrderedDictionary` from `swift-collections`, but it encodes as
-        //       `["key": ["value"]]` instead of `{"key": ["value"]}`.
-        jsonEncoder.outputFormatting = .sortedKeys
-        let jsonData: Data = try! jsonEncoder
-          .encode(self.viewStore.messages.map(ProseCoreViewsMessage.init(from:)))
-        let json = String(data: jsonData, encoding: .utf8) ?? "[]"
-        let script: String = """
-        MessagingStore.flush();
-        MessagingStore.insert(...\(json));
-        """
-        webView.evaluateJavaScript(script, domain: "Insert messages")
-      }
-
-      do {
-        // TODO: Maybe remove duplicates (see if signpost interval becomes too long)
-        let jsonData: Data = try! JSONEncoder().encode(self.viewStore.selectedMessageId)
-        let json = String(data: jsonData, encoding: .utf8) ?? "[]"
-        let script: String = """
-        MessagingStore.highlight(\(json));
-        """
-        webView.evaluateJavaScript(script, domain: "Highlight message")
-      }
-
-      do {
-        #warning("TODO: Remove duplicates, not to show the menu multiple times")
-        if let menu = self.viewStore.menu {
-          self.showMenu(menu, on: webView, context: context)
-        }
-      }
-    } else {
-      logger.trace("Skipping \(Self.self) update: JavaScript is not loaded.")
-    }
+    let jsonEncoder = JSONEncoder()
+    // NOTE: We sort keys so that reaction emojis are always sorted the same.
+    //       We could use `OrderedDictionary` from `swift-collections`, but it encodes as
+    //       `["key": ["value"]]` instead of `{"key": ["value"]}`.
+    // NOTE: Fixed in https://github.com/prose-im/prose-core-views/releases/tag/0.10.0
+    jsonEncoder.outputFormatting = .sortedKeys
+    let jsonData: Data = try! jsonEncoder.encode(messages)
+    let json = String(data: jsonData, encoding: .utf8) ?? "[]"
+    let script = """
+    MessagingStore.flush();
+    MessagingStore.insert(...\(json));
+    """
+    webView.evaluateJavaScript(script, domain: "Insert messages")
 
     signposter.endInterval(#function, interval)
   }
 
+  func highlightMessage(_ messageId: Message.ID?, in webView: WKWebView) {
+    logger.trace("Highlighting message \(messageId ?? "nil", privacy: .public)…")
+
+    let jsonData: Data = try! JSONEncoder().encode(messageId)
+    let json = String(data: jsonData, encoding: .utf8) ?? "null"
+    let script = """
+    MessagingStore.highlight(\(json));
+    """
+    webView.evaluateJavaScript(script, domain: "Highlight message")
+  }
+
   func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, context: Context) {
+    logger.trace("Showing message menu…")
+
     #if os(macOS)
       let menu = MessageMenu(title: "Actions")
       menu.viewStore = self.viewStore
