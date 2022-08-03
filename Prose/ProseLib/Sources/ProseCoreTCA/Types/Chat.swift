@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import IdentifiedCollections
 
 public struct Chat {
   public var jid: JID
@@ -16,7 +17,7 @@ public struct Chat {
 
   /// These will most likely discarded when a chat is closed and will live in the database.
   /// So no outside access.
-  internal private(set) var messages = [Message]()
+  internal private(set) var messages = IdentifiedArrayOf<Message>()
 
   public init(
     jid: JID,
@@ -46,22 +47,22 @@ extension Chat {
   }
 
   mutating func markMessagesRead() {
-    self.messages.indices.forEach { idx in
-      self.messages[idx].isRead = true
+    self.messages.ids.forEach { id in
+      self.messages[id: id]?.isRead = true
     }
     self.numberOfUnreadMessages = 0
   }
 
   func containsMessage(id: Message.ID) -> Bool {
-    self.messages.contains(where: { $0.id == id })
+    self.messages.ids.contains(id)
   }
 
   @discardableResult
   mutating func updateMessage(id: Message.ID, with handler: (inout Message) -> Void) -> Bool {
-    guard let idx = self.messages.firstIndex(where: { $0.id == id }) else {
+    guard self.messages.ids.contains(id) else {
       return false
     }
-    handler(&self.messages[idx])
+    handler(&self.messages[id: id]!)
     return true
   }
 }

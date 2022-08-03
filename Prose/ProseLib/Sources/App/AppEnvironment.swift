@@ -9,6 +9,7 @@ import CredentialsClient
 import Foundation
 import MainWindowFeature
 import NotificationsClient
+import PasteboardClient
 import ProseCore
 import struct ProseCoreTCA.ProseClient
 import Toolbox
@@ -27,6 +28,7 @@ public struct AppEnvironment {
   public var credentials: CredentialsClient
 
   public var proseClient: ProseClient
+  public var pasteboard: PasteboardClient
   public var notifications: NotificationsClient
 
   public var mainQueue: AnySchedulerOf<DispatchQueue>
@@ -37,6 +39,7 @@ public struct AppEnvironment {
     userDefaults: UserDefaultsClient,
     credentials: CredentialsClient,
     proseClient: ProseClient,
+    pasteboard: PasteboardClient,
     notifications: NotificationsClient,
     mainQueue: AnySchedulerOf<DispatchQueue>,
     openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
@@ -44,6 +47,7 @@ public struct AppEnvironment {
     self.userDefaults = userDefaults
     self.credentials = credentials
     self.proseClient = proseClient
+    self.pasteboard = pasteboard
     self.notifications = notifications
     self.mainQueue = mainQueue
     self.openURL = openURL
@@ -56,6 +60,7 @@ public extension AppEnvironment {
       userDefaults: .live(.standard),
       credentials: .live(service: "org.prose.app"),
       proseClient: .live(provider: ProseCore.ProseClient.init),
+      pasteboard: .live(),
       notifications: .live,
       mainQueue: .main,
       openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
@@ -87,6 +92,10 @@ extension AppEnvironment {
   }
 
   var main: MainScreenEnvironment {
-    MainScreenEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
+    MainScreenEnvironment(
+      proseClient: self.proseClient,
+      pasteboard: self.pasteboard,
+      mainQueue: self.mainQueue
+    )
   }
 }

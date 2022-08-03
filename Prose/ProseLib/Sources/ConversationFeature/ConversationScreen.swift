@@ -5,6 +5,8 @@
 
 import ComposableArchitecture
 import ConversationInfoFeature
+import IdentifiedCollections
+import PasteboardClient
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
@@ -89,7 +91,7 @@ public let conversationReducer: Reducer<
   chatReducer.pullback(
     state: \.chat,
     action: CasePath(ConversationAction.chat),
-    environment: { _ in }
+    environment: { $0 }
   ),
   Reducer { state, action, environment in
     switch action {
@@ -144,9 +146,9 @@ public struct ConversationState: Equatable {
   var info: ConversationInfoState?
   var toolbar: ToolbarState
   var messageBar: MessageBarState
-  var chat = ChatState()
+  var chat: ChatState
 
-  public init(chatId: JID) {
+  public init(chatId: JID, loggedInUserJID: JID) {
     self.chatId = chatId
     self.toolbar = .init(user: .init(
       jid: chatId,
@@ -160,6 +162,10 @@ public struct ConversationState: Equatable {
       location: "The Internets"
     ))
     self.messageBar = .init(textField: .init(recipient: chatId.jidString))
+    self.chat = ChatState(
+      loggedInUserJID: loggedInUserJID,
+      chatId: chatId
+    )
   }
 }
 
@@ -169,7 +175,7 @@ public enum ConversationAction: Equatable {
   case onAppear
   case onDisappear
 
-  case messagesResult(Result<[Message], EquatableError>)
+  case messagesResult(Result<IdentifiedArrayOf<Message>, EquatableError>)
 
   case info(ConversationInfoAction)
   case toolbar(ToolbarAction)
@@ -181,13 +187,16 @@ public enum ConversationAction: Equatable {
 
 public struct ConversationEnvironment {
   var proseClient: ProseClient
+  var pasteboard: PasteboardClient
   var mainQueue: AnySchedulerOf<DispatchQueue>
 
   public init(
     proseClient: ProseClient,
+    pasteboard: PasteboardClient,
     mainQueue: AnySchedulerOf<DispatchQueue>
   ) {
     self.proseClient = proseClient
+    self.pasteboard = pasteboard
     self.mainQueue = mainQueue
   }
 }
@@ -200,9 +209,12 @@ public struct ConversationEnvironment {
     private struct Preview: View {
       var body: some View {
         ConversationScreen(store: Store(
-          initialState: ConversationState(chatId: "alexandre@crisp.chat"),
+          initialState: ConversationState(
+            chatId: "alexandre@crisp.chat",
+            loggedInUserJID: "preview@prose.org"
+          ),
           reducer: conversationReducer,
-          environment: .init(proseClient: .noop, mainQueue: .main)
+          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
         ))
         .previewLayout(.sizeThatFits)
       }

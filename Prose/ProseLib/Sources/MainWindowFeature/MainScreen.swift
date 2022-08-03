@@ -6,6 +6,7 @@
 import AddressBookFeature
 import ComposableArchitecture
 import ConversationFeature
+import PasteboardClient
 import ProseCoreTCA
 import SidebarFeature
 import SwiftUI
@@ -91,7 +92,7 @@ public let mainWindowReducer = Reducer<
     state.route = .peopleAndGroups
   case let .chat(jid):
     var priorRoute = state.route
-    var conversationState = ConversationState(chatId: jid)
+    var conversationState = ConversationState(chatId: jid, loggedInUserJID: state.jid)
     var effects = Effect<MainScreenAction, Never>.none
 
     // If another chat was selected already, we'll manually send the `.onAppear` and
@@ -114,12 +115,14 @@ public let mainWindowReducer = Reducer<
 // MARK: State
 
 public struct MainScreenState: Equatable {
+  let jid: JID
   public var sidebar: SidebarState
   public private(set) var isPlaceholder = false
 
   var route = Route.unreadStack(.init())
 
   public init(jid: JID) {
+    self.jid = jid
     self.sidebar = .init(credentials: jid)
   }
 }
@@ -156,20 +159,27 @@ public enum MainScreenAction: Equatable {
 
 public struct MainScreenEnvironment {
   var proseClient: ProseClient
+  var pasteboard: PasteboardClient
   var mainQueue: AnySchedulerOf<DispatchQueue>
 
   public init(
     proseClient: ProseClient,
+    pasteboard: PasteboardClient,
     mainQueue: AnySchedulerOf<DispatchQueue>
   ) {
     self.proseClient = proseClient
+    self.pasteboard = pasteboard
     self.mainQueue = mainQueue
   }
 }
 
 extension MainScreenEnvironment {
   var chat: ConversationEnvironment {
-    .init(proseClient: self.proseClient, mainQueue: self.mainQueue)
+    .init(
+      proseClient: self.proseClient,
+      pasteboard: self.pasteboard,
+      mainQueue: self.mainQueue
+    )
   }
 
   var sidebar: SidebarEnvironment {
@@ -193,6 +203,7 @@ extension MainScreenEnvironment {
         reducer: mainWindowReducer,
         environment: MainScreenEnvironment(
           proseClient: .noop,
+          pasteboard: .live(),
           mainQueue: .main
         )
       ))

@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import Foundation
+import IdentifiedCollections
 import Toolbox
 
 public struct Account: Hashable {
@@ -31,7 +32,7 @@ public struct ProseClient {
 
   /// This will probably be split up in two methods/publishers. One where we can load older
   /// messages and a second one where the new messages come in.
-  public var messagesInChat: (_ with: JID) -> Effect<[Message], EquatableError>
+  public var messagesInChat: (_ with: JID) -> Effect<IdentifiedArrayOf<Message>, EquatableError>
 
   public var sendMessage: (_ to: JID, _ body: String) -> Effect<None, EquatableError>
   public var updateMessage: (
@@ -39,6 +40,17 @@ public struct ProseClient {
     _ id: Message.ID,
     _ body: String
   ) -> Effect<None, EquatableError>
+  public var addReaction: (
+    _ to: JID,
+    _ id: Message.ID,
+    _ reaction: Character
+  ) -> Effect<None, EquatableError>
+  public var toggleReaction: (
+    _ to: JID,
+    _ id: Message.ID,
+    _ reaction: Character
+  ) -> Effect<None, EquatableError>
+  public var retractMessage: (_ id: Message.ID) -> Effect<None, EquatableError>
 
   public var sendChatState: (_ to: JID, _ state: ChatState.Kind) -> Effect<None, EquatableError>
   public var sendPresence: (
