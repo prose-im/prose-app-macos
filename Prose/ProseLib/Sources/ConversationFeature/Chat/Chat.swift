@@ -57,6 +57,7 @@ struct Chat: View {
 
   var body: some View {
     ChatView(store: self.store)
+      .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
       .onKeyDown { key in
         switch key {
         case .up:
@@ -108,7 +109,7 @@ struct ChatView: NSViewRepresentable {
     // Set logged in user JID
     contentController.addUserScript(self.setAccountJIDScript)
 
-    let actions = ViewStore(self.store.scope(state: { _ in () }, action: Action.message))
+    let actions = ViewStore(self.store.stateless)
     // Allow right clicking messages
     contentController.addEventHandler(
       JSEventHandler(event: "message:actions:view", action: MessageAction.showMenu),
@@ -281,7 +282,7 @@ extension ChatView {
 
 struct JSEventHandler {
   var event: String
-  var actionFromMessage: (WKScriptMessage) throws -> MessageAction
+  var actionFromMessage: (WKScriptMessage) -> Result<MessageAction, JSEventError>
 
   init<Payload: Decodable>(event: String, action: @escaping (Payload) -> MessageAction) {
     self.event = event
@@ -290,27 +291,32 @@ struct JSEventHandler {
             let bodyData: Data = bodyString.data(using: .utf8)
       else {
         logger.fault("JS message body should be serialized as a String")
-        #warning("TODO: Throw an exception instead of `fatalError`")
-        fatalError()
+        return .failure(.badSerialization)
       }
 
-      guard let payload = try? JSONDecoder().decode(Payload.self, from: bodyData) else {
+      do {
+        let payload = try JSONDecoder().decode(Payload.self, from: bodyData)
+        return .success(action(payload))
+      } catch let error as DecodingError {
         logger
-          .warning("JS message body could not be decoded as `Self.Body`. Content: \(bodyString)")
-        #warning("TODO: Throw an exception instead of `fatalError`")
-        fatalError()
+          .warning("JS message body could not be decoded as `Payload`. Content: \(bodyString)")
+        return .failure(
+          .decodingError(
+            "JS message body could not be decoded from \"\(bodyString)\": \(error.debugDescription)"
+          )
+        )
+      } catch {
+        fatalError("`error` should always be a `DecodingError`")
       }
-
-      return action(payload)
     }
   }
 }
 
 final class ViewStoreScriptMessageHandler: NSObject, WKScriptMessageHandler {
-  let viewStore: ViewStore<Void, MessageAction>
+  let viewStore: ViewStore<Void, ChatAction>
   let handler: JSEventHandler
 
-  init(handler: JSEventHandler, viewStore: ViewStore<Void, MessageAction>) {
+  init(handler: JSEventHandler, viewStore: ViewStore<Void, ChatAction>) {
     self.handler = handler
     self.viewStore = viewStore
     super.init()
@@ -320,13 +326,17 @@ final class ViewStoreScriptMessageHandler: NSObject, WKScriptMessageHandler {
     _: WKUserContentController,
     didReceive message: WKScriptMessage
   ) {
-    #warning("TODO: Handle exception")
-    try! self.viewStore.send(self.handler.actionFromMessage(message))
+    switch self.handler.actionFromMessage(message) {
+    case let .success(action):
+      self.viewStore.send(.message(action))
+    case let .failure(error):
+      self.viewStore.send(.jsEventError(error))
+    }
   }
 }
 
 extension WKUserContentController {
-  func addEventHandler(_ handler: JSEventHandler, viewStore: ViewStore<Void, MessageAction>) {
+  func addEventHandler(_ handler: JSEventHandler, viewStore: ViewStore<Void, ChatAction>) {
     let handlerName = "handler_" + handler.event.replacingOccurrences(of: ":", with: "_")
 
     self.add(

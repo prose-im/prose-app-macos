@@ -17,6 +17,7 @@ struct ChatState: Equatable {
   var messages = IdentifiedArrayOf<Message>()
   var selectedMessageId: Message.ID?
   var menu: MessageMenuState?
+  var alert: AlertState<ChatAction>?
 }
 
 // MARK: Actions
@@ -46,11 +47,27 @@ public enum MessageAction: Equatable {
   case showReactions(ShowReactionsHandlerPayload)
 }
 
+public enum JSEventError: Error, Equatable {
+  case badSerialization, decodingError(String)
+}
+
+extension JSEventError: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    switch self {
+    case .badSerialization:
+      return "JS message body should be serialized as a String"
+    case let .decodingError(debugDescription):
+      return debugDescription
+    }
+  }
+}
+
 public enum ChatAction: Equatable {
-  case webViewReady
+  case webViewReady, alertDismissed
   case navigateUp, navigateDown
   case messageMenuItemTapped(MessageMenu.Action), menuDidClose
   case message(MessageAction)
+  case jsEventError(JSEventError)
 }
 
 let chatReducer = Reducer<
@@ -61,6 +78,10 @@ let chatReducer = Reducer<
   switch action {
   case .webViewReady:
     state.isWebViewReady = true
+    return .none
+
+  case .alertDismissed:
+    state.alert = nil
     return .none
 
   case .navigateUp:
@@ -180,5 +201,14 @@ let chatReducer = Reducer<
       logger.notice("Could not toggle reaction: No message selected")
       return .none
     }
+
+  case let .jsEventError(error):
+    state.alert = AlertState(
+      title: TextState(
+        verbatim: "An unexpected error occured\nPlease inform us if you encounter this error"
+      ),
+      message: TextState(verbatim: error.debugDescription)
+    )
+    return .none
   }
 }
