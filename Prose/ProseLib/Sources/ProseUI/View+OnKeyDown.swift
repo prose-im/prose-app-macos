@@ -63,7 +63,7 @@ public extension View {
   ///         we ensure ``KeyAwareView`` stays first responder as long as we need it to, and it correctly
   ///         receives the key events.
   func onKeyDown(perform onEvent: @escaping (KeyEvent) -> Void) -> some View {
-    KeyAwareView(rootView: self, onEvent: onEvent)
+    KeyAwareView(rootView: self, onEvent: onEvent).accessibilityElement(children: .contain)
   }
 
   func onKeyDown(_ key: KeyEvent, perform onEvent: @escaping () -> Void) -> some View {

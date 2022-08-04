@@ -7,6 +7,10 @@ import Foundation
 import XCTest
 
 final class RosterSelectionTests: XCTestCase {
+  override func setUp() {
+    self.continueAfterFailure = false
+  }
+
   func testSwitchesConversationWhenSelectingRosterItem() {
     let app = XCUIApplication.launching(testCase: "roster-selection")
 
