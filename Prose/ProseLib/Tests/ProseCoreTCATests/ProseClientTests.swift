@@ -11,6 +11,7 @@ import ProseCoreClientFFI
 import ProseCoreTCA
 import TestHelpers
 import XCTest
+import IdentifiedCollections
 
 final class ProseClientTests: XCTestCase {
   func testGroupsMessagesInChatsWhenReceiving() throws {
