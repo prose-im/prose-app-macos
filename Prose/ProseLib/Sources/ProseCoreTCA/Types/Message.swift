@@ -123,10 +123,8 @@ struct StringCodingKey: CodingKey {
 
   var intValue: Int?
 
-  init(intValue: Int) {
-    self.init(stringValue: String(describing: intValue))
-    // We never want integer keys
-//    self.intValue = intValue
+  init?(intValue _: Int) {
+    nil
   }
 }
 
