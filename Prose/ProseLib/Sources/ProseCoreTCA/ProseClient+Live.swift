@@ -24,6 +24,30 @@ public extension ProseClient {
     var client: Client?
     let delegate = Delegate(date: date)
 
+    func toggleReaction(
+      to: JID,
+      id: Message.ID,
+      reaction: Reaction
+    ) -> Effect<None, EquatableError> {
+      guard let client = client else {
+        return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+      }
+
+      guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+        return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+      }
+
+      let jid = JID(bareJid: client.jid)
+
+      #warning("TODO: Update message using the client")
+
+      delegate.activeChats[to]?.updateMessage(id: id) { message in
+        message.reactions.toggleReaction(reaction, for: jid)
+      }
+
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    }
+
     return ProseClient(
       login: { jid, password in
         delegate.account = .init(jid: jid, status: .connecting)
@@ -151,38 +175,18 @@ public extension ProseClient {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
-        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
-          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        guard delegate
+          .activeChats[to]?
+          .messages[id: id]?
+          .reactions[reaction]?
+          .contains(JID(bareJid: client.jid)) != true
+        else {
+          return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
         }
-
-        let jid = JID(bareJid: client.jid)
-
-        #warning("TODO: Update message using the client")
-
-        delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions.addReaction(reaction, for: jid)
-        }
-
-        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+        return toggleReaction(to: to, id: id, reaction: reaction)
       },
       toggleReaction: { to, id, reaction in
-        guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
-        }
-
-        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
-          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
-        }
-
-        let jid = JID(bareJid: client.jid)
-
-        #warning("TODO: Update message using the client")
-
-        delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions.toggleReaction(reaction, for: jid)
-        }
-
-        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+        toggleReaction(to: to, id: id, reaction: reaction)
       },
       retractMessage: { _, _ in
         fatalError("Not implemented yet.")

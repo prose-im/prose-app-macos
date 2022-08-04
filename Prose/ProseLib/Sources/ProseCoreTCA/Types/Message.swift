@@ -102,6 +102,10 @@ public struct MessageReactions: Equatable {
   public mutating func toggleReaction(_ reaction: Character, for jid: JID) {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
+  
+  subscript(reaction: Reaction) -> Set<JID>? {
+    self.reactions[reaction]
+  }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
