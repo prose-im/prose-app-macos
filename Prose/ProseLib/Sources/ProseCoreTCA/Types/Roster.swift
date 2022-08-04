@@ -48,13 +48,13 @@ public extension Roster.Group.Item {
 }
 
 extension Roster {
-  init(roster: ProseCoreClientFFI.Roster) {
+  init(roster: XmppRoster) {
     self.init(groups: roster.groups.map(Group.init))
   }
 }
 
 extension Roster.Group {
-  init(group: ProseCoreClientFFI.RosterGroup) {
+  init(group: XmppRosterGroup) {
     self.init(
       name: group.name,
       items: group.items.map(Item.init)
@@ -63,7 +63,7 @@ extension Roster.Group {
 }
 
 extension Roster.Group.Item {
-  init(item: ProseCoreClientFFI.RosterItem) {
+  init(item: XmppRosterItem) {
     self.init(
       jid: .init(bareJid: item.jid),
       subscription: .init(subscription: item.subscription)
@@ -72,7 +72,7 @@ extension Roster.Group.Item {
 }
 
 extension Roster.Group.Item.Subscription {
-  init(subscription: ProseCoreClientFFI.RosterItemSubscription) {
+  init(subscription: XmppRosterItemSubscription) {
     switch subscription {
     case .none:
       self = .none

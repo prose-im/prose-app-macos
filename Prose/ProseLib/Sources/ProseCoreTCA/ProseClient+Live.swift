@@ -279,14 +279,14 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceiveRoster roster: ProseCoreClientFFI.Roster
+    didReceiveRoster roster: XmppRoster
   ) {
     self.roster = Roster(roster: roster)
   }
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceiveMessage message: ProseCoreClientFFI.Message
+    didReceiveMessage message: XmppMessage
   ) {
     if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
       self.activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
@@ -316,10 +316,23 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceivePresence presence: ProseCoreClientFFI.Presence
+    didReceivePresence presence: XmppPresence
   ) {
     if let jid = presence.from.map(JID.init) {
       self.presences[jid] = .init(presence: presence, timestamp: self.date())
     }
   }
+
+  func proseClient(
+    _ client: ProseClientProtocol,
+    didReceivePresenceSubscriptionRequest from: BareJid
+  ) {
+    try? client.grantPresencePermissionToUser(jid: from)
+    try? client.addUserToRoster(jid: from, nickname: nil, groups: [])
+  }
+
+  func proseClient(
+    _: ProseClientProtocol,
+    didReceiveArchivingPreferences _: XmppmamPreferences
+  ) {}
 }

@@ -9,6 +9,9 @@ import ProseCoreClientFFI
 public typealias ProseClientProvider<Client: ProseClientProtocol> =
   (BareJid, ProseClientDelegate) -> Client
 
+public typealias LoadMessagesCompletionHandler =
+  (Result<[XmppForwardedMessage], Error>, _ isComplete: Bool) -> Void
+
 public protocol ProseClientProtocol: AnyObject {
   var jid: BareJid { get }
 
@@ -19,7 +22,7 @@ public protocol ProseClientProtocol: AnyObject {
     id: String,
     to: BareJid,
     text: String,
-    chatState: ChatState?
+    chatState: XmppChatState?
   ) throws
 
   func updateMessage(
@@ -29,10 +32,26 @@ public protocol ProseClientProtocol: AnyObject {
     text: String
   ) throws
 
-  func sendChatState(to: BareJid, chatState: ChatState) throws
-  func sendPresence(show: ShowKind, status: String?) throws
+  func retractMessage(to: BareJid, messageId: MessageId) throws
+
+  func loadMessagesInChat(
+    jid: BareJid,
+    before: MessageId?,
+    completion: @escaping LoadMessagesCompletionHandler
+  )
+
+  func sendChatState(to: BareJid, chatState: XmppChatState) throws
+  func sendPresence(show: XmppShowKind, status: String?) throws
+  func sendReactions(_ reactions: Set<String>, to: BareJid, messageId: MessageId) throws
 
   func loadRoster() throws
+
+  func addUserToRoster(jid: BareJid, nickname: String?, groups: Set<String>) throws
+  func removeUserAndUnsubscribeFromPresence(jid: BareJid) throws
+  func subscribeToUserPresence(jid: BareJid) throws
+  func unsubscribeFromUserPresence(jid: BareJid) throws
+  func grantPresencePermissionToUser(jid: BareJid) throws
+  func revokeOrRejectPresencePermissionFromUser(jid: BareJid) throws
 }
 
 public protocol ProseClientDelegate: AnyObject {
@@ -43,14 +62,22 @@ public protocol ProseClientDelegate: AnyObject {
   )
   func proseClient(
     _ client: ProseClientProtocol,
-    didReceiveRoster roster: ProseCoreClientFFI.Roster
+    didReceiveRoster roster: XmppRoster
   )
   func proseClient(
     _ client: ProseClientProtocol,
-    didReceiveMessage message: ProseCoreClientFFI.Message
+    didReceiveMessage message: XmppMessage
   )
   func proseClient(
     _ client: ProseClientProtocol,
-    didReceivePresence presence: Presence
+    didReceivePresence presence: XmppPresence
+  )
+  func proseClient(
+    _ client: ProseClientProtocol,
+    didReceivePresenceSubscriptionRequest from: BareJid
+  )
+  func proseClient(
+    _ client: ProseClientProtocol,
+    didReceiveArchivingPreferences preferences: XmppmamPreferences
   )
 }

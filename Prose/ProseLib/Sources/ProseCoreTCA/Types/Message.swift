@@ -41,7 +41,7 @@ public struct Message: Equatable, Identifiable {
 }
 
 extension Message {
-  init?(message: ProseCoreClientFFI.Message, timestamp: Date) {
+  init?(message: XmppMessage, timestamp: Date) {
     // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
     // specified in the XMPP spec but our current server adds them, unless you send a message to
     // yourself.
@@ -70,7 +70,7 @@ public enum MessageKind: Equatable {
 }
 
 extension MessageKind {
-  init(kind: ProseCoreClientFFI.MessageKind) {
+  init(kind: XmppMessageKind) {
     switch kind {
     case .chat:
       self = .chat
