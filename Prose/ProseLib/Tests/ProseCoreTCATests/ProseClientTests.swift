@@ -9,14 +9,15 @@ import ProseCore
 import ProseCoreTCA
 import TestHelpers
 import XCTest
+import IdentifiedCollections
 
 final class ProseClientTests: XCTestCase {
   func testGroupsMessagesInChatsWhenReceiving() throws {
     let date = Date.ymd(2022, 6, 25)
     let (client, mock) = try self.connectedClient(date: { date })
 
-    let chat1Messages = TestSink<[Message]>()
-    let chat2Messages = TestSink<[Message]>()
+    let chat1Messages = TestSink<IdentifiedArrayOf<Message>>()
+    let chat2Messages = TestSink<IdentifiedArrayOf<Message>>()
     var c = Set<AnyCancellable>()
 
     client.messagesInChat("chat1@prose.org").collectInto(sink: chat1Messages).store(in: &c)
@@ -48,8 +49,8 @@ final class ProseClientTests: XCTestCase {
     let date = Date.ymd(2022, 6, 25)
     let (client, _) = try self.connectedClient(date: { date })
 
-    let chat1Messages = TestSink<[Message]>()
-    let chat2Messages = TestSink<[Message]>()
+    let chat1Messages = TestSink<IdentifiedArrayOf<Message>>()
+    let chat2Messages = TestSink<IdentifiedArrayOf<Message>>()
     var c = Set<AnyCancellable>()
 
     client.messagesInChat("chat1@prose.org").collectInto(sink: chat1Messages).store(in: &c)
@@ -194,7 +195,7 @@ final class ProseClientTests: XCTestCase {
     let date = Date.ymd(2022, 6, 25)
     let (client, _) = try self.connectedClient(date: { date })
 
-    let chat1Messages = TestSink<[Message]>()
+    let chat1Messages = TestSink<IdentifiedArrayOf<Message>>()
     var c = Set<AnyCancellable>()
 
     try self.await(client.sendMessage("chat1@prose.org", "message 1"))
@@ -257,7 +258,7 @@ final class ProseClientTests: XCTestCase {
     let date = Date.ymd(2022, 6, 25)
     let (client, mock) = try self.connectedClient(date: { date })
 
-    let chat1Messages = TestSink<[Message]>()
+    let chat1Messages = TestSink<IdentifiedArrayOf<Message>>()
     var c = Set<AnyCancellable>()
 
     mock.delegate.proseClient(mock, didReceiveMessage: .mock(from: "chat1@prose.org", id: "1"))

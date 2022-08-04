@@ -12,6 +12,7 @@ extension AppEnvironment {
     userDefaults: .placeholder,
     credentials: .placeholder,
     proseClient: .noop,
+    pasteboard: .noop,
     notifications: .noop,
     mainQueue: .main,
     openURL: { url, _ in
