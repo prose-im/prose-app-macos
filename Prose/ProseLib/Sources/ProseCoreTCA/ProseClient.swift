@@ -43,12 +43,13 @@ public struct ProseClient {
   public var addReaction: (
     _ to: JID,
     _ id: Message.ID,
-    _ reaction: Character
+    _ reaction: Reaction
   ) -> Effect<None, EquatableError>
+
   public var toggleReaction: (
     _ to: JID,
     _ id: Message.ID,
-    _ reaction: Character
+    _ reaction: Reaction
   ) -> Effect<None, EquatableError>
 
   public var retractMessage: (_ to: JID, _ id: Message.ID) -> Effect<None, EquatableError>

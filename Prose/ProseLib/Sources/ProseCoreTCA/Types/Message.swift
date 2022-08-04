@@ -89,27 +89,27 @@ extension MessageKind {
 }
 
 public struct MessageReactions: Equatable {
-  var reactions: [Character: Set<JID>]
+  var reactions: [Reaction: Set<JID>]
 
-  public init(reactions: [Character: Set<JID>] = [:]) {
+  public init(reactions: [Reaction: Set<JID>] = [:]) {
     self.reactions = reactions
   }
 
-  public mutating func addReaction(_ reaction: Character, for jid: JID) {
+  public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions[reaction, default: Set<JID>()].insert(jid)
   }
 
-  public mutating func toggleReaction(_ reaction: Character, for jid: JID) {
+  public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
-  
+
   subscript(reaction: Reaction) -> Set<JID>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Character, Set<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
     self.init(reactions: Dictionary(uniqueKeysWithValues: elements))
   }
 }
@@ -119,10 +119,6 @@ struct StringCodingKey: CodingKey {
 
   init(stringValue: String) {
     self.stringValue = stringValue
-  }
-
-  init(_ character: Character) {
-    self.init(stringValue: String(describing: character))
   }
 
   var intValue: Int?
@@ -140,7 +136,7 @@ extension MessageReactions: Encodable {
 
     for (key, value) in self.reactions {
       let jids: [String] = value.map(\.jidString)
-      try container.encode(jids, forKey: StringCodingKey(key))
+      try container.encode(jids, forKey: StringCodingKey(stringValue: key.rawValue))
     }
   }
 }
