@@ -184,7 +184,7 @@ public extension ProseClient {
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
-      retractMessage: { _ in
+      retractMessage: { _, _ in
         fatalError("Not implemented yet.")
       },
       sendChatState: { to, kind in
