@@ -120,7 +120,7 @@ public extension ProseClient {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
-        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+        guard let messageToUpdate = delegate.activeChats[to]?.messages[id: id] else {
           return Effect(error: EquatableError(ProseClientError.unknownMessageID))
         }
 
@@ -134,11 +134,12 @@ public extension ProseClient {
             text: body
           )
 
-          delegate.activeChats[to]?.updateMessage(id: id) { message in
-            message.id = newMessageID
-            message.isEdited = true
-            message.body = body
-          }
+          var updatedMessage = messageToUpdate
+          updatedMessage.id = newMessageID
+          updatedMessage.isEdited = true
+          updatedMessage.body = body
+
+          delegate.activeChats[to]?.replaceMessage(id: id, with: updatedMessage)
         } catch {
           return Effect(error: EquatableError(error))
         }
@@ -299,12 +300,17 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
         .init(state: chatState, timestamp: self.date())
     }
 
-    if let replace = message.replace, let newID = message.id, let body = message.body {
-      self.activeChats[jid]?.updateMessage(id: Message.ID(rawValue: replace)) { message in
-        message.id = Message.ID(rawValue: newID)
-        message.isEdited = true
-        message.body = body
-      }
+    if
+      let replace = message.replace,
+      let newID = message.id,
+      let body = message.body,
+      let oldMessage = self.activeChats[jid]?.messages[id: Message.ID(rawValue: replace)]
+    {
+      var message = oldMessage
+      message.id = Message.ID(rawValue: newID)
+      message.isEdited = true
+      message.body = body
+      self.activeChats[jid]?.replaceMessage(id: oldMessage.id, with: message)
     }
   }
 
