@@ -21,10 +21,10 @@ public struct ReactionPickerState: Equatable {
 }
 
 public enum ReactionPickerAction: Equatable {
-  case select(Reaction)
+  case select(Reaction), deselect(Reaction)
 }
 
-public let reactionPickerReducer = Reducer<
+public let reactionPickerTogglingReducer = Reducer<
   ReactionPickerState,
   ReactionPickerAction,
   Void
@@ -32,6 +32,9 @@ public let reactionPickerReducer = Reducer<
   switch action {
   case let .select(reaction):
     state.selected.insert(reaction)
+    return .none
+  case let .deselect(reaction):
+    state.selected.remove(reaction)
     return .none
   }
 }
@@ -43,7 +46,10 @@ struct ReactionPicker: View {
     WithViewStore(self.store) { viewStore in
       LazyVGrid(columns: Self.columns(state: viewStore.state), spacing: viewStore.spacing) {
         ForEach(viewStore.reactions, id: \.self) { reaction in
-          Button { viewStore.send(.select(reaction)) } label: {
+          let isSelected: Bool = viewStore.selected.contains(reaction)
+          Button {
+            viewStore.send(isSelected ? .deselect(reaction) : .select(reaction))
+          } label: {
             Text(reaction.rawValue)
               .font(.system(size: viewStore.fontSize))
               .frame(width: viewStore.width, height: viewStore.height)
@@ -83,7 +89,7 @@ struct ReactionPicker_Previews: PreviewProvider {
     }
 
     static let reducer = Reducer<State, Action, Void>.combine([
-      reactionPickerReducer.optional().pullback(
+      reactionPickerTogglingReducer.optional().pullback(
         state: \.reactionPicker,
         action: CasePath(Action.reactionPicker),
         environment: { $0 }
@@ -92,6 +98,9 @@ struct ReactionPicker_Previews: PreviewProvider {
         switch action {
         case let .reactionPicker(.select(reaction)):
           state.text = reaction.rawValue
+          return .none
+        case .reactionPicker(.deselect):
+          state.text = ""
           return .none
         }
       },
@@ -136,16 +145,19 @@ struct ReactionPicker_Previews: PreviewProvider {
     }
 
     static let reducer = Reducer<State, Action, Void>.combine([
-      reactionPickerReducer.optional().pullback(
-        state: \.reactionPicker,
-        action: CasePath(Action.reactionPicker),
-        environment: { $0 }
-      ),
+      //      reactionPickerTogglingReducer.optional().pullback(
+//        state: \.reactionPicker,
+//        action: CasePath(Action.reactionPicker),
+//        environment: { $0 }
+//      ),
       Reducer { state, action, _ in
         switch action {
         case let .reactionPicker(.select(reaction)):
           state.text = reaction.rawValue
           state.isShowingPopover = false
+          return .none
+        case .reactionPicker(.deselect):
+          state.text = ""
           return .none
         case .binding:
           return .none
@@ -153,15 +165,11 @@ struct ReactionPicker_Previews: PreviewProvider {
       }.binding(),
     ])
 
-    let store: Store<State, Action>
-
-    init(initialState: ReactionPickerState) {
-      self.store = Store(
-        initialState: State(reactionPicker: initialState),
-        reducer: Self.reducer,
-        environment: ()
-      )
-    }
+    let store: Store<State, Action> = Store(
+      initialState: State(reactionPicker: ReactionPickerState()),
+      reducer: Self.reducer,
+      environment: ()
+    )
 
     var body: some View {
       HStack {
@@ -186,7 +194,7 @@ struct ReactionPicker_Previews: PreviewProvider {
   }
 
   static var previews: some View {
-    Preview1(initialState: .init(selected: ["🥳"]))
-    Preview2(initialState: .init(selected: ["❤️", "🤩"]))
+    Preview1(initialState: .init(selected: ["🥳", "❤️", "🤩"]))
+    Preview2()
   }
 }
