@@ -45,7 +45,11 @@ extension Message {
     // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
     // specified in the XMPP spec but our current server adds them, unless you send a message to
     // yourself.
-    guard let body = message.body, let id = message.id else {
+    guard
+      let body = message.body,
+      let id = message.id,
+      message.fastening == nil
+    else {
       return nil
     }
 

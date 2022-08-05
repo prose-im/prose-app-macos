@@ -46,6 +46,12 @@ extension Chat {
     }
   }
 
+  mutating func removeMessage(id: Message.ID) {
+    if self.messages.remove(id: id)?.isRead == false {
+      self.numberOfUnreadMessages -= 1
+    }
+  }
+
   mutating func markMessagesRead() {
     self.messages.ids.forEach { id in
       self.messages[id: id]?.isRead = true

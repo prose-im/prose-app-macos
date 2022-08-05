@@ -194,8 +194,23 @@ public extension ProseClient {
       toggleReaction: { to, id, reaction in
         toggleReaction(to: to, id: id, reaction: reaction)
       },
-      retractMessage: { _, _ in
-        fatalError("Not implemented yet.")
+      retractMessage: { to, id in
+        guard let client = client else {
+          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        }
+
+        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        }
+
+        do {
+          try client.retractMessage(to: to.bareJid, messageId: id.rawValue)
+          delegate.activeChats[to]?.removeMessage(id: id)
+        } catch {
+          return Effect(error: EquatableError(error))
+        }
+
+        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       sendChatState: { to, kind in
         guard let client = client else {
@@ -324,6 +339,10 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
           for: message.from
         )
       }
+    }
+
+    if let fastening = message.fastening, fastening.retract {
+      activeChats[jid]?.removeMessage(id: Message.ID(rawValue: fastening.id))
     }
 
     if

@@ -481,6 +481,98 @@ final class ProseClientTests: XCTestCase {
       ]
     )
   }
+
+  func testRetractsMessage() throws {
+    let (client, mock) = try self.connectedClient()
+
+    struct RetractedMessage: Equatable {
+      var jid: BareJid
+      var messageId: MessageId
+    }
+
+    let chat1MessageIDs = TestSink<[Message.ID]>()
+    let chat1UnreadMessages = TestSink<Int>()
+    var retractedMessages = [RetractedMessage]()
+    var c = Set<AnyCancellable>()
+
+    client.messagesInChat("chat1@prose.org")
+      .map { messages in messages.map(\.id) }
+      .removeDuplicates()
+      .collectInto(sink: chat1MessageIDs)
+      .store(in: &c)
+
+    client.activeChats()
+      .map { chats in chats["chat1@prose.org"]?.numberOfUnreadMessages ?? -1 }
+      .removeDuplicates()
+      .collectInto(sink: chat1UnreadMessages)
+      .store(in: &c)
+
+    mock.impl.retractMessage = { jid, messageId in
+      retractedMessages.append(.init(jid: jid, messageId: messageId))
+    }
+
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat1@prose.org", id: "1")
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat1@prose.org", id: "2")
+    )
+
+    try self.await(client.retractMessage("chat1@prose.org", "00000000-0000-0000-0000-000000000001"))
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "3",
+        body: "Fallback message",
+        fastening: .init(id: "1", retract: true)
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "4",
+        body: nil,
+        fastening: .init(id: "does-not-exist", retract: true)
+      )
+    )
+
+    XCTAssertEqual(
+      chat1UnreadMessages.values,
+      [
+        -1,
+        0,
+        1,
+        2,
+        1,
+      ]
+    )
+
+    XCTAssertEqual(
+      chat1MessageIDs.values,
+      [
+        [],
+        ["00000000-0000-0000-0000-000000000000"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001", "1"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001", "1", "2"],
+        ["00000000-0000-0000-0000-000000000000", "1", "2"],
+        ["00000000-0000-0000-0000-000000000000", "2"],
+      ]
+    )
+
+    XCTAssertEqual(
+      retractedMessages,
+      [.init(jid: "chat1@prose.org", messageId: "00000000-0000-0000-0000-000000000001")]
+    )
+  }
 }
 
 private extension ProseClientTests {
