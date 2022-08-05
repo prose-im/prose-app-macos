@@ -65,6 +65,7 @@ struct ReactionPicker: View {
   static func gridItem(state: ReactionPickerState) -> GridItem {
     GridItem(.fixed(state.width), spacing: state.spacing)
   }
+
   static func columns(state: ReactionPickerState) -> [GridItem] {
     Array(repeating: Self.gridItem(state: state), count: state.columnCount)
   }
@@ -76,6 +77,7 @@ struct ReactionPicker_Previews: PreviewProvider {
       var reactionPicker: ReactionPickerState?
       var text: String = ""
     }
+
     enum Action: Equatable {
       case reactionPicker(ReactionPickerAction)
     }
@@ -120,12 +122,14 @@ struct ReactionPicker_Previews: PreviewProvider {
       .previewDisplayName("As a view")
     }
   }
+
   private struct Preview2: View {
     struct State: Equatable {
       var reactionPicker: ReactionPickerState?
       var text: String = ""
       @BindableState var isShowingPopover: Bool = false
     }
+
     enum Action: Equatable, BindableAction {
       case reactionPicker(ReactionPickerAction)
       case binding(BindingAction<State>)
