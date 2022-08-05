@@ -26,7 +26,7 @@ final class ProseMockClient: ProseClientProtocol {
     self.impl.disconnect()
   }
 
-  func sendMessage(id: String, to: BareJid, text: String, chatState: ChatState?) throws {
+  func sendMessage(id: String, to: BareJid, text: String, chatState: XmppChatState?) throws {
     try self.impl.sendMessage(id, to, text, chatState)
   }
 
@@ -34,16 +34,56 @@ final class ProseMockClient: ProseClientProtocol {
     try self.impl.updateMessage(id, newID, to, text)
   }
 
-  func sendChatState(to: BareJid, chatState: ChatState) throws {
+  func sendChatState(to: BareJid, chatState: XmppChatState) throws {
     try self.impl.sendChatState(to, chatState)
   }
 
-  func sendPresence(show: ShowKind, status: String?) throws {
+  func sendPresence(show: XmppShowKind, status: String?) throws {
     try self.impl.sendPresence(show, status)
   }
 
   func loadRoster() throws {
     try self.impl.loadRoster()
+  }
+
+  func retractMessage(to: BareJid, messageId: MessageId) throws {
+    try self.impl.retractMessage(to, messageId)
+  }
+
+  func loadMessagesInChat(
+    jid: BareJid,
+    before: MessageId?,
+    completion: @escaping LoadMessagesCompletionHandler
+  ) {
+    self.impl.loadMessagesInChat(jid, before, completion)
+  }
+
+  func sendReactions(_ reactions: Set<String>, to: BareJid, messageId: MessageId) throws {
+    try self.impl.sendReactions(reactions, to, messageId)
+  }
+
+  func addUserToRoster(jid: BareJid, nickname: String?, groups: Set<String>) throws {
+    try self.impl.addUserToRoster(jid, nickname, groups)
+  }
+
+  func removeUserAndUnsubscribeFromPresence(jid: BareJid) throws {
+    try self.impl.removeUserAndUnsubscribeFromPresence(jid)
+  }
+
+  func subscribeToUserPresence(jid: BareJid) throws {
+    try self.impl.subscribeToUserPresence(jid)
+  }
+
+  func unsubscribeFromUserPresence(jid: BareJid) throws {
+    try self.impl.unsubscribeFromUserPresence(jid)
+  }
+
+  func grantPresencePermissionToUser(jid: BareJid) throws {
+    try self.impl.grantPresencePermissionToUser(jid)
+  }
+
+  func revokeOrRejectPresencePermissionFromUser(jid: BareJid) throws {
+    try self.impl.revokeOrRejectPresencePermissionFromUser(jid)
   }
 }
 
@@ -51,7 +91,7 @@ extension ProseMockClient {
   static func provider(
     _ handler: @escaping (ProseMockClient) -> Void
   ) -> ProseClientProvider<ProseMockClient> {
-    { jid, delegate in
+    { jid, delegate, _ in
       let client = ProseMockClient(jid: jid, delegate: delegate)
       handler(client)
       return client
@@ -62,9 +102,21 @@ extension ProseMockClient {
 struct ProseMockClientImpl {
   var connect: (ProseCore.Credential) throws -> Void = { _ in }
   var disconnect: () -> Void = {}
-  var sendMessage: (String, BareJid, String, ChatState?) throws -> Void = { _, _, _, _ in }
+  var sendMessage: (String, BareJid, String, XmppChatState?) throws -> Void = { _, _, _, _ in }
   var updateMessage: (String, String, BareJid, String) throws -> Void = { _, _, _, _ in }
-  var sendChatState: (BareJid, ChatState) throws -> Void = { _, _ in }
-  var sendPresence: (ShowKind, String?) throws -> Void = { _, _ in }
+  var sendChatState: (BareJid, XmppChatState) throws -> Void = { _, _ in }
+  var sendPresence: (XmppShowKind, String?) throws -> Void = { _, _ in }
   var loadRoster: () throws -> Void = {}
+  var retractMessage: (BareJid, MessageId) throws -> Void = { _, _ in }
+  var loadMessagesInChat: (BareJid, MessageId?, LoadMessagesCompletionHandler)
+    -> Void = { _, _, _ in
+    }
+
+  var sendReactions: (Set<String>, BareJid, MessageId) throws -> Void = { _, _, _ in }
+  var addUserToRoster: (BareJid, String?, Set<String>) throws -> Void = { _, _, _ in }
+  var removeUserAndUnsubscribeFromPresence: (BareJid) throws -> Void = { _ in }
+  var subscribeToUserPresence: (BareJid) throws -> Void = { _ in }
+  var unsubscribeFromUserPresence: (BareJid) throws -> Void = { _ in }
+  var grantPresencePermissionToUser: (BareJid) throws -> Void = { _ in }
+  var revokeOrRejectPresencePermissionFromUser: (BareJid) throws -> Void = { _ in }
 }

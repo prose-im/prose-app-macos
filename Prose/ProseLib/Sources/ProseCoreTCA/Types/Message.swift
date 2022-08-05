@@ -41,11 +41,15 @@ public struct Message: Equatable, Identifiable {
 }
 
 extension Message {
-  init?(message: ProseCoreClientFFI.Message, timestamp: Date) {
+  init?(message: XmppMessage, timestamp: Date) {
     // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
     // specified in the XMPP spec but our current server adds them, unless you send a message to
     // yourself.
-    guard let body = message.body, let id = message.id else {
+    guard
+      let body = message.body,
+      let id = message.id,
+      message.fastening == nil
+    else {
       return nil
     }
 
@@ -70,7 +74,7 @@ public enum MessageKind: Equatable {
 }
 
 extension MessageKind {
-  init(kind: ProseCoreClientFFI.MessageKind) {
+  init(kind: XmppMessageKind) {
     switch kind {
     case .chat:
       self = .chat
@@ -89,23 +93,45 @@ extension MessageKind {
 }
 
 public struct MessageReactions: Equatable {
-  var reactions: [Character: Set<JID>]
+  var reactions: [Reaction: Set<JID>]
 
-  public init(reactions: [Character: Set<JID>] = [:]) {
+  public init(reactions: [Reaction: Set<JID>] = [:]) {
     self.reactions = reactions
   }
 
-  public mutating func addReaction(_ reaction: Character, for jid: JID) {
+  public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions[reaction, default: Set<JID>()].insert(jid)
   }
 
-  public mutating func toggleReaction(_ reaction: Character, for jid: JID) {
+  public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions.prose_toggle(jid, forKey: reaction)
+  }
+
+  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
+    for (reaction, _) in self.reactions {
+      self.reactions[reaction]?.remove(jid)
+      if self.reactions[reaction]?.isEmpty == true {
+        self.reactions.removeValue(forKey: reaction)
+      }
+    }
+    for reaction in reactions {
+      self.reactions[reaction, default: []].insert(jid)
+    }
+  }
+
+  func reactions(for jid: JID) -> [Reaction] {
+    self.reactions.compactMap { reaction, jids in
+      jids.contains(jid) ? reaction : nil
+    }
+  }
+
+  subscript(reaction: Reaction) -> Set<JID>? {
+    self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Character, Set<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
     self.init(reactions: Dictionary(uniqueKeysWithValues: elements))
   }
 }
@@ -117,16 +143,10 @@ struct StringCodingKey: CodingKey {
     self.stringValue = stringValue
   }
 
-  init(_ character: Character) {
-    self.init(stringValue: String(describing: character))
-  }
-
   var intValue: Int?
 
-  init(intValue: Int) {
-    self.init(stringValue: String(describing: intValue))
-    // We never want integer keys
-//    self.intValue = intValue
+  init?(intValue _: Int) {
+    nil
   }
 }
 
@@ -136,7 +156,7 @@ extension MessageReactions: Encodable {
 
     for (key, value) in self.reactions {
       let jids: [String] = value.map(\.jidString)
-      try container.encode(jids, forKey: StringCodingKey(key))
+      try container.encode(jids, forKey: StringCodingKey(stringValue: key.rawValue))
     }
   }
 }

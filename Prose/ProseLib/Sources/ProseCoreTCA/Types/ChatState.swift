@@ -28,7 +28,7 @@ public extension ChatState {
 }
 
 extension ChatState {
-  init(state: ProseCoreClientFFI.ChatState, timestamp: Date) {
+  init(state: XmppChatState, timestamp: Date) {
     switch state {
     case .active:
       self.kind = .active
@@ -48,7 +48,7 @@ extension ChatState {
 }
 
 extension ChatState.Kind {
-  var ffi: ProseCoreClientFFI.ChatState {
+  var ffi: XmppChatState {
     switch self {
     case .active:
       return .active

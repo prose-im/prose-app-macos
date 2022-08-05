@@ -34,7 +34,11 @@ public struct ProseClient {
   /// messages and a second one where the new messages come in.
   public var messagesInChat: (_ with: JID) -> Effect<IdentifiedArrayOf<Message>, EquatableError>
 
+  /// Sends a message with the contents of `body` to the user with the specified JID.
   public var sendMessage: (_ to: JID, _ body: String) -> Effect<None, EquatableError>
+
+  /// Updates the message identified by `id` with the contents of `body` in a conversation
+  /// identified by `to`.
   public var updateMessage: (
     _ to: JID,
     _ id: Message.ID,
@@ -43,20 +47,28 @@ public struct ProseClient {
   public var addReaction: (
     _ to: JID,
     _ id: Message.ID,
-    _ reaction: Character
+    _ reaction: Reaction
   ) -> Effect<None, EquatableError>
+
   public var toggleReaction: (
     _ to: JID,
     _ id: Message.ID,
-    _ reaction: Character
+    _ reaction: Reaction
   ) -> Effect<None, EquatableError>
-  public var retractMessage: (_ id: Message.ID) -> Effect<None, EquatableError>
 
+  /// Retracts the message identified by `id` sent to a conversation identified by `to`.
+  public var retractMessage: (_ to: JID, _ id: Message.ID) -> Effect<None, EquatableError>
+
+  /// Sends the user's current state `state` in a conversation identified by `to`.
   public var sendChatState: (_ to: JID, _ state: ChatState.Kind) -> Effect<None, EquatableError>
+
+  /// Sets the user's presence to `kind` with an optional status message `status`.
   public var sendPresence: (
     _ kind: Presence.Show,
     _ status: String?
   ) -> Effect<None, EquatableError>
 
+  /// Marks all messages read in a conversation identified by `jid` to
+  /// update `Chat.numberOfUnreadMessages` returned from the `activeChats` publisher.
   public var markMessagesReadInChat: (_ jid: JID) -> Effect<None, EquatableError>
 }

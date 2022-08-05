@@ -32,7 +32,7 @@
       toggleReaction: { _, _, _ in
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
-      retractMessage: { _ in
+      retractMessage: { _, _ in
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       sendChatState: { _, _ in

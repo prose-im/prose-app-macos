@@ -74,7 +74,7 @@ struct ContentView: View {
       chatSubject.value[id: messageId]?.reactions.toggleReaction(reaction, for: jid)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
-    client.retractMessage = { messageId in
+    client.retractMessage = { _, messageId in
       // TODO: Send an error if message is not found?
       chatSubject.value.remove(id: messageId)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()

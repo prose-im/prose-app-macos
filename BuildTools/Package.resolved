@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "commander",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/Commander.git",
-      "state" : {
-        "revision" : "4a1f2fb82fb6cef613c4a25d2e38f702e4d812c2",
-        "version" : "0.9.2"
-      }
-    },
-    {
       "identity" : "kanna",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tid-kijyun/Kanna.git",
@@ -75,10 +66,10 @@
     {
       "identity" : "stencil",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/Stencil.git",
+      "location" : "https://github.com/stencilproject/Stencil.git",
       "state" : {
-        "revision" : "ccd9402682f4c07dac9561befd207c8156e80e20",
-        "version" : "0.14.2"
+        "revision" : "4f222ac85d673f35df29962fc4c36ccfdaf9da5b",
+        "version" : "0.15.1"
       }
     },
     {
@@ -86,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftGen/StencilSwiftKit.git",
       "state" : {
-        "revision" : "54cbedcdbb4334e03930adcff7343ffaf317bf0f",
-        "version" : "2.8.0"
+        "revision" : "20e2de5322c83df005939d9d9300fab130b49f97",
+        "version" : "2.10.1"
       }
     },
     {
@@ -104,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "f8e35f6716c369c8412664052a0a7337da2ca0e3",
-        "version" : "0.49.9"
+        "revision" : "9a2fb9a9431e0ddea19dd6cb4395615129cf44cb",
+        "version" : "0.49.14"
       }
     },
     {
@@ -113,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftGen/SwiftGen",
       "state" : {
-        "revision" : "d498d285867f42ef0c74c5ebd9ddced747831372",
-        "version" : "6.5.1"
+        "revision" : "1db1ca768cdda4a2a1aef785f55167a1812fa9a0",
+        "version" : "6.6.1"
       }
     },
     {
@@ -131,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MaxDesiatov/XMLCoder.git",
       "state" : {
-        "revision" : "f30119af03996939cc4f54e0bf0dda9f88a84da5",
-        "version" : "0.13.1"
+        "revision" : "ca932442d7481700f5434a7b138c47dd42d9902b",
+        "version" : "0.14.0"
       }
     },
     {

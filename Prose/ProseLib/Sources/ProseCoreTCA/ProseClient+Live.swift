@@ -24,10 +24,40 @@ public extension ProseClient {
     var client: Client?
     let delegate = Delegate(date: date)
 
+    func toggleReaction(
+      to: JID,
+      id: Message.ID,
+      reaction: Reaction
+    ) -> Effect<None, EquatableError> {
+      guard let client = client else {
+        return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+      }
+
+      guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+        return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+      }
+
+      do {
+        let jid = JID(bareJid: client.jid)
+        try delegate.activeChats[to]?.updateMessage(id: id) { message in
+          message.reactions.toggleReaction(reaction, for: jid)
+          try client.sendReactions(
+            Set(message.reactions.reactions(for: jid).map(\.rawValue)),
+            to: to.bareJid,
+            messageId: message.id.rawValue
+          )
+        }
+      } catch {
+        return Effect(error: EquatableError(error))
+      }
+
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    }
+
     return ProseClient(
       login: { jid, password in
         delegate.account = .init(jid: jid, status: .connecting)
-        client = provider(jid.bareJid, delegate)
+        client = provider(jid.bareJid, delegate, .main)
 
         do {
           try client?.connect(credential: .password(password))
@@ -120,7 +150,7 @@ public extension ProseClient {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
-        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
+        guard let messageToUpdate = delegate.activeChats[to]?.messages[id: id] else {
           return Effect(error: EquatableError(ProseClientError.unknownMessageID))
         }
 
@@ -134,11 +164,12 @@ public extension ProseClient {
             text: body
           )
 
-          delegate.activeChats[to]?.updateMessage(id: id) { message in
-            message.id = newMessageID
-            message.isEdited = true
-            message.body = body
-          }
+          var updatedMessage = messageToUpdate
+          updatedMessage.id = newMessageID
+          updatedMessage.isEdited = true
+          updatedMessage.body = body
+
+          delegate.activeChats[to]?.replaceMessage(id: id, with: updatedMessage)
         } catch {
           return Effect(error: EquatableError(error))
         }
@@ -150,21 +181,20 @@ public extension ProseClient {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
-        guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
-          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        guard delegate
+          .activeChats[to]?
+          .messages[id: id]?
+          .reactions[reaction]?
+          .contains(JID(bareJid: client.jid)) != true
+        else {
+          return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
         }
-
-        let jid = JID(bareJid: client.jid)
-
-        #warning("TODO: Update message using the client")
-
-        delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions.addReaction(reaction, for: jid)
-        }
-
-        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+        return toggleReaction(to: to, id: id, reaction: reaction)
       },
       toggleReaction: { to, id, reaction in
+        toggleReaction(to: to, id: id, reaction: reaction)
+      },
+      retractMessage: { to, id in
         guard let client = client else {
           return Effect(error: EquatableError(ProseClientError.notAuthenticated))
         }
@@ -173,18 +203,14 @@ public extension ProseClient {
           return Effect(error: EquatableError(ProseClientError.unknownMessageID))
         }
 
-        let jid = JID(bareJid: client.jid)
-
-        #warning("TODO: Update message using the client")
-
-        delegate.activeChats[to]?.updateMessage(id: id) { message in
-          message.reactions.toggleReaction(reaction, for: jid)
+        do {
+          try client.retractMessage(to: to.bareJid, messageId: id.rawValue)
+          delegate.activeChats[to]?.removeMessage(id: id)
+        } catch {
+          return Effect(error: EquatableError(error))
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
-      },
-      retractMessage: { _ in
-        fatalError("Not implemented yet.")
       },
       sendChatState: { to, kind in
         guard let client = client else {
@@ -278,42 +304,80 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceiveRoster roster: ProseCoreClientFFI.Roster
+    didReceiveRoster roster: XmppRoster
   ) {
     self.roster = Roster(roster: roster)
   }
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceiveMessage message: ProseCoreClientFFI.Message
+    didReceiveMessage message: XmppMessage
   ) {
+    // Roll all updates to our active chats into one. Otherwise downstream subscribers may
+    // receive multiple changes.
+    var activeChats = self.activeChats
+    defer {
+      self.activeChats = activeChats
+    }
+
     if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
-      self.activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
+      activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
       self.incomingMessages.send(message)
     }
 
     let jid = JID(bareJid: message.from)
 
     if let chatState = message.chatState {
-      self.activeChats[jid, default: Chat(jid: jid)].participantStates[jid] =
+      activeChats[jid, default: Chat(jid: jid)].participantStates[jid] =
         .init(state: chatState, timestamp: self.date())
     }
 
-    if let replace = message.replace, let newID = message.id, let body = message.body {
-      self.activeChats[jid]?.updateMessage(id: Message.ID(rawValue: replace)) { message in
-        message.id = Message.ID(rawValue: newID)
-        message.isEdited = true
-        message.body = body
+    if let reactions = message.reactions {
+      activeChats[jid]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
+        message.reactions.setReactions(
+          reactions.reactions.map(Reaction.init(rawValue:)),
+          for: message.from
+        )
       }
+    }
+
+    if let fastening = message.fastening, fastening.retract {
+      activeChats[jid]?.removeMessage(id: Message.ID(rawValue: fastening.id))
+    }
+
+    if
+      let replace = message.replace,
+      let newID = message.id,
+      let body = message.body,
+      let oldMessage = activeChats[jid]?.messages[id: Message.ID(rawValue: replace)]
+    {
+      var message = oldMessage
+      message.id = Message.ID(rawValue: newID)
+      message.isEdited = true
+      message.body = body
+      activeChats[jid]?.replaceMessage(id: oldMessage.id, with: message)
     }
   }
 
   func proseClient(
     _: ProseClientProtocol,
-    didReceivePresence presence: ProseCoreClientFFI.Presence
+    didReceivePresence presence: XmppPresence
   ) {
     if let jid = presence.from.map(JID.init) {
       self.presences[jid] = .init(presence: presence, timestamp: self.date())
     }
   }
+
+  func proseClient(
+    _ client: ProseClientProtocol,
+    didReceivePresenceSubscriptionRequest from: BareJid
+  ) {
+    try? client.grantPresencePermissionToUser(jid: from)
+    try? client.addUserToRoster(jid: from, nickname: nil, groups: [])
+  }
+
+  func proseClient(
+    _: ProseClientProtocol,
+    didReceiveArchivingPreferences _: XmppmamPreferences
+  ) {}
 }

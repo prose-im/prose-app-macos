@@ -88,7 +88,7 @@
          <EnvironmentVariable
             key = "PROSE_CORE_LOG_ENABLED"
             value = "1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

@@ -7,15 +7,17 @@ import Foundation
 import ProseCoreClientFFI
 import ProseCoreTCA
 
-extension ProseCoreClientFFI.Message {
+extension XmppMessage {
   static func mock(
     from: BareJid = "jane.doe@prose.org",
     to: BareJid? = nil,
     id: String? = "message-id",
-    kind: ProseCoreClientFFI.MessageKind? = nil,
+    kind: XmppMessageKind? = nil,
     body: String? = "Empty Message",
-    chatState: ProseCoreClientFFI.ChatState? = nil,
+    chatState: XmppChatState? = nil,
     replace: String? = nil,
+    reactions: XmppMessageReactions? = nil,
+    fastening: XmppMessageFastening? = nil,
     error: String? = nil
   ) -> Self {
     .init(
@@ -26,6 +28,8 @@ extension ProseCoreClientFFI.Message {
       body: body,
       chatState: chatState,
       replace: replace,
+      reactions: reactions,
+      fastening: fastening,
       error: error
     )
   }

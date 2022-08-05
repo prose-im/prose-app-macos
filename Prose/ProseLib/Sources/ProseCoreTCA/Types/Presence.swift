@@ -42,7 +42,7 @@ public extension Presence {
 }
 
 extension Presence {
-  init(presence: ProseCoreClientFFI.Presence, timestamp: Date) {
+  init(presence: XmppPresence, timestamp: Date) {
     self.kind = presence.kind.map(Presence.Kind.init)
     self.show = presence.show.map(Presence.Show.init)
     self.status = presence.status
@@ -51,7 +51,7 @@ extension Presence {
 }
 
 extension Presence.Kind {
-  init(kind: PresenceKind) {
+  init(kind: XmppPresenceKind) {
     switch kind {
     case .unavailable:
       self = .unavailable
@@ -74,7 +74,7 @@ extension Presence.Kind {
 }
 
 extension Presence.Show {
-  init(show: ShowKind) {
+  init(show: XmppShowKind) {
     switch show {
     case .away:
       self = .away
@@ -91,7 +91,7 @@ extension Presence.Show {
 }
 
 extension Presence.Show {
-  var ffi: ProseCoreClientFFI.ShowKind {
+  var ffi: XmppShowKind {
     switch self {
     case .away:
       return .away

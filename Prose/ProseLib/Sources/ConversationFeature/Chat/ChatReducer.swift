@@ -135,8 +135,7 @@ let chatReducer = Reducer<
 
     case let .remove(id):
       logger.trace("Retracting \(String(describing: id))…")
-      // NOTE: No need to `state.messages.removeAll(where:)` because the view will be automatically updated
-      return environment.proseClient.retractMessage(id).fireAndForget()
+      return environment.proseClient.retractMessage(state.chatId, id).fireAndForget()
     }
     return .none
 
@@ -192,11 +191,12 @@ let chatReducer = Reducer<
   case let .message(.toggleReaction(payload)):
     logger.trace("Toggling reaction \(payload.reaction) on \(String(describing: payload.ids))…")
 
-    guard let reaction = payload.reaction.first else { return .none }
-
     if let messageId = payload.ids.first {
-      return environment.proseClient.toggleReaction(state.chatId, messageId, reaction)
-        .fireAndForget()
+      return environment.proseClient.toggleReaction(
+        state.chatId,
+        messageId,
+        Reaction(payload.reaction)
+      ).fireAndForget()
     } else {
       logger.notice("Could not toggle reaction: No message selected")
       return .none

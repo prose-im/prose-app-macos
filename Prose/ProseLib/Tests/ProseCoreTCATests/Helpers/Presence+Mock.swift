@@ -7,12 +7,12 @@ import Foundation
 import ProseCoreClientFFI
 import ProseCoreTCA
 
-extension ProseCoreClientFFI.Presence {
+extension XmppPresence {
   static func mock(
-    kind: PresenceKind? = nil,
+    kind: XmppPresenceKind? = nil,
     from: BareJid? = "jane.doe@prose.org",
     to: BareJid? = nil,
-    show: ShowKind? = nil,
+    show: XmppShowKind? = nil,
     status: String? = nil
   ) -> Self {
     .init(

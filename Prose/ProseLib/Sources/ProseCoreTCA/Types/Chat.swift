@@ -46,6 +46,12 @@ extension Chat {
     }
   }
 
+  mutating func removeMessage(id: Message.ID) {
+    if self.messages.remove(id: id)?.isRead == false {
+      self.numberOfUnreadMessages -= 1
+    }
+  }
+
   mutating func markMessagesRead() {
     self.messages.ids.forEach { id in
       self.messages[id: id]?.isRead = true
@@ -57,12 +63,39 @@ extension Chat {
     self.messages.ids.contains(id)
   }
 
-  @discardableResult
-  mutating func updateMessage(id: Message.ID, with handler: (inout Message) -> Void) -> Bool {
-    guard self.messages.ids.contains(id) else {
+  /// Replaces the message identified by `id` with `message` if a message with `id` exists. Use
+  /// this method instead of ``updateMessage(id:with:)`` if the identity of `message` is different
+  /// from the one being replaced.
+  ///
+  /// - Parameters:
+  ///   - id: The id of the message to replace.
+  ///   - message: The replacement for the message.
+  /// - Returns: `true` if a message with `id` existed and was replaced, `false` otherwise.
+  @discardableResult mutating func replaceMessage(id: Message.ID, with message: Message) -> Bool {
+    guard let idx = self.messages.index(id: id) else {
       return false
     }
-    handler(&self.messages[id: id]!)
+    self.messages.remove(at: idx)
+    self.messages.insert(message, at: idx)
+    return true
+  }
+
+  /// Transforms message identified by `id` using `handler` in a transactional manner. If `handler`
+  /// throws, the message will not be updated.
+  ///
+  /// - Parameters:
+  ///   - id: The id of the message to update.
+  ///   - handler: The handler used to transform the message.
+  /// - Returns: `true` if message with id exists, `false` otherwise.
+  @discardableResult mutating func updateMessage(
+    id: Message.ID,
+    with handler: (inout Message) throws -> Void
+  ) rethrows -> Bool {
+    guard var message = self.messages[id: id] else {
+      return false
+    }
+    try handler(&message)
+    self.messages[id: id] = message
     return true
   }
 }
