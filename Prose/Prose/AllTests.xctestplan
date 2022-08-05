@@ -15,6 +15,9 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "CredentialsStoreTests"
+      ],
       "target" : {
         "containerPath" : "container:ProseLib",
         "identifier" : "CredentialsClientTests",

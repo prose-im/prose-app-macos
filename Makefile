@@ -46,6 +46,14 @@ test: XCBEAUTIFY
 	    -scheme $(XCSCHEME) \
 		-testPlan AllTests \
 	  	test | $(XCBEAUTIFY)
+		  
+test-ci: XCBEAUTIFY
+	@$(XCODEBUILD) \
+		-project $(XCPROJ) \
+		-scheme $(XCSCHEME) \
+		-testPlan AllTests \
+		-resultBundlePath TestResults \
+		test | $(XCBEAUTIFY)
 
 release_build: XCBEAUTIFY
 	@(export IS_RELEASE_BUILD=1 && $(XCODEBUILD) \
