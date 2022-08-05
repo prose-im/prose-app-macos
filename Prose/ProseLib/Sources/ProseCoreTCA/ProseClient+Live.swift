@@ -37,12 +37,18 @@ public extension ProseClient {
         return Effect(error: EquatableError(ProseClientError.unknownMessageID))
       }
 
-      let jid = JID(bareJid: client.jid)
-
-      #warning("TODO: Update message using the client")
-
-      delegate.activeChats[to]?.updateMessage(id: id) { message in
-        message.reactions.toggleReaction(reaction, for: jid)
+      do {
+        let jid = JID(bareJid: client.jid)
+        try delegate.activeChats[to]?.updateMessage(id: id) { message in
+          message.reactions.toggleReaction(reaction, for: jid)
+          try client.sendReactions(
+            Set(message.reactions.reactions(for: jid).map(\.rawValue)),
+            to: to.bareJid,
+            messageId: message.id.rawValue
+          )
+        }
+      } catch {
+        return Effect(error: EquatableError(error))
       }
 
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
@@ -292,29 +298,45 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     _: ProseClientProtocol,
     didReceiveMessage message: XmppMessage
   ) {
+    // Roll all updates to our active chats into one. Otherwise downstream subscribers may
+    // receive multiple changes.
+    var activeChats = self.activeChats
+    defer {
+      self.activeChats = activeChats
+    }
+
     if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
-      self.activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
+      activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
       self.incomingMessages.send(message)
     }
 
     let jid = JID(bareJid: message.from)
 
     if let chatState = message.chatState {
-      self.activeChats[jid, default: Chat(jid: jid)].participantStates[jid] =
+      activeChats[jid, default: Chat(jid: jid)].participantStates[jid] =
         .init(state: chatState, timestamp: self.date())
+    }
+
+    if let reactions = message.reactions {
+      activeChats[jid]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
+        message.reactions.setReactions(
+          reactions.reactions.map(Reaction.init(rawValue:)),
+          for: message.from
+        )
+      }
     }
 
     if
       let replace = message.replace,
       let newID = message.id,
       let body = message.body,
-      let oldMessage = self.activeChats[jid]?.messages[id: Message.ID(rawValue: replace)]
+      let oldMessage = activeChats[jid]?.messages[id: Message.ID(rawValue: replace)]
     {
       var message = oldMessage
       message.id = Message.ID(rawValue: newID)
       message.isEdited = true
       message.body = body
-      self.activeChats[jid]?.replaceMessage(id: oldMessage.id, with: message)
+      activeChats[jid]?.replaceMessage(id: oldMessage.id, with: message)
     }
   }
 

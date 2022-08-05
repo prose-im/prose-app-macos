@@ -103,6 +103,24 @@ public struct MessageReactions: Equatable {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
+  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
+    for (reaction, _) in self.reactions {
+      self.reactions[reaction]?.remove(jid)
+      if self.reactions[reaction]?.isEmpty == true {
+        self.reactions.removeValue(forKey: reaction)
+      }
+    }
+    for reaction in reactions {
+      self.reactions[reaction, default: []].insert(jid)
+    }
+  }
+
+  func reactions(for jid: JID) -> [Reaction] {
+    self.reactions.compactMap { reaction, jids in
+      jids.contains(jid) ? reaction : nil
+    }
+  }
+
   subscript(reaction: Reaction) -> Set<JID>? {
     self.reactions[reaction]
   }

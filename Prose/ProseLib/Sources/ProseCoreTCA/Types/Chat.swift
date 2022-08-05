@@ -74,12 +74,22 @@ extension Chat {
     return true
   }
 
-  @discardableResult
-  mutating func updateMessage(id: Message.ID, with handler: (inout Message) -> Void) -> Bool {
-    guard self.messages.ids.contains(id) else {
+  /// Transforms message identified by `id` using `handler` in a transactional manner. If `handler`
+  /// throws, the message will not be updated.
+  ///
+  /// - Parameters:
+  ///   - id: The id of the message to update.
+  ///   - handler: The handler used to transform the message.
+  /// - Returns: `true` if message with id exists, `false` otherwise.
+  @discardableResult mutating func updateMessage(
+    id: Message.ID,
+    with handler: (inout Message) throws -> Void
+  ) rethrows -> Bool {
+    guard var message = self.messages[id: id] else {
       return false
     }
-    handler(&self.messages[id: id]!)
+    try handler(&message)
+    self.messages[id: id] = message
     return true
   }
 }

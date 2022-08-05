@@ -7,6 +7,7 @@ import Combine
 import Foundation
 import IdentifiedCollections
 import ProseCore
+import ProseCoreClientFFI
 import ProseCoreTCA
 import TestHelpers
 import XCTest
@@ -334,6 +335,148 @@ final class ProseClientTests: XCTestCase {
         [
           "chat1@prose.org": 1,
           "chat2@prose.org": 1,
+        ],
+      ]
+    )
+  }
+
+  func testSendsReactions() throws {
+    let (client, mock) = try self.connectedClient()
+
+    struct SentReactions: Equatable {
+      var reactions: Set<String>
+      var jid: BareJid
+      var messageId: MessageId
+    }
+
+    var sentReactions = [SentReactions]()
+
+    mock.impl.sendReactions = { reactions, jid, messageId in
+      sentReactions.append(.init(reactions: reactions, jid: jid, messageId: messageId))
+    }
+
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "❤️")
+    )
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "🤷‍♂️")
+    )
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "🫠")
+    )
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "🫠")
+    )
+    try self.await(
+      client.toggleReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "🤷‍♂️")
+    )
+
+    XCTAssertEqual(
+      sentReactions, [
+        .init(
+          reactions: ["❤️"],
+          jid: "chat1@prose.org",
+          messageId: "00000000-0000-0000-0000-000000000000"
+        ),
+        .init(
+          reactions: ["❤️", "🤷‍♂️"],
+          jid: "chat1@prose.org",
+          messageId: "00000000-0000-0000-0000-000000000000"
+        ),
+        .init(
+          reactions: ["❤️", "🤷‍♂️", "🫠"],
+          jid: "chat1@prose.org",
+          messageId: "00000000-0000-0000-0000-000000000000"
+        ),
+        .init(
+          reactions: ["❤️", "🫠"],
+          jid: "chat1@prose.org",
+          messageId: "00000000-0000-0000-0000-000000000000"
+        ),
+      ]
+    )
+  }
+
+  func testUpdatesReactions() throws {
+    let date = Date.ymd(2022, 8, 4)
+    let (client, mock) = try self.connectedClient(date: { date })
+
+    let chat1Reactions = TestSink<[Message.ID: MessageReactions]>()
+    var c = Set<AnyCancellable>()
+
+    client.messagesInChat("chat1@prose.org")
+      .map { messages in
+        Dictionary(uniqueKeysWithValues: zip(messages.ids, messages.map(\.reactions)))
+      }
+      .removeDuplicates()
+      .collectInto(sink: chat1Reactions)
+      .store(in: &c)
+
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+    try self.await(client.sendMessage("chat2@prose.org", ""))
+
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "❤️")
+    )
+    try self.await(
+      client.addReaction("chat2@prose.org", "00000000-0000-0000-0000-000000000001", "🤷‍♂️")
+    )
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat1@prose.org", id: "1")
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat2@prose.org", id: "1")
+    )
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "2",
+        body: nil,
+        reactions: .init(id: "1", reactions: ["🎂", "🐇"])
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat2@prose.org",
+        id: "2",
+        body: nil,
+        reactions: .init(id: "1", reactions: ["👻"])
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "3",
+        body: nil,
+        reactions: .init(id: "1", reactions: ["🍻", "🐇"])
+      )
+    )
+
+    XCTAssertEqual(
+      chat1Reactions.values, [
+        [:],
+        ["00000000-0000-0000-0000-000000000000": [:]],
+        ["00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]]],
+        [
+          "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
+          "1": [:],
+        ],
+        [
+          "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
+          "1": ["🎂": ["chat1@prose.org"], "🐇": ["chat1@prose.org"]],
+        ],
+        [
+          "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
+          "1": ["🍻": ["chat1@prose.org"], "🐇": ["chat1@prose.org"]],
         ],
       ]
     )
