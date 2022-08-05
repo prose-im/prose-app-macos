@@ -57,7 +57,7 @@ public extension ProseClient {
     return ProseClient(
       login: { jid, password in
         delegate.account = .init(jid: jid, status: .connecting)
-        client = provider(jid.bareJid, delegate)
+        client = provider(jid.bareJid, delegate, .main)
 
         do {
           try client?.connect(credential: .password(password))

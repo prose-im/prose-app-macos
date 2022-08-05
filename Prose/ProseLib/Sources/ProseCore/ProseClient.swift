@@ -14,6 +14,7 @@ public final class ProseClient: ProseClientProtocol {
   public private(set) weak var delegate: ProseClientDelegate?
 
   private let client: ProseCoreClientFFI.XmppClient
+  private let delegateQueue: DispatchQueue
 
   /// When `true`, we're either already connected or in the midst of a connection attempt.
   private var isConnected = false
@@ -25,9 +26,10 @@ public final class ProseClient: ProseClientProtocol {
 
   private var credential: Credential?
 
-  public init(jid: BareJid, delegate: ProseClientDelegate) {
+  public init(jid: BareJid, delegate: ProseClientDelegate, delegateQueue: DispatchQueue) {
     self.client = .init(jid: jid)
     self.delegate = delegate
+    self.delegateQueue = delegateQueue
 
     if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
       enableLogging()
@@ -133,34 +135,49 @@ public final class ProseClient: ProseClientProtocol {
 
 extension ProseClient: XmppAccountObserver {
   public func didConnect() {
-    self.delegate?.proseClientDidConnect(self)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClientDidConnect(self)
+    }
   }
 
   public func didDisconnect() {
     self.isConnected = false
+
     // We need to receive an error here from the core lib. Unfortunately the core lib itself
     // doesn't receive an error for invalid credentials from libstrophe at this point.
-    self.delegate?.proseClient(self, connectionDidFailWith: nil)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, connectionDidFailWith: nil)
+    }
   }
 
   public func didReceiveMessage(message: XmppMessage) {
-    self.delegate?.proseClient(self, didReceiveMessage: message)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceiveMessage: message)
+    }
   }
 
   public func didReceiveRoster(roster: XmppRoster) {
-    self.delegate?.proseClient(self, didReceiveRoster: roster)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceiveRoster: roster)
+    }
   }
 
   public func didReceivePresence(presence: XmppPresence) {
-    self.delegate?.proseClient(self, didReceivePresence: presence)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceivePresence: presence)
+    }
   }
 
   public func didReceivePresenceSubscriptionRequest(from: BareJid) {
-    self.delegate?.proseClient(self, didReceivePresenceSubscriptionRequest: from)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceivePresenceSubscriptionRequest: from)
+    }
   }
 
   public func didReceiveArchivingPreferences(preferences: XmppmamPreferences) {
-    self.delegate?.proseClient(self, didReceiveArchivingPreferences: preferences)
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceiveArchivingPreferences: preferences)
+    }
   }
 
   public func didReceiveMessagesInChat(
@@ -169,6 +186,24 @@ extension ProseClient: XmppAccountObserver {
     messages: [XmppForwardedMessage],
     isComplete: Bool
   ) {
-    self.loadMessagesCompletionHandlers[requestId]?(.success(messages), isComplete)
+    self.delegateQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
+      let completionHandler = self.loadMessagesCompletionHandlers[requestId]
+      self.loadMessagesCompletionHandlers.removeValue(forKey: requestId)
+      completionHandler?(.success(messages), isComplete)
+    }
+  }
+}
+
+private extension ProseClient {
+  func callDelegateOnQueue(_ handler: @escaping (ProseClientDelegate) -> Void) {
+    weak var delegate = self.delegate
+    self.delegateQueue.async {
+      if let delegate = delegate {
+        handler(delegate)
+      }
+    }
   }
 }

@@ -7,7 +7,7 @@ import Foundation
 import ProseCoreClientFFI
 
 public typealias ProseClientProvider<Client: ProseClientProtocol> =
-  (BareJid, ProseClientDelegate) -> Client
+  (BareJid, ProseClientDelegate, DispatchQueue) -> Client
 
 public typealias LoadMessagesCompletionHandler =
   (Result<[XmppForwardedMessage], Error>, _ isComplete: Bool) -> Void
