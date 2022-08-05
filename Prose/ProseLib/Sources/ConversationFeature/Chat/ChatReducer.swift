@@ -208,11 +208,6 @@ let chatReducer = Reducer<
     return .none
 
   case let .message(.showReactions(payload)):
-    guard state.emojiPicker == nil else {
-      logger.trace("Hiding reactions for \(String(describing: payload.ids)) (picker already open)…")
-      hideEmojiPicker()
-      return .none
-    }
     logger.trace("Showing reactions for \(String(describing: payload.ids))…")
 
     if let messageId: Message.ID = payload.ids.first {
@@ -257,7 +252,6 @@ let chatReducer = Reducer<
     guard let emoji = emoji,
           let messageId = state.targetedMessageId
     else { return .none }
-    hideEmojiPicker()
     return addReaction(emoji, on: messageId)
   }
 }

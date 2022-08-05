@@ -342,31 +342,18 @@ struct ChatView: NSViewRepresentable {
         ))
       )
 
-      let show = {
-        picker.setFrameOrigin(pickerState.origin)
-
-        if picker.superview == nil {
-          webView.addSubview(picker)
-        }
-
-        assert(webView.window != nil)
-        if webView.window?.firstResponder != picker {
-          webView.window?.makeFirstResponder(picker)
-        }
-        DispatchQueue.main.async {
-          NSApp.orderFrontCharacterPalette(picker)
-        }
-      }
+      picker.setFrameOrigin(pickerState.origin)
 
       if picker.superview == nil {
-        DispatchQueue.main.async(execute: show)
-      } else {
-        logger.trace("Waiting a little for the previous character palette to close properly…")
-        // NOTE: [Rémi Bardon] If the character palette is already open, but we want to open
-        //       another one, macOS closes the first one, and doesn't show the new one because
-        //       one is already open at the time it tries to open it.
-        //       This magic number is the lowest delay I found, running on macOS 12.4.
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(600), execute: show)
+        webView.addSubview(picker)
+      }
+
+      assert(webView.window != nil)
+      if webView.window?.firstResponder != picker {
+        webView.window?.makeFirstResponder(picker)
+      }
+      DispatchQueue.main.async {
+        NSApp.orderFrontCharacterPalette(picker)
       }
     #else
       #warning("Show an emoji picker")

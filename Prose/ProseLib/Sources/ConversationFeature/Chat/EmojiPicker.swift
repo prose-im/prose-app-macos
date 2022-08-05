@@ -87,6 +87,8 @@ extension EmojiPickerView: NSTextInputClient {
     // This method is called when the user selects an emoji
     if let string = string as? String {
       self.viewStore.send(.didSelect(string.first))
+    } else {
+      fatalError("Emoji picker did not insert a String")
     }
   }
 
