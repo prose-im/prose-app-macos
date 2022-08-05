@@ -1,0 +1,77 @@
+name: Preflight Pull Request
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+jobs:
+  test:
+    name: Preflight
+    runs-on: macos-12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install developer certificate
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      - name: Cache BuildTools
+        uses: actions/cache@v2
+        with:
+          path: BuildTools/.build
+          key: ${{ runner.os }}-buildtools-${{ hashFiles('BuildTools/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-buildtools-
+
+      - name: Cache SPM packages
+        uses: actions/cache@v2
+        with:
+          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('Prose/Prose.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Lint code
+        run: make lint
+
+      - name: Run unit tests
+        run: make test-ci
+
+      - name: Show test results
+        uses: kishikawakatsumi/xcresulttool@v1
+        with:
+          path: TestResults.xcresult
+          show-code-coverage: false
+        if: success() || failure()
+
+      - name: Build preview apps
+        run: make build_preview_apps
+
+      - name: Build release scheme
+        run: make release_build
