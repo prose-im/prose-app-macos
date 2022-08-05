@@ -72,7 +72,18 @@ struct Chat: View {
 }
 
 public final class ChatWebView: WKWebView {
-  lazy var emojiPicker = EmojiPicker(origin: .zero)
+  var _emojiPicker: EmojiPickerView?
+
+  func emojiPicker(viewStore: ViewStore<EmojiPickerState, EmojiPickerAction>) -> EmojiPickerView {
+    if let picker = self._emojiPicker {
+      picker.viewStore = viewStore
+      return picker
+    } else {
+      let picker = EmojiPickerView(viewStore: viewStore)
+      self._emojiPicker = picker
+      return picker
+    }
+  }
 }
 
 struct ChatView: NSViewRepresentable {
@@ -178,6 +189,8 @@ struct ChatView: NSViewRepresentable {
 
     // Show message menu
     self.viewStore.publisher
+      // NOTE: We don't *need* the web view to be ready, but it would not make sense
+      //       to present the menu anyway
       .drop(while: { !$0.isWebViewReady })
       .map(\.menu)
       // Do not run `hideMenu` if the menu was never presented,
@@ -189,6 +202,25 @@ struct ChatView: NSViewRepresentable {
           self.showMenu(menuState, on: webView, context: context)
         } else {
           self.hideMenu(context: context)
+        }
+      }
+      .store(in: &context.coordinator.cancellables)
+
+    // Show emoji picker
+    self.viewStore.publisher
+      // NOTE: We don't *need* the web view to be ready, but it would not make sense
+      //       to show the picker anyway
+      .drop(while: { !$0.isWebViewReady })
+      .map(\.emojiPicker)
+      // Do not run `hideEmojiPicker` if the picker was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { pickerState in
+        if let pickerState: EmojiPickerState = pickerState {
+          self.showEmojiPicker(pickerState, on: webView)
+        } else {
+          self.hideEmojiPicker(from: webView)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -242,7 +274,7 @@ struct ChatView: NSViewRepresentable {
     webView.evaluateJavaScript(script, domain: "Highlight message")
   }
 
-  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, context: Context) {
+  func showMenu(_ menuState: MessageMenuState, on webView: ChatWebView, context: Context) {
     logger.trace("Showing message menu…")
 
     #if os(macOS)
@@ -255,8 +287,22 @@ struct ChatView: NSViewRepresentable {
 
         menu.delegate = context.coordinator
 
-        DispatchQueue.main.async {
-          menu.popUp(positioning: nil, at: menuState.origin, in: webView)
+        let show = {
+          // NOTE: This call is synchronous, and blocks the main thread
+          _ = menu.popUp(positioning: nil, at: menuState.origin, in: webView)
+        }
+
+        if webView._emojiPicker?.superview == nil {
+          DispatchQueue.main.async(execute: show)
+        } else {
+          logger.trace("Waiting a little for the character palette to close properly…")
+          // NOTE: [Rémi Bardon] If the character palette is open, but we want to open the menu,
+          //       macOS closes starts closing the palette, but opening the menu blocks the main
+          //       thread and the palette ends up in an inconsistent state. When asking the palette
+          //       to open again after that, it won't open.
+          //       Having this delay ensures the palette is correctly closed.
+          //       This magic number is the lowest delay I found, running on macOS 12.4.
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(600), execute: show)
         }
 
         return menu
@@ -282,6 +328,59 @@ struct ChatView: NSViewRepresentable {
 
     #if os(macOS)
       context.coordinator.menu = nil
+    #endif
+  }
+
+  func showEmojiPicker(_ pickerState: EmojiPickerState, on webView: ChatWebView) {
+    logger.trace("Showing emoji picker…")
+
+    #if os(macOS)
+      let picker: EmojiPickerView = webView.emojiPicker(
+        viewStore: ViewStore(self.store.scope(
+          state: { _ in pickerState },
+          action: ChatAction.emojiPicker
+        ))
+      )
+
+      let show = {
+        picker.setFrameOrigin(pickerState.origin)
+
+        if picker.superview == nil {
+          webView.addSubview(picker)
+        }
+
+        assert(webView.window != nil)
+        if webView.window?.firstResponder != picker {
+          webView.window?.makeFirstResponder(picker)
+        }
+        DispatchQueue.main.async {
+          NSApp.orderFrontCharacterPalette(picker)
+        }
+      }
+
+      if picker.superview == nil {
+        DispatchQueue.main.async(execute: show)
+      } else {
+        logger.trace("Waiting a little for the previous character palette to close properly…")
+        // NOTE: [Rémi Bardon] If the character palette is already open, but we want to open
+        //       another one, macOS closes the first one, and doesn't show the new one because
+        //       one is already open at the time it tries to open it.
+        //       This magic number is the lowest delay I found, running on macOS 12.4.
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(600), execute: show)
+      }
+    #else
+      #warning("Show an emoji picker")
+    #endif
+  }
+
+  func hideEmojiPicker(from webView: ChatWebView) {
+    logger.trace("Hiding emoji picker…")
+
+    #if os(macOS)
+      if let picker = webView._emojiPicker, webView.window?.firstResponder == picker {
+        webView.window?.makeFirstResponder(nil)
+      }
+      webView._emojiPicker?.removeFromSuperview()
     #endif
   }
 

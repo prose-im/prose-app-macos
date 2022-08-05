@@ -3,14 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-#warning("TODO: Remove Cocoa dependency")
-import Cocoa
 import ComposableArchitecture
 import CoreGraphics
 import IdentifiedCollections
 import ProseCoreTCA
-#warning("TODO: Remove WebKit dependency")
-import WebKit
 
 // MARK: State
 
@@ -19,8 +15,10 @@ struct ChatState: Equatable {
   let chatId: JID
   var isWebViewReady = false
   var messages = IdentifiedArrayOf<Message>()
+  var targetedMessageId: Message.ID?
   var selectedMessageId: Message.ID?
   var menu: MessageMenuState?
+  var emojiPicker: EmojiPickerState?
   var alert: AlertState<ChatAction>?
 }
 
@@ -75,11 +73,10 @@ extension JSEventError: CustomDebugStringConvertible {
 public enum ChatAction: Equatable {
   case webViewReady, alertDismissed
   case navigateUp, navigateDown
-  case showReactions(Message.ID, origin: CGPoint, webView: ChatWebView)
-  case addReaction(Character, on: Message.ID)
   case messageMenu(MessageMenuAction), menuDidClose
   case message(MessageAction)
   case jsEventError(JSEventError)
+  case emojiPicker(EmojiPickerAction)
 }
 
 let chatReducer = Reducer<
@@ -87,6 +84,19 @@ let chatReducer = Reducer<
   ChatAction,
   ConversationEnvironment
 > { state, action, environment in
+  func addReaction(_ reaction: Character, on messageId: Message.ID) -> Effect<ChatAction, Never> {
+    logger.trace("Reacting '\(String(describing: reaction))' to \(String(describing: messageId))…")
+    return environment.proseClient.addReaction(state.chatId, messageId, reaction).fireAndForget()
+  }
+  func showEmojiPicker(_ pickerState: EmojiPickerState, for messageId: Message.ID) {
+    state.emojiPicker = pickerState
+    state.targetedMessageId = messageId
+  }
+  func hideEmojiPicker() {
+    state.emojiPicker = nil
+    state.targetedMessageId = nil
+  }
+
   switch action {
   case .webViewReady:
     state.isWebViewReady = true
@@ -124,22 +134,19 @@ let chatReducer = Reducer<
     }
     return .none
 
-  case let .addReaction(reaction, messageId):
-    logger.trace("Reacting '\(String(describing: reaction))' to \(String(describing: messageId))…")
-    return environment.proseClient.addReaction(state.chatId, messageId, reaction).fireAndForget()
-
   case let .message(.showMenu(payload)):
     logger.trace(
       "Received right click at \(String(describing: payload.origin)) on \(String(describing: payload.ids))"
     )
 
+    hideEmojiPicker()
+
     let items: [MessageMenuItem]
     if let id: Message.ID = payload.ids.first {
-      #error("ChatWebView() will be removed after rebasing")
       items = [
         .item(.action(.copyText(id), title: "Copy text")),
         .item(.action(
-          .addReaction(id, origin: payload.origin.cgPoint, webView: ChatWebView()),
+          .addReaction(id, origin: payload.origin.cgPoint),
           title: "Add reaction…"
         )),
         .separator,
@@ -183,28 +190,12 @@ let chatReducer = Reducer<
     logger.trace("Editing \(String(describing: id))…")
     return .none
 
-  case let .showReactions(messageId, origin, webView),
-       let .messageMenu(.addReaction(messageId, origin, webView)):
+  case let .messageMenu(.addReaction(messageId, origin)):
     logger.trace("Reacting to \(String(describing: messageId))…")
 
-    return Effect.future { completion in
-      let picker = webView.emojiPicker
-      picker.setFrameOrigin(origin)
-      picker.onSelection = { emoji in
-        guard let emoji = emoji else { return }
-        completion(.success(.addReaction(emoji, on: messageId)))
-      }
-
-      if picker.superview == nil {
-        webView.addSubview(picker)
-      }
-
-      assert(webView.window != nil)
-      webView.window?.makeFirstResponder(picker)
-      NSApp.orderFrontCharacterPalette(picker)
-    }
-    .receive(on: environment.mainQueue)
-    .eraseToEffect()
+    let pickerState = EmojiPickerState(origin: origin)
+    showEmojiPicker(pickerState, for: messageId)
+    return .none
 
   case let .messageMenu(.remove(id)):
     logger.trace("Retracting \(String(describing: id))…")
@@ -217,13 +208,17 @@ let chatReducer = Reducer<
     return .none
 
   case let .message(.showReactions(payload)):
+    guard state.emojiPicker == nil else {
+      logger.trace("Hiding reactions for \(String(describing: payload.ids)) (picker already open)…")
+      hideEmojiPicker()
+      return .none
+    }
     logger.trace("Showing reactions for \(String(describing: payload.ids))…")
 
     if let messageId: Message.ID = payload.ids.first {
-      #error("ChatWebView() will be removed after rebasing")
-      return Effect(
-        value: .showReactions(messageId, origin: payload.origin.cgPoint, webView: ChatWebView())
-      )
+      let pickerState = EmojiPickerState(origin: payload.origin.cgPoint)
+      showEmojiPicker(pickerState, for: messageId)
+      return .none
     } else {
       logger.notice("Cannot show reactions: No message selected")
     }
@@ -250,5 +245,19 @@ let chatReducer = Reducer<
       message: TextState(verbatim: error.debugDescription)
     )
     return .none
+
+  case .emojiPicker(.willAppear):
+    return .none
+
+  case .emojiPicker(.willDisappear):
+    hideEmojiPicker()
+    return .none
+
+  case let .emojiPicker(.didSelect(emoji)):
+    guard let emoji = emoji,
+          let messageId = state.targetedMessageId
+    else { return .none }
+    hideEmojiPicker()
+    return addReaction(emoji, on: messageId)
   }
 }
