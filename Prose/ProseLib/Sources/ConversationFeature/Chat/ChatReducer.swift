@@ -135,7 +135,6 @@ let chatReducer = Reducer<
 
     case let .remove(id):
       logger.trace("Retracting \(String(describing: id))…")
-      // NOTE: No need to `state.messages.removeAll(where:)` because the view will be automatically updated
       return environment.proseClient.retractMessage(state.chatId, id).fireAndForget()
     }
     return .none
