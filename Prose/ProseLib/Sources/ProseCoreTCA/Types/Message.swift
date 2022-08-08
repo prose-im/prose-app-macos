@@ -119,7 +119,7 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  func reactions(for jid: JID) -> [Reaction] {
+  public func reactions(for jid: JID) -> [Reaction] {
     self.reactions.compactMap { reaction, jids in
       jids.contains(jid) ? reaction : nil
     }
