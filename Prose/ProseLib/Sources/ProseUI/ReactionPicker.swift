@@ -6,6 +6,7 @@
 import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
+import SwiftUINavigation
 
 public struct ReactionPickerState: Equatable {
   let reactions: [Reaction] = "👋👉👍😂😢😭😍😘😊🤯❤️🙏😛🚀⚠️😀😌😇🙃🙂🤩🥳🤨🙁😳🤔😐👀✅❌"
@@ -101,6 +102,23 @@ private struct Selected: ViewModifier {
         }
       }
       .accessibilityAddTraits(self.isSelected ? .isSelected : [])
+  }
+}
+
+public extension View {
+  func reactionPicker<Action>(
+    store: Store<ReactionPickerState?, Action>,
+    action: @escaping (ReactionPickerAction) -> Action,
+    dismiss: Action
+  ) -> some View {
+    WithViewStore(store) { viewStore in
+      self.popover(unwrapping: viewStore.binding(send: dismiss)) { $state in
+        ReactionPicker(store: store.scope(
+          state: { _ in $state.wrappedValue },
+          action: action
+        ))
+      }
+    }
   }
 }
 

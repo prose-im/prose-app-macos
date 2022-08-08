@@ -266,9 +266,6 @@ let chatReducer = Reducer<
         .toggleReaction(state.chatId, messageId, reaction)
         .fireAndForget()
 
-    case .reactionPicker:
-      fatalError("Not implemented yet.")
-
     case .reactionPickerDismissed:
       hideReactionPicker()
       return .none
