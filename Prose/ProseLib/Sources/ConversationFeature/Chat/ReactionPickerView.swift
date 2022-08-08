@@ -58,14 +58,11 @@ struct ReactionPickerPopup<Action>: ViewModifier {
   let dismiss: Action
 
   func body(content: Content) -> some View {
-    WithViewStore(self.store) { viewStore in
-      content
-        .popover(unwrapping: viewStore.binding(get: Optional.some, send: self.dismiss)) { $state in
-          ReactionPicker(store: self.store.scope(
-            state: { _ in $state.wrappedValue.pickerState },
-            action: self.action.embed(_:)
-          ))
-        }
-    }
+    content
+      .reactionPicker(
+        store: self.store.scope(state: { $0.pickerState }),
+        action: self.action.embed(_:),
+        dismiss: self.dismiss
+      )
   }
 }

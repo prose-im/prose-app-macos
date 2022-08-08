@@ -125,8 +125,12 @@ let package = Package(
     .target(name: "AppLocalization", resources: [.process("Resources")]),
     .target(
       name: "ProseUI",
-      dependencies: ["Assets", "ProseCoreTCA"]
-        .appendingDebugDependencies(["PreviewAssets"])
+      dependencies: [
+        "Assets",
+        "ProseCoreTCA",
+        .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
+      ]
+      .appendingDebugDependencies(["PreviewAssets"])
     ),
     .target(name: "Toolbox"),
     .target(
