@@ -249,9 +249,6 @@ let chatReducer = Reducer<
       guard let messageId: Message.ID = state.reactionPicker?.messageId else {
         preconditionFailure("We should have stored the message ID")
       }
-//      #error("")
-//      let loggedInUserJID = state.loggedInUserJID
-//      state.messages[id: messageId]?.reactions.addReaction(reaction, for: loggedInUserJID)
       return environment.proseClient
         .addReaction(state.chatId, messageId, reaction)
         .fireAndForget()
