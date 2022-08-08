@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import OrderedCollections
 import ProseCoreClientFFI
 import Tagged
 
@@ -93,14 +94,16 @@ extension MessageKind {
 }
 
 public struct MessageReactions: Equatable {
-  var reactions: [Reaction: Set<JID>]
+  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<JID>>
 
-  public init(reactions: [Reaction: Set<JID>] = [:]) {
+  public private(set) var reactions: WrappedValue
+
+  public init(reactions: WrappedValue = [:]) {
     self.reactions = reactions
   }
 
   public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
-    self.reactions[reaction, default: Set<JID>()].insert(jid)
+    self.reactions[reaction, default: OrderedSet<JID>()].append(jid)
   }
 
   public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
@@ -115,7 +118,7 @@ public struct MessageReactions: Equatable {
       }
     }
     for reaction in reactions {
-      self.reactions[reaction, default: []].insert(jid)
+      self.reactions[reaction, default: []].append(jid)
     }
   }
 
@@ -125,14 +128,14 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  subscript(reaction: Reaction) -> Set<JID>? {
+  subscript(reaction: Reaction) -> OrderedSet<JID>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
-    self.init(reactions: Dictionary(uniqueKeysWithValues: elements))
+  public init(dictionaryLiteral elements: (Reaction, OrderedSet<JID>)...) {
+    self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }
 

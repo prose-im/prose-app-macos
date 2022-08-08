@@ -8,7 +8,7 @@
 
 import Foundation
 
-// swiftlint:disable superfluous_disable_command file_length implicit_return
+// swiftlint:disable superfluous_disable_command file_length implicit_return prefer_self_in_static_references
 
 // MARK: - Strings
 
@@ -22,15 +22,21 @@ public enum L10n {
       /// This might mean that your credentials are invalid, or your account does not exist anymore on this server, or was blocked.
       public static let content = L10n.tr(
         "Localizable",
-        "authentication.account_error_alert.content"
+        "authentication.account_error_alert.content",
+        fallback: #"Prose failed connecting to your account, as the server reported an account error.\n\nThis might mean that your credentials are invalid, or your account does not exist anymore on this server, or was blocked."#
       )
       /// Account Error
-      public static let title = L10n.tr("Localizable", "authentication.account_error_alert.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "authentication.account_error_alert.title",
+        fallback: #"Account Error"#
+      )
       public enum GoToAccountSettingsAction {
         /// Account settings
         public static let title = L10n.tr(
           "Localizable",
-          "authentication.account_error_alert.go_to_account_settings_action.title"
+          "authentication.account_error_alert.go_to_account_settings_action.title",
+          fallback: #"Account settings"#
         )
       }
 
@@ -38,7 +44,8 @@ public enum L10n {
         /// Try again
         public static let title = L10n.tr(
           "Localizable",
-          "authentication.account_error_alert.try_again_action.title"
+          "authentication.account_error_alert.try_again_action.title",
+          fallback: #"Try again"#
         )
       }
 
@@ -46,7 +53,8 @@ public enum L10n {
         /// Work offline
         public static let title = L10n.tr(
           "Localizable",
-          "authentication.account_error_alert.work_offline_action.title"
+          "authentication.account_error_alert.work_offline_action.title",
+          fallback: #"Work offline"#
         )
       }
     }
@@ -57,7 +65,8 @@ public enum L10n {
           /// Bad credentials
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.alert.bad_credentials.title"
+            "authentication.basic_auth.alert.bad_credentials.title",
+            fallback: #"Bad credentials"#
           )
         }
       }
@@ -67,7 +76,8 @@ public enum L10n {
           /// Cancel
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.cancel.action.title"
+            "authentication.basic_auth.cancel.action.title",
+            fallback: #"Cancel"#
           )
         }
       }
@@ -80,19 +90,25 @@ public enum L10n {
           /// **It might be:** [your username]@[your company domain].
           public static let content = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.chat_address.popover.content"
+            "authentication.basic_auth.chat_address.popover.content",
+            fallback: #"A chat address is not an email address, but it is very likely\nthe same as your professional email address.\n\n**It might be:** [your username]@[your company domain]."#
           )
           /// What is my chat address? (XMPP address)
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.chat_address.popover.title"
+            "authentication.basic_auth.chat_address.popover.title",
+            fallback: #"What is my chat address? (XMPP address)"#
           )
         }
       }
 
       public enum Error {
         /// Login failure
-        public static let title = L10n.tr("Localizable", "authentication.basic_auth.error.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.basic_auth.error.title",
+          fallback: #"Login failure"#
+        )
       }
 
       public enum Form {
@@ -100,7 +116,8 @@ public enum L10n {
           /// Enter your chat address
           public static let placeholder = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.form.chat_address.placeholder"
+            "authentication.basic_auth.form.chat_address.placeholder",
+            fallback: #"Enter your chat address"#
           )
         }
 
@@ -108,7 +125,8 @@ public enum L10n {
           /// Enter your password…
           public static let placeholder = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.form.password.placeholder"
+            "authentication.basic_auth.form.password.placeholder",
+            fallback: #"Enter your password…"#
           )
         }
       }
@@ -117,10 +135,15 @@ public enum L10n {
         /// Sign in to your chat account
         public static let subtitle = L10n.tr(
           "Localizable",
-          "authentication.basic_auth.header.subtitle"
+          "authentication.basic_auth.header.subtitle",
+          fallback: #"Sign in to your chat account"#
         )
         /// Welcome!
-        public static let title = L10n.tr("Localizable", "authentication.basic_auth.header.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.basic_auth.header.title",
+          fallback: #"Welcome!"#
+        )
       }
 
       public enum LogIn {
@@ -128,7 +151,8 @@ public enum L10n {
           /// Log into your account
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.log_in.action.title"
+            "authentication.basic_auth.log_in.action.title",
+            fallback: #"Log into your account"#
           )
         }
       }
@@ -138,7 +162,8 @@ public enum L10n {
           /// No account yet?
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.no_account.action.title"
+            "authentication.basic_auth.no_account.action.title",
+            fallback: #"No account yet?"#
           )
         }
 
@@ -152,12 +177,14 @@ public enum L10n {
           /// team to email you an invitation to create your chat account.
           public static let content = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.no_account.popover.content"
+            "authentication.basic_auth.no_account.popover.content",
+            fallback: #"Chat accounts are hosted on your organization chat server.\nIf you are a server administrator, and you are not yet running\na chat server, please [read this guide](https://prose.org). You will be able to\ninvite all your team members afterwards.\n\nIf you are a team member, ask for an administrator in your\nteam to email you an invitation to create your chat account."#
           )
           /// How do I create a new account? (XMPP address)
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.no_account.popover.title"
+            "authentication.basic_auth.no_account.popover.title",
+            fallback: #"How do I create a new account? (XMPP address)"#
           )
         }
       }
@@ -167,7 +194,8 @@ public enum L10n {
           /// Lost your password?
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.password_lost.action.title"
+            "authentication.basic_auth.password_lost.action.title",
+            fallback: #"Lost your password?"#
           )
         }
 
@@ -176,12 +204,14 @@ public enum L10n {
           /// to [recover your password](https://prose.org).
           public static let content = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.password_lost.popover.content"
+            "authentication.basic_auth.password_lost.popover.content",
+            fallback: #"Please open this link to our website\nto [recover your password](https://prose.org)."#
           )
           /// Lost your password?
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.basic_auth.password_lost.popover.title"
+            "authentication.basic_auth.password_lost.popover.title",
+            fallback: #"Lost your password?"#
           )
         }
       }
@@ -190,12 +220,20 @@ public enum L10n {
     public enum Mfa {
       public enum ConfirmButton {
         /// Confirm login code
-        public static let title = L10n.tr("Localizable", "authentication.mfa.confirm_button.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.mfa.confirm_button.title",
+          fallback: #"Confirm login code"#
+        )
       }
 
       public enum Error {
         /// Multi factor authentication failure
-        public static let title = L10n.tr("Localizable", "authentication.mfa.error.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.mfa.error.title",
+          fallback: #"Multi factor authentication failure"#
+        )
       }
 
       public enum Footer {
@@ -203,12 +241,14 @@ public enum L10n {
           /// Not implemented yet.
           public static let content = L10n.tr(
             "Localizable",
-            "authentication.mfa.footer.cannot_generate_code.content"
+            "authentication.mfa.footer.cannot_generate_code.content",
+            fallback: #"Not implemented yet."#
           )
           /// Cannot generate code?
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.mfa.footer.cannot_generate_code.title"
+            "authentication.mfa.footer.cannot_generate_code.title",
+            fallback: #"Cannot generate code?"#
           )
         }
 
@@ -216,7 +256,8 @@ public enum L10n {
           /// No account yet?
           public static let title = L10n.tr(
             "Localizable",
-            "authentication.mfa.footer.no_account.title"
+            "authentication.mfa.footer.no_account.title",
+            fallback: #"No account yet?"#
           )
         }
       }
@@ -226,16 +267,25 @@ public enum L10n {
           /// One time code
           public static let placeholder = L10n.tr(
             "Localizable",
-            "authentication.mfa.form.one_time_code.placeholder"
+            "authentication.mfa.form.one_time_code.placeholder",
+            fallback: #"One time code"#
           )
         }
       }
 
       public enum Header {
         /// Enter your 6-digit access code
-        public static let subtitle = L10n.tr("Localizable", "authentication.mfa.header.subtitle")
+        public static let subtitle = L10n.tr(
+          "Localizable",
+          "authentication.mfa.header.subtitle",
+          fallback: #"Enter your 6-digit access code"#
+        )
         /// One more step…
-        public static let title = L10n.tr("Localizable", "authentication.mfa.header.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.mfa.header.title",
+          fallback: #"One more step…"#
+        )
       }
     }
   }
@@ -243,14 +293,23 @@ public enum L10n {
   public enum Chat {
     public enum OfflineBanner {
       /// New messages will not appear, drafts will be saved for later.
-      public static let content = L10n.tr("Localizable", "chat.offline_banner.content")
+      public static let content = L10n.tr(
+        "Localizable",
+        "chat.offline_banner.content",
+        fallback: #"New messages will not appear, drafts will be saved for later."#
+      )
       /// You are offline
-      public static let title = L10n.tr("Localizable", "chat.offline_banner.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "chat.offline_banner.title",
+        fallback: #"You are offline"#
+      )
       public enum ReconnectAction {
         /// Reconnect now
         public static let title = L10n.tr(
           "Localizable",
-          "chat.offline_banner.reconnect_action.title"
+          "chat.offline_banner.reconnect_action.title",
+          fallback: #"Reconnect now"#
         )
       }
     }
@@ -260,59 +319,91 @@ public enum L10n {
     public enum MessageBar {
       /// %s is typing…
       public static func composeTyping(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr("Localizable", "content.message_bar.compose_typing", p1)
+        L10n.tr(
+          "Localizable",
+          "content.message_bar.compose_typing",
+          p1,
+          fallback: #"%s is typing…"#
+        )
       }
 
       /// Message %s
       public static func fieldPlaceholder(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr("Localizable", "content.message_bar.field_placeholder", p1)
+        L10n.tr(
+          "Localizable",
+          "content.message_bar.field_placeholder",
+          p1,
+          fallback: #"Message %s"#
+        )
       }
     }
 
     public enum MessageDetails {
       public enum Actions {
         /// Block contact
-        public static let block = L10n.tr("Localizable", "content.message_details.actions.block")
+        public static let block = L10n.tr(
+          "Localizable",
+          "content.message_details.actions.block",
+          fallback: #"Block contact"#
+        )
         /// Encryption settings
         public static let encryptionSettings = L10n.tr(
           "Localizable",
-          "content.message_details.actions.encryption_settings"
+          "content.message_details.actions.encryption_settings",
+          fallback: #"Encryption settings"#
         )
         /// Remove from contacts
         public static let removeContact = L10n.tr(
           "Localizable",
-          "content.message_details.actions.remove_contact"
+          "content.message_details.actions.remove_contact",
+          fallback: #"Remove from contacts"#
         )
         /// View shared files
         public static let sharedFiles = L10n.tr(
           "Localizable",
-          "content.message_details.actions.shared_files"
+          "content.message_details.actions.shared_files",
+          fallback: #"View shared files"#
         )
         /// Actions
-        public static let title = L10n.tr("Localizable", "content.message_details.actions.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "content.message_details.actions.title",
+          fallback: #"Actions"#
+        )
       }
 
       public enum Information {
         /// Information
         public static let title = L10n.tr(
           "Localizable",
-          "content.message_details.information.title"
+          "content.message_details.information.title",
+          fallback: #"Information"#
         )
       }
 
       public enum Security {
         /// Encrypted (%s)
         public static func encrypted(_ p1: UnsafePointer<CChar>) -> String {
-          L10n.tr("Localizable", "content.message_details.security.encrypted", p1)
+          L10n.tr(
+            "Localizable",
+            "content.message_details.security.encrypted",
+            p1,
+            fallback: #"Encrypted (%s)"#
+          )
         }
 
         /// Identity verified
         public static let identityVerified = L10n.tr(
           "Localizable",
-          "content.message_details.security.identity_verified"
+          "content.message_details.security.identity_verified",
+          fallback: #"Identity verified"#
         )
         /// Security
-        public static let title = L10n.tr("Localizable", "content.message_details.security.title")
+        public static let title = L10n.tr(
+          "Localizable",
+          "content.message_details.security.title",
+          fallback: #"Security"#
+        )
       }
     }
   }
@@ -326,7 +417,8 @@ public enum L10n {
           /// In the event that you are unable to generate MFA tokens, you can still use your recovery phone number to login to your account.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_section.footer.label"
+            "edit_profile.authentication.mfa_section.footer.label",
+            fallback: #"Multi-factor authentication adds an extra layer of security to your account, by asking for a temporary code generated by an app, upon login.\n\nIn the event that you are unable to generate MFA tokens, you can still use your recovery phone number to login to your account."#
           )
         }
 
@@ -334,7 +426,8 @@ public enum L10n {
           /// Multi-factor authentication
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_section.header.label"
+            "edit_profile.authentication.mfa_section.header.label",
+            fallback: #"Multi-factor authentication"#
           )
         }
       }
@@ -344,7 +437,8 @@ public enum L10n {
           /// Status:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_status.header.label"
+            "edit_profile.authentication.mfa_status.header.label",
+            fallback: #"Status:"#
           )
         }
 
@@ -352,7 +446,8 @@ public enum L10n {
           /// Disabled
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_status.state_disabled.label"
+            "edit_profile.authentication.mfa_status.state_disabled.label",
+            fallback: #"Disabled"#
           )
         }
 
@@ -360,7 +455,8 @@ public enum L10n {
           /// Enabled
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_status.state_enabled.label"
+            "edit_profile.authentication.mfa_status.state_enabled.label",
+            fallback: #"Enabled"#
           )
         }
       }
@@ -370,7 +466,8 @@ public enum L10n {
           /// Disable MFA…
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_token.disable_mfa_action.label"
+            "edit_profile.authentication.mfa_token.disable_mfa_action.label",
+            fallback: #"Disable MFA…"#
           )
         }
 
@@ -378,7 +475,8 @@ public enum L10n {
           /// Token:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.mfa_token.header.label"
+            "edit_profile.authentication.mfa_token.header.label",
+            fallback: #"Token:"#
           )
         }
       }
@@ -388,7 +486,8 @@ public enum L10n {
           /// Change password…
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.password.change_password_action.label"
+            "edit_profile.authentication.password.change_password_action.label",
+            fallback: #"Change password…"#
           )
         }
 
@@ -396,7 +495,8 @@ public enum L10n {
           /// Password:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.password.header.label"
+            "edit_profile.authentication.password.header.label",
+            fallback: #"Password:"#
           )
         }
       }
@@ -406,7 +506,8 @@ public enum L10n {
           /// Your password is what keeps your account secure. If you forget it, you can still recover it from your recovery email. **Make sure to keep it up-to-date.**
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.password_section.footer.label"
+            "edit_profile.authentication.password_section.footer.label",
+            fallback: #"Your password is what keeps your account secure. If you forget it, you can still recover it from your recovery email. **Make sure to keep it up-to-date.**"#
           )
         }
 
@@ -414,7 +515,8 @@ public enum L10n {
           /// Account password
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.password_section.header.label"
+            "edit_profile.authentication.password_section.header.label",
+            fallback: #"Account password"#
           )
         }
       }
@@ -424,7 +526,8 @@ public enum L10n {
           /// Edit
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.recovery_email.edit_action.label"
+            "edit_profile.authentication.recovery_email.edit_action.label",
+            fallback: #"Edit"#
           )
         }
 
@@ -432,7 +535,8 @@ public enum L10n {
           /// Recovery email:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.recovery_email.header.label"
+            "edit_profile.authentication.recovery_email.header.label",
+            fallback: #"Recovery email:"#
           )
         }
       }
@@ -442,7 +546,8 @@ public enum L10n {
           /// Edit
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.recovery_phone.edit_action.label"
+            "edit_profile.authentication.recovery_phone.edit_action.label",
+            fallback: #"Edit"#
           )
         }
 
@@ -450,7 +555,8 @@ public enum L10n {
           /// Recovery phone:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.authentication.recovery_phone.header.label"
+            "edit_profile.authentication.recovery_phone.header.label",
+            fallback: #"Recovery phone:"#
           )
         }
       }
@@ -458,7 +564,11 @@ public enum L10n {
 
     public enum CancelAction {
       /// Cancel
-      public static let label = L10n.tr("Localizable", "edit_profile.cancel_action.label")
+      public static let label = L10n.tr(
+        "Localizable",
+        "edit_profile.cancel_action.label",
+        fallback: #"Cancel"#
+      )
     }
 
     public enum Encryption {
@@ -467,7 +577,8 @@ public enum L10n {
           /// Device ID:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.current_device_id.header.label"
+            "edit_profile.encryption.current_device_id.header.label",
+            fallback: #"Device ID:"#
           )
         }
       }
@@ -477,7 +588,8 @@ public enum L10n {
           /// Device name:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.current_device_name.header.label"
+            "edit_profile.encryption.current_device_name.header.label",
+            fallback: #"Device name:"#
           )
         }
       }
@@ -489,7 +601,8 @@ public enum L10n {
           /// **You may roll it anytime.** This will not make your message history unreadable.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.current_device_section.footer.label"
+            "edit_profile.encryption.current_device_section.footer.label",
+            fallback: #"Your security key fingerprint is shown as a short hash, which you can use to compare with the one your contacts see on their end. **Both must match.**\n\n**You may roll it anytime.** This will not make your message history unreadable."#
           )
         }
 
@@ -497,7 +610,8 @@ public enum L10n {
           /// Current device
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.current_device_section.header.label"
+            "edit_profile.encryption.current_device_section.header.label",
+            fallback: #"Current device"#
           )
         }
       }
@@ -507,7 +621,8 @@ public enum L10n {
           /// Security hash:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.current_device_security_hash.header.label"
+            "edit_profile.encryption.current_device_security_hash.header.label",
+            fallback: #"Security hash:"#
           )
         }
       }
@@ -517,7 +632,8 @@ public enum L10n {
           /// Enabled?
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.device_enabled.toggle.label"
+            "edit_profile.encryption.device_enabled.toggle.label",
+            fallback: #"Enabled?"#
           )
         }
       }
@@ -527,7 +643,8 @@ public enum L10n {
           /// Device ID
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.device_id.column.label"
+            "edit_profile.encryption.device_id.column.label",
+            fallback: #"Device ID"#
           )
         }
       }
@@ -537,7 +654,8 @@ public enum L10n {
           /// Device Name
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.device_name.column.label"
+            "edit_profile.encryption.device_name.column.label",
+            fallback: #"Device Name"#
           )
         }
       }
@@ -547,7 +665,8 @@ public enum L10n {
           /// Security Hash
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.device_security_hash.column.label"
+            "edit_profile.encryption.device_security_hash.column.label",
+            fallback: #"Security Hash"#
           )
         }
       }
@@ -557,7 +676,8 @@ public enum L10n {
           /// Removing a device will not sign out from account. It prevents all messages sent to you from being decrypted by this device, until you reconnect with this device.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.other_devices_section.footer.label"
+            "edit_profile.encryption.other_devices_section.footer.label",
+            fallback: #"Removing a device will not sign out from account. It prevents all messages sent to you from being decrypted by this device, until you reconnect with this device."#
           )
         }
 
@@ -565,7 +685,8 @@ public enum L10n {
           /// Other devices
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.encryption.other_devices_section.header.label"
+            "edit_profile.encryption.other_devices_section.header.label",
+            fallback: #"Other devices"#
           )
         }
       }
@@ -574,7 +695,8 @@ public enum L10n {
         /// Roll
         public static let label = L10n.tr(
           "Localizable",
-          "edit_profile.encryption.roll_security_hash_action.label"
+          "edit_profile.encryption.roll_security_hash_action.label",
+          fallback: #"Roll"#
         )
       }
     }
@@ -582,14 +704,19 @@ public enum L10n {
     public enum GetVerified {
       public enum Action {
         /// Get verified
-        public static let label = L10n.tr("Localizable", "edit_profile.get_verified.action.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "edit_profile.get_verified.action.label",
+          fallback: #"Get verified"#
+        )
       }
 
       public enum StateVerified {
         /// Verified
         public static let label = L10n.tr(
           "Localizable",
-          "edit_profile.get_verified.state_verified.label"
+          "edit_profile.get_verified.state_verified.label",
+          fallback: #"Verified"#
         )
       }
     }
@@ -602,7 +729,8 @@ public enum L10n {
           /// It is recommended that your email address and phone number each get verified, as it increases the level of trust of your profile. The process only takes a few seconds: you will receive a link to verify your contact details.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.contact_section.footer.label"
+            "edit_profile.identity.contact_section.footer.label",
+            fallback: #"**Your email address and phone number are public.** They are visible to all team members and contacts. They will not be available to other users.\n\nIt is recommended that your email address and phone number each get verified, as it increases the level of trust of your profile. The process only takes a few seconds: you will receive a link to verify your contact details."#
           )
         }
 
@@ -610,7 +738,8 @@ public enum L10n {
           /// Contact information
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.contact_section.header.label"
+            "edit_profile.identity.contact_section.header.label",
+            fallback: #"Contact information"#
           )
         }
       }
@@ -620,7 +749,8 @@ public enum L10n {
           /// Email:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.email.header.label"
+            "edit_profile.identity.email.header.label",
+            fallback: #"Email:"#
           )
         }
 
@@ -628,7 +758,8 @@ public enum L10n {
           /// Your email address
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.email.text_field.label"
+            "edit_profile.identity.email.text_field.label",
+            fallback: #"Your email address"#
           )
         }
       }
@@ -638,7 +769,8 @@ public enum L10n {
           /// First name:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.first_name.header.label"
+            "edit_profile.identity.first_name.header.label",
+            fallback: #"First name:"#
           )
         }
 
@@ -646,7 +778,8 @@ public enum L10n {
           /// Your first name
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.first_name.text_field.label"
+            "edit_profile.identity.first_name.text_field.label",
+            fallback: #"Your first name"#
           )
         }
       }
@@ -656,7 +789,8 @@ public enum L10n {
           /// Last name:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.last_name.header.label"
+            "edit_profile.identity.last_name.header.label",
+            fallback: #"Last name:"#
           )
         }
 
@@ -664,7 +798,8 @@ public enum L10n {
           /// Your last name
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.last_name.text_field.label"
+            "edit_profile.identity.last_name.text_field.label",
+            fallback: #"Your last name"#
           )
         }
       }
@@ -676,7 +811,8 @@ public enum L10n {
           /// Your data will be processed on an external service. This service does not keep any record of your ID after your verified status is confirmed.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.name_section.footer.label"
+            "edit_profile.identity.name_section.footer.label",
+            fallback: #"In order to show a verified badge on your profile, visible to other users, you should get your real identity verified (first name & last name). The process takes a few seconds: you will be asked to submit a government ID (ID card, passport or driving license). **Note that the verified status is optional.**\n\nYour data will be processed on an external service. This service does not keep any record of your ID after your verified status is confirmed."#
           )
         }
 
@@ -684,7 +820,8 @@ public enum L10n {
           /// Name
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.name_section.header.label"
+            "edit_profile.identity.name_section.header.label",
+            fallback: #"Name"#
           )
         }
       }
@@ -694,7 +831,8 @@ public enum L10n {
           /// Phone:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.phone.header.label"
+            "edit_profile.identity.phone.header.label",
+            fallback: #"Phone:"#
           )
         }
 
@@ -702,7 +840,8 @@ public enum L10n {
           /// Your phone number
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.identity.phone.text_field.label"
+            "edit_profile.identity.phone.text_field.label",
+            fallback: #"Your phone number"#
           )
         }
       }
@@ -714,7 +853,8 @@ public enum L10n {
           /// Auto-detect:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.auto_detect_location.header.label"
+            "edit_profile.profile.auto_detect_location.header.label",
+            fallback: #"Auto-detect:"#
           )
         }
 
@@ -722,7 +862,8 @@ public enum L10n {
           /// Auto-detect your location?
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.auto_detect_location.toggle.label"
+            "edit_profile.profile.auto_detect_location.toggle.label",
+            fallback: #"Auto-detect your location?"#
           )
         }
       }
@@ -732,7 +873,8 @@ public enum L10n {
           /// Your current organization and job title are shared with your team members and contacts to identify your position within your company.
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.job_section.footer.label"
+            "edit_profile.profile.job_section.footer.label",
+            fallback: #"Your current organization and job title are shared with your team members and contacts to identify your position within your company."#
           )
         }
 
@@ -740,7 +882,8 @@ public enum L10n {
           /// Job information
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.job_section.header.label"
+            "edit_profile.profile.job_section.header.label",
+            fallback: #"Job information"#
           )
         }
       }
@@ -750,7 +893,8 @@ public enum L10n {
           /// Title:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.job_title.header.label"
+            "edit_profile.profile.job_title.header.label",
+            fallback: #"Title:"#
           )
         }
 
@@ -758,7 +902,8 @@ public enum L10n {
           /// Your job title
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.job_title.text_field.label"
+            "edit_profile.profile.job_title.text_field.label",
+            fallback: #"Your job title"#
           )
         }
       }
@@ -768,7 +913,8 @@ public enum L10n {
           /// Location:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location.header.label"
+            "edit_profile.profile.location.header.label",
+            fallback: #"Location:"#
           )
         }
 
@@ -776,7 +922,8 @@ public enum L10n {
           /// Your current location
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location.text_field.label"
+            "edit_profile.profile.location.text_field.label",
+            fallback: #"Your current location"#
           )
         }
       }
@@ -786,7 +933,8 @@ public enum L10n {
           /// Geolocation permission:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_permission.header.label"
+            "edit_profile.profile.location_permission.header.label",
+            fallback: #"Geolocation permission:"#
           )
         }
 
@@ -794,7 +942,8 @@ public enum L10n {
           /// Manage
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_permission.manage_action.label"
+            "edit_profile.profile.location_permission.manage_action.label",
+            fallback: #"Manage"#
           )
         }
 
@@ -802,7 +951,8 @@ public enum L10n {
           /// Allowed
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_permission.state_allowed.label"
+            "edit_profile.profile.location_permission.state_allowed.label",
+            fallback: #"Allowed"#
           )
         }
 
@@ -810,7 +960,8 @@ public enum L10n {
           /// Allowed
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_permission.state_denied.label"
+            "edit_profile.profile.location_permission.state_denied.label",
+            fallback: #"Allowed"#
           )
         }
       }
@@ -822,7 +973,8 @@ public enum L10n {
           /// **Note that geolocation permissions are required for automatic mode.**
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_section.footer.label"
+            "edit_profile.profile.location_section.footer.label",
+            fallback: #"You can opt-in to automatic location updates based on your last used device location. It is handy if you travel a lot, and would like this to be auto-managed. Your current city and country will be shared, not your exact GPS location.\n\n**Note that geolocation permissions are required for automatic mode.**"#
           )
         }
 
@@ -830,7 +982,8 @@ public enum L10n {
           /// Current location
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_section.header.label"
+            "edit_profile.profile.location_section.header.label",
+            fallback: #"Current location"#
           )
         }
       }
@@ -840,7 +993,8 @@ public enum L10n {
           /// Status:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_status.header.label"
+            "edit_profile.profile.location_status.header.label",
+            fallback: #"Status:"#
           )
         }
 
@@ -848,7 +1002,8 @@ public enum L10n {
           /// Automatic
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.location_status.state_auto.label"
+            "edit_profile.profile.location_status.state_auto.label",
+            fallback: #"Automatic"#
           )
         }
       }
@@ -858,7 +1013,8 @@ public enum L10n {
           /// Organization:
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.organization.header.label"
+            "edit_profile.profile.organization.header.label",
+            fallback: #"Organization:"#
           )
         }
 
@@ -866,7 +1022,8 @@ public enum L10n {
           /// Name of your organization
           public static let label = L10n.tr(
             "Localizable",
-            "edit_profile.profile.organization.text_field.label"
+            "edit_profile.profile.organization.text_field.label",
+            fallback: #"Name of your organization"#
           )
         }
       }
@@ -874,7 +1031,11 @@ public enum L10n {
 
     public enum SaveProfileAction {
       /// Save profile
-      public static let label = L10n.tr("Localizable", "edit_profile.save_profile_action.label")
+      public static let label = L10n.tr(
+        "Localizable",
+        "edit_profile.save_profile_action.label",
+        fallback: #"Save profile"#
+      )
     }
 
     public enum Sidebar {
@@ -882,22 +1043,29 @@ public enum L10n {
         /// Authentication
         public static let label = L10n.tr(
           "Localizable",
-          "edit_profile.sidebar.authentication.label"
+          "edit_profile.sidebar.authentication.label",
+          fallback: #"Authentication"#
         )
         /// Password, MFA
         public static let sublabel = L10n.tr(
           "Localizable",
-          "edit_profile.sidebar.authentication.sublabel"
+          "edit_profile.sidebar.authentication.sublabel",
+          fallback: #"Password, MFA"#
         )
       }
 
       public enum Encryption {
         /// Encryption
-        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.encryption.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.encryption.label",
+          fallback: #"Encryption"#
+        )
         /// Certificates, Keys
         public static let sublabel = L10n.tr(
           "Localizable",
-          "edit_profile.sidebar.encryption.sublabel"
+          "edit_profile.sidebar.encryption.sublabel",
+          fallback: #"Certificates, Keys"#
         )
       }
 
@@ -906,12 +1074,14 @@ public enum L10n {
           /// Opens a file selector to choose for a new profile picture
           public static let axHint = L10n.tr(
             "Localizable",
-            "edit_profile.sidebar.header.change_avatar_action.ax_hint"
+            "edit_profile.sidebar.header.change_avatar_action.ax_hint",
+            fallback: #"Opens a file selector to choose for a new profile picture"#
           )
           /// Edit your profile picture
           public static let axLabel = L10n.tr(
             "Localizable",
-            "edit_profile.sidebar.header.change_avatar_action.ax_label"
+            "edit_profile.sidebar.header.change_avatar_action.ax_label",
+            fallback: #"Edit your profile picture"#
           )
         }
 
@@ -921,26 +1091,45 @@ public enum L10n {
             _ p1: UnsafePointer<CChar>,
             _ p2: UnsafePointer<CChar>
           ) -> String {
-            L10n.tr("Localizable", "edit_profile.sidebar.header.profile_details.ax_label", p1, p2)
+            L10n.tr(
+              "Localizable",
+              "edit_profile.sidebar.header.profile_details.ax_label",
+              p1,
+              p2,
+              fallback: #"Profile: %s, %s"#
+            )
           }
         }
       }
 
       public enum Identity {
         /// Identity
-        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.identity.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.identity.label",
+          fallback: #"Identity"#
+        )
         /// Name, Phone, Email
         public static let sublabel = L10n.tr(
           "Localizable",
-          "edit_profile.sidebar.identity.sublabel"
+          "edit_profile.sidebar.identity.sublabel",
+          fallback: #"Name, Phone, Email"#
         )
       }
 
       public enum Profile {
         /// Profile
-        public static let label = L10n.tr("Localizable", "edit_profile.sidebar.profile.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.profile.label",
+          fallback: #"Profile"#
+        )
         /// Job, Location
-        public static let sublabel = L10n.tr("Localizable", "edit_profile.sidebar.profile.sublabel")
+        public static let sublabel = L10n.tr(
+          "Localizable",
+          "edit_profile.sidebar.profile.sublabel",
+          fallback: #"Job, Location"#
+        )
       }
 
       public enum Row {
@@ -949,7 +1138,7 @@ public enum L10n {
           _ p1: UnsafePointer<CChar>,
           _ p2: UnsafePointer<CChar>
         ) -> String {
-          L10n.tr("Localizable", "edit_profile.sidebar.row.ax_label", p1, p2)
+          L10n.tr("Localizable", "edit_profile.sidebar.row.ax_label", p1, p2, fallback: #"%s (%s)"#)
         }
       }
     }
@@ -963,14 +1152,20 @@ public enum L10n {
             /// Email not verified
             public static let label = L10n.tr(
               "Localizable",
-              "info.identity.popover.email.state_not_verified.label"
+              "info.identity.popover.email.state_not_verified.label",
+              fallback: #"Email not verified"#
             )
           }
 
           public enum StateVerified {
             /// Email verified: %s
             public static func label(_ p1: UnsafePointer<CChar>) -> String {
-              L10n.tr("Localizable", "info.identity.popover.email.state_verified.label", p1)
+              L10n.tr(
+                "Localizable",
+                "info.identity.popover.email.state_verified.label",
+                p1,
+                fallback: #"Email verified: %s"#
+              )
             }
           }
         }
@@ -980,14 +1175,20 @@ public enum L10n {
             /// User signature fingerprint not verified
             public static let label = L10n.tr(
               "Localizable",
-              "info.identity.popover.fingerprint.state_not_verified.label"
+              "info.identity.popover.fingerprint.state_not_verified.label",
+              fallback: #"User signature fingerprint not verified"#
             )
           }
 
           public enum StateVerified {
             /// User signature fingerprint verified: %s
             public static func label(_ p1: UnsafePointer<CChar>) -> String {
-              L10n.tr("Localizable", "info.identity.popover.fingerprint.state_verified.label", p1)
+              L10n.tr(
+                "Localizable",
+                "info.identity.popover.fingerprint.state_verified.label",
+                p1,
+                fallback: #"User signature fingerprint verified: %s"#
+              )
             }
           }
         }
@@ -995,7 +1196,12 @@ public enum L10n {
         public enum Footer {
           /// User data is verified on your configured identity server, which is %s.
           public static func label(_ p1: UnsafePointer<CChar>) -> String {
-            L10n.tr("Localizable", "info.identity.popover.footer.label", p1)
+            L10n.tr(
+              "Localizable",
+              "info.identity.popover.footer.label",
+              p1,
+              fallback: #"User data is verified on your configured identity server, which is %s."#
+            )
           }
         }
 
@@ -1004,7 +1210,8 @@ public enum L10n {
             /// Government ID not verified (not provided yet)
             public static let label = L10n.tr(
               "Localizable",
-              "info.identity.popover.government_id.state_not_provided.label"
+              "info.identity.popover.government_id.state_not_provided.label",
+              fallback: #"Government ID not verified (not provided yet)"#
             )
           }
 
@@ -1012,7 +1219,8 @@ public enum L10n {
             /// Government ID verified
             public static let label = L10n.tr(
               "Localizable",
-              "info.identity.popover.government_id.state_verified.label"
+              "info.identity.popover.government_id.state_verified.label",
+              fallback: #"Government ID verified"#
             )
           }
         }
@@ -1021,11 +1229,17 @@ public enum L10n {
           /// Prose checked on the identity server for matches. It could verify this user.
           public static let subtitle = L10n.tr(
             "Localizable",
-            "info.identity.popover.header.subtitle"
+            "info.identity.popover.header.subtitle",
+            fallback: #"Prose checked on the identity server for matches. It could verify this user."#
           )
           /// Looks like this is the real %s
           public static func title(_ p1: UnsafePointer<CChar>) -> String {
-            L10n.tr("Localizable", "info.identity.popover.header.title", p1)
+            L10n.tr(
+              "Localizable",
+              "info.identity.popover.header.title",
+              p1,
+              fallback: #"Looks like this is the real %s"#
+            )
           }
         }
 
@@ -1034,14 +1248,20 @@ public enum L10n {
             /// Phone not verified
             public static let label = L10n.tr(
               "Localizable",
-              "info.identity.popover.phone.state_not_verified.label"
+              "info.identity.popover.phone.state_not_verified.label",
+              fallback: #"Phone not verified"#
             )
           }
 
           public enum StateVerified {
             /// Phone verified: %s
             public static func label(_ p1: UnsafePointer<CChar>) -> String {
-              L10n.tr("Localizable", "info.identity.popover.phone.state_verified.label", p1)
+              L10n.tr(
+                "Localizable",
+                "info.identity.popover.phone.state_verified.label",
+                p1,
+                fallback: #"Phone verified: %s"#
+              )
             }
           }
         }
@@ -1053,7 +1273,7 @@ public enum L10n {
     public enum ConnectedTo {
       /// Connected to %s
       public static func label(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr("Localizable", "server.connected_to.label", p1)
+        L10n.tr("Localizable", "server.connected_to.label", p1, fallback: #"Connected to %s"#)
       }
     }
   }
@@ -1061,35 +1281,66 @@ public enum L10n {
   public enum Settings {
     public enum Accounts {
       /// Address:
-      public static let addressLabel = L10n.tr("Localizable", "settings.accounts.address_label")
+      public static let addressLabel = L10n.tr(
+        "Localizable",
+        "settings.accounts.address_label",
+        fallback: #"Address:"#
+      )
       /// Enter your address...
       public static let addressPlaceholder = L10n.tr(
         "Localizable",
-        "settings.accounts.address_placeholder"
+        "settings.accounts.address_placeholder",
+        fallback: #"Enter your address..."#
       )
       /// Enabled:
-      public static let enabledLabel = L10n.tr("Localizable", "settings.accounts.enabled_label")
+      public static let enabledLabel = L10n.tr(
+        "Localizable",
+        "settings.accounts.enabled_label",
+        fallback: #"Enabled:"#
+      )
       /// Password:
-      public static let passwordLabel = L10n.tr("Localizable", "settings.accounts.password_label")
+      public static let passwordLabel = L10n.tr(
+        "Localizable",
+        "settings.accounts.password_label",
+        fallback: #"Password:"#
+      )
       /// Enter password...
       public static let passwordPlaceholder = L10n.tr(
         "Localizable",
-        "settings.accounts.password_placeholder"
+        "settings.accounts.password_placeholder",
+        fallback: #"Enter password..."#
       )
       /// Connected
       public static let statusConnected = L10n.tr(
         "Localizable",
-        "settings.accounts.status_connected"
+        "settings.accounts.status_connected",
+        fallback: #"Connected"#
       )
       /// Status:
-      public static let statusLabel = L10n.tr("Localizable", "settings.accounts.status_label")
+      public static let statusLabel = L10n.tr(
+        "Localizable",
+        "settings.accounts.status_label",
+        fallback: #"Status:"#
+      )
       public enum Tabs {
         /// Account
-        public static let account = L10n.tr("Localizable", "settings.accounts.tabs.account")
+        public static let account = L10n.tr(
+          "Localizable",
+          "settings.accounts.tabs.account",
+          fallback: #"Account"#
+        )
         /// Features
-        public static let features = L10n.tr("Localizable", "settings.accounts.tabs.features")
+        public static let features = L10n.tr(
+          "Localizable",
+          "settings.accounts.tabs.features",
+          fallback: #"Features"#
+        )
         /// Security
-        public static let security = L10n.tr("Localizable", "settings.accounts.tabs.security")
+        public static let security = L10n.tr(
+          "Localizable",
+          "settings.accounts.tabs.security",
+          fallback: #"Security"#
+        )
       }
     }
 
@@ -1098,29 +1349,41 @@ public enum L10n {
         /// Automatically send crash reports
         public static let crashToggle = L10n.tr(
           "Localizable",
-          "settings.advanced.reports.crash_toggle"
+          "settings.advanced.reports.crash_toggle",
+          fallback: #"Automatically send crash reports"#
         )
         /// Reports:
-        public static let label = L10n.tr("Localizable", "settings.advanced.reports.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.advanced.reports.label",
+          fallback: #"Reports:"#
+        )
         /// Send anonymous usage analytics
         public static let usageToggle = L10n.tr(
           "Localizable",
-          "settings.advanced.reports.usage_toggle"
+          "settings.advanced.reports.usage_toggle",
+          fallback: #"Send anonymous usage analytics"#
         )
       }
 
       public enum UpdateChannel {
         /// Update channel:
-        public static let label = L10n.tr("Localizable", "settings.advanced.update_channel.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.advanced.update_channel.label",
+          fallback: #"Update channel:"#
+        )
         /// Beta releases
         public static let optionBeta = L10n.tr(
           "Localizable",
-          "settings.advanced.update_channel.option_beta"
+          "settings.advanced.update_channel.option_beta",
+          fallback: #"Beta releases"#
         )
         /// Stable releases
         public static let optionStable = L10n.tr(
           "Localizable",
-          "settings.advanced.update_channel.option_stable"
+          "settings.advanced.update_channel.option_stable",
+          fallback: #"Stable releases"#
         )
       }
     }
@@ -1130,17 +1393,20 @@ public enum L10n {
         /// Default audio input:
         public static let defaultLabel = L10n.tr(
           "Localizable",
-          "settings.calls.audio_input.default_label"
+          "settings.calls.audio_input.default_label",
+          fallback: #"Default audio input:"#
         )
         /// Same as System
         public static let defaultOptionSystem = L10n.tr(
           "Localizable",
-          "settings.calls.audio_input.default_option_system"
+          "settings.calls.audio_input.default_option_system",
+          fallback: #"Same as System"#
         )
         /// Microphone tester:
         public static let testerLabel = L10n.tr(
           "Localizable",
-          "settings.calls.audio_input.tester_label"
+          "settings.calls.audio_input.tester_label",
+          fallback: #"Microphone tester:"#
         )
       }
 
@@ -1148,22 +1414,26 @@ public enum L10n {
         /// Default audio output:
         public static let defaultLabel = L10n.tr(
           "Localizable",
-          "settings.calls.audio_output.default_label"
+          "settings.calls.audio_output.default_label",
+          fallback: #"Default audio output:"#
         )
         /// Same as System
         public static let defaultOptionSystem = L10n.tr(
           "Localizable",
-          "settings.calls.audio_output.default_option_system"
+          "settings.calls.audio_output.default_option_system",
+          fallback: #"Same as System"#
         )
         /// Play Test Sound
         public static let testerButton = L10n.tr(
           "Localizable",
-          "settings.calls.audio_output.tester_button"
+          "settings.calls.audio_output.tester_button",
+          fallback: #"Play Test Sound"#
         )
         /// Speakers tester:
         public static let testerLabel = L10n.tr(
           "Localizable",
-          "settings.calls.audio_output.tester_label"
+          "settings.calls.audio_output.tester_label",
+          fallback: #"Speakers tester:"#
         )
       }
 
@@ -1171,80 +1441,109 @@ public enum L10n {
         /// Default video input:
         public static let defaultLabel = L10n.tr(
           "Localizable",
-          "settings.calls.video_input.default_label"
+          "settings.calls.video_input.default_label",
+          fallback: #"Default video input:"#
         )
         /// Same as System
         public static let defaultOptionSystem = L10n.tr(
           "Localizable",
-          "settings.calls.video_input.default_option_system"
+          "settings.calls.video_input.default_option_system",
+          fallback: #"Same as System"#
         )
         /// Camera tester:
         public static let testerLabel = L10n.tr(
           "Localizable",
-          "settings.calls.video_input.tester_label"
+          "settings.calls.video_input.tester_label",
+          fallback: #"Camera tester:"#
         )
       }
     }
 
     public enum General {
       /// Save downloads to:
-      public static let downloadsLabel = L10n.tr("Localizable", "settings.general.downloads_label")
+      public static let downloadsLabel = L10n.tr(
+        "Localizable",
+        "settings.general.downloads_label",
+        fallback: #"Save downloads to:"#
+      )
       /// When idle:
-      public static let idleLabel = L10n.tr("Localizable", "settings.general.idle_label")
+      public static let idleLabel = L10n.tr(
+        "Localizable",
+        "settings.general.idle_label",
+        fallback: #"When idle:"#
+      )
       /// Phone contacts:
-      public static let phoneLabel = L10n.tr("Localizable", "settings.general.phone_label")
+      public static let phoneLabel = L10n.tr(
+        "Localizable",
+        "settings.general.phone_label",
+        fallback: #"Phone contacts:"#
+      )
       /// Theme:
-      public static let themeLabel = L10n.tr("Localizable", "settings.general.theme_label")
+      public static let themeLabel = L10n.tr(
+        "Localizable",
+        "settings.general.theme_label",
+        fallback: #"Theme:"#
+      )
       /// Dark
       public static let themeOptionDark = L10n.tr(
         "Localizable",
-        "settings.general.theme_option_dark"
+        "settings.general.theme_option_dark",
+        fallback: #"Dark"#
       )
       /// Light
       public static let themeOptionLight = L10n.tr(
         "Localizable",
-        "settings.general.theme_option_light"
+        "settings.general.theme_option_light",
+        fallback: #"Light"#
       )
       /// Match system
       public static let themeOptionMatchSystem = L10n.tr(
         "Localizable",
-        "settings.general.theme_option_match_system"
+        "settings.general.theme_option_match_system",
+        fallback: #"Match system"#
       )
       public enum IdleAutomaticallyMarkAway {
         /// After:
         public static let afterLabel = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_label"
+          "settings.general.idle_automatically_mark_away.after_label",
+          fallback: #"After:"#
         )
         /// 15 minutes
         public static let afterOptionFifteenMinutes = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_option_fifteen_minutes"
+          "settings.general.idle_automatically_mark_away.after_option_fifteen_minutes",
+          fallback: #"15 minutes"#
         )
         /// 5 minutes
         public static let afterOptionFiveMinutes = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_option_five_minutes"
+          "settings.general.idle_automatically_mark_away.after_option_five_minutes",
+          fallback: #"5 minutes"#
         )
         /// 1 hour
         public static let afterOptionOneHour = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_option_one_hour"
+          "settings.general.idle_automatically_mark_away.after_option_one_hour",
+          fallback: #"1 hour"#
         )
         /// 10 minutes
         public static let afterOptionTenMinutes = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_option_ten_minutes"
+          "settings.general.idle_automatically_mark_away.after_option_ten_minutes",
+          fallback: #"10 minutes"#
         )
         /// 30 minutes
         public static let afterOptionThirtyMinutes = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.after_option_thirty_minutes"
+          "settings.general.idle_automatically_mark_away.after_option_thirty_minutes",
+          fallback: #"30 minutes"#
         )
         /// Automatically mark me as away
         public static let enabledToggle = L10n.tr(
           "Localizable",
-          "settings.general.idle_automatically_mark_away.enabled_toggle"
+          "settings.general.idle_automatically_mark_away.enabled_toggle",
+          fallback: #"Automatically mark me as away"#
         )
       }
 
@@ -1252,12 +1551,14 @@ public enum L10n {
         /// This is for local use only. Data does not get sent to a server.
         public static let description = L10n.tr(
           "Localizable",
-          "settings.general.phone_from_address_book.description"
+          "settings.general.phone_from_address_book.description",
+          fallback: #"This is for local use only. Data does not get sent to a server."#
         )
         /// Use phone numbers from my address book
         public static let toggle = L10n.tr(
           "Localizable",
-          "settings.general.phone_from_address_book.toggle"
+          "settings.general.phone_from_address_book.toggle",
+          fallback: #"Use phone numbers from my address book"#
         )
       }
     }
@@ -1265,16 +1566,22 @@ public enum L10n {
     public enum Messages {
       public enum Composing {
         /// Composing:
-        public static let label = L10n.tr("Localizable", "settings.messages.composing.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.messages.composing.label",
+          fallback: #"Composing:"#
+        )
         /// Let users know when I am typing
         public static let showWhenTypingToggle = L10n.tr(
           "Localizable",
-          "settings.messages.composing.show_when_typing_toggle"
+          "settings.messages.composing.show_when_typing_toggle",
+          fallback: #"Let users know when I am typing"#
         )
         /// Enable spell checker
         public static let spellCheckToggle = L10n.tr(
           "Localizable",
-          "settings.messages.composing.spell_check_toggle"
+          "settings.messages.composing.spell_check_toggle",
+          fallback: #"Enable spell checker"#
         )
       }
 
@@ -1282,29 +1589,41 @@ public enum L10n {
         /// Use a 24-hour clock
         public static let _24HourClockToggle = L10n.tr(
           "Localizable",
-          "settings.messages.messages.24_hour_clock_toggle"
+          "settings.messages.messages.24_hour_clock_toggle",
+          fallback: #"Use a 24-hour clock"#
         )
         /// Show a preview of image files
         public static let imagePreviewsToggle = L10n.tr(
           "Localizable",
-          "settings.messages.messages.image_previews_toggle"
+          "settings.messages.messages.image_previews_toggle",
+          fallback: #"Show a preview of image files"#
         )
         /// Messages:
-        public static let label = L10n.tr("Localizable", "settings.messages.messages.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.messages.messages.label",
+          fallback: #"Messages:"#
+        )
       }
 
       public enum Thumbnails {
         /// Image thumbnails:
-        public static let label = L10n.tr("Localizable", "settings.messages.thumbnails.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.messages.thumbnails.label",
+          fallback: #"Image thumbnails:"#
+        )
         /// Large
         public static let sizeOptionLarge = L10n.tr(
           "Localizable",
-          "settings.messages.thumbnails.size_option_large"
+          "settings.messages.thumbnails.size_option_large",
+          fallback: #"Large"#
         )
         /// Small
         public static let sizeOptionSmall = L10n.tr(
           "Localizable",
-          "settings.messages.thumbnails.size_option_small"
+          "settings.messages.thumbnails.size_option_small",
+          fallback: #"Small"#
         )
       }
     }
@@ -1314,45 +1633,60 @@ public enum L10n {
         /// Show a badge on the Dock icon
         public static let badgeToggle = L10n.tr(
           "Localizable",
-          "settings.notifications.action.badge_toggle"
+          "settings.notifications.action.badge_toggle",
+          fallback: #"Show a badge on the Dock icon"#
         )
         /// Pop a banner
         public static let bannerToggle = L10n.tr(
           "Localizable",
-          "settings.notifications.action.banner_toggle"
+          "settings.notifications.action.banner_toggle",
+          fallback: #"Pop a banner"#
         )
         /// When notified:
-        public static let label = L10n.tr("Localizable", "settings.notifications.action.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.notifications.action.label",
+          fallback: #"When notified:"#
+        )
         /// Play a sound
         public static let soundToggle = L10n.tr(
           "Localizable",
-          "settings.notifications.action.sound_toggle"
+          "settings.notifications.action.sound_toggle",
+          fallback: #"Play a sound"#
         )
       }
 
       public enum Handover {
         /// Mobile alerts:
-        public static let label = L10n.tr("Localizable", "settings.notifications.handover.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.notifications.handover.label",
+          fallback: #"Mobile alerts:"#
+        )
         public enum ForwardMobile {
           /// 5 minutes
           public static let afterOptionFiveMinutes = L10n.tr(
             "Localizable",
-            "settings.notifications.handover.forward_mobile.after_option_five_minutes"
+            "settings.notifications.handover.forward_mobile.after_option_five_minutes",
+            fallback: #"5 minutes"#
           )
           /// A minute
           public static let afterOptionOneMinute = L10n.tr(
             "Localizable",
-            "settings.notifications.handover.forward_mobile.after_option_one_minute"
+            "settings.notifications.handover.forward_mobile.after_option_one_minute",
+            fallback: #"A minute"#
           )
           /// 10 minutes
           public static let afterOptionTenMinutes = L10n.tr(
             "Localizable",
-            "settings.notifications.handover.forward_mobile.after_option_ten_minutes"
+            "settings.notifications.handover.forward_mobile.after_option_ten_minutes",
+            fallback: #"10 minutes"#
           )
           /// Forward to mobile if inactive after time on desktop:
           public static let toggle = L10n.tr(
             "Localizable",
-            "settings.notifications.handover.forward_mobile.toggle"
+            "settings.notifications.handover.forward_mobile.toggle",
+            fallback: #"Forward to mobile if inactive after time on desktop:"#
           )
         }
       }
@@ -1361,22 +1695,26 @@ public enum L10n {
         /// Notify me about:
         public static let label = L10n.tr(
           "Localizable",
-          "settings.notifications.notify_governor.label"
+          "settings.notifications.notify_governor.label",
+          fallback: #"Notify me about:"#
         )
         /// All messages
         public static let optionAll = L10n.tr(
           "Localizable",
-          "settings.notifications.notify_governor.option_all"
+          "settings.notifications.notify_governor.option_all",
+          fallback: #"All messages"#
         )
         /// Private messages
         public static let optionDirect = L10n.tr(
           "Localizable",
-          "settings.notifications.notify_governor.option_direct"
+          "settings.notifications.notify_governor.option_direct",
+          fallback: #"Private messages"#
         )
         /// Nothing
         public static let optionNone = L10n.tr(
           "Localizable",
-          "settings.notifications.notify_governor.option_none"
+          "settings.notifications.notify_governor.option_none",
+          fallback: #"Nothing"#
         )
       }
 
@@ -1384,43 +1722,54 @@ public enum L10n {
         /// Let me know when I receive a message reply
         public static let toggle = L10n.tr(
           "Localizable",
-          "settings.notifications.notify_on_reply.toggle"
+          "settings.notifications.notify_on_reply.toggle",
+          fallback: #"Let me know when I receive a message reply"#
         )
       }
 
       public enum Schedule {
         /// Get notified:
-        public static let label = L10n.tr("Localizable", "settings.notifications.schedule.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "settings.notifications.schedule.label",
+          fallback: #"Get notified:"#
+        )
         /// Evening
         public static let timeOptionEvening = L10n.tr(
           "Localizable",
-          "settings.notifications.schedule.time_option_evening"
+          "settings.notifications.schedule.time_option_evening",
+          fallback: #"Evening"#
         )
         /// Morning
         public static let timeOptionMorning = L10n.tr(
           "Localizable",
-          "settings.notifications.schedule.time_option_morning"
+          "settings.notifications.schedule.time_option_morning",
+          fallback: #"Morning"#
         )
         /// to
         public static let timeSeparator = L10n.tr(
           "Localizable",
-          "settings.notifications.schedule.time_separator"
+          "settings.notifications.schedule.time_separator",
+          fallback: #"to"#
         )
         public enum Days {
           /// Anytime
           public static let optionAnytime = L10n.tr(
             "Localizable",
-            "settings.notifications.schedule.days.option_anytime"
+            "settings.notifications.schedule.days.option_anytime",
+            fallback: #"Anytime"#
           )
           /// On weekdays
           public static let optionWeekdays = L10n.tr(
             "Localizable",
-            "settings.notifications.schedule.days.option_weekdays"
+            "settings.notifications.schedule.days.option_weekdays",
+            fallback: #"On weekdays"#
           )
           /// On weekends
           public static let optionWeekends = L10n.tr(
             "Localizable",
-            "settings.notifications.schedule.days.option_weekends"
+            "settings.notifications.schedule.days.option_weekends",
+            fallback: #"On weekends"#
           )
         }
       }
@@ -1428,38 +1777,67 @@ public enum L10n {
 
     public enum Tabs {
       /// Accounts
-      public static let accounts = L10n.tr("Localizable", "settings.tabs.accounts")
+      public static let accounts = L10n.tr(
+        "Localizable",
+        "settings.tabs.accounts",
+        fallback: #"Accounts"#
+      )
       /// Advanced
-      public static let advanced = L10n.tr("Localizable", "settings.tabs.advanced")
+      public static let advanced = L10n.tr(
+        "Localizable",
+        "settings.tabs.advanced",
+        fallback: #"Advanced"#
+      )
       /// Calls
-      public static let calls = L10n.tr("Localizable", "settings.tabs.calls")
+      public static let calls = L10n.tr("Localizable", "settings.tabs.calls", fallback: #"Calls"#)
       /// General
-      public static let general = L10n.tr("Localizable", "settings.tabs.general")
+      public static let general = L10n.tr(
+        "Localizable",
+        "settings.tabs.general",
+        fallback: #"General"#
+      )
       /// Messages
-      public static let messages = L10n.tr("Localizable", "settings.tabs.messages")
+      public static let messages = L10n.tr(
+        "Localizable",
+        "settings.tabs.messages",
+        fallback: #"Messages"#
+      )
       /// Notifications
-      public static let notifications = L10n.tr("Localizable", "settings.tabs.notifications")
+      public static let notifications = L10n.tr(
+        "Localizable",
+        "settings.tabs.notifications",
+        fallback: #"Notifications"#
+      )
     }
   }
 
   public enum Sidebar {
     public enum Favorites {
       /// Favorites
-      public static let title = L10n.tr("Localizable", "sidebar.favorites.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "sidebar.favorites.title",
+        fallback: #"Favorites"#
+      )
     }
 
     public enum Footer {
       /// Footer
-      public static let label = L10n.tr("Localizable", "sidebar.footer.label")
+      public static let label = L10n.tr("Localizable", "sidebar.footer.label", fallback: #"Footer"#)
       public enum Actions {
         public enum Account {
           /// Account actions
-          public static let label = L10n.tr("Localizable", "sidebar.footer.actions.account.label")
+          public static let label = L10n.tr(
+            "Localizable",
+            "sidebar.footer.actions.account.label",
+            fallback: #"Account actions"#
+          )
           public enum AccountSettings {
             /// Account settings
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.account_settings.title"
+              "sidebar.footer.actions.account.account_settings.title",
+              fallback: #"Account settings"#
             )
           }
 
@@ -1467,7 +1845,8 @@ public enum L10n {
             /// Change availability
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.change_availability.title"
+              "sidebar.footer.actions.account.change_availability.title",
+              fallback: #"Change availability"#
             )
           }
 
@@ -1475,7 +1854,8 @@ public enum L10n {
             /// Edit profile
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.edit_profile.title"
+              "sidebar.footer.actions.account.edit_profile.title",
+              fallback: #"Edit profile"#
             )
           }
 
@@ -1485,7 +1865,13 @@ public enum L10n {
               _ p1: UnsafePointer<CChar>,
               _ p2: UnsafePointer<CChar>
             ) -> String {
-              L10n.tr("Localizable", "sidebar.footer.actions.account.header.label", p1, p2)
+              L10n.tr(
+                "Localizable",
+                "sidebar.footer.actions.account.header.label",
+                p1,
+                p2,
+                fallback: #"%s (%s)"#
+              )
             }
           }
 
@@ -1493,7 +1879,8 @@ public enum L10n {
             /// Offline mode
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.offline_mode.title"
+              "sidebar.footer.actions.account.offline_mode.title",
+              fallback: #"Offline mode"#
             )
           }
 
@@ -1501,7 +1888,8 @@ public enum L10n {
             /// Pause notifications
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.pause_notifications.title"
+              "sidebar.footer.actions.account.pause_notifications.title",
+              fallback: #"Pause notifications"#
             )
           }
 
@@ -1509,7 +1897,8 @@ public enum L10n {
             /// Sign me out
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.sign_out.title"
+              "sidebar.footer.actions.account.sign_out.title",
+              fallback: #"Sign me out"#
             )
           }
 
@@ -1517,25 +1906,32 @@ public enum L10n {
             /// Update mood
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.account.update_mood.title"
+              "sidebar.footer.actions.account.update_mood.title",
+              fallback: #"Update mood"#
             )
           }
         }
 
         public enum Server {
           /// Server actions
-          public static let label = L10n.tr("Localizable", "sidebar.footer.actions.server.label")
+          public static let label = L10n.tr(
+            "Localizable",
+            "sidebar.footer.actions.server.label",
+            fallback: #"Server actions"#
+          )
           public enum ServerSettings {
             /// Server settings
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.server.server_settings.title"
+              "sidebar.footer.actions.server.server_settings.title",
+              fallback: #"Server settings"#
             )
             public enum Manage {
               /// Manage server
               public static let label = L10n.tr(
                 "Localizable",
-                "sidebar.footer.actions.server.server_settings.manage.label"
+                "sidebar.footer.actions.server.server_settings.manage.label",
+                fallback: #"Manage server"#
               )
             }
           }
@@ -1543,19 +1939,26 @@ public enum L10n {
           public enum SwitchAccount {
             /// Switch to %s
             public static func label(_ p1: UnsafePointer<CChar>) -> String {
-              L10n.tr("Localizable", "sidebar.footer.actions.server.switch_account.label", p1)
+              L10n.tr(
+                "Localizable",
+                "sidebar.footer.actions.server.switch_account.label",
+                p1,
+                fallback: #"Switch to %s"#
+              )
             }
 
             /// Switch account
             public static let title = L10n.tr(
               "Localizable",
-              "sidebar.footer.actions.server.switch_account.title"
+              "sidebar.footer.actions.server.switch_account.title",
+              fallback: #"Switch account"#
             )
             public enum New {
               /// Connect account
               public static let label = L10n.tr(
                 "Localizable",
-                "sidebar.footer.actions.server.switch_account.new.label"
+                "sidebar.footer.actions.server.switch_account.new.label",
+                fallback: #"Connect account"#
               )
             }
           }
@@ -1565,44 +1968,81 @@ public enum L10n {
 
     public enum Groups {
       /// Groups
-      public static let title = L10n.tr("Localizable", "sidebar.groups.title")
+      public static let title = L10n.tr("Localizable", "sidebar.groups.title", fallback: #"Groups"#)
       public enum Add {
         /// Add a group
-        public static let label = L10n.tr("Localizable", "sidebar.groups.add.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "sidebar.groups.add.label",
+          fallback: #"Add a group"#
+        )
       }
     }
 
     public enum OtherContacts {
       /// Other contacts
-      public static let title = L10n.tr("Localizable", "sidebar.other_contacts.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "sidebar.other_contacts.title",
+        fallback: #"Other contacts"#
+      )
       public enum Add {
         /// Add a contact
-        public static let label = L10n.tr("Localizable", "sidebar.other_contacts.add.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "sidebar.other_contacts.add.label",
+          fallback: #"Add a contact"#
+        )
       }
     }
 
     public enum Spotlight {
       /// Direct messages
-      public static let directMessages = L10n.tr("Localizable", "sidebar.spotlight.direct_messages")
+      public static let directMessages = L10n.tr(
+        "Localizable",
+        "sidebar.spotlight.direct_messages",
+        fallback: #"Direct messages"#
+      )
       /// People & groups
       public static let peopleAndGroups = L10n.tr(
         "Localizable",
-        "sidebar.spotlight.people_and_groups"
+        "sidebar.spotlight.people_and_groups",
+        fallback: #"People & groups"#
       )
       /// Replies
-      public static let replies = L10n.tr("Localizable", "sidebar.spotlight.replies")
+      public static let replies = L10n.tr(
+        "Localizable",
+        "sidebar.spotlight.replies",
+        fallback: #"Replies"#
+      )
       /// Spotlight
-      public static let title = L10n.tr("Localizable", "sidebar.spotlight.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "sidebar.spotlight.title",
+        fallback: #"Spotlight"#
+      )
       /// Unread stack
-      public static let unreadStack = L10n.tr("Localizable", "sidebar.spotlight.unread_stack")
+      public static let unreadStack = L10n.tr(
+        "Localizable",
+        "sidebar.spotlight.unread_stack",
+        fallback: #"Unread stack"#
+      )
     }
 
     public enum TeamMembers {
       /// Team members
-      public static let title = L10n.tr("Localizable", "sidebar.team_members.title")
+      public static let title = L10n.tr(
+        "Localizable",
+        "sidebar.team_members.title",
+        fallback: #"Team members"#
+      )
       public enum Add {
         /// Add a member
-        public static let label = L10n.tr("Localizable", "sidebar.team_members.add.label")
+        public static let label = L10n.tr(
+          "Localizable",
+          "sidebar.team_members.add.label",
+          fallback: #"Add a member"#
+        )
       }
     }
 
@@ -1610,11 +2050,16 @@ public enum L10n {
       public enum Actions {
         public enum StartCall {
           /// Opens a window to start a new call.
-          public static let hint = L10n.tr("Localizable", "sidebar.toolbar.actions.start_call.hint")
+          public static let hint = L10n.tr(
+            "Localizable",
+            "sidebar.toolbar.actions.start_call.hint",
+            fallback: #"Opens a window to start a new call."#
+          )
           /// Start a call
           public static let label = L10n.tr(
             "Localizable",
-            "sidebar.toolbar.actions.start_call.label"
+            "sidebar.toolbar.actions.start_call.label",
+            fallback: #"Start a call"#
           )
         }
 
@@ -1622,12 +2067,14 @@ public enum L10n {
           /// Asks for recipients then starts composing a message.
           public static let hint = L10n.tr(
             "Localizable",
-            "sidebar.toolbar.actions.write_message.hint"
+            "sidebar.toolbar.actions.write_message.hint",
+            fallback: #"Asks for recipients then starts composing a message."#
           )
           /// Write a message
           public static let label = L10n.tr(
             "Localizable",
-            "sidebar.toolbar.actions.write_message.label"
+            "sidebar.toolbar.actions.write_message.label",
+            fallback: #"Write a message"#
           )
         }
       }
@@ -1641,8 +2088,13 @@ public enum L10n {
 // MARK: - Implementation Details
 
 extension L10n {
-  private static func tr(_ table: String, _ key: String, _ args: CVarArg...) -> String {
-    let format = Bundle.fixedModule.localizedString(forKey: key, value: nil, table: table)
+  private static func tr(
+    _ table: String,
+    _ key: String,
+    _ args: CVarArg...,
+    fallback value: String
+  ) -> String {
+    let format = Bundle.fixedModule.localizedString(forKey: key, value: value, table: table)
     return String(format: format, locale: Locale.current, arguments: args)
   }
 }
