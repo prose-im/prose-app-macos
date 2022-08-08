@@ -37,7 +37,7 @@ public struct MessageMenuHandlerPayload: Equatable, Decodable {
     var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
   }
 
-  let ids: [Message.ID]
+  let id: Message.ID?
   let origin: Point
 }
 
@@ -47,12 +47,12 @@ public struct ShowReactionsHandlerPayload: Equatable, Decodable {
     var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
   }
 
-  let ids: [Message.ID]
+  let id: Message.ID?
   let origin: Point
 }
 
 public struct ToggleReactionHandlerPayload: Equatable, Decodable {
-  let ids: [Message.ID]
+  let id: Message.ID?
   let reaction: String
 }
 
@@ -178,11 +178,11 @@ let chatReducer = Reducer<
 
     case let .message(.showMenu(payload)):
       logger.trace(
-        "Received right click at \(String(describing: payload.origin)) on \(String(describing: payload.ids))"
+        "Received right click at \(String(describing: payload.origin)) on \(String(describing: payload.id))"
       )
 
       let items: [MessageMenuItem]
-      if let id: Message.ID = payload.ids.first {
+      if let id: Message.ID = payload.id {
         items = [
           .item(.action(.copyText(id), title: "Copy text")),
           .item(.action(.addReaction(id, origin: payload.origin.cgPoint), title: "Add reaction…")),
@@ -193,11 +193,11 @@ let chatReducer = Reducer<
       } else {
         items = [.item(.staticText("No action"))]
       }
-      var menu = MessageMenuState(ids: payload.ids, origin: payload.origin.cgPoint, items: items)
+      var menu = MessageMenuState(origin: payload.origin.cgPoint, items: items)
 
       let loggedInUserJID: JID = state.loggedInUserJID
 
-      if let messageId = payload.ids.first,
+      if let messageId = payload.id,
          let message = state.messages[id: messageId],
          message.from == loggedInUserJID
       {
@@ -215,9 +215,9 @@ let chatReducer = Reducer<
       return .none
 
     case let .message(.showReactions(payload)):
-      logger.trace("Showing reactions for \(String(describing: payload.ids))…")
+      logger.trace("Showing reactions for \(String(describing: payload.id))…")
 
-      if let messageId: Message.ID = payload.ids.first {
+      if let messageId: Message.ID = payload.id {
         showReactionPicker(for: messageId, origin: payload.origin.cgPoint)
       } else {
         logger.notice("Cannot show reactions: No message selected")
@@ -225,9 +225,9 @@ let chatReducer = Reducer<
       return .none
 
     case let .message(.toggleReaction(payload)):
-      logger.trace("Toggling reaction \(payload.reaction) on \(String(describing: payload.ids))…")
+      logger.trace("Toggling reaction \(payload.reaction) on \(String(describing: payload.id))…")
 
-      if let messageId = payload.ids.first {
+      if let messageId = payload.id {
         return environment.proseClient
           .toggleReaction(state.chatId, messageId, Reaction(payload.reaction))
           .fireAndForget()
