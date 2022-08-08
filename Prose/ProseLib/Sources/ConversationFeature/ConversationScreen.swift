@@ -89,7 +89,7 @@ public let conversationReducer: Reducer<
     environment: { _ in () }
   ),
   chatReducer.pullback(
-    state: \.chat,
+    state: \ConversationState.chat,
     action: CasePath(ConversationAction.chat),
     environment: { $0 }
   ),

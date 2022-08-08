@@ -47,7 +47,7 @@ final class ReactionPickerView<Action>: NSHostingView<
     action: CasePath<Action, ReactionPickerAction>,
     dismiss: Action
   ) -> Content {
-    AnyView(Color.clear.frame(width: 1, height: 1))
+    AnyView(Color.clear)
       .modifier(ReactionPickerPopup(store: store, action: action, dismiss: dismiss))
   }
 }
