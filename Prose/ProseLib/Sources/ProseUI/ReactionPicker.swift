@@ -10,7 +10,7 @@ import SwiftUI
 public struct ReactionPickerState: Equatable {
   let reactions: [Reaction] = "👋👉👍😂😢😭😍😘😊🤯❤️🙏😛🚀⚠️😀😌😇🙃🙂🤩🥳🤨🙁😳🤔😐👀✅❌"
     .map { Reaction(rawValue: String($0)) }
-  var selected = Set<Reaction>()
+  var selected: Set<Reaction>
 
   let columnCount: Int = 5
   let fontSize: CGFloat = 24
@@ -18,6 +18,10 @@ public struct ReactionPickerState: Equatable {
 
   var width: CGFloat { self.fontSize * 1.5 }
   var height: CGFloat { self.width }
+
+  public init(selected: Set<Reaction> = []) {
+    self.selected = selected
+  }
 }
 
 public enum ReactionPickerAction: Equatable {
@@ -39,10 +43,14 @@ public let reactionPickerTogglingReducer = Reducer<
   }
 }
 
-struct ReactionPicker: View {
+public struct ReactionPicker: View {
   let store: Store<ReactionPickerState, ReactionPickerAction>
 
-  var body: some View {
+  public init(store: Store<ReactionPickerState, ReactionPickerAction>) {
+    self.store = store
+  }
+
+  public var body: some View {
     WithViewStore(self.store) { viewStore in
       LazyVGrid(columns: Self.columns(state: viewStore.state), spacing: viewStore.spacing) {
         ForEach(viewStore.reactions, id: \.self) { reaction in
@@ -53,15 +61,11 @@ struct ReactionPicker: View {
             Text(reaction.rawValue)
               .font(.system(size: viewStore.fontSize))
               .frame(width: viewStore.width, height: viewStore.height)
-              .overlay {
-                if viewStore.selected.contains(reaction) {
-                  RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(.selection, lineWidth: 2)
-                }
-              }
+              .modifier(Selected(viewStore.selected.contains(reaction)))
               .fixedSize()
           }
           .buttonStyle(.plain)
+          .contentShape(Rectangle())
         }
       }
       .padding(viewStore.spacing * 2)
@@ -74,6 +78,29 @@ struct ReactionPicker: View {
 
   static func columns(state: ReactionPickerState) -> [GridItem] {
     Array(repeating: Self.gridItem(state: state), count: state.columnCount)
+  }
+}
+
+private struct Selected: ViewModifier {
+  let isSelected: Bool
+
+  init(_ isSelected: Bool) {
+    self.isSelected = isSelected
+  }
+
+  func body(content: Content) -> some View {
+    content
+      .compositingGroup()
+      .background {
+        if self.isSelected {
+          RoundedRectangle(cornerRadius: 8)
+            .strokeBorder(.selection, lineWidth: 2)
+            // Make sure the border looks good on material backgrounds
+            // (otherwise not enough contrast)
+            .blendMode(.plusDarker)
+        }
+      }
+      .accessibilityAddTraits(self.isSelected ? .isSelected : [])
   }
 }
 

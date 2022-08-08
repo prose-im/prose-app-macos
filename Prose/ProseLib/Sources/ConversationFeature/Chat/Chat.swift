@@ -71,6 +71,25 @@ struct Chat: View {
   }
 }
 
+public final class ChatWebView: WKWebView {
+  var _reactionPicker: ReactionPickerView<ChatView.Action>?
+
+  func reactionPicker(
+    store: Store<MessageReactionPickerState, ChatView.Action>,
+    action: CasePath<ChatView.Action, ReactionPickerAction>,
+    dismiss dismissAction: ChatView.Action
+  ) -> ReactionPickerView<ChatView.Action> {
+    if let picker = self._reactionPicker {
+      picker.store = store
+      return picker
+    } else {
+      let picker = ReactionPickerView(store: store, action: action, dismiss: dismissAction)
+      self._reactionPicker = picker
+      return picker
+    }
+  }
+}
+
 struct ChatView: NSViewRepresentable {
   typealias State = ChatState
   typealias Action = ChatAction
@@ -131,7 +150,7 @@ struct ChatView: NSViewRepresentable {
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController
 
-    let webView = WKWebView(frame: .zero, configuration: configuration)
+    let webView = ChatWebView(frame: .zero, configuration: configuration)
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     signposter.endInterval(#function, interval)
@@ -189,6 +208,25 @@ struct ChatView: NSViewRepresentable {
       }
       .store(in: &context.coordinator.cancellables)
 
+    // Show reaction picker
+    self.viewStore.publisher
+      // NOTE: We don't *need* the web view to be ready, but it would not make sense
+      //       to show the picker anyway
+      .drop(while: { !$0.isWebViewReady })
+      .map(\.reactionPicker)
+      // Do not run `hideReactionPicker` if the picker was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { pickerState in
+        if let pickerState: MessageReactionPickerState = pickerState {
+          self.showReactionPicker(pickerState, on: webView)
+        } else {
+          self.hideReactionPicker(from: webView)
+        }
+      }
+      .store(in: &context.coordinator.cancellables)
+
     return webView
   }
 
@@ -211,7 +249,7 @@ struct ChatView: NSViewRepresentable {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     let jsonEncoder = JSONEncoder()
-    // NOTE: We sort keys so that reaction emojis are always sorted the same.
+    // NOTE: We sort keys so that reactions are always sorted the same.
     //       We could use `OrderedDictionary` from `swift-collections`, but it encodes as
     //       `["key": ["value"]]` instead of `{"key": ["value"]}`.
     // NOTE: Fixed in https://github.com/prose-im/prose-core-views/releases/tag/0.10.0
@@ -278,6 +316,34 @@ struct ChatView: NSViewRepresentable {
 
     #if os(macOS)
       context.coordinator.menu = nil
+    #endif
+  }
+
+  func showReactionPicker(_ pickerState: MessageReactionPickerState, on webView: ChatWebView) {
+    logger.trace("Showing reaction picker…")
+
+    #if os(macOS)
+      let picker: ReactionPickerView = webView.reactionPicker(
+        store: self.store.scope(state: { _ in pickerState }),
+        action: CasePath(ChatAction.reactionPicker),
+        dismiss: .reactionPickerDismissed
+      )
+
+      picker.setFrameOrigin(pickerState.origin)
+
+      if picker.superview == nil {
+        webView.addSubview(picker)
+      }
+    #else
+      #warning("Show a reaction picker")
+    #endif
+  }
+
+  func hideReactionPicker(from webView: ChatWebView) {
+    logger.trace("Hiding reaction picker…")
+
+    #if os(macOS)
+      webView._reactionPicker?.removeFromSuperview()
     #endif
   }
 

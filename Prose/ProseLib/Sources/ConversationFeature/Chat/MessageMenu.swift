@@ -11,7 +11,7 @@ import WebKit
 public enum MessageMenuAction: Equatable {
   case copyText(Message.ID)
   case edit(Message.ID)
-  case addReaction(Message.ID)
+  case addReaction(Message.ID, origin: CGPoint)
   case remove(Message.ID)
 }
 
