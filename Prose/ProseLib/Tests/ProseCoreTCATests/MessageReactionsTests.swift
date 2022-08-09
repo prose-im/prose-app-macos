@@ -44,7 +44,7 @@ final class MessageReactionsTests: XCTestCase {
       reactions,
       [
         "❤️": ["2"],
-        "🫠": ["2", "1"],
+        "🫠": ["1", "2"],
         "🐇": ["1"],
       ]
     )

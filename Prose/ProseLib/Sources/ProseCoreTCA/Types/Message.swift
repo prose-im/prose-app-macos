@@ -94,7 +94,7 @@ extension MessageKind {
 }
 
 public struct MessageReactions: Equatable {
-  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<JID>>
+  public typealias WrappedValue = OrderedDictionary<Reaction, Set<JID>>
 
   public private(set) var reactions: WrappedValue
 
@@ -103,7 +103,7 @@ public struct MessageReactions: Equatable {
   }
 
   public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
-    self.reactions[reaction, default: OrderedSet<JID>()].append(jid)
+    self.reactions[reaction, default: Set<JID>()].insert(jid)
   }
 
   public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
@@ -118,7 +118,7 @@ public struct MessageReactions: Equatable {
       }
     }
     for reaction in reactions {
-      self.reactions[reaction, default: []].append(jid)
+      self.reactions[reaction, default: []].insert(jid)
     }
   }
 
@@ -128,13 +128,13 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  subscript(reaction: Reaction) -> OrderedSet<JID>? {
+  subscript(reaction: Reaction) -> Set<JID>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Reaction, OrderedSet<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
     self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }

@@ -10,7 +10,7 @@ public extension SetAlgebra {
   ///
   /// Example:
   /// ```
-  /// var ints: OrderedSet<Int> = [3, 1]
+  /// var ints: Set<Int> = [3, 1]
   ///
   /// ints.prose_toggle(2) // true
   /// print(dict) // [3, 1, 2]

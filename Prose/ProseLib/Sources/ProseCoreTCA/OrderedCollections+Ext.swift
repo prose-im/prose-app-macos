@@ -10,22 +10,16 @@ public extension OrderedDictionary {
   ///
   /// Example:
   /// ```
-  /// var dict: OrderedDictionary<String, OrderedSet<Int>> = [
+  /// var dict: OrderedDictionary<String, Set<Int>> = [
   ///   "first": [1, 2, 3],
-  ///   "second": [3, 1],
+  ///   "second": [1, 3],
   /// ]
   ///
   /// dict.prose_toggle(2, forKey: "first") // false
-  /// print(dict) // ["first": [1, 3], "second": [3, 1]]
+  /// print(dict) // ["first": [1, 3], "second": [1, 3]]
   ///
   /// dict.prose_toggle(2, forKey: "second") // true
-  /// print(dict) // ["first": [1, 3], "second": [3, 1, 2]]
-  ///
-  /// dict.prose_toggle(1, forKey: "second") // false
-  /// print(dict) // ["first": [1, 3], "second": [3, 2]]
-  ///
-  /// dict.prose_toggle(1, forKey: "second") // true
-  /// print(dict) // ["first": [1, 3], "second": [3, 2, 1]]
+  /// print(dict) // ["first": [1, 3], "second": [1, 2, 3]]
   /// ```
   ///
   /// - Parameters:
@@ -35,8 +29,8 @@ public extension OrderedDictionary {
   @discardableResult mutating func prose_toggle<Element>(
     _ element: Element,
     forKey key: Key
-  ) -> Bool where Value == OrderedSet<Element> {
-    let inserted = self[key, default: Value()].unordered.prose_toggle(element)
+  ) -> Bool where Value: SetAlgebra, Value.Element == Element {
+    let inserted = self[key, default: Value()].prose_toggle(element)
     if !inserted, self[key]?.isEmpty == true {
       self.removeValue(forKey: key)
     }
