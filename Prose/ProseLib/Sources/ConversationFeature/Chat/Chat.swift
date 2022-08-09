@@ -7,6 +7,7 @@ import Assets
 import Combine
 import ComposableArchitecture
 import IdentifiedCollections
+import OrderedCollections
 import OSLog
 import ProseCoreTCA
 import ProseUI
@@ -15,7 +16,7 @@ import WebKit
 
 // MARK: - View
 
-struct ProseCoreViewsMessage: Equatable, Encodable {
+struct ProseCoreViewsMessage: Equatable, Encodable, Identifiable {
   struct User: Equatable, Encodable {
     let jid: String
     let name: String
@@ -57,6 +58,10 @@ extension ProseCoreViewsMessage.Reaction {
   }
 }
 
+enum ProseCoreViewsMessageAction: String, Encodable {
+  case reactions, actions
+}
+
 struct Chat: View {
   let store: Store<ChatView.State, ChatView.Action>
   @ObservedObject var viewStore: ViewStore<ChatView.State, ChatView.Action>
@@ -87,6 +92,8 @@ struct ChatView: NSViewRepresentable {
   typealias Action = ChatAction
 
   final class Coordinator: NSObject {
+    /// This is the state of messages stored in the web view. It's used for diffing purposes.
+    var messages = IdentifiedArrayOf<ProseCoreViewsMessage>()
     var cancellables = Set<AnyCancellable>()
 
     let viewStore: ViewStore<Void, Action>
@@ -181,8 +188,9 @@ struct ChatView: NSViewRepresentable {
       // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
       .drop(while: \.isEmpty)
       .removeDuplicates()
-      .sink { messages in
-        self.updateMessages(to: messages, in: webView)
+      .sink { [weak coordinator = context.coordinator] messages in
+        guard let coordinator = coordinator else { return }
+        self.updateMessages(to: messages, in: webView, coordinator: coordinator)
       }
       .store(in: &context.coordinator.cancellables)
 
@@ -232,7 +240,7 @@ struct ChatView: NSViewRepresentable {
         if let pickerState: MessageReactionPickerState = pickerState {
           self.showReactionPicker(pickerState, on: webView, coordinator: coordinator)
         } else {
-          self.hideReactionPicker(coordinator: coordinator)
+          self.hideReactionPicker(webView: webView, coordinator: coordinator)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -253,20 +261,64 @@ struct ChatView: NSViewRepresentable {
     signposter.endInterval(#function, interval)
   }
 
-  func updateMessages(to messages: [ProseCoreViewsMessage], in webView: WKWebView) {
-    logger.trace("Updating \(Self.self): \(messages.count, privacy: .public) messages")
-
+  func updateMessages(
+    to messages: [ProseCoreViewsMessage],
+    in webView: WKWebView,
+    coordinator: Coordinator
+  ) {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
-    let jsonData: Data = try! JSONEncoder().encode(messages)
-    let json = String(data: jsonData, encoding: .utf8) ?? "[]"
-    let script = """
-    MessagingStore.flush();
-    MessagingStore.insert(...\(json));
-    """
-    webView.evaluateJavaScript(script, domain: "Insert messages")
+    let messages = IdentifiedArrayOf<ProseCoreViewsMessage>(uniqueElements: messages)
+    let oldMessages: IdentifiedArrayOf<ProseCoreViewsMessage> = coordinator.messages
+    defer { coordinator.messages = messages }
+
+    let ids = OrderedSet<Message.ID>(messages.map(\.id))
+    let oldIds: OrderedSet<Message.ID> = coordinator.messages.ids
+
+    let insertedIds: OrderedSet<Message.ID> = ids.subtracting(oldIds)
+    let removedIds: OrderedSet<Message.ID> = oldIds.subtracting(ids)
+    let updatedIds: [Message.ID] = ids.intersection(oldIds)
+      .filter { messages[id: $0] != oldMessages[id: $0] }
+
+    for messageId in removedIds {
+      self.retractMessage(withId: messageId, in: webView)
+    }
+    for messageId in updatedIds {
+      if let message = messages[id: messageId] {
+        self.updateMessage(to: message, in: webView)
+      }
+    }
+    self.insertMessages(insertedIds.compactMap { messages[id: $0] }, in: webView)
 
     signposter.endInterval(#function, interval)
+  }
+
+  func insertMessages(_ messages: [ProseCoreViewsMessage], in webView: WKWebView) {
+    guard !messages.isEmpty else { return }
+    logger.trace("Inserting \(messages.count, privacy: .public) message(s)…")
+
+    let script = """
+    MessagingStore.insert(...\(Self.json(messages)));
+    """
+    webView.evaluateJavaScript(script, domain: "Insert messages")
+  }
+
+  func updateMessage(to message: ProseCoreViewsMessage, in webView: WKWebView) {
+    logger.trace("Updating 1 message…")
+
+    let script = """
+    MessagingStore.update(\(Self.unsafeJson(message.id)), \(Self.unsafeJson(message)));
+    """
+    webView.evaluateJavaScript(script, domain: "Update message")
+  }
+
+  func retractMessage(withId messageId: ProseCoreViewsMessage.ID, in webView: WKWebView) {
+    logger.trace("Retracting 1 message…")
+
+    let script = """
+    MessagingStore.retract(\(Self.unsafeJson(messageId)));
+    """
+    webView.evaluateJavaScript(script, domain: "Retract message")
   }
 
   func highlightMessage(_ messageId: Message.ID?, in webView: WKWebView) {
@@ -342,17 +394,35 @@ struct ChatView: NSViewRepresentable {
       if picker.superview == nil {
         webView.addSubview(picker)
       }
+
+      self.lockAction(.reactions, of: pickerState.messageId, isLocked: true, in: webView)
     #else
       #warning("Show a reaction picker")
     #endif
   }
 
-  func hideReactionPicker(coordinator: Coordinator) {
+  func hideReactionPicker(webView: WKWebView, coordinator: Coordinator) {
     logger.trace("Hiding reaction picker…")
 
     #if os(macOS)
+      if let store = coordinator.reactionPicker?.store {
+        self.lockAction(.reactions, of: ViewStore(store).messageId, isLocked: false, in: webView)
+      }
       coordinator.reactionPicker?.removeFromSuperview()
     #endif
+  }
+
+  func lockAction(
+    _ action: ProseCoreViewsMessageAction,
+    of messageId: Message.ID,
+    isLocked: Bool,
+    in webView: WKWebView
+  ) {
+    let script = """
+    MessagingStore.interact(\(Self.unsafeJson(messageId)), \(Self.unsafeJson(action)), \(Self
+      .unsafeJson(isLocked)));
+    """
+    webView.evaluateJavaScript(script, domain: "Lock/unlock action")
   }
 
   func updateColorScheme(of webView: WKWebView) {
@@ -374,6 +444,23 @@ struct ChatView: NSViewRepresentable {
       """
       webView.evaluateJavaScript(script, domain: "Color scheme")
     }
+  }
+
+  static func json<T: Encodable & Collection>(_ array: T) -> String {
+    let jsonData: Data
+    do {
+      jsonData = try JSONEncoder().encode(array)
+    } catch {
+      return "[]"
+    }
+    return String(data: jsonData, encoding: .utf8) ?? "[]"
+  }
+
+  /// - Note: This method is named unsafe because it uses force unwraps (`!`).
+  ///         The object is escaped properly.
+  static func unsafeJson<T: Encodable>(_ object: T) -> String {
+    let jsonData: Data = try! JSONEncoder().encode(object)
+    return String(data: jsonData, encoding: .utf8)!
   }
 }
 
