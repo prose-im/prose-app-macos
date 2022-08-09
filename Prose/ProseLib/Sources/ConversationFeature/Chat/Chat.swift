@@ -199,11 +199,14 @@ struct ChatView: NSViewRepresentable {
       // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
       .drop(while: { $0 == nil })
       .removeDuplicates()
-      .sink { menuState in
+      .sink { [weak coordinator = context.coordinator] menuState in
+        guard let coordinator = coordinator else {
+          return
+        }
         if let menuState: MessageMenuState = menuState {
-          self.showMenu(menuState, on: webView, context: context)
+          self.showMenu(menuState, on: webView, coordinator: coordinator)
         } else {
-          self.hideMenu(context: context)
+          self.hideMenu(coordinator: coordinator)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -276,18 +279,18 @@ struct ChatView: NSViewRepresentable {
     webView.evaluateJavaScript(script, domain: "Highlight message")
   }
 
-  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, context: Context) {
+  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, coordinator: Coordinator) {
     logger.trace("Showing message menu…")
 
     #if os(macOS)
-      let menu: MessageMenu = context.coordinator.menu ?? {
+      let menu: MessageMenu = coordinator.menu ?? {
         let menu = MessageMenu(title: "Actions")
         menu.viewStore = self.viewStore
 
         // Enable items, which are disabled by default because the responder chain doesn't handle the actions
         menu.autoenablesItems = false
 
-        menu.delegate = context.coordinator
+        menu.delegate = coordinator
 
         DispatchQueue.main.async {
           menu.popUp(positioning: nil, at: menuState.origin, in: webView)
@@ -311,11 +314,11 @@ struct ChatView: NSViewRepresentable {
     #endif
   }
 
-  func hideMenu(context: Context) {
+  func hideMenu(coordinator: Coordinator) {
     logger.trace("Hiding message menu…")
 
     #if os(macOS)
-      context.coordinator.menu = nil
+      coordinator.menu = nil
     #endif
   }
 
