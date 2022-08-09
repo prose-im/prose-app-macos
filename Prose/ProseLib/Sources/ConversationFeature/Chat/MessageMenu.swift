@@ -92,7 +92,6 @@ extension MessageMenuItemState {
 }
 
 struct MessageMenuState: Equatable {
-  let ids: [Message.ID]
   let origin: CGPoint
   var items: [MessageMenuItem]
 
