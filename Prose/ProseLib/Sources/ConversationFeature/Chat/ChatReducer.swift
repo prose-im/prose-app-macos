@@ -41,7 +41,7 @@ struct CoreViewsFrame: Equatable, Decodable {
   var cgRect: CGRect { CGRect(x: self.x, y: self.y, width: self.width, height: self.height) }
 }
 
-struct CoreViewsOrigin: Equatable, Decodable {
+struct CoreViewsEventOrigin: Equatable, Decodable {
   let anchor: CoreViewsPoint
   let parent: CoreViewsFrame?
   var cgRect: CGRect { self.parent?.cgRect ?? CGRect(origin: self.anchor.cgPoint, size: .zero) }
@@ -49,7 +49,7 @@ struct CoreViewsOrigin: Equatable, Decodable {
 
 public struct MessageMenuHandlerPayload: Equatable, Decodable {
   let id: Message.ID?
-  let origin: CoreViewsOrigin
+  let origin: CoreViewsEventOrigin
 }
 
 public struct ShowReactionsHandlerPayload: Equatable, Decodable {
@@ -59,7 +59,7 @@ public struct ShowReactionsHandlerPayload: Equatable, Decodable {
   }
 
   let id: Message.ID?
-  let origin: CoreViewsOrigin
+  let origin: CoreViewsEventOrigin
 }
 
 public struct ToggleReactionHandlerPayload: Equatable, Decodable {
