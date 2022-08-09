@@ -19,7 +19,7 @@ final class RosterSelectionTests: XCTestCase {
 
     XCTAssertTrue(
       app.chatWebView.staticTexts["Hello from oya.karabocek"]
-        .waitForExistence(timeout: 1)
+        .waitForExistence(timeout: 5)
     )
 
     app.sidebar.outlineRows
@@ -27,7 +27,7 @@ final class RosterSelectionTests: XCTestCase {
 
     XCTAssertTrue(
       app.chatWebView.staticTexts["donna.reed@example.com"]
-        .waitForExistence(timeout: 1)
+        .waitForExistence(timeout: 5)
     )
   }
 }
