@@ -71,25 +71,6 @@ struct Chat: View {
   }
 }
 
-public final class ChatWebView: WKWebView {
-  var _reactionPicker: ReactionPickerView<ChatView.Action>?
-
-  func reactionPicker(
-    store: Store<MessageReactionPickerState, ChatView.Action>,
-    action: CasePath<ChatView.Action, ReactionPickerAction>,
-    dismiss dismissAction: ChatView.Action
-  ) -> ReactionPickerView<ChatView.Action> {
-    if let picker = self._reactionPicker {
-      picker.store = store
-      return picker
-    } else {
-      let picker = ReactionPickerView(store: store, action: action, dismiss: dismissAction)
-      self._reactionPicker = picker
-      return picker
-    }
-  }
-}
-
 struct ChatView: NSViewRepresentable {
   typealias State = ChatState
   typealias Action = ChatAction
@@ -98,6 +79,7 @@ struct ChatView: NSViewRepresentable {
     var cancellables = Set<AnyCancellable>()
 
     let viewStore: ViewStore<Void, Action>
+    var reactionPicker: ReactionPickerView<ChatView.Action>?
 
     #if os(macOS)
       var menu: MessageMenu?
@@ -105,6 +87,21 @@ struct ChatView: NSViewRepresentable {
 
     init(viewStore: ViewStore<Void, Action>) {
       self.viewStore = viewStore
+    }
+
+    func createOrUpdateReactionPicker(
+      store: Store<MessageReactionPickerState, ChatView.Action>,
+      action: CasePath<ChatView.Action, ReactionPickerAction>,
+      dismiss dismissAction: ChatView.Action
+    ) -> ReactionPickerView<ChatView.Action> {
+      if let picker = self.reactionPicker {
+        picker.store = store
+        return picker
+      } else {
+        let picker = ReactionPickerView(store: store, action: action, dismiss: dismissAction)
+        self.reactionPicker = picker
+        return picker
+      }
     }
   }
 
@@ -150,7 +147,7 @@ struct ChatView: NSViewRepresentable {
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController
 
-    let webView = ChatWebView(frame: .zero, configuration: configuration)
+    let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     signposter.endInterval(#function, interval)
@@ -200,9 +197,7 @@ struct ChatView: NSViewRepresentable {
       .drop(while: { $0 == nil })
       .removeDuplicates()
       .sink { [weak coordinator = context.coordinator] menuState in
-        guard let coordinator = coordinator else {
-          return
-        }
+        guard let coordinator = coordinator else { return }
         if let menuState: MessageMenuState = menuState {
           self.showMenu(menuState, on: webView, coordinator: coordinator)
         } else {
@@ -221,11 +216,12 @@ struct ChatView: NSViewRepresentable {
       // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
       .drop(while: { $0 == nil })
       .removeDuplicates()
-      .sink { pickerState in
+      .sink { [weak coordinator = context.coordinator] pickerState in
+        guard let coordinator = coordinator else { return }
         if let pickerState: MessageReactionPickerState = pickerState {
-          self.showReactionPicker(pickerState, on: webView)
+          self.showReactionPicker(pickerState, on: webView, coordinator: coordinator)
         } else {
-          self.hideReactionPicker(from: webView)
+          self.hideReactionPicker(coordinator: coordinator)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -322,11 +318,15 @@ struct ChatView: NSViewRepresentable {
     #endif
   }
 
-  func showReactionPicker(_ pickerState: MessageReactionPickerState, on webView: ChatWebView) {
+  func showReactionPicker(
+    _ pickerState: MessageReactionPickerState,
+    on webView: WKWebView,
+    coordinator: Coordinator
+  ) {
     logger.trace("Showing reaction picker…")
 
     #if os(macOS)
-      let picker: ReactionPickerView = webView.reactionPicker(
+      let picker: ReactionPickerView = coordinator.createOrUpdateReactionPicker(
         store: self.store.scope(state: { _ in pickerState }),
         action: CasePath(ChatAction.reactionPicker),
         dismiss: .reactionPickerDismissed
@@ -342,11 +342,11 @@ struct ChatView: NSViewRepresentable {
     #endif
   }
 
-  func hideReactionPicker(from webView: ChatWebView) {
+  func hideReactionPicker(coordinator: Coordinator) {
     logger.trace("Hiding reaction picker…")
 
     #if os(macOS)
-      webView._reactionPicker?.removeFromSuperview()
+      coordinator.reactionPicker?.removeFromSuperview()
     #endif
   }
 
