@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import ProseUI
 import SwiftUI
 
 // MARK: - View
@@ -75,6 +76,11 @@ struct MessageBar: View {
       Button { actions.send(.showEmojisTapped) } label: {
         Image(systemName: "face.smiling")
       }
+      .reactionPicker(
+        store: self.store.scope(state: \.reactionPicker),
+        action: Action.reactionPicker,
+        dismiss: .reactionPickerDismissed
+      )
     }
     .buttonStyle(.plain)
     .unredacted()
@@ -96,7 +102,25 @@ public let messageBarReducer: Reducer<
     action: CasePath(MessageBarAction.textField),
     environment: { $0 }
   ),
-  Reducer.empty.binding(),
+  Reducer { state, action, _ in
+    switch action {
+    case let .reactionPicker(.select(reaction)):
+      state.textField.message.append(contentsOf: reaction.rawValue)
+      state.reactionPicker = nil
+      return .none
+
+    case .reactionPickerDismissed:
+      state.reactionPicker = nil
+      return .none
+
+    case .showEmojisTapped:
+      state.reactionPicker = .init()
+      return .none
+
+    case .textFormatTapped, .addAttachmentTapped, .textField, .reactionPicker, .binding:
+      return .none
+    }
+  }.binding(),
 ])
 
 // MARK: State
@@ -104,6 +128,7 @@ public let messageBarReducer: Reducer<
 public struct MessageBarState: Equatable {
   var textField: MessageBarTextFieldState
   var typing: [String]
+  var reactionPicker: ReactionPickerState?
 
   public init(
     textField: MessageBarTextFieldState,
@@ -119,6 +144,7 @@ public struct MessageBarState: Equatable {
 public enum MessageBarAction: Equatable, BindableAction {
   case textFormatTapped, addAttachmentTapped, showEmojisTapped
   case textField(MessageBarTextFieldAction)
+  case reactionPicker(ReactionPickerAction), reactionPickerDismissed
   case binding(BindingAction<MessageBarState>)
 }
 

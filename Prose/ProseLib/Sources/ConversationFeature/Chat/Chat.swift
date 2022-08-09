@@ -79,6 +79,7 @@ struct ChatView: NSViewRepresentable {
     var cancellables = Set<AnyCancellable>()
 
     let viewStore: ViewStore<Void, Action>
+    var reactionPicker: ReactionPickerView<ChatView.Action>?
 
     #if os(macOS)
       var menu: MessageMenu?
@@ -86,6 +87,21 @@ struct ChatView: NSViewRepresentable {
 
     init(viewStore: ViewStore<Void, Action>) {
       self.viewStore = viewStore
+    }
+
+    func createOrUpdateReactionPicker(
+      store: Store<MessageReactionPickerState, ChatView.Action>,
+      action: CasePath<ChatView.Action, ReactionPickerAction>,
+      dismiss dismissAction: ChatView.Action
+    ) -> ReactionPickerView<ChatView.Action> {
+      if let picker = self.reactionPicker {
+        picker.store = store
+        return picker
+      } else {
+        let picker = ReactionPickerView(store: store, action: action, dismiss: dismissAction)
+        self.reactionPicker = picker
+        return picker
+      }
     }
   }
 
@@ -180,11 +196,32 @@ struct ChatView: NSViewRepresentable {
       // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
       .drop(while: { $0 == nil })
       .removeDuplicates()
-      .sink { menuState in
+      .sink { [weak coordinator = context.coordinator] menuState in
+        guard let coordinator = coordinator else { return }
         if let menuState: MessageMenuState = menuState {
-          self.showMenu(menuState, on: webView, context: context)
+          self.showMenu(menuState, on: webView, coordinator: coordinator)
         } else {
-          self.hideMenu(context: context)
+          self.hideMenu(coordinator: coordinator)
+        }
+      }
+      .store(in: &context.coordinator.cancellables)
+
+    // Show reaction picker
+    self.viewStore.publisher
+      // NOTE: We don't *need* the web view to be ready, but it would not make sense
+      //       to show the picker anyway
+      .drop(while: { !$0.isWebViewReady })
+      .map(\.reactionPicker)
+      // Do not run `hideReactionPicker` if the picker was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { [weak coordinator = context.coordinator] pickerState in
+        guard let coordinator = coordinator else { return }
+        if let pickerState: MessageReactionPickerState = pickerState {
+          self.showReactionPicker(pickerState, on: webView, coordinator: coordinator)
+        } else {
+          self.hideReactionPicker(coordinator: coordinator)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -211,7 +248,7 @@ struct ChatView: NSViewRepresentable {
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
     let jsonEncoder = JSONEncoder()
-    // NOTE: We sort keys so that reaction emojis are always sorted the same.
+    // NOTE: We sort keys so that reactions are always sorted the same.
     //       We could use `OrderedDictionary` from `swift-collections`, but it encodes as
     //       `["key": ["value"]]` instead of `{"key": ["value"]}`.
     // NOTE: Fixed in https://github.com/prose-im/prose-core-views/releases/tag/0.10.0
@@ -238,18 +275,18 @@ struct ChatView: NSViewRepresentable {
     webView.evaluateJavaScript(script, domain: "Highlight message")
   }
 
-  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, context: Context) {
+  func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, coordinator: Coordinator) {
     logger.trace("Showing message menu…")
 
     #if os(macOS)
-      let menu: MessageMenu = context.coordinator.menu ?? {
+      let menu: MessageMenu = coordinator.menu ?? {
         let menu = MessageMenu(title: "Actions")
         menu.viewStore = self.viewStore
 
         // Enable items, which are disabled by default because the responder chain doesn't handle the actions
         menu.autoenablesItems = false
 
-        menu.delegate = context.coordinator
+        menu.delegate = coordinator
 
         DispatchQueue.main.async {
           menu.popUp(positioning: nil, at: menuState.origin, in: webView)
@@ -273,11 +310,43 @@ struct ChatView: NSViewRepresentable {
     #endif
   }
 
-  func hideMenu(context: Context) {
+  func hideMenu(coordinator: Coordinator) {
     logger.trace("Hiding message menu…")
 
     #if os(macOS)
-      context.coordinator.menu = nil
+      coordinator.menu = nil
+    #endif
+  }
+
+  func showReactionPicker(
+    _ pickerState: MessageReactionPickerState,
+    on webView: WKWebView,
+    coordinator: Coordinator
+  ) {
+    logger.trace("Showing reaction picker…")
+
+    #if os(macOS)
+      let picker: ReactionPickerView = coordinator.createOrUpdateReactionPicker(
+        store: self.store.scope(state: { _ in pickerState }),
+        action: CasePath(ChatAction.reactionPicker),
+        dismiss: .reactionPickerDismissed
+      )
+
+      picker.setFrameOrigin(pickerState.origin)
+
+      if picker.superview == nil {
+        webView.addSubview(picker)
+      }
+    #else
+      #warning("Show a reaction picker")
+    #endif
+  }
+
+  func hideReactionPicker(coordinator: Coordinator) {
+    logger.trace("Hiding reaction picker…")
+
+    #if os(macOS)
+      coordinator.reactionPicker?.removeFromSuperview()
     #endif
   }
 
