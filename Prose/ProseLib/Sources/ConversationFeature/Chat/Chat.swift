@@ -21,6 +21,11 @@ struct ProseCoreViewsMessage: Equatable, Encodable {
     let name: String
   }
 
+  struct Reaction: Equatable, Encodable {
+    let reaction: String
+    let authors: [String]
+  }
+
   fileprivate static var dateFormatter: ISO8601DateFormatter = {
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions.insert(.withFractionalSeconds)
@@ -32,7 +37,7 @@ struct ProseCoreViewsMessage: Equatable, Encodable {
   let date: String
   let content: String
   let from: User
-  let reactions: MessageReactions
+  let reactions: [Reaction]
 
   init(from message: Message) {
     self.id = message.id
@@ -42,7 +47,13 @@ struct ProseCoreViewsMessage: Equatable, Encodable {
       jid: message.from.jidString,
       name: message.from.jidString
     )
-    self.reactions = message.reactions
+    self.reactions = message.reactions.reactions.map(Reaction.init(from:))
+  }
+}
+
+extension ProseCoreViewsMessage.Reaction {
+  init(from element: MessageReactions.WrappedValue.Element) {
+    self.init(reaction: element.key.rawValue, authors: element.value.map(\.rawValue))
   }
 }
 
@@ -247,13 +258,7 @@ struct ChatView: NSViewRepresentable {
 
     let interval = signposter.beginInterval(#function, id: self.signpostID)
 
-    let jsonEncoder = JSONEncoder()
-    // NOTE: We sort keys so that reactions are always sorted the same.
-    //       We could use `OrderedDictionary` from `swift-collections`, but it encodes as
-    //       `["key": ["value"]]` instead of `{"key": ["value"]}`.
-    // NOTE: Fixed in https://github.com/prose-im/prose-core-views/releases/tag/0.10.0
-    jsonEncoder.outputFormatting = .sortedKeys
-    let jsonData: Data = try! jsonEncoder.encode(messages)
+    let jsonData: Data = try! JSONEncoder().encode(messages)
     let json = String(data: jsonData, encoding: .utf8) ?? "[]"
     let script = """
     MessagingStore.flush();

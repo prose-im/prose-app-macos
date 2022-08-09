@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import OrderedCollections
 import ProseCoreClientFFI
 import Tagged
 
@@ -93,9 +94,11 @@ extension MessageKind {
 }
 
 public struct MessageReactions: Equatable {
-  var reactions: [Reaction: Set<JID>]
+  public typealias WrappedValue = OrderedDictionary<Reaction, Set<JID>>
 
-  public init(reactions: [Reaction: Set<JID>] = [:]) {
+  public private(set) var reactions: WrappedValue
+
+  public init(reactions: WrappedValue = [:]) {
     self.reactions = reactions
   }
 
@@ -132,7 +135,7 @@ public struct MessageReactions: Equatable {
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
   public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
-    self.init(reactions: Dictionary(uniqueKeysWithValues: elements))
+    self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }
 
