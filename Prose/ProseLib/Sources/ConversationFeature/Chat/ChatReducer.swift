@@ -26,19 +26,30 @@ struct ChatState: Equatable {
 struct MessageReactionPickerState: Equatable {
   let messageId: Message.ID
   var pickerState: ReactionPickerState
-  let origin: CGPoint
+  let origin: CGRect
 }
 
 // MARK: - Actions
 
-public struct MessageMenuHandlerPayload: Equatable, Decodable {
-  struct Point: Equatable, Decodable {
-    let x, y: Double
-    var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
-  }
+struct CoreViewsPoint: Equatable, Decodable {
+  let x, y: Double
+  var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
+}
 
+struct CoreViewsFrame: Equatable, Decodable {
+  let x, y, width, height: Double
+  var cgRect: CGRect { CGRect(x: self.x, y: self.y, width: self.width, height: self.height) }
+}
+
+struct CoreViewsEventOrigin: Equatable, Decodable {
+  let anchor: CoreViewsPoint
+  let parent: CoreViewsFrame?
+  var cgRect: CGRect { self.parent?.cgRect ?? CGRect(origin: self.anchor.cgPoint, size: .zero) }
+}
+
+public struct MessageMenuHandlerPayload: Equatable, Decodable {
   let id: Message.ID?
-  let origin: Point
+  let origin: CoreViewsEventOrigin
 }
 
 public struct ShowReactionsHandlerPayload: Equatable, Decodable {
@@ -48,7 +59,7 @@ public struct ShowReactionsHandlerPayload: Equatable, Decodable {
   }
 
   let id: Message.ID?
-  let origin: Point
+  let origin: CoreViewsEventOrigin
 }
 
 public struct ToggleReactionHandlerPayload: Equatable, Decodable {
@@ -99,7 +110,7 @@ let chatReducer = Reducer<
     environment: { _ in () }
   ),
   Reducer { state, action, environment in
-    func showReactionPicker(for messageId: Message.ID, origin: CGPoint) {
+    func showReactionPicker(for messageId: Message.ID, origin: CGRect) {
       let message: Message? = state.messages[id: messageId]
       let selected: [Reaction]? = message?.reactions.reactions(for: state.loggedInUserJID)
       let pickerState = ReactionPickerState(selected: Set(selected ?? []))
@@ -185,7 +196,7 @@ let chatReducer = Reducer<
       if let id: Message.ID = payload.id {
         items = [
           .item(.action(.copyText(id), title: "Copy text")),
-          .item(.action(.addReaction(id, origin: payload.origin.cgPoint), title: "Add reaction…")),
+          .item(.action(.addReaction(id, origin: payload.origin.cgRect), title: "Add reaction…")),
           .separator,
           .item(.action(.edit(id), title: "Edit…", isDisabled: true)),
           .item(.action(.remove(id), title: "Remove message", isDisabled: true)),
@@ -193,7 +204,7 @@ let chatReducer = Reducer<
       } else {
         items = [.item(.staticText("No action"))]
       }
-      var menu = MessageMenuState(origin: payload.origin.cgPoint, items: items)
+      var menu = MessageMenuState(origin: payload.origin.anchor.cgPoint, items: items)
 
       let loggedInUserJID: JID = state.loggedInUserJID
 
@@ -218,7 +229,7 @@ let chatReducer = Reducer<
       logger.trace("Showing reactions for \(String(describing: payload.id))…")
 
       if let messageId: Message.ID = payload.id {
-        showReactionPicker(for: messageId, origin: payload.origin.cgPoint)
+        showReactionPicker(for: messageId, origin: payload.origin.cgRect)
       } else {
         logger.notice("Cannot show reactions: No message selected")
       }

@@ -337,7 +337,7 @@ struct ChatView: NSViewRepresentable {
         dismiss: .reactionPickerDismissed
       )
 
-      picker.setFrameOrigin(pickerState.origin)
+      picker.frame = pickerState.origin
 
       if picker.superview == nil {
         webView.addSubview(picker)
