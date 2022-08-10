@@ -232,14 +232,14 @@ struct ChatView: NSViewRepresentable {
 
     if !webView.isLoading {
       // TODO: Maybe remove duplicates (see if signpost interval becomes too long)
-      let styleTheme: StyleTheme = {
+      let styleTheme: StyleTheme? = {
         switch self.colorScheme {
         case .light:
           return .light
         case .dark:
           return .dark
         @unknown default:
-          return .light
+          return nil
         }
       }()
       context.coordinator.ffi.messagingContext.setStyleTheme(styleTheme)

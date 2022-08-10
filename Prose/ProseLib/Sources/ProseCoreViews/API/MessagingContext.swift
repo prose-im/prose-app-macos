@@ -8,7 +8,7 @@ import ProseCoreTCA
 
 public struct MessagingContext {
   public let setAccountJID: JSFunc1<JID, Void>
-  public let setStyleTheme: JSFunc1<StyleTheme, Void>
+  public let setStyleTheme: JSFunc1<StyleTheme?, Void>
 
   public init(evaluator: @escaping JSEvaluator) {
     let cls = JSClass(name: "MessagingContext", evaluator: evaluator)
