@@ -37,6 +37,13 @@
         "identifier" : "2CBFFE66287D7B0B00A53992",
         "name" : "ProseUITests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:ProseLib",
+        "identifier" : "ProseCoreViewsTests",
+        "name" : "ProseCoreViewsTests"
+      }
     }
   ],
   "version" : 1

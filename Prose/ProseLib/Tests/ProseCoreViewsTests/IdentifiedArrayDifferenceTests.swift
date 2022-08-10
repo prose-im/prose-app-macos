@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-@testable import ConversationFeature
 import typealias IdentifiedCollections.IdentifiedArrayOf
+@testable import ProseCoreViews
 import XCTest
 
 final class IdentifiedArrayDifferenceTests: XCTestCase {

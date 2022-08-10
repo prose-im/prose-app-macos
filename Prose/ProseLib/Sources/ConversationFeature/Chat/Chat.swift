@@ -10,57 +10,10 @@ import IdentifiedCollections
 import OrderedCollections
 import OSLog
 import ProseCoreTCA
+import ProseCoreViews
 import ProseUI
 import SwiftUI
 import WebKit
-
-// MARK: - View
-
-struct ProseCoreViewsMessage: Equatable, Encodable, Identifiable {
-  struct User: Equatable, Encodable {
-    let jid: String
-    let name: String
-  }
-
-  struct Reaction: Equatable, Encodable {
-    let reaction: String
-    let authors: [String]
-  }
-
-  fileprivate static var dateFormatter: ISO8601DateFormatter = {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions.insert(.withFractionalSeconds)
-    return formatter
-  }()
-
-  let id: Message.ID
-  let type = "text"
-  let date: String
-  let content: String
-  let from: User
-  let reactions: [Reaction]
-
-  init(from message: Message) {
-    self.id = message.id
-    self.date = Self.dateFormatter.string(from: message.timestamp)
-    self.content = message.body
-    self.from = User(
-      jid: message.from.jidString,
-      name: message.from.jidString
-    )
-    self.reactions = message.reactions.reactions.map(Reaction.init(from:))
-  }
-}
-
-extension ProseCoreViewsMessage.Reaction {
-  init(from element: MessageReactions.WrappedValue.Element) {
-    self.init(reaction: element.key.rawValue, authors: element.value.map(\.rawValue))
-  }
-}
-
-enum ProseCoreViewsMessageAction: String, Encodable {
-  case reactions, actions
-}
 
 struct Chat: View {
   let store: Store<ChatView.State, ChatView.Action>
@@ -93,11 +46,10 @@ struct ChatView: NSViewRepresentable {
 
   final class Coordinator: NSObject {
     /// This is the state of messages stored in the web view. It's used for diffing purposes.
-    var messages = IdentifiedArrayOf<ProseCoreViewsMessage>()
+    var messages = IdentifiedArrayOf<ProseCoreViews.Message>()
     var cancellables = Set<AnyCancellable>()
 
-    lazy var messagingStore = MessagingStore(evaluator: self.evaluator)
-    lazy var messagingContext = MessagingContext(evaluator: self.evaluator)
+    var ffi: ProseCoreViews.FFI!
 
     let viewStore: ViewStore<Void, Action>
     var reactionPicker: ReactionPickerView<ChatView.Action>?
@@ -105,13 +57,6 @@ struct ChatView: NSViewRepresentable {
     #if os(macOS)
       var menu: MessageMenu?
     #endif
-
-    var evaluator: JavaScriptEvaluator = .noop {
-      didSet {
-        self.messagingStore.evaluator = self.evaluator
-        self.messagingContext.evaluator = self.evaluator
-      }
-    }
 
     init(viewStore: ViewStore<Void, Action>) {
       self.viewStore = viewStore
@@ -153,30 +98,48 @@ struct ChatView: NSViewRepresentable {
     let contentController = WKUserContentController()
 
     // Set logged in user JID
-    contentController.addUserScript(self.setAccountJIDScript)
+    MessagingContext { jsScript, completion in
+      contentController.addUserScript(
+        WKUserScript(source: jsScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+      )
+      completion(nil, nil)
+    }.setAccountJID(self.viewStore.loggedInUserJID)
 
     let actions = ViewStore(self.store.stateless)
     // Allow right clicking messages
-    contentController.addEventHandler(
-      JSEventHandler(event: "message:actions:view", action: MessageAction.showMenu),
-      viewStore: actions
-    )
+    contentController.addMessageEventHandler(for: .showMenu) { result in
+      actions.send(.messageEvent(MessageEvent.showMenu, from: result))
+    }
     // Allow toggling reactions
-    contentController.addEventHandler(
-      JSEventHandler(event: "message:reactions:react", action: MessageAction.toggleReaction),
-      viewStore: actions
-    )
+    contentController.addMessageEventHandler(for: .toggleReaction) { result in
+      actions.send(.messageEvent(MessageEvent.toggleReaction, from: result))
+    }
     // Enable reactions picker shortcut
-    contentController.addEventHandler(
-      JSEventHandler(event: "message:reactions:view", action: MessageAction.showReactions),
-      viewStore: actions
-    )
+    contentController.addMessageEventHandler(for: .showReactions) { result in
+      actions.send(.messageEvent(MessageEvent.showReactions, from: result))
+    }
 
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController
 
     let webView = WKWebView(frame: .zero, configuration: configuration)
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
+
+    context.coordinator.ffi = FFI { [weak webView] jsString, completion in
+      print(jsString)
+
+      webView?.evaluateJavaScript(jsString) { res, error in
+        if let res = res {
+          logger.debug("JavaScript response: \(String(reflecting: res))")
+        }
+        if let error = error as? NSError {
+          logger.warning(
+            "[Error evaluating JavaScript: \(error.crisp_javaScriptExceptionMessage)"
+          )
+        }
+        completion(res, error)
+      }
+    }
 
     signposter.endInterval(#function, interval)
 
@@ -189,21 +152,20 @@ struct ChatView: NSViewRepresentable {
       }
       .store(in: &context.coordinator.cancellables)
 
-    context.coordinator.evaluator = .live(webView: webView)
-    let messagingStore = context.coordinator.messagingStore
+    let ffi = context.coordinator.ffi.expect("Expected ProseCoreViews FFI to be set")
 
     // Update messages
     self.viewStore.publisher
       .drop(while: { !$0.isWebViewReady })
       .map(\.messages)
-      .map { $0.map(ProseCoreViewsMessage.init(from:)) }
+      .map { $0.map(ProseCoreViews.Message.init(from:)) }
       // Do not run `updateMessages` until there are messages to show,
       // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
       .drop(while: \.isEmpty)
       .removeDuplicates()
       .sink { [weak coordinator = context.coordinator] messages in
         guard let coordinator = coordinator else { return }
-        messagingStore.updateMessages(to: messages, oldMessages: &coordinator.messages)
+        ffi.messagingStore.updateMessages(to: messages, oldMessages: &coordinator.messages)
       }
       .store(in: &context.coordinator.cancellables)
 
@@ -216,7 +178,7 @@ struct ChatView: NSViewRepresentable {
       .drop(while: { $0 == nil })
       .removeDuplicates()
       .sink { messageId in
-        messagingStore.highlightMessage(messageId)
+        ffi.messagingStore.highlightMessage(messageId)
       }
       .store(in: &context.coordinator.cancellables)
 
@@ -270,7 +232,17 @@ struct ChatView: NSViewRepresentable {
 
     if !webView.isLoading {
       // TODO: Maybe remove duplicates (see if signpost interval becomes too long)
-      context.coordinator.messagingContext.updateColorScheme(to: self.colorScheme)
+      let styleTheme: StyleTheme = {
+        switch self.colorScheme {
+        case .light:
+          return .light
+        case .dark:
+          return .dark
+        @unknown default:
+          return .light
+        }
+      }()
+      context.coordinator.ffi.messagingContext.setStyleTheme(styleTheme)
     } else {
       logger.trace("Skipping \(Self.self) update: JavaScript is not loaded.")
     }
@@ -341,7 +313,7 @@ struct ChatView: NSViewRepresentable {
         webView.addSubview(picker)
       }
 
-      coordinator.messagingStore.lockAction(.reactions, of: pickerState.messageId, isLocked: true)
+      coordinator.ffi.messagingStore.interact(.reactions, pickerState.messageId, true)
     #else
       #warning("Show a reaction picker")
     #endif
@@ -353,7 +325,7 @@ struct ChatView: NSViewRepresentable {
     #if os(macOS)
       if let store = coordinator.reactionPicker?.store {
         let messageId = ViewStore(store).messageId
-        coordinator.messagingStore.lockAction(.reactions, of: messageId, isLocked: false)
+        coordinator.ffi.messagingStore.interact(.reactions, messageId, false)
       }
       coordinator.reactionPicker?.removeFromSuperview()
     #endif
@@ -366,79 +338,16 @@ extension ChatView.Coordinator: NSMenuDelegate {
   }
 }
 
-extension ChatView {
-  var setAccountJIDScript: WKUserScript {
-    let script = MessagingContext.setAccountJIDScript(jid: self.viewStore.loggedInUserJID)
-    return WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-  }
-}
-
-struct JSEventHandler {
-  var event: String
-  var actionFromMessage: (WKScriptMessage) -> Result<MessageAction, JSEventError>
-
-  init<Payload: Decodable>(event: String, action: @escaping (Payload) -> MessageAction) {
-    self.event = event
-    self.actionFromMessage = { message in
-      guard let bodyString: String = message.body as? String,
-            let bodyData: Data = bodyString.data(using: .utf8)
-      else {
-        logger.fault("JS message body should be serialized as a String")
-        return .failure(.badSerialization)
-      }
-
-      do {
-        let payload = try JSONDecoder().decode(Payload.self, from: bodyData)
-        return .success(action(payload))
-      } catch let error as DecodingError {
-        logger
-          .warning("JS message body could not be decoded as `Payload`. Content: \(bodyString)")
-        return .failure(
-          .decodingError(
-            "JS message body could not be decoded from \"\(bodyString)\": \(error.debugDescription)"
-          )
-        )
-      } catch {
-        fatalError("`error` should always be a `DecodingError`")
-      }
-    }
-  }
-}
-
-final class ViewStoreScriptMessageHandler: NSObject, WKScriptMessageHandler {
-  let viewStore: ViewStore<Void, ChatAction>
-  let handler: JSEventHandler
-
-  init(handler: JSEventHandler, viewStore: ViewStore<Void, ChatAction>) {
-    self.handler = handler
-    self.viewStore = viewStore
-    super.init()
-  }
-
-  func userContentController(
-    _: WKUserContentController,
-    didReceive message: WKScriptMessage
-  ) {
-    switch self.handler.actionFromMessage(message) {
-    case let .success(action):
-      self.viewStore.send(.message(action))
+private extension ChatAction {
+  static func messageEvent<T>(
+    _ action: (T) -> MessageEvent,
+    from result: Result<T, JSEventError>
+  ) -> Self {
+    switch result {
+    case let .success(payload):
+      return .message(action(payload))
     case let .failure(error):
-      self.viewStore.send(.jsEventError(error))
+      return .jsEventError(error)
     }
-  }
-}
-
-extension WKUserContentController {
-  func addEventHandler(_ handler: JSEventHandler, viewStore: ViewStore<Void, ChatAction>) {
-    let (script, handlerName) = MessagingEvent.on(handler.event)
-
-    self.add(
-      ViewStoreScriptMessageHandler(handler: handler, viewStore: viewStore),
-      name: handlerName
-    )
-
-    self.addUserScript(
-      WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-    )
   }
 }
