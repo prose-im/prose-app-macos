@@ -456,11 +456,19 @@ struct ChatView: NSViewRepresentable {
     return String(data: jsonData, encoding: .utf8) ?? "[]"
   }
 
-  /// - Note: This method is named unsafe because it uses force unwraps (`!`).
+  /// - Note: This method is named unsafe because it uses `fatalError`.
   ///         The object is escaped properly.
   static func unsafeJson<T: Encodable>(_ object: T) -> String {
-    let jsonData: Data = try! JSONEncoder().encode(object)
-    return String(data: jsonData, encoding: .utf8)!
+    let jsonData: Data
+    do {
+      jsonData = try JSONEncoder().encode(object)
+    } catch {
+      fatalError("\(object) could not be encoded to JSON")
+    }
+    guard let json = String(data: jsonData, encoding: .utf8) else {
+      fatalError("\(object) could not be converted to String")
+    }
+    return json
   }
 }
 
