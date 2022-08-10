@@ -43,28 +43,10 @@ public extension JID {
   }
 }
 
-private extension JID {
-  enum CodingKeys: String, CodingKey {
-    case node
-    case domain
-  }
-}
-
 extension JID: Encodable {
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encodeIfPresent(self.bareJid.node, forKey: .node)
-    try container.encode(self.bareJid.domain, forKey: .domain)
-  }
-}
-
-extension JID: Decodable {
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.bareJid = try .init(
-      node: container.decodeIfPresent(String.self, forKey: .node),
-      domain: container.decode(String.self, forKey: .domain)
-    )
+    var container = encoder.singleValueContainer()
+    try container.encode(self.rawValue)
   }
 }
 

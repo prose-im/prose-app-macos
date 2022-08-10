@@ -41,4 +41,17 @@ final class FFITests: XCTestCase {
     XCTAssertEqual(result.count, 1)
     try assertSnapshot(matching: XCTUnwrap(result.first), as: .lines)
   }
+  
+  func testJIDEncoding() {
+    var result = [String]()
+
+    let ffi = FFI { jsString, _ in
+      result.append(jsString)
+    }
+
+    ffi.messagingContext.setAccountJID("test@prose.org")
+
+    XCTAssertEqual(result.count, 1)
+    try assertSnapshot(matching: XCTUnwrap(result.first), as: .lines)
+  }
 }
