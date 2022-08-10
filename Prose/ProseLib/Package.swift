@@ -83,8 +83,7 @@ let package = Package(
         "ConversationInfoFeature",
         "PasteboardClient",
         "ProseCoreViews",
-      ],
-      resources: [.process("Resources")]
+      ]
     ),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
     .target(name: "EditProfileFeature", dependencies: [.featureBase]),
@@ -143,7 +142,7 @@ let package = Package(
 
     .target(name: "PreviewAssets", resources: [.process("Resources")]),
 
-    .target(name: "ProseCoreViews", dependencies: [.base]),
+    .target(name: "ProseCoreViews", dependencies: [.base], resources: [.process("Resources")]),
     .testTarget(name: "ProseCoreViewsTests", dependencies: ["ProseCoreViews"]),
 
     .target(name: "ProseCore", dependencies: [.proseCore]),
