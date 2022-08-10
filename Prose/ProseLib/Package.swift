@@ -85,6 +85,7 @@ let package = Package(
       ],
       resources: [.process("Resources")]
     ),
+    .testTarget(name: "ConversationFeatureTests", dependencies: ["ConversationFeature"]),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
     .target(name: "EditProfileFeature", dependencies: [.featureBase]),
     .target(

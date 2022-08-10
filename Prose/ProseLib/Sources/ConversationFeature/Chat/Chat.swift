@@ -272,23 +272,17 @@ struct ChatView: NSViewRepresentable {
     let oldMessages: IdentifiedArrayOf<ProseCoreViewsMessage> = coordinator.messages
     defer { coordinator.messages = messages }
 
-    let ids = OrderedSet<Message.ID>(messages.map(\.id))
-    let oldIds: OrderedSet<Message.ID> = coordinator.messages.ids
+    let diff = messages.difference(from: oldMessages)
 
-    let insertedIds: OrderedSet<Message.ID> = ids.subtracting(oldIds)
-    let removedIds: OrderedSet<Message.ID> = oldIds.subtracting(ids)
-    let updatedIds: [Message.ID] = ids.intersection(oldIds)
-      .filter { messages[id: $0] != oldMessages[id: $0] }
-
-    for messageId in removedIds {
+    for messageId in diff.removedIds {
       self.retractMessage(withId: messageId, in: webView)
     }
-    for messageId in updatedIds {
+    for messageId in diff.updatedIds {
       if let message = messages[id: messageId] {
         self.updateMessage(to: message, in: webView)
       }
     }
-    self.insertMessages(insertedIds.compactMap { messages[id: $0] }, in: webView)
+    self.insertMessages(diff.insertedIds.compactMap { messages[id: $0] }, in: webView)
 
     signposter.endInterval(#function, interval)
   }
