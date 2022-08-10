@@ -13,7 +13,7 @@ public struct MessagingStore {
   public let insertMessages: JSRestFunc1<[Message], Void>
   public let retractMessage: JSFunc1<Message.ID, Void>
   public let highlightMessage: JSFunc1<Message.ID?, Void>
-  public let interact: JSFunc3<MessageAction, Message.ID, Bool, Void>
+  public let interact: JSFunc3<Message.ID, MessageAction, Bool, Void>
 
   private let update: JSFunc2<Message.ID, Message, Void>
 

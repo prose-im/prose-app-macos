@@ -314,7 +314,7 @@ struct ChatView: NSViewRepresentable {
         webView.addSubview(picker)
       }
 
-      coordinator.ffi.messagingStore.interact(.reactions, pickerState.messageId, true)
+      coordinator.ffi.messagingStore.interact(pickerState.messageId, .reactions, true)
     #else
       #warning("Show a reaction picker")
     #endif
@@ -326,7 +326,7 @@ struct ChatView: NSViewRepresentable {
     #if os(macOS)
       if let store = coordinator.reactionPicker?.store {
         let messageId = ViewStore(store).messageId
-        coordinator.ffi.messagingStore.interact(.reactions, messageId, false)
+        coordinator.ffi.messagingStore.interact(messageId, .reactions, false)
       }
       coordinator.reactionPicker?.removeFromSuperview()
     #endif
