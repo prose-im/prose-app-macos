@@ -126,8 +126,6 @@ struct ChatView: NSViewRepresentable {
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     context.coordinator.ffi = FFI { [weak webView] jsString, completion in
-      print(jsString)
-
       webView?.evaluateJavaScript(jsString) { res, error in
         if let res = res {
           logger.debug("JavaScript response: \(String(reflecting: res))")
