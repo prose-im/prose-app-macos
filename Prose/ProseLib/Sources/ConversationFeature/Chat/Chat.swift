@@ -189,8 +189,7 @@ struct ChatView: NSViewRepresentable {
       }
       .store(in: &context.coordinator.cancellables)
 
-    let evaluator = JavaScriptEvaluator.live(webView: webView)
-    context.coordinator.evaluator = evaluator
+    context.coordinator.evaluator = .live(webView: webView)
     let messagingStore = context.coordinator.messagingStore
 
     // Update messages
