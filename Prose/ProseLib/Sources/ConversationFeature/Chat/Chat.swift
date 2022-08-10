@@ -126,15 +126,17 @@ struct ChatView: NSViewRepresentable {
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     context.coordinator.ffi = FFI { [weak webView] jsString, completion in
+      jsLogger.trace("\(jsString)")
+    
       webView?.evaluateJavaScript(jsString) { res, error in
         // Take the JS method name
         let domain: () -> String = { String(jsString.prefix(while: { $0 != "(" })) }
       
         if let res = res {
-          logger.debug("[\(domain())] JavaScript response: \(String(reflecting: res))")
+          jsLogger.debug("[\(domain())] JavaScript response: \(String(reflecting: res))")
         }
         if let error = error as? NSError {
-          logger.warning(
+          jsLogger.warning(
             "[\(domain())] Error evaluating JavaScript: \(error.crisp_javaScriptExceptionMessage)"
           )
         }
