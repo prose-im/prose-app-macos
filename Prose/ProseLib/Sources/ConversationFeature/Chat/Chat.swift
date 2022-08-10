@@ -127,12 +127,15 @@ struct ChatView: NSViewRepresentable {
 
     context.coordinator.ffi = FFI { [weak webView] jsString, completion in
       webView?.evaluateJavaScript(jsString) { res, error in
+        // Take the JS method name
+        let domain: () -> String = { String(jsString.prefix(while: { $0 != "(" })) }
+      
         if let res = res {
-          logger.debug("JavaScript response: \(String(reflecting: res))")
+          logger.debug("[\(domain())] JavaScript response: \(String(reflecting: res))")
         }
         if let error = error as? NSError {
           logger.warning(
-            "[Error evaluating JavaScript: \(error.crisp_javaScriptExceptionMessage)"
+            "[\(domain())] Error evaluating JavaScript: \(error.crisp_javaScriptExceptionMessage)"
           )
         }
         completion(res, error)
