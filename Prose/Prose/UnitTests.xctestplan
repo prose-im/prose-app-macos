@@ -27,6 +27,13 @@
         "identifier" : "ProseCoreTCATests",
         "name" : "ProseCoreTCATests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:ProseLib",
+        "identifier" : "ProseCoreViewsTests",
+        "name" : "ProseCoreViewsTests"
+      }
     }
   ],
   "version" : 1

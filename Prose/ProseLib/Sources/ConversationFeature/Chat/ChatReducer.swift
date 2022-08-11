@@ -7,6 +7,7 @@ import ComposableArchitecture
 import CoreGraphics
 import IdentifiedCollections
 import ProseCoreTCA
+import ProseCoreViews
 import ProseUI
 import TcaHelpers
 
@@ -16,83 +17,26 @@ struct ChatState: Equatable {
   let loggedInUserJID: JID
   let chatId: JID
   var isWebViewReady = false
-  var messages = IdentifiedArrayOf<Message>()
-  var selectedMessageId: Message.ID?
+  var messages = IdentifiedArrayOf<ProseCoreTCA.Message>()
+  var selectedMessageId: ProseCoreTCA.Message.ID?
   var menu: MessageMenuState?
   var reactionPicker: MessageReactionPickerState?
   var alert: AlertState<ChatAction>?
 }
 
 struct MessageReactionPickerState: Equatable {
-  let messageId: Message.ID
+  let messageId: ProseCoreTCA.Message.ID
   var pickerState: ReactionPickerState
   let origin: CGRect
 }
 
 // MARK: - Actions
 
-struct CoreViewsPoint: Equatable, Decodable {
-  let x, y: Double
-  var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
-}
-
-struct CoreViewsFrame: Equatable, Decodable {
-  let x, y, width, height: Double
-  var cgRect: CGRect { CGRect(x: self.x, y: self.y, width: self.width, height: self.height) }
-}
-
-struct CoreViewsEventOrigin: Equatable, Decodable {
-  let anchor: CoreViewsPoint
-  let parent: CoreViewsFrame?
-  var cgRect: CGRect { self.parent?.cgRect ?? CGRect(origin: self.anchor.cgPoint, size: .zero) }
-}
-
-public struct MessageMenuHandlerPayload: Equatable, Decodable {
-  let id: Message.ID?
-  let origin: CoreViewsEventOrigin
-}
-
-public struct ShowReactionsHandlerPayload: Equatable, Decodable {
-  struct Point: Equatable, Decodable {
-    let x, y: Double
-    var cgPoint: CGPoint { CGPoint(x: self.x, y: self.y) }
-  }
-
-  let id: Message.ID?
-  let origin: CoreViewsEventOrigin
-}
-
-public struct ToggleReactionHandlerPayload: Equatable, Decodable {
-  let id: Message.ID?
-  let reaction: String
-}
-
-public enum MessageAction: Equatable {
-  case showMenu(MessageMenuHandlerPayload)
-  case toggleReaction(ToggleReactionHandlerPayload)
-  case showReactions(ShowReactionsHandlerPayload)
-}
-
-public enum JSEventError: Error, Equatable {
-  case badSerialization, decodingError(String)
-}
-
-extension JSEventError: CustomDebugStringConvertible {
-  public var debugDescription: String {
-    switch self {
-    case .badSerialization:
-      return "JS message body should be serialized as a String"
-    case let .decodingError(debugDescription):
-      return debugDescription
-    }
-  }
-}
-
 public enum ChatAction: Equatable {
   case webViewReady, alertDismissed
   case navigateUp, navigateDown
   case messageMenuItemTapped(MessageMenuAction), menuDidClose
-  case message(MessageAction)
+  case message(MessageEvent)
   case jsEventError(JSEventError)
   case reactionPicker(ReactionPickerAction), reactionPickerDismissed
 }
@@ -110,9 +54,9 @@ let chatReducer = Reducer<
     environment: { _ in () }
   ),
   Reducer { state, action, environment in
-    func showReactionPicker(for messageId: Message.ID, origin: CGRect) {
-      let message: Message? = state.messages[id: messageId]
-      let selected: [Reaction]? = message?.reactions.reactions(for: state.loggedInUserJID)
+    func showReactionPicker(for messageId: ProseCoreTCA.Message.ID, origin: CGRect) {
+      let message = state.messages[id: messageId]
+      let selected = message?.reactions.reactions(for: state.loggedInUserJID)
       let pickerState = ReactionPickerState(selected: Set(selected ?? []))
       state.reactionPicker = MessageReactionPickerState(
         messageId: messageId,
@@ -193,7 +137,7 @@ let chatReducer = Reducer<
       )
 
       let items: [MessageMenuItem]
-      if let id: Message.ID = payload.id {
+      if let id = payload.id {
         items = [
           .item(.action(.copyText(id), title: "Copy text")),
           .item(.action(.addReaction(id, origin: payload.origin.cgRect), title: "Add reaction…")),
@@ -228,7 +172,7 @@ let chatReducer = Reducer<
     case let .message(.showReactions(payload)):
       logger.trace("Showing reactions for \(String(describing: payload.id))…")
 
-      if let messageId: Message.ID = payload.id {
+      if let messageId = payload.id {
         showReactionPicker(for: messageId, origin: payload.origin.cgRect)
       } else {
         logger.notice("Cannot show reactions: No message selected")
@@ -257,7 +201,7 @@ let chatReducer = Reducer<
       return .none
 
     case let .reactionPicker(.select(reaction)):
-      guard let messageId: Message.ID = state.reactionPicker?.messageId else {
+      guard let messageId = state.reactionPicker?.messageId else {
         preconditionFailure("We should have stored the message ID")
       }
       return environment.proseClient
@@ -265,7 +209,7 @@ let chatReducer = Reducer<
         .fireAndForget()
 
     case let .reactionPicker(.deselect(reaction)):
-      guard let messageId: Message.ID = state.reactionPicker?.messageId else {
+      guard let messageId = state.reactionPicker?.messageId else {
         preconditionFailure("We should have stored the message ID")
       }
       let loggedInUserJID = state.loggedInUserJID
