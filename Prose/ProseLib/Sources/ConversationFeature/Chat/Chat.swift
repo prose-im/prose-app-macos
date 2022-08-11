@@ -126,7 +126,7 @@ struct ChatView: NSViewRepresentable {
     webView.loadFileURL(Files.messagingHtml.url, allowingReadAccessTo: Files.messagingHtml.url)
 
     context.coordinator.ffi = FFI { [weak webView] jsString, completion in
-      jsLogger.trace("\(jsString)")
+      jsLogger.trace("\(jsString, privacy: .public)")
     
       webView?.evaluateJavaScript(jsString) { res, error in
         // Take the JS method name
