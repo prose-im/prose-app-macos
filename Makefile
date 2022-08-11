@@ -16,7 +16,7 @@ XCBEAUTIFY:
 VIEWS_LIB_URL=https://github.com/prose-im/prose-core-views
 VIEWS_LIB_VERSION=0.11.1
 VIEWS_ARCHIVE_NAME=release-${VIEWS_LIB_VERSION}.tar.gz
-DESTINATION=Prose/ProseLib/Sources/ConversationFeature/Resources/Views
+DESTINATION=Prose/ProseLib/Sources/ProseCoreViews/Resources/Views
 
 views: views-build assets
 

@@ -14,9 +14,9 @@ import Foundation
 
 // swiftlint:disable explicit_type_interface identifier_name
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
-internal enum Files {
+public enum Files {
   /// messaging.html
-  internal static let messagingHtml = File(
+  public static let messagingHtml = File(
     name: "messaging",
     ext: "html",
     relativePath: "",
@@ -29,17 +29,17 @@ internal enum Files {
 
 // MARK: - Implementation Details
 
-internal struct File {
-  internal let name: String
-  internal let ext: String?
-  internal let relativePath: String
-  internal let mimeType: String
+public struct File {
+  public let name: String
+  public let ext: String?
+  public let relativePath: String
+  public let mimeType: String
 
-  internal var url: URL {
+  public var url: URL {
     url(locale: nil)
   }
 
-  internal func url(locale: Locale?) -> URL {
+  public func url(locale: Locale?) -> URL {
     let bundle = Bundle.fixedModule
     let url = bundle.url(
       forResource: self.name,
@@ -54,11 +54,11 @@ internal struct File {
     return result
   }
 
-  internal var path: String {
+  public var path: String {
     path(locale: nil)
   }
 
-  internal func path(locale: Locale?) -> String {
+  public func path(locale: Locale?) -> String {
     self.url(locale: locale).path
   }
 }

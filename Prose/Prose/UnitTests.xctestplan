@@ -31,8 +31,8 @@
     {
       "target" : {
         "containerPath" : "container:ProseLib",
-        "identifier" : "ConversationFeatureTests",
-        "name" : "ConversationFeatureTests"
+        "identifier" : "ProseCoreViewsTests",
+        "name" : "ProseCoreViewsTests"
       }
     }
   ],

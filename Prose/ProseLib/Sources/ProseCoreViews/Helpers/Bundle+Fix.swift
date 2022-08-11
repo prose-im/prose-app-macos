@@ -13,7 +13,7 @@ public let localBundle = Bundle.fixedModule
 private final class CurrentBundleFinder {}
 
 private let packageName: String = "ProseLib"
-private let targetName: String = "ConversationFeature"
+private let targetName: String = "ProseCoreViews"
 
 extension Foundation.Bundle {
   /// Returns the resource bundle associated with the current Swift module.
