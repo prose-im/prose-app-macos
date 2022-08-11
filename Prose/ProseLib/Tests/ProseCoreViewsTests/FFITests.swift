@@ -1,57 +1,77 @@
 import Foundation
 import ProseCoreTCA
-import ProseCoreViews
-import SnapshotTesting
+@testable import ProseCoreViews
 import TestHelpers
 import XCTest
 
+struct Enc: Encodable {
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode("OK")
+  }
+}
+
+final class TestEvaluator {
+  var scripts = [String]()
+
+  func evaluateJS(
+    _ javaScriptString: String,
+    _ completionHandler: @escaping ((Any?, Error?) -> Void)
+  ) {
+    self.scripts.append(javaScriptString)
+    completionHandler(nil, nil)
+  }
+}
+
 final class FFITests: XCTestCase {
-  func testRegularFunc() throws {
-    var result = [String]()
-
-    let ffi = FFI { jsString, _ in
-      result.append(jsString)
-    }
-
-    ffi.messagingStore.interact(.reactions, .init(rawValue: "message-id"), true)
-
-    XCTAssertEqual(result.count, 1)
-    try assertSnapshot(matching: XCTUnwrap(result.first), as: .lines)
+  func testFunc1Encodes() throws {
+    let eval = TestEvaluator()
+    let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
+    let f: JSFunc1<Enc, Void> = cls.my_func
+    f(Enc())
+    try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func("OK")"#)
   }
 
-  func testVariadicFunc() throws {
-    var result = [String]()
-
-    let ffi = FFI { jsString, _ in
-      result.append(jsString)
-    }
-
-    ffi.messagingStore.insertMessages([
-      .init(from: ProseCoreTCA.Message(
-        from: "test@prose.org",
-        id: .init(rawValue: "message-id"),
-        kind: .chat,
-        body: "Hello World",
-        timestamp: .ymd(2022, 08, 10),
-        isRead: true,
-        isEdited: false
-      )),
-    ])
-
-    XCTAssertEqual(result.count, 1)
-    try assertSnapshot(matching: XCTUnwrap(result.first), as: .lines)
+  func testFunc2Encodes() throws {
+    let eval = TestEvaluator()
+    let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
+    let f: JSFunc2<Enc, Enc, Void> = cls.my_func
+    f(Enc(), Enc())
+    try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func("OK", "OK")"#)
   }
-  
-  func testJIDEncoding() {
-    var result = [String]()
 
-    let ffi = FFI { jsString, _ in
-      result.append(jsString)
-    }
+  func testFunc3Encodes() throws {
+    let eval = TestEvaluator()
+    let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
+    let f: JSFunc3<Enc, Enc, Enc, Void> = cls.my_func
+    f(Enc(), Enc(), Enc())
+    try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func("OK", "OK", "OK")"#)
+  }
 
-    ffi.messagingContext.setAccountJID("test@prose.org")
+  func testRestFunc1Encodes() throws {
+    let eval = TestEvaluator()
+    let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
+    let f: JSRestFunc1<[Enc], Void> = cls.my_func
+    f([Enc(), Enc()])
+    try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func(...["OK","OK"])"#)
+  }
 
-    XCTAssertEqual(result.count, 1)
-    try assertSnapshot(matching: XCTUnwrap(result.first), as: .lines)
+  // Tiny smoke test for the general MessagingStore setup
+  func testMessagingStoreSmoke() throws {
+    let eval = TestEvaluator()
+    let ffi = FFI(evaluator: eval.evaluateJS)
+    ffi.messagingStore.interact(.init(rawValue: "message-id"), .reactions, true)
+    try XCTAssertEqual(
+      XCTUnwrap(eval.scripts.first),
+      #"MessagingStore.interact("message-id", "reactions", true)"#
+    )
+  }
+
+  func testJIDEncoding() throws {
+    let eval = TestEvaluator()
+    let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
+    let f: JSFunc1<JID, Void> = cls.my_func
+    f("test@prose.org")
+    try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func("test@prose.org")"#)
   }
 }

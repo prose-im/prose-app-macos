@@ -1,1 +1,0 @@
-MessagingContext.setAccountJID("test@prose.org")

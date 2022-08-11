@@ -1,1 +1,0 @@
-MessagingStore.interact("reactions", "message-id", true)

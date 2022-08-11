@@ -38,10 +38,6 @@ let package = Package(
       .upToNextMajor(from: "0.1.0")
     ),
     .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.7.0")),
-    .package(
-      url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
-      .upToNextMajor(from: "1.9.0")
-    ),
     .proseCore("0.1.9"),
   ],
   targets: [
@@ -152,9 +148,7 @@ let package = Package(
       dependencies: [
         "ProseCoreViews",
         "TestHelpers",
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-      ],
-      exclude: ["__Snapshots__"]
+      ]
     ),
 
     .target(name: "ProseCore", dependencies: [.proseCore]),
