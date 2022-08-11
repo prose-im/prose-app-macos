@@ -60,6 +60,25 @@ final class FFITests: XCTestCase {
     f([Enc(), Enc()])
     try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func(...["OK","OK"])"#)
   }
+  
+  func testJSResultValue() throws {
+    let cls = JSClass(name: "MyClass") { _, completion in
+      completion("Hello World", nil)
+    }
+    let f: JSRestFunc1<Int, String> = cls.my_func
+    try XCTAssertEqual(self.await(f(0)), "Hello World")
+  }
+  
+  func testJSError() throws {
+    enum JSError: Error {
+      case failure
+    }
+    let cls = JSClass(name: "MyClass") { _, completion in
+      completion(nil, JSError.failure)
+    }
+    let f: JSRestFunc1<Int, String> = cls.my_func
+    try XCTAssertThrowsError(self.await(f(0)))
+  }
 
   // Tiny smoke test for the general MessagingStore setup
   func testMessagingStoreSmoke() throws {
