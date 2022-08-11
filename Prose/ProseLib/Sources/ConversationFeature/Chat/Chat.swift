@@ -127,11 +127,11 @@ struct ChatView: NSViewRepresentable {
 
     context.coordinator.ffi = FFI { [weak webView] jsString, completion in
       jsLogger.trace("\(jsString, privacy: .public)")
-    
+
       webView?.evaluateJavaScript(jsString) { res, error in
         // Take the JS method name
         let domain: () -> String = { String(jsString.prefix(while: { $0 != "(" })) }
-      
+
         if let res = res {
           jsLogger.debug("[\(domain())] JavaScript response: \(String(reflecting: res))")
         }
