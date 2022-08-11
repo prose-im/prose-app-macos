@@ -46,7 +46,7 @@ struct ChatView: NSViewRepresentable {
 
   final class Coordinator: NSObject {
     /// This is the state of messages stored in the web view. It's used for diffing purposes.
-    var messages = IdentifiedArrayOf<ProseCoreViews.Message>()
+    var messages = IdentifiedArrayOf<Message>()
     var cancellables = Set<AnyCancellable>()
 
     var ffi: ProseCoreViews.FFI!
@@ -161,14 +161,13 @@ struct ChatView: NSViewRepresentable {
     self.viewStore.publisher
       .drop(while: { !$0.isWebViewReady })
       .map(\.messages)
-      .map { $0.map(ProseCoreViews.Message.init(from:)) }
       // Do not run `updateMessages` until there are messages to show,
       // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
       .drop(while: \.isEmpty)
       .removeDuplicates()
       .sink { [weak coordinator = context.coordinator] messages in
         guard let coordinator = coordinator else { return }
-        ffi.messagingStore.updateMessages(to: messages, oldMessages: &coordinator.messages)
+        ffi.messagingStore.updateMessages(to: messages.elements, oldMessages: &coordinator.messages)
       }
       .store(in: &context.coordinator.cancellables)
 

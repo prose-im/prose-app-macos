@@ -335,7 +335,7 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     if let reactions = message.reactions {
       activeChats[jid]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
         message.reactions.setReactions(
-          reactions.reactions.map(Reaction.init(rawValue:)),
+          Set(reactions.reactions.map(Reaction.init(rawValue:))),
           for: message.from
         )
       }

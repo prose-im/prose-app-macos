@@ -476,7 +476,7 @@ final class ProseClientTests: XCTestCase {
         ],
         [
           "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
-          "1": ["🍻": ["chat1@prose.org"], "🐇": ["chat1@prose.org"]],
+          "1": ["🐇": ["chat1@prose.org"], "🍻": ["chat1@prose.org"]],
         ],
       ]
     )

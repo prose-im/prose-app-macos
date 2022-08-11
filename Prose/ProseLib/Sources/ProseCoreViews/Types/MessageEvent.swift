@@ -3,7 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import Foundation
+import struct ProseCoreTCA.Message
 
 public enum MessageEvent: Equatable {
   case showMenu(MessageMenuHandlerPayload)

@@ -8,6 +8,8 @@ import OrderedCollections
 import ProseCoreClientFFI
 import Tagged
 
+// MARK: - Message
+
 public struct Message: Equatable, Identifiable {
   public typealias ID = Tagged<Message, String>
 
@@ -66,6 +68,40 @@ extension Message {
   }
 }
 
+extension Message: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case id, type, date, content, from, reactions
+  }
+
+  enum UserCodingKeys: String, CodingKey {
+    case jid, name
+  }
+
+  fileprivate static var dateFormatter: ISO8601DateFormatter = {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions.insert(.withFractionalSeconds)
+    return formatter
+  }()
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(self.id, forKey: .id)
+    try container.encode("text", forKey: .type)
+    try container.encode(Self.dateFormatter.string(from: self.timestamp), forKey: .date)
+    try container.encode(self.body, forKey: .content)
+    do {
+      var container = container.nestedContainer(keyedBy: UserCodingKeys.self, forKey: .from)
+      try container.encode(self.from, forKey: .jid)
+      // FIXME: Find a way to set `name` to the correct value
+      try container.encode(String(describing: self.from), forKey: .name)
+    }
+    try container.encode(self.reactions, forKey: .reactions)
+  }
+}
+
+// MARK: - MessageKind
+
 public enum MessageKind: Equatable {
   case chat
   case error
@@ -93,8 +129,10 @@ extension MessageKind {
   }
 }
 
+// MARK: - MessageReactions
+
 public struct MessageReactions: Equatable {
-  public typealias WrappedValue = OrderedDictionary<Reaction, Set<JID>>
+  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<JID>>
 
   public private(set) var reactions: WrappedValue
 
@@ -103,22 +141,23 @@ public struct MessageReactions: Equatable {
   }
 
   public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
-    self.reactions[reaction, default: Set<JID>()].insert(jid)
+    self.reactions[reaction, default: OrderedSet<JID>()].append(jid)
   }
 
   public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
-  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
-    for (reaction, _) in self.reactions {
+  public mutating func setReactions(_ reactions: Set<Reaction>, for jid: JID) {
+    for reaction in self.reactions.keys where !reactions.contains(reaction) {
       self.reactions[reaction]?.remove(jid)
+      // Remove key if the set is now empty
       if self.reactions[reaction]?.isEmpty == true {
         self.reactions.removeValue(forKey: reaction)
       }
     }
     for reaction in reactions {
-      self.reactions[reaction, default: []].insert(jid)
+      self.reactions[reaction, default: []].append(jid)
     }
   }
 
@@ -128,38 +167,29 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  subscript(reaction: Reaction) -> Set<JID>? {
+  subscript(reaction: Reaction) -> OrderedSet<JID>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, OrderedSet<JID>)...) {
     self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }
 
-struct StringCodingKey: CodingKey {
-  let stringValue: String
-
-  init(stringValue: String) {
-    self.stringValue = stringValue
-  }
-
-  var intValue: Int?
-
-  init?(intValue _: Int) {
-    nil
-  }
-}
-
 extension MessageReactions: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: StringCodingKey.self)
+  enum CodingKeys: String, CodingKey {
+    case reaction, authors
+  }
 
-    for (key, value) in self.reactions {
-      let jids: [String] = value.map(\.jidString)
-      try container.encode(jids, forKey: StringCodingKey(stringValue: key.rawValue))
+  public func encode(to encoder: Encoder) throws {
+    var arrayContainer = encoder.unkeyedContainer()
+
+    for (key, value) in self.reactions where !value.isEmpty {
+      var container = arrayContainer.nestedContainer(keyedBy: CodingKeys.self)
+      try container.encode(key, forKey: .reaction)
+      try container.encode(value.map(\.jidString), forKey: .authors)
     }
   }
 }

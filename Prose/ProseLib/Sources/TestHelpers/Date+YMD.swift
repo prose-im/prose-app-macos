@@ -12,9 +12,11 @@ public extension Date {
     _ day: Int,
     _ hour: Int = 0,
     _ minute: Int = 0,
-    _ second: Int = 0
+    _ second: Int = 0,
+    timeZone: TimeZone? = nil
   ) -> Date {
     let components = DateComponents(
+      timeZone: timeZone,
       year: year,
       month: month,
       day: day,
