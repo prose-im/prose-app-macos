@@ -90,6 +90,4 @@ final class TypesEncodingTests: XCTestCase {
       """
     )
   }
-
-  // [{"from":{"jid":"valerian@prose.org","name":"valerian@prose.org"},"id":"061629BD-50E5-41DD-BBE4-B88E7DD00151","content":"Hello preview 👋","reactions":[{"authors":["preview@prose.org"],"reaction":"👋"}],"type":"text","date":"2022-08-10T13:58:41.048Z"},{"from":{"jid":"preview@prose.org","name":"preview@prose.org"},"id":"1C7ABBDA-596D-4B97-999B-60EC0AEA7D32","content":"Hi!","reactions":[{"authors":["valerian@prose.org"],"reaction":"😃"}],"type":"text","date":"2022-08-10T14:01:49.049Z"},{"from":{"jid":"preview@prose.org","name":"preview@prose.org"},"id":"2652A9AA-1E12-487B-BA4A-DA7577182B63","content":"How are you?","reactions":[],"type":"text","date":"2022-08-10T14:01:51.049Z"}]
 }
