@@ -5,17 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
-        "revision" : "4cf088c29a20f52be0f2ca54992b492c54e0076b",
-        "version" : "0.5.3"
-      }
-    },
-    {
-      "identity" : "prose-wrapper-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/prose-im/prose-wrapper-swift",
-      "state" : {
-        "branch" : "0.2.0",
-        "revision" : "275120fb0efd09a6cdb861e1a342dd7ddfb18a39"
+        "revision" : "f7c8277f05f27a5bfb2f6ecccb0bad126ffcf472",
+        "version" : "0.7.0"
       }
     },
     {
@@ -50,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "cfcf8b43adc7d521a8ed26992d7ad8b979d386d2",
-        "version" : "0.37.0"
+        "revision" : "108e3a536fcebb16c4f247ef92c2d7326baf9fe3",
+        "version" : "0.39.0"
       }
     },
     {
@@ -86,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swiftui-navigation",
       "state" : {
-        "revision" : "2694c03284a368168b3e0b8d7ab52626802d2246",
-        "version" : "0.1.0"
+        "revision" : "7191be709528b0d0040105c7071d35fbb923d462",
+        "version" : "0.2.0"
       }
     },
     {
@@ -95,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "50a70a9d3583fe228ce672e8923010c8df2deddd",
-        "version" : "0.2.1"
+        "revision" : "38bc9242e4388b80bd23ddfdf3071428859e3260",
+        "version" : "0.4.0"
       }
     }
   ],
