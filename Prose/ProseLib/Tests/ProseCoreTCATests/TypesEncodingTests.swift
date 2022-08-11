@@ -14,70 +14,59 @@ final class TypesEncodingTests: XCTestCase {
     return encoder
   }()
 
-  func check<T: Encodable>(_ value: T, equals expected: String) throws {
+  func convert<T: Encodable>(_ value: T) throws -> String {
     let data = try self.encoder.encode(value)
-    let string = String(data: data, encoding: .utf8).expect("\(value) has invalid UTF-8")
-    XCTAssertEqual(string, expected)
-  }
-
-  func check<T: Encodable>(_ value: T, in expectedOneOf: [String]) throws {
-    let data = try self.encoder.encode(value)
-    let string = String(data: data, encoding: .utf8).expect("\(value) has invalid UTF-8")
-    XCTAssertTrue(expectedOneOf.contains(string))
+    return String(data: data, encoding: .utf8).expect("\(value) has invalid UTF-8")
   }
 
   func testJIDEncoding() throws {
-    func test(_ jid: JID, equals expected: String) throws {
-      try self.check(jid, equals: expected)
+    func convert(_ jid: JID) throws -> String {
+      try self.convert(jid)
     }
 
-    try test("test@prose.org", equals: #""test@prose.org""#)
-    try test("test@prose.org/resource", equals: #""test@prose.org""#)
+    XCTAssertEqual(try convert("test@prose.org"), #""test@prose.org""#)
+    XCTAssertEqual(try convert("test@prose.org/resource"), #""test@prose.org""#)
   }
 
   func testReactionEncoding() throws {
-    func test(_ reaction: Reaction, equals expected: String) throws {
-      try self.check(reaction, equals: expected)
+    func convert(_ reaction: Reaction) throws -> String {
+      try self.convert(reaction)
     }
 
-    try test("😀", equals: #""😀""#)
-    try test("test", equals: #""test""#)
+    XCTAssertEqual(try convert("😀"), #""😀""#)
+    XCTAssertEqual(try convert("test"), #""test""#)
   }
 
   func testMessageReactionsEncoding() throws {
-    func test(_ reactions: MessageReactions, equals expected: String) throws {
-      try self.check(reactions, equals: expected)
-    }
-    func test(_ reactions: MessageReactions, in expectedOneOf: [String]) throws {
-      try self.check(reactions, in: expectedOneOf)
+    func convert(_ reactions: MessageReactions) throws -> String {
+      try self.convert(reactions)
     }
 
-    try test(
-      ["😀": ["tests1@prose.org"], "🧪": ["tests2@prose.org"]],
-      equals: #"[{"authors":["tests1@prose.org"],"reaction":"😀"},{"authors":["tests2@prose.org"],"reaction":"🧪"}]"#
+    XCTAssertEqual(
+      try convert(["😀": ["tests1@prose.org"], "🧪": ["tests2@prose.org"]]),
+      #"[{"authors":["tests1@prose.org"],"reaction":"😀"},{"authors":["tests2@prose.org"],"reaction":"🧪"}]"#
     )
-    try test(
-      ["🧪": ["tests2@prose.org"], "😀": ["tests1@prose.org"]],
-      equals: #"[{"authors":["tests2@prose.org"],"reaction":"🧪"},{"authors":["tests1@prose.org"],"reaction":"😀"}]"#
+    XCTAssertEqual(
+      try convert(["🧪": ["tests2@prose.org"], "😀": ["tests1@prose.org"]]),
+      #"[{"authors":["tests2@prose.org"],"reaction":"🧪"},{"authors":["tests1@prose.org"],"reaction":"😀"}]"#
     )
-    try test(
-      ["🧪": [], "😀": ["tests1@prose.org"]],
-      equals: #"[{"authors":["tests1@prose.org"],"reaction":"😀"}]"#
+    XCTAssertEqual(
+      try convert(["🧪": [], "😀": ["tests1@prose.org"]]),
+      #"[{"authors":["tests1@prose.org"],"reaction":"😀"}]"#
     )
     // Reaction authors is stored in a `Set`, so we can't predict the output
-    try test(
-      ["2️⃣": ["tests1@prose.org", "tests2@prose.org"]],
-      in: [
+    XCTAssertTrue(
+      [
         #"[{"authors":["tests1@prose.org","tests2@prose.org"],"reaction":"2️⃣"}]"#,
         #"[{"authors":["tests2@prose.org","tests1@prose.org"],"reaction":"2️⃣"}]"#,
-      ]
+      ].contains(try convert(["2️⃣": ["tests1@prose.org", "tests2@prose.org"]]))
     )
-    try test([:], equals: #"[]"#)
+    XCTAssertEqual(try convert([:]), #"[]"#)
   }
 
   func testMessageEncoding() throws {
-    func test(_ message: Message, equals expected: String) throws {
-      try self.check(message, equals: expected)
+    func convert(_ message: Message) throws -> String {
+      try self.convert(message)
     }
 
     var message = Message(
@@ -90,9 +79,9 @@ final class TypesEncodingTests: XCTestCase {
       isEdited: false
     )
     message.reactions = ["👋": ["remi@prose.org"]]
-    try test(
-      message,
-      equals: """
+    XCTAssertEqual(
+      try convert(message),
+      """
       {"content":"Hello unit tests","date":"2022-08-11T00:00:00.000Z",\
       "from":{"jid":"remi@prose.org","name":"remi@prose.org"},\
       "id":"test-message-id",\
