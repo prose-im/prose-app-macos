@@ -38,7 +38,7 @@ public extension ProseClient {
       }
 
       do {
-        let jid = JID(bareJid: client.jid)
+        let jid = JID(fullJid: client.jid)
         try delegate.activeChats[to]?.updateMessage(id: id) { message in
           message.reactions.toggleReaction(reaction, for: jid)
           try client.sendReactions(
@@ -57,7 +57,11 @@ public extension ProseClient {
     return ProseClient(
       login: { jid, password in
         delegate.account = .init(jid: jid, status: .connecting)
-        client = provider(jid.bareJid, delegate, .main)
+        client = provider(
+          FullJid(node: jid.bareJid.node, domain: jid.bareJid.domain, resource: "macOS"),
+          delegate,
+          .main
+        )
 
         do {
           try client?.connect(credential: .password(password))
@@ -81,7 +85,7 @@ public extension ProseClient {
         delegate.$roster.map { roster in
           if let jid = client?.jid {
             return roster.appendingItemToFirstGroup(
-              .init(jid: JID(bareJid: jid), subscription: .both)
+              .init(jid: JID(fullJid: jid), subscription: .both)
             )
           }
           return roster
@@ -130,7 +134,7 @@ public extension ProseClient {
           return Effect(error: EquatableError(error))
         }
 
-        let jid = JID(bareJid: client.jid)
+        let jid = JID(fullJid: client.jid)
 
         let message = Message(
           from: jid,
@@ -185,7 +189,7 @@ public extension ProseClient {
           .activeChats[to]?
           .messages[id: id]?
           .reactions[reaction]?
-          .contains(JID(bareJid: client.jid)) != true
+          .contains(JID(fullJid: client.jid)) != true
         else {
           return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
         }
@@ -313,50 +317,21 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     _: ProseClientProtocol,
     didReceiveMessage message: XmppMessage
   ) {
-    // Roll all updates to our active chats into one. Otherwise downstream subscribers may
-    // receive multiple changes.
-    var activeChats = self.activeChats
-    defer {
-      self.activeChats = activeChats
-    }
+    self.handleMessage(message, carbon: .none)
+  }
 
-    if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
-      activeChats[message.from, default: Chat(jid: message.from)].appendMessage(message)
-      self.incomingMessages.send(message)
-    }
+  func proseClient(
+    _: ProseClientProtocol,
+    didReceiveMessageCarbon message: XmppForwardedMessage
+  ) {
+    self.handleMessage(message.message, carbon: .received)
+  }
 
-    let jid = JID(bareJid: message.from)
-
-    if let chatState = message.chatState {
-      activeChats[jid, default: Chat(jid: jid)].participantStates[jid] =
-        .init(state: chatState, timestamp: self.date())
-    }
-
-    if let reactions = message.reactions {
-      activeChats[jid]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
-        message.reactions.setReactions(
-          Set(reactions.reactions.map(Reaction.init(rawValue:))),
-          for: message.from
-        )
-      }
-    }
-
-    if let fastening = message.fastening, fastening.retract {
-      activeChats[jid]?.removeMessage(id: Message.ID(rawValue: fastening.id))
-    }
-
-    if
-      let replace = message.replace,
-      let newID = message.id,
-      let body = message.body,
-      let oldMessage = activeChats[jid]?.messages[id: Message.ID(rawValue: replace)]
-    {
-      var message = oldMessage
-      message.id = Message.ID(rawValue: newID)
-      message.isEdited = true
-      message.body = body
-      activeChats[jid]?.replaceMessage(id: oldMessage.id, with: message)
-    }
+  func proseClient(
+    _: ProseClientProtocol,
+    didReceiveSentMessageCarbon message: XmppForwardedMessage
+  ) {
+    self.handleMessage(message.message, carbon: .sent)
   }
 
   func proseClient(
@@ -380,4 +355,73 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     _: ProseClientProtocol,
     didReceiveArchivingPreferences _: XmppmamPreferences
   ) {}
+}
+
+private extension Delegate {
+  enum CarbonKind {
+    case sent
+    case received
+  }
+
+  func handleMessage(_ message: XmppMessage, carbon: CarbonKind?) {
+    // Roll all updates to our active chats into one. Otherwise downstream subscribers may
+    // receive multiple changes.
+    var activeChats = self.activeChats
+    defer {
+      self.activeChats = activeChats
+    }
+
+    let from: JID = {
+      switch carbon {
+      case .none, .received:
+        return JID(bareJid: message.from)
+      case .sent:
+        return JID(
+          bareJid: message.to
+            .expect("A received message carbon sent by us should have a receiver ('to') set.")
+        )
+      }
+    }()
+
+    if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
+      activeChats[from, default: Chat(jid: from)].appendMessage(message)
+
+      // We don't publish messages that were sent or received by us on other devices
+      // as incoming messages.
+      if carbon == nil {
+        self.incomingMessages.send(message)
+      }
+    }
+
+    if let chatState = message.chatState {
+      activeChats[from, default: Chat(jid: from)].participantStates[from] =
+        .init(state: chatState, timestamp: self.date())
+    }
+
+    if let reactions = message.reactions {
+      activeChats[from]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
+        message.reactions.setReactions(
+          Set(reactions.reactions.map(Reaction.init(rawValue:))),
+          for: message.from
+        )
+      }
+    }
+
+    if let fastening = message.fastening, fastening.retract {
+      activeChats[from]?.removeMessage(id: Message.ID(rawValue: fastening.id))
+    }
+
+    if
+      let replace = message.replace,
+      let newID = message.id,
+      let body = message.body,
+      let oldMessage = activeChats[from]?.messages[id: Message.ID(rawValue: replace)]
+    {
+      var message = oldMessage
+      message.id = Message.ID(rawValue: newID)
+      message.isEdited = true
+      message.body = body
+      activeChats[from]?.replaceMessage(id: oldMessage.id, with: message)
+    }
+  }
 }

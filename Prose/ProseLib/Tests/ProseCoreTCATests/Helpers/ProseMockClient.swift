@@ -8,12 +8,12 @@ import ProseCore
 import ProseCoreClientFFI
 
 final class ProseMockClient: ProseClientProtocol {
-  let jid: BareJid
+  let jid: FullJid
   let delegate: ProseClientDelegate
 
   var impl = ProseMockClientImpl()
 
-  init(jid: BareJid, delegate: ProseCore.ProseClientDelegate) {
+  init(jid: FullJid, delegate: ProseCore.ProseClientDelegate) {
     self.jid = jid
     self.delegate = delegate
   }

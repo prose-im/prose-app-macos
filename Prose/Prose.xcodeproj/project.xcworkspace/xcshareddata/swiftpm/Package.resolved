@@ -14,8 +14,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/prose-im/prose-wrapper-swift",
       "state" : {
-        "branch" : "0.1.9",
-        "revision" : "2c90f5148d00808f41279d607da97e5eb8cef5e5"
+        "branch" : "0.2.0",
+        "revision" : "275120fb0efd09a6cdb861e1a342dd7ddfb18a39"
+      }
+    },
+    {
+      "identity" : "prose-wrapper-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/prose-im/prose-wrapper-swift",
+      "state" : {
+        "branch" : "0.2.0",
+        "revision" : "275120fb0efd09a6cdb861e1a342dd7ddfb18a39"
       }
     },
     {

@@ -28,6 +28,8 @@ public struct ProseClient {
   public var presence: () -> Effect<[JID: Presence], EquatableError>
 
   /// Returns an Effect that publishes new messages as they arrive.
+  ///
+  /// The messages published by this Effect do not include any message carbons.
   public var incomingMessages: () -> Effect<Message, Never>
 
   /// This will probably be split up in two methods/publishers. One where we can load older

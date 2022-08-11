@@ -107,6 +107,55 @@ final class ProseClientTests: XCTestCase {
     )
   }
 
+  func testHandlesMessageCarbons() throws {
+    let date = Date.ymd(2022, 6, 25)
+    let (client, mock) = try self.connectedClient(date: { date })
+
+    let chatMessages = TestSink<IdentifiedArrayOf<Message>>()
+    let incomingMessages = TestSink<Message>()
+    var c = Set<AnyCancellable>()
+
+    client.messagesInChat("chat1@prose.org").collectInto(sink: chatMessages).store(in: &c)
+    client.incomingMessages().collectInto(sink: incomingMessages).store(in: &c)
+
+    mock.delegate.proseClient(mock, didReceiveMessage: .mock(from: "chat1@prose.org", id: "1"))
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessageCarbon: .init(
+        delay: nil,
+        message: .mock(from: "chat1@prose.org", id: "2")
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveSentMessageCarbon: .init(
+        delay: nil,
+        message: .mock(from: "marc@prose.org", to: "chat1@prose.org", id: "3")
+      )
+    )
+
+    XCTAssertEqual(
+      chatMessages.values, [
+        [],
+        [.mock(from: "chat1@prose.org", id: "1", timestamp: date)],
+        [
+          .mock(from: "chat1@prose.org", id: "1", timestamp: date),
+          .mock(from: "chat1@prose.org", id: "2", timestamp: date),
+        ],
+        [
+          .mock(from: "chat1@prose.org", id: "1", timestamp: date),
+          .mock(from: "chat1@prose.org", id: "2", timestamp: date),
+          .mock(from: "marc@prose.org", id: "3", timestamp: date),
+        ],
+      ]
+    )
+
+    XCTAssertEqual(
+      incomingMessages.values,
+      [.mock(from: "chat1@prose.org", id: "1", timestamp: date)]
+    )
+  }
+
   func testUpdatesChatStates() throws {
     let date = Date.ymd(2022, 6, 25)
     let (client, mock) = try self.connectedClient(date: { date })
