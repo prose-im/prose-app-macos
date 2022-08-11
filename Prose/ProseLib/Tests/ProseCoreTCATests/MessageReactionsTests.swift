@@ -35,29 +35,44 @@ final class MessageReactionsTests: XCTestCase {
   func testSetReactions() {
     var reactions: MessageReactions = [
       "❤️": ["1", "2"],
-      "🤷‍♂️": ["1"],
       "🫠": ["2"],
+      "🐇": ["2", "1"],
     ]
 
+    // Test reactions are correctly changed
     reactions.setReactions(["🫠", "🐇"], for: "1")
     XCTAssertEqual(
       reactions,
       [
         "❤️": ["2"],
-        "🫠": ["1", "2"],
-        "🐇": ["1"],
+        "🫠": ["2", "1"],
+        "🐇": ["2", "1"],
       ]
     )
 
+    // Test reactions are not reordered
+    reactions.setReactions(["❤️", "🫠", "🐇"], for: "2")
+    XCTAssertEqual(
+      reactions,
+      [
+        "❤️": ["2"],
+        "🫠": ["2", "1"],
+        "🐇": ["2", "1"],
+      ]
+    )
+
+    // Test reactions are correctly removed
     reactions.setReactions([], for: "1")
     XCTAssertEqual(
       reactions,
       [
         "❤️": ["2"],
         "🫠": ["2"],
+        "🐇": ["2"],
       ]
     )
 
+    // Test dictionary keys are correctly removed
     reactions.setReactions([], for: "2")
     XCTAssertEqual(reactions, [:])
   }

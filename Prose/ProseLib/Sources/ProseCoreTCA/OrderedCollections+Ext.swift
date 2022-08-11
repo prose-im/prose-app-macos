@@ -29,8 +29,8 @@ public extension OrderedDictionary {
   @discardableResult mutating func prose_toggle<Element>(
     _ element: Element,
     forKey key: Key
-  ) -> Bool where Value: SetAlgebra, Value.Element == Element {
-    let inserted = self[key, default: Value()].prose_toggle(element)
+  ) -> Bool where Value == OrderedSet<Element> {
+    let inserted = self[key, default: Value()].unordered.prose_toggle(element)
     if !inserted, self[key]?.isEmpty == true {
       self.removeValue(forKey: key)
     }

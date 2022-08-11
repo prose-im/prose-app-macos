@@ -54,12 +54,13 @@ final class TypesEncodingTests: XCTestCase {
       try convert(["🧪": [], "😀": ["tests1@prose.org"]]),
       #"[{"authors":["tests1@prose.org"],"reaction":"😀"}]"#
     )
-    // Reaction authors is stored in a `Set`, so we can't predict the output
-    XCTAssertTrue(
-      [
-        #"[{"authors":["tests1@prose.org","tests2@prose.org"],"reaction":"2️⃣"}]"#,
-        #"[{"authors":["tests2@prose.org","tests1@prose.org"],"reaction":"2️⃣"}]"#,
-      ].contains(try convert(["2️⃣": ["tests1@prose.org", "tests2@prose.org"]]))
+    XCTAssertEqual(
+      try convert(["2️⃣": ["tests1@prose.org", "tests2@prose.org"]]),
+      #"[{"authors":["tests1@prose.org","tests2@prose.org"],"reaction":"2️⃣"}]"#
+    )
+    XCTAssertEqual(
+      try convert(["2️⃣": ["tests2@prose.org", "tests1@prose.org"]]),
+      #"[{"authors":["tests2@prose.org","tests1@prose.org"],"reaction":"2️⃣"}]"#
     )
     XCTAssertEqual(try convert([:]), #"[]"#)
   }

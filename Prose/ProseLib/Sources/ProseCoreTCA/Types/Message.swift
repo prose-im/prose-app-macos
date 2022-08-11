@@ -132,7 +132,7 @@ extension MessageKind {
 // MARK: - MessageReactions
 
 public struct MessageReactions: Equatable {
-  public typealias WrappedValue = OrderedDictionary<Reaction, Set<JID>>
+  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<JID>>
 
   public private(set) var reactions: WrappedValue
 
@@ -141,22 +141,23 @@ public struct MessageReactions: Equatable {
   }
 
   public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
-    self.reactions[reaction, default: Set<JID>()].insert(jid)
+    self.reactions[reaction, default: OrderedSet<JID>()].append(jid)
   }
 
   public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
-  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
-    for (reaction, _) in self.reactions {
+  public mutating func setReactions(_ reactions: Set<Reaction>, for jid: JID) {
+    for reaction in self.reactions.keys where !reactions.contains(reaction) {
       self.reactions[reaction]?.remove(jid)
+      // Remove key if the set is now empty
       if self.reactions[reaction]?.isEmpty == true {
         self.reactions.removeValue(forKey: reaction)
       }
     }
     for reaction in reactions {
-      self.reactions[reaction, default: []].insert(jid)
+      self.reactions[reaction, default: []].append(jid)
     }
   }
 
@@ -166,13 +167,13 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  subscript(reaction: Reaction) -> Set<JID>? {
+  subscript(reaction: Reaction) -> OrderedSet<JID>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Reaction, Set<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, OrderedSet<JID>)...) {
     self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }
