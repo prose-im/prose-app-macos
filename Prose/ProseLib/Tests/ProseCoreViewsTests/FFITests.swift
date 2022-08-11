@@ -9,14 +9,14 @@ import ProseCoreTCA
 import TestHelpers
 import XCTest
 
-struct Enc: Encodable {
+private struct Enc: Encodable {
   func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     try container.encode("OK")
   }
 }
 
-final class TestEvaluator {
+private final class TestEvaluator {
   var scripts = [String]()
 
   func evaluateJS(
