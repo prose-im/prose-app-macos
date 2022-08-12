@@ -396,6 +396,106 @@ final class ProseClientTests: XCTestCase {
     )
   }
 
+  func testUpdatesMessageFromMessageCarbons() throws {
+    let date = Date.ymd(2022, 6, 25)
+    let (client, mock) = try self.connectedClient(date: { date })
+
+    let chatMessages = TestSink<IdentifiedArrayOf<Message>>()
+    var c = Set<AnyCancellable>()
+
+    try self.await(client.sendMessage("chat1@prose.org", "message 1"))
+    mock.delegate.proseClient(mock, didReceiveMessage: .mock(from: "chat1@prose.org", id: "1"))
+
+    client.messagesInChat("chat1@prose.org").collectInto(sink: chatMessages).store(in: &c)
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "3",
+        body: "Updated message",
+        replace: "2"
+      )
+    )
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "chat1@prose.org",
+          id: "2",
+          body: "Updated message 1",
+          replace: "1"
+        )
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveSentMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "marc@prose.org",
+          to: "chat1@prose.org",
+          id: "3",
+          body: "Updated message 2",
+          replace: "00000000-0000-0000-0000-000000000000"
+        )
+      )
+    )
+
+    XCTAssertEqual(
+      chatMessages.values, [
+        [
+          .mock(
+            from: "marc@prose.org",
+            id: "00000000-0000-0000-0000-000000000000",
+            kind: .chat,
+            body: "message 1",
+            timestamp: date,
+            isRead: true
+          ),
+          .mock(from: "chat1@prose.org", id: "1", timestamp: date),
+        ],
+        [
+          .mock(
+            from: "marc@prose.org",
+            id: "00000000-0000-0000-0000-000000000000",
+            kind: .chat,
+            body: "message 1",
+            timestamp: date,
+            isRead: true
+          ),
+          .mock(
+            from: "chat1@prose.org",
+            id: "2",
+            body: "Updated message 1",
+            timestamp: date,
+            isEdited: true
+          ),
+        ],
+        [
+          .mock(
+            from: "marc@prose.org",
+            id: "3",
+            kind: .chat,
+            body: "Updated message 2",
+            timestamp: date,
+            isRead: true,
+            isEdited: true
+          ),
+          .mock(
+            from: "chat1@prose.org",
+            id: "2",
+            body: "Updated message 1",
+            timestamp: date,
+            isEdited: true
+          ),
+        ],
+      ]
+    )
+  }
+
   func testUpdatesUnreadCounts() throws {
     let date = Date.ymd(2022, 6, 25)
     let (client, mock) = try self.connectedClient(date: { date })
@@ -607,7 +707,7 @@ final class ProseClientTests: XCTestCase {
       ]
     )
   }
-  
+
   func testUpdatesReactionsFromMessageCarbons() throws {
     let (client, mock) = try self.connectedClient()
 
@@ -627,7 +727,7 @@ final class ProseClientTests: XCTestCase {
     try self.await(
       client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "❤️")
     )
-    
+
     mock.delegate.proseClient(
       mock,
       didReceiveMessageCarbon: .init(
@@ -764,6 +864,74 @@ final class ProseClientTests: XCTestCase {
     XCTAssertEqual(
       retractedMessages,
       [.init(jid: "chat1@prose.org", messageId: "00000000-0000-0000-0000-000000000001")]
+    )
+  }
+
+  func testRetractsMessageFromMessageCarbons() throws {
+    let (client, mock) = try self.connectedClient()
+
+    let chatMessageIDs = TestSink<[Message.ID]>()
+    var c = Set<AnyCancellable>()
+
+    client.messagesInChat("chat1@prose.org")
+      .map { messages in messages.map(\.id) }
+      .removeDuplicates()
+      .collectInto(sink: chatMessageIDs)
+      .store(in: &c)
+
+    mock.impl.retractMessage = { _, _ in
+      XCTFail("retractMessage should not be called")
+    }
+
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat1@prose.org", id: "1")
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(from: "chat1@prose.org", id: "2")
+    )
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "chat1@prose.org",
+          id: "3",
+          body: nil,
+          fastening: .init(id: "1", retract: true)
+        )
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveSentMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "marc@prose.org",
+          to: "chat1@prose.org",
+          id: "4",
+          body: nil,
+          fastening: .init(id: "00000000-0000-0000-0000-000000000000", retract: true)
+        )
+      )
+    )
+
+    XCTAssertEqual(
+      chatMessageIDs.values,
+      [
+        [],
+        ["00000000-0000-0000-0000-000000000000"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001", "1"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001", "1", "2"],
+        ["00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000001", "2"],
+        ["00000000-0000-0000-0000-000000000001", "2"],
+      ]
     )
   }
 }
