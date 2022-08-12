@@ -193,3 +193,13 @@ extension MessageReactions: Encodable {
     }
   }
 }
+
+extension MessageReactions: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    var lines = [String]()
+    for (reaction, authors) in self.reactions {
+      lines.append("\(reaction): [\(authors.map(\.rawValue).joined(separator: ","))]")
+    }
+    return "[\(lines.joined(separator: ","))]"
+  }
+}
