@@ -506,7 +506,7 @@ final class ProseClientTests: XCTestCase {
         from: "chat1@prose.org",
         id: "3",
         body: nil,
-        reactions: .init(id: "1", reactions: ["🍻", "🐇"])
+        reactions: .init(id: "1", reactions: ["🍻", "🐇", "😇", "😘", "🤓", "😎"])
       )
     )
 
@@ -525,7 +525,14 @@ final class ProseClientTests: XCTestCase {
         ],
         [
           "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
-          "1": ["🐇": ["chat1@prose.org"], "🍻": ["chat1@prose.org"]],
+          "1": [
+            "🍻": ["chat1@prose.org"],
+            "🐇": ["chat1@prose.org"],
+            "😇": ["chat1@prose.org"],
+            "😘": ["chat1@prose.org"],
+            "🤓": ["chat1@prose.org"],
+            "😎": ["chat1@prose.org"],
+          ],
         ],
       ]
     )
