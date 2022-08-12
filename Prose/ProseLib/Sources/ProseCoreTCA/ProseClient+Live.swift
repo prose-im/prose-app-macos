@@ -399,10 +399,10 @@ private extension Delegate {
     }
 
     if let reactions = message.reactions {
-      activeChats[from]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
-        message.reactions.setReactions(
+      activeChats[from]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { messageToUpdate in
+        messageToUpdate.reactions.setReactions(
           reactions.reactions.map(Reaction.init(rawValue:)),
-          for: message.from
+          for: JID(bareJid: message.from)
         )
       }
     }

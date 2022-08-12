@@ -509,6 +509,15 @@ final class ProseClientTests: XCTestCase {
         reactions: .init(id: "1", reactions: ["🍻", "🐇", "😇", "😘", "🤓", "😎"])
       )
     )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessage: .mock(
+        from: "chat1@prose.org",
+        id: "4",
+        body: nil,
+        reactions: .init(id: "00000000-0000-0000-0000-000000000000", reactions: ["❤️"])
+      )
+    )
 
     XCTAssertEqual(
       chat1Reactions.values, [
@@ -526,14 +535,92 @@ final class ProseClientTests: XCTestCase {
         [
           "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]],
           "1": [
-            "🍻": ["chat1@prose.org"],
             "🐇": ["chat1@prose.org"],
+            "🍻": ["chat1@prose.org"],
             "😇": ["chat1@prose.org"],
             "😘": ["chat1@prose.org"],
             "🤓": ["chat1@prose.org"],
             "😎": ["chat1@prose.org"],
           ],
         ],
+        [
+          "00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org", "chat1@prose.org"]],
+          "1": [
+            "🐇": ["chat1@prose.org"],
+            "🍻": ["chat1@prose.org"],
+            "😇": ["chat1@prose.org"],
+            "😘": ["chat1@prose.org"],
+            "🤓": ["chat1@prose.org"],
+            "😎": ["chat1@prose.org"],
+          ],
+        ],
+      ]
+    )
+  }
+  
+  func testUpdatesReactionsFromMessageCarbons() throws {
+    let (client, mock) = try self.connectedClient()
+
+    let chatReactions = TestSink<[Message.ID: MessageReactions]>()
+    var c = Set<AnyCancellable>()
+
+    client.messagesInChat("chat1@prose.org")
+      .map { messages in
+        Dictionary(uniqueKeysWithValues: zip(messages.ids, messages.map(\.reactions)))
+      }
+      .removeDuplicates()
+      .collectInto(sink: chatReactions)
+      .store(in: &c)
+
+    try self.await(client.sendMessage("chat1@prose.org", ""))
+
+    try self.await(
+      client.addReaction("chat1@prose.org", "00000000-0000-0000-0000-000000000000", "❤️")
+    )
+    
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "chat1@prose.org",
+          id: "1",
+          body: nil,
+          reactions: .init(id: "00000000-0000-0000-0000-000000000000", reactions: ["🍻"])
+        )
+      )
+    )
+    mock.delegate.proseClient(
+      mock,
+      didReceiveSentMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "marc@prose.org",
+          to: "chat1@prose.org",
+          id: "3",
+          body: nil,
+          reactions: .init(
+            id: "00000000-0000-0000-0000-000000000000",
+            reactions: ["❤️", "🐇"]
+          )
+        )
+      )
+    )
+
+    XCTAssertEqual(
+      chatReactions.values, [
+        [:],
+        ["00000000-0000-0000-0000-000000000000": [:]],
+        ["00000000-0000-0000-0000-000000000000": ["❤️": ["marc@prose.org"]]],
+        ["00000000-0000-0000-0000-000000000000": [
+          "❤️": ["marc@prose.org"],
+          "🍻": ["chat1@prose.org"],
+        ]],
+        ["00000000-0000-0000-0000-000000000000": [
+          "❤️": ["marc@prose.org"],
+          "🍻": ["chat1@prose.org"],
+          "🐇": ["marc@prose.org"],
+        ]],
       ]
     )
   }
