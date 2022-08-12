@@ -148,8 +148,10 @@ public struct MessageReactions: Equatable {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
-  public mutating func setReactions(_ reactions: Set<Reaction>, for jid: JID) {
-    for reaction in self.reactions.keys where !reactions.contains(reaction) {
+  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
+    let updatedReactions = Set(reactions)
+
+    for reaction in self.reactions.keys where !updatedReactions.contains(reaction) {
       self.reactions[reaction]?.remove(jid)
       // Remove key if the set is now empty
       if self.reactions[reaction]?.isEmpty == true {

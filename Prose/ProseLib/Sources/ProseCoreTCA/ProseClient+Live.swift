@@ -401,7 +401,7 @@ private extension Delegate {
     if let reactions = message.reactions {
       activeChats[from]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { message in
         message.reactions.setReactions(
-          Set(reactions.reactions.map(Reaction.init(rawValue:))),
+          reactions.reactions.map(Reaction.init(rawValue:)),
           for: message.from
         )
       }
