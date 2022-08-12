@@ -202,6 +202,56 @@ final class ProseClientTests: XCTestCase {
     )
   }
 
+  func testUpdatesChatStatesFromMessageCarbons() throws {
+    let date = Date.ymd(2022, 6, 25)
+    let (client, mock) = try self.connectedClient(date: { date })
+
+    let chatStates = TestSink<[JID: [JID: ChatState]]>()
+    var c = Set<AnyCancellable>()
+
+    client.activeChats().map { chats in
+      chats.mapValues(\.participantStates)
+    }
+    .collectInto(sink: chatStates)
+    .store(in: &c)
+
+    mock.delegate.proseClient(
+      mock,
+      didReceiveMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "chat1@prose.org",
+          id: "1",
+          body: nil,
+          chatState: .composing
+        )
+      )
+    )
+
+    // Our own state should be ignored.
+    mock.delegate.proseClient(
+      mock,
+      didReceiveSentMessageCarbon: .init(
+        delay: nil,
+        message: .mock(
+          from: "marc@prose.org",
+          to: "chat1@prose.org",
+          id: "2",
+          body: nil,
+          chatState: .paused
+        )
+      )
+    )
+
+    XCTAssertEqual(
+      chatStates.values,
+      [
+        [:],
+        ["chat1@prose.org": ["chat1@prose.org": .init(kind: .composing, timestamp: date)]],
+      ]
+    )
+  }
+
   func testUpdatesPresence() throws {
     let date = Date.ymd(2022, 6, 25)
     let (client, mock) = try self.connectedClient(date: { date })

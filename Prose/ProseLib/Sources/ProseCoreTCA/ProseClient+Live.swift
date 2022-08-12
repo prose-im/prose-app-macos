@@ -393,7 +393,7 @@ private extension Delegate {
       }
     }
 
-    if let chatState = message.chatState {
+    if let chatState = message.chatState, carbon != .sent {
       activeChats[from, default: Chat(jid: from)].participantStates[from] =
         .init(state: chatState, timestamp: self.date())
     }
