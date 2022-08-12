@@ -317,16 +317,6 @@ public enum L10n {
 
   public enum Content {
     public enum MessageBar {
-      /// %s is typing…
-      public static func composeTyping(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr(
-          "Localizable",
-          "content.message_bar.compose_typing",
-          p1,
-          fallback: #"%s is typing…"#
-        )
-      }
-
       /// Message %s
       public static func fieldPlaceholder(_ p1: UnsafePointer<CChar>) -> String {
         L10n.tr(
@@ -334,6 +324,26 @@ public enum L10n {
           "content.message_bar.field_placeholder",
           p1,
           fallback: #"Message %s"#
+        )
+      }
+
+      /// Plural format key: "%#@others@"
+      public static func others(_ p1: Int) -> String {
+        L10n.tr(
+          "Localizable",
+          "content.message_bar.others",
+          p1,
+          fallback: #"Plural format key: "%#@others@""#
+        )
+      }
+
+      /// Plural format key: "%#@typing@"
+      public static func typing(_ p1: Int) -> String {
+        L10n.tr(
+          "Localizable",
+          "content.message_bar.typing",
+          p1,
+          fallback: #"Plural format key: "%#@typing@""#
         )
       }
     }
