@@ -15,6 +15,10 @@ public extension JID {
   init(string: String) throws {
     self.bareJid = try ProseCoreClientFFI.parseJid(jid: string)
   }
+
+  init(fullJid: FullJid) {
+    self.bareJid = .init(node: fullJid.node, domain: fullJid.domain)
+  }
 }
 
 extension JID: RawRepresentable {

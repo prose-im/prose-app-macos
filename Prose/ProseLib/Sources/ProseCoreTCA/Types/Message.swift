@@ -148,8 +148,10 @@ public struct MessageReactions: Equatable {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
-  public mutating func setReactions(_ reactions: Set<Reaction>, for jid: JID) {
-    for reaction in self.reactions.keys where !reactions.contains(reaction) {
+  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
+    let updatedReactions = Set(reactions)
+
+    for reaction in self.reactions.keys where !updatedReactions.contains(reaction) {
       self.reactions[reaction]?.remove(jid)
       // Remove key if the set is now empty
       if self.reactions[reaction]?.isEmpty == true {
@@ -191,5 +193,15 @@ extension MessageReactions: Encodable {
       try container.encode(key, forKey: .reaction)
       try container.encode(value.map(\.jidString), forKey: .authors)
     }
+  }
+}
+
+extension MessageReactions: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    var lines = [String]()
+    for (reaction, authors) in self.reactions {
+      lines.append("\(reaction): [\(authors.map(\.rawValue).joined(separator: ","))]")
+    }
+    return "[\(lines.joined(separator: ","))]"
   }
 }

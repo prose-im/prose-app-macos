@@ -20,13 +20,13 @@ public final class ProseClient: ProseClientProtocol {
   private var isConnected = false
   private var loadMessagesCompletionHandlers = [String: LoadMessagesCompletionHandler]()
 
-  public var jid: BareJid {
+  public var jid: FullJid {
     self.client.jid()
   }
 
   private var credential: Credential?
 
-  public init(jid: BareJid, delegate: ProseClientDelegate, delegateQueue: DispatchQueue) {
+  public init(jid: FullJid, delegate: ProseClientDelegate, delegateQueue: DispatchQueue) {
     self.client = .init(jid: jid)
     self.delegate = delegate
     self.delegateQueue = delegateQueue
@@ -153,6 +153,18 @@ extension ProseClient: XmppAccountObserver {
   public func didReceiveMessage(message: XmppMessage) {
     self.callDelegateOnQueue { delegate in
       delegate.proseClient(self, didReceiveMessage: message)
+    }
+  }
+
+  public func didReceiveMessageCarbon(message: XmppForwardedMessage) {
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceiveMessageCarbon: message)
+    }
+  }
+
+  public func didReceiveSentMessageCarbon(message: XmppForwardedMessage) {
+    self.callDelegateOnQueue { delegate in
+      delegate.proseClient(self, didReceiveSentMessageCarbon: message)
     }
   }
 
