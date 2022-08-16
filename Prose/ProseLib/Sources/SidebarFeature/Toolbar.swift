@@ -44,6 +44,8 @@ struct Toolbar: ToolbarContent {
       .accessibilityHint(l10n.Actions.WriteMessage.hint)
     }
     .disabled(redactionReasons.contains(.placeholder))
+    // https://github.com/prose-im/prose-app-macos/issues/45
+    .disabled(true)
   }
 }
 

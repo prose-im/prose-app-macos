@@ -123,6 +123,8 @@ struct FooterActionMenu: View {
         .buttonStyle(.plain)
       }
       .groupBoxStyle(DefaultGroupBoxStyle())
+      // https://github.com/prose-im/prose-app-macos/issues/45
+      .disabled(true)
 
       GroupBox(l10n.Server.ServerSettings.title) {
         Link(destination: URL(string: "https://crisp.chat")!) {
@@ -139,6 +141,8 @@ struct FooterActionMenu: View {
         }
         .foregroundColor(.accentColor)
       }
+      // https://github.com/prose-im/prose-app-macos/issues/45
+      .disabled(true)
     }
     .menuStyle(.borderlessButton)
     .menuIndicator(.hidden)

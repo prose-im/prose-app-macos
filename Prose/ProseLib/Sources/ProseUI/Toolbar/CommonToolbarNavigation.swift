@@ -27,6 +27,8 @@ public struct CommonToolbarNavigation: View {
     }
     .unredacted()
     .disabled(redactionReasons.contains(.placeholder))
+    // https://github.com/prose-im/prose-app-macos/issues/48
+    .disabled(true)
   }
 }
 
