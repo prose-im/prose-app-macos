@@ -51,11 +51,17 @@ struct ContentView: View {
       ),
     ])
 
-    let chatSubject = CurrentValueSubject<Chat, Never>(Chat(
-      jid: chatId,
-      numberOfUnreadMessages: 0,
-      participantStates: [chatId: .init(kind: .composing, timestamp: .now)]
-    ))
+    let chats = CurrentValueSubject<[JID: ProseCoreTCA.Chat], Never>([
+      chatId: Chat(
+        jid: chatId,
+        numberOfUnreadMessages: 0,
+        participantStates: [chatId: .init(kind: .composing, timestamp: .now)]
+      ),
+    ])
+    var participants: [JID: ProseCoreTCA.ChatState] {
+      get { chats.value[chatId]!.participantStates }
+      set { chats.value[chatId]!.participantStates = newValue }
+    }
 
     client.sendMessage = { _, body in
       .fireAndForget {
@@ -89,15 +95,11 @@ struct ContentView: View {
       messageSubject.setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.sendChatState = { (chatId, kind: ChatState.Kind) in
-      var participantStates = chatSubject.value.participantStates
-      participantStates[chatId] = .init(kind: kind, timestamp: .now)
-      // This is just to test the UI when writing
-      participantStates[jid] = .init(kind: kind, timestamp: .now)
-      chatSubject.value.participantStates = participantStates
+      participants[chatId] = .init(kind: kind, timestamp: .now)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.activeChats = {
-      chatSubject.map { [chatId: $0] }.setFailureType(to: EquatableError.self).eraseToEffect()
+      chats.setFailureType(to: EquatableError.self).eraseToEffect()
     }
 
     self.store = Store(
@@ -114,11 +116,5 @@ struct ContentView: View {
   var body: some View {
     ConversationScreen(store: self.store)
       .frame(minWidth: 960, minHeight: 320)
-  }
-}
-
-struct ContentView_Previews: PreviewProvider {
-  static var previews: some View {
-    ContentView()
   }
 }
