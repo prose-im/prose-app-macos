@@ -191,53 +191,55 @@ public enum MessageBarAction: Equatable, BindableAction {
 
 // MARK: - Previews
 
-internal struct MessageBar_Previews: PreviewProvider {
-  private struct Preview: View {
-    let recipient: JID
+#if DEBUG
+  internal struct MessageBar_Previews: PreviewProvider {
+    private struct Preview: View {
+      let recipient: JID
 
-    var body: some View {
-      MessageBar(store: Store(
-        initialState: MessageBarState(
-          chatId: self.recipient,
-          loggedInUserJID: "preview@prose.org",
-          chatName: .jid(self.recipient),
-          message: "",
-          typing: [.jid(self.recipient)]
-        ),
-        reducer: messageBarReducer,
-        environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
-      ))
+      var body: some View {
+        MessageBar(store: Store(
+          initialState: MessageBarState(
+            chatId: self.recipient,
+            loggedInUserJID: "preview@prose.org",
+            chatName: .jid(self.recipient),
+            message: "",
+            typing: [.jid(self.recipient)]
+          ),
+          reducer: messageBarReducer,
+          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
+        ))
+      }
+    }
+
+    static var previews: some View {
+      Group {
+        Preview(recipient: "preview.recipient@prose.org")
+          .previewDisplayName("Simple username")
+        Preview(recipient: "")
+          .previewDisplayName("Empty")
+        Preview(recipient: "preview.recipient@prose.org")
+          .padding()
+          .background(Color.pink)
+          .previewDisplayName("Colorful background")
+        Preview(recipient: "preview.recipient@prose.org")
+          .redacted(reason: .placeholder)
+          .previewDisplayName("Placeholder")
+      }
+      .preferredColorScheme(.light)
+      Group {
+        Preview(recipient: "preview.recipient@prose.org")
+          .previewDisplayName("Simple username / Dark")
+        Preview(recipient: "")
+          .previewDisplayName("Empty / Dark")
+        Preview(recipient: "preview.recipient@prose.org")
+          .padding()
+          .background(Color.pink)
+          .previewDisplayName("Colorful background / Dark")
+        Preview(recipient: "preview.recipient@prose.org")
+          .redacted(reason: .placeholder)
+          .previewDisplayName("Placeholder / Dark")
+      }
+      .preferredColorScheme(.dark)
     }
   }
-
-  static var previews: some View {
-    Group {
-      Preview(recipient: "preview.recipient@prose.org")
-        .previewDisplayName("Simple username")
-      Preview(recipient: "")
-        .previewDisplayName("Empty")
-      Preview(recipient: "preview.recipient@prose.org")
-        .padding()
-        .background(Color.pink)
-        .previewDisplayName("Colorful background")
-      Preview(recipient: "preview.recipient@prose.org")
-        .redacted(reason: .placeholder)
-        .previewDisplayName("Placeholder")
-    }
-    .preferredColorScheme(.light)
-    Group {
-      Preview(recipient: "preview.recipient@prose.org")
-        .previewDisplayName("Simple username / Dark")
-      Preview(recipient: "")
-        .previewDisplayName("Empty / Dark")
-      Preview(recipient: "preview.recipient@prose.org")
-        .padding()
-        .background(Color.pink)
-        .previewDisplayName("Colorful background / Dark")
-      Preview(recipient: "preview.recipient@prose.org")
-        .redacted(reason: .placeholder)
-        .previewDisplayName("Placeholder / Dark")
-    }
-    .preferredColorScheme(.dark)
-  }
-}
+#endif
