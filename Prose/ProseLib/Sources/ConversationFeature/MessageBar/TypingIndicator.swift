@@ -77,7 +77,7 @@ struct TypingIndicator: View {
   ///         should never happen. However, we can return the smallest text
   ///         and rely on `.lineLimit(1)` and truncation to display as mush as possible.
   func text(fitting maxWidth: CGFloat) -> String {
-    var maxNames: Int = 2
+    var maxNames = 2
     var text: String
     var bounds: CGSize
     repeat {
