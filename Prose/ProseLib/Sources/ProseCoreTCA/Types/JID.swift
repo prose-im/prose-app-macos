@@ -45,6 +45,14 @@ public extension JID {
   var jidString: String {
     self.rawValue
   }
+
+  var node: String? {
+    self.bareJid.node
+  }
+
+  var domain: String {
+    self.bareJid.domain
+  }
 }
 
 extension JID: Encodable {

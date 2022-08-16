@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content.message_bar.typing</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@typing@</string>
+		<key>typing</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>u</string>
+			<key>one</key>
+			<string>is typing…</string>
+			<key>other</key>
+			<string>are typing…</string>
+		</dict>
+	</dict>
+	<key>content.message_bar.others</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@others@</string>
+		<key>others</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>u</string>
+			<key>one</key>
+			<string>%u other</string>
+			<key>other</key>
+			<string>%u others</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
