@@ -31,21 +31,11 @@ public enum TypingUser: Equatable {
 struct TypingIndicator: View {
   static let cornerRadius: CGFloat = 12
   static let fontSize: CGFloat = 10
+  static let font: NSFont = .systemFont(ofSize: Self.fontSize, weight: .light)
+  static let horizontalPadding = Self.cornerRadius
+  static let verticalPadding = 2 * (Self.cornerRadius - Self.fontSize)
 
   var typing: [String]
-
-  var text: String {
-    let maxNames = 3
-    var components = self.typing.prefix(maxNames)
-    let others = self.typing.dropFirst(maxNames)
-    if !others.isEmpty {
-      components.append(l10n.others(others.count))
-    }
-    return [
-      components.formatted(.list(type: .and)),
-      l10n.typing(self.typing.count),
-    ].joined(separator: " ")
-  }
 
   init(typing: [TypingUser]) {
     self.typing = typing.map(\.displayName)
@@ -55,13 +45,11 @@ struct TypingIndicator: View {
     if !self.typing.isEmpty {
       GeometryReader { geo in
         ZStack {
-          // TODO: Handle plural in localization
-          // FIXME: https://github.com/prose-im/prose-app-macos/issues/87
-          Text(verbatim: self.text)
-            .font(.system(size: Self.fontSize, weight: .light))
-            .lineLimit(nil)
-            .padding(.vertical, 2 * (Self.cornerRadius - Self.fontSize))
-            .padding(.horizontal, Self.cornerRadius)
+          Text(verbatim: self.text(fitting: geo.size.width - 2 * Self.horizontalPadding))
+            .font(Font(Self.font))
+            .lineLimit(1)
+            .padding(.vertical, Self.verticalPadding)
+            .padding(.horizontal, Self.horizontalPadding)
             .foregroundColor(Colors.Text.secondary.color)
             .background(
               ZStack {
@@ -81,6 +69,49 @@ struct TypingIndicator: View {
       // Align the bottom of the typing indicator to the alignment guide, with a little offset
       .alignmentGuide(.typingIndicator) { $0[VerticalAlignment.bottom] - Self.cornerRadius }
     }
+  }
+
+  /// - Returns: The longest text fitting in one line.
+  /// - Complexity: O(*n*) where *n* is the number of names.
+  /// - Note: We could estimate the maximum number of displayed names and only test
+  ///         the values around, but this would create a lot of corner cases.
+  ///         For example, if the last name is shorter than "and 1 other"
+  ///         (or its localized equivalent – which may be even longer),
+  ///         we could end up with "Rémi and 1 other are typing…" (28 characters)
+  ///         instead of "Rémi and Marc are typing…" (25 characters).
+  ///         Since there should never be a **lot** of people typing at the same time,
+  ///         and the computations would only be done when the list of users typing changes,
+  ///         it's probably okay to keep this implementation until we run into performance issues.
+  /// - Note: With reasonable window sizes, the case where nothing can fit in a single line
+  ///         should never happen. However, we can return the smallest text
+  ///         and rely on `.lineLimit(1)` and truncation to display as mush as possible.
+  func text(fitting maxWidth: CGFloat) -> String {
+    var maxNames: Int = self.typing.count
+    var text: String
+    var bounds: CGSize
+    repeat {
+      text = Self.text(for: self.typing, maxNames: maxNames)
+      bounds = boundingRect(
+        for: text,
+        withFont: Self.font,
+        in: CGSize(width: CGFloat.infinity, height: 0)
+      )
+      maxNames -= 1
+    } while maxNames > 0 && bounds.width > maxWidth
+    return text
+  }
+
+  static func text(for names: [String], maxNames: Int) -> String {
+    if names.isEmpty { return "" }
+    var components = names.prefix(maxNames)
+    let others = names.dropFirst(maxNames)
+    if !others.isEmpty {
+      components.append(l10n.others(others.count))
+    }
+    return [
+      components.formatted(.list(type: .and)),
+      l10n.typing(names.count),
+    ].joined(separator: " ")
   }
 }
 
@@ -130,56 +161,47 @@ struct TypingIndicator_Previews: PreviewProvider {
     }
   }
 
+  static let jids: [JID] = [
+    "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
+    "marc.other@prose.org", "remi.other@prose.org",
+    "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
+  ]
+  static let allUsers: [TypingUser] = Self.jids.map(TypingUser.jid)
+  static let displayNames: [TypingUser] = ["Rémi"].map(TypingUser.displayName)
+  static func users(_ count: Int) -> [TypingUser] {
+    Array(Self.allUsers.prefix(count))
+  }
+
   static var previews: some View {
-    let previews = VStack(spacing: 0) {
+    let previews = VStack(alignment: .leading, spacing: 0) {
       Group {
         Preview(typing: [], name: "Empty list")
-        Preview(typing: ["marc.preview@prose.org"].map(TypingUser.jid), name: "Single name")
-        Preview(
-          typing: ["marc.preview@prose.org", "remi.preview@prose.org"].map(TypingUser.jid),
-          name: "Two names"
-        )
-        Preview(
-          typing: ["marc.preview@prose.org", "remi.preview@prose.org", "marc.preview@prose.org"]
-            .map(TypingUser.jid),
-          name: "Three names"
-        )
-        Preview(typing: [
-          "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
-          "preview@prose.org",
-        ].map(TypingUser.jid), name: "Four names")
-        Preview(typing: [
-          "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
-          "bot1@prose.org", "bot2@prose.org",
-        ].map(TypingUser.jid), name: "Five names")
-        Preview(typing: [
-          "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
-          "marc.other@prose.org", "remi.other@prose.org",
-        ].map(TypingUser.jid), name: "Five names small space")
-          .frame(width: 200)
-        Preview(typing: [
-          "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
-          "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
-        ].map(TypingUser.jid), name: "More names")
+        Preview(typing: Self.users(1), name: "Single name")
+        Preview(typing: Self.users(2), name: "Two names")
+        Preview(typing: Self.users(3), name: "Three names")
+        Preview(typing: Self.users(4), name: "Four names")
+        Preview(typing: Self.users(5), name: "Five names")
+        Preview(typing: Self.allUsers, name: "More names")
       }
       Group {
-        Preview(
-          typing: ["Two\nlines"].map(TypingUser.displayName),
-          name: "With small field",
-          height: 10
-        )
-        Preview(
-          typing: ["remi.preview@prose.org"].map(TypingUser.jid),
-          name: "With border",
-          border: true
-        )
-        Preview(typing: ["Rémi"].map(TypingUser.displayName), name: "With diacritics")
-        Preview(typing: ["remi.preview@prose.org"].map(TypingUser.jid), name: "Colorful background")
+        Preview(typing: Self.users(5), name: "Five names medium width")
+          .frame(width: 400)
+        Preview(typing: Self.users(5), name: "Five names small width")
+          .frame(width: 300)
+        Preview(typing: Self.users(5), name: "Five names tiny width")
+          .frame(width: 120)
+      }
+      Group {
+        Preview(typing: Self.displayNames, name: "With small field", height: 10)
+        Preview(typing: Self.displayNames, name: "With border", border: true)
+        Preview(typing: Self.displayNames, name: "With diacritics")
+        Preview(typing: Self.displayNames, name: "Colorful background")
           .background(Color.purple)
       }
     }
     .frame(width: 500)
     .fixedSize()
+
     previews
       .preferredColorScheme(.light)
       .previewDisplayName("Light")
