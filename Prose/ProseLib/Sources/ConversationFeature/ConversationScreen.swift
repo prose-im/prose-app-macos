@@ -76,7 +76,7 @@ public let conversationReducer: Reducer<
   messageBarReducer.pullback(
     state: \ConversationState.messageBar,
     action: CasePath(ConversationAction.messageBar),
-    environment: { _ in () }
+    environment: { $0 }
   ),
   conversationInfoReducer.optional().pullback(
     state: \ConversationState.info,
@@ -153,7 +153,7 @@ public struct ConversationState: Equatable {
     self.toolbar = .init(user: .init(
       jid: chatId,
       displayName: chatId.jidString,
-      fullName: "John Doe",
+      fullName: Name.jid(chatId).displayName,
       avatar: nil,
       jobTitle: "Chatbot",
       company: "Acme Inc.",
@@ -161,7 +161,11 @@ public struct ConversationState: Equatable {
       phoneNumber: "0000000",
       location: "The Internets"
     ))
-    self.messageBar = .init(textField: .init(recipient: chatId.jidString))
+    self.messageBar = .init(
+      chatId: chatId,
+      loggedInUserJID: loggedInUserJID,
+      chatName: .jid(chatId)
+    )
     self.chat = ChatState(
       loggedInUserJID: loggedInUserJID,
       chatId: chatId

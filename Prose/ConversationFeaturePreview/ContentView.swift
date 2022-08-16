@@ -19,7 +19,7 @@ struct ContentView: View {
     let chatId: JID = "valerian@prose.org"
     var client = ProseClient.noop
 
-    let chatSubject = CurrentValueSubject<IdentifiedArrayOf<Message>, Never>([
+    let messageSubject = CurrentValueSubject<IdentifiedArrayOf<Message>, Never>([
       Message(
         from: chatId,
         id: .init(rawValue: UUID().uuidString),
@@ -51,9 +51,15 @@ struct ContentView: View {
       ),
     ])
 
+    let chatSubject = CurrentValueSubject<Chat, Never>(Chat(
+      jid: chatId,
+      numberOfUnreadMessages: 0,
+      participantStates: [chatId: .init(kind: .composing, timestamp: .now)]
+    ))
+
     client.sendMessage = { _, body in
       .fireAndForget {
-        chatSubject.value.append(
+        messageSubject.value.append(
           .init(
             from: jid,
             id: .init(rawValue: UUID().uuidString),
@@ -67,20 +73,31 @@ struct ContentView: View {
       }
     }
     client.addReaction = { _, messageId, reaction in
-      chatSubject.value[id: messageId]?.reactions.addReaction(reaction, for: jid)
+      messageSubject.value[id: messageId]?.reactions.addReaction(reaction, for: jid)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.toggleReaction = { _, messageId, reaction in
-      chatSubject.value[id: messageId]?.reactions.toggleReaction(reaction, for: jid)
+      messageSubject.value[id: messageId]?.reactions.toggleReaction(reaction, for: jid)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.retractMessage = { _, messageId in
       // TODO: Send an error if message is not found?
-      chatSubject.value.remove(id: messageId)
+      messageSubject.value.remove(id: messageId)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.messagesInChat = { _ in
-      chatSubject.setFailureType(to: EquatableError.self).eraseToEffect()
+      messageSubject.setFailureType(to: EquatableError.self).eraseToEffect()
+    }
+    client.sendChatState = { (chatId, kind: ChatState.Kind) in
+      var participantStates = chatSubject.value.participantStates
+      participantStates[chatId] = .init(kind: kind, timestamp: .now)
+      // This is just to test the UI when writing
+      participantStates[jid] = .init(kind: kind, timestamp: .now)
+      chatSubject.value.participantStates = participantStates
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    }
+    client.activeChats = {
+      chatSubject.map { [chatId: $0] }.setFailureType(to: EquatableError.self).eraseToEffect()
     }
 
     self.store = Store(

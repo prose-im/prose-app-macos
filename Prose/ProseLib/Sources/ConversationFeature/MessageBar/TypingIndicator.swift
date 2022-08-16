@@ -10,8 +10,7 @@ import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
 
-// TODO: Find a better name
-public enum TypingUser: Equatable {
+public enum Name: Equatable {
   case jid(JID), displayName(String)
 
   var displayName: String {
@@ -37,7 +36,7 @@ struct TypingIndicator: View {
 
   var typing: [String]
 
-  init(typing: [TypingUser]) {
+  init(typing: [Name]) {
     self.typing = typing.map(\.displayName)
   }
 
@@ -123,7 +122,7 @@ private extension VerticalAlignment {
   static let typingIndicator: Self = .init(TypingIndicatorAlignment.self)
 }
 
-private extension Alignment {
+extension Alignment {
   // Align the typing indicator to the leading edge of the view
   static let typingIndicator: Self = .init(horizontal: .leading, vertical: .typingIndicator)
 }
@@ -131,7 +130,7 @@ private extension Alignment {
 #if DEBUG
   struct TypingIndicator_Previews: PreviewProvider {
     private struct Preview: View {
-      let typing: [TypingUser]
+      let typing: [Name]
       let name: String
       var height: CGFloat = 48
       var border: Bool = false
@@ -164,9 +163,9 @@ private extension Alignment {
       "marc.other@prose.org", "remi.other@prose.org",
       "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
     ]
-    static let allUsers: [TypingUser] = Self.jids.map(TypingUser.jid)
-    static let displayNames: [TypingUser] = ["Rémi"].map(TypingUser.displayName)
-    static func users(_ count: Int) -> [TypingUser] {
+    static let allUsers: [Name] = Self.jids.map(Name.jid)
+    static let displayNames: [Name] = ["Rémi"].map(Name.displayName)
+    static func users(_ count: Int) -> [Name] {
       Array(Self.allUsers.prefix(count))
     }
 

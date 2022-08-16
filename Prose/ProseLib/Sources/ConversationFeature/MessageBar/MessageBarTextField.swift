@@ -6,6 +6,7 @@
 import AppLocalization
 import Assets
 import ComposableArchitecture
+import ProseCoreTCA
 import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
@@ -18,6 +19,8 @@ struct MessageBarTextField: View {
 
   @Environment(\.redactionReasons) private var redactionReasons
 
+  @FocusState private var isFocused: Bool
+
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -25,9 +28,10 @@ struct MessageBarTextField: View {
     WithViewStore(self.store) { viewStore in
       HStack(spacing: 0) {
         TextField(
-          l10n.fieldPlaceholder(viewStore.recipient),
+          l10n.fieldPlaceholder(viewStore.chatName.displayName),
           text: viewStore.binding(\State.$message)
         )
+        .focused(self.$isFocused)
         .padding(.vertical, 7.0)
         .padding(.leading, 16.0)
         .padding(.trailing, 4.0)
@@ -54,6 +58,10 @@ struct MessageBarTextField: View {
             .strokeBorder(Colors.Border.secondary.color)
         }
       )
+      .onChange(of: self.isFocused && !viewStore.message.isEmpty) {
+        self.actions.send(.isTyping($0))
+      }
+      .onDisappear { self.actions.send(.onDisappear) }
     }
   }
 }
@@ -62,18 +70,52 @@ struct MessageBarTextField: View {
 
 // MARK: Reducer
 
+enum MessageBarTextFieldEffectToken: Hashable, CaseIterable {
+  case pauseTyping
+}
+
 public let messageBarTextFieldReducer: Reducer<
   MessageBarTextFieldState,
   MessageBarTextFieldAction,
-  Void
-> = Reducer { state, action, _ in
+  ConversationEnvironment
+> = Reducer { state, action, environment in
   switch action {
   case .sendTapped where !state.message.isEmpty:
     let content = state.message
     state.message = ""
     return Effect(value: .send(message: content))
 
-  default:
+  case .isTyping(true):
+    return environment.proseClient
+      .sendChatState(state.chatId, .composing)
+      .fireAndForget()
+
+  case .isTyping(false):
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .active)
+        .fireAndForget(),
+      .cancel(id: MessageBarTextFieldEffectToken.pauseTyping),
+    ])
+
+  case let .setChatState(chatState):
+    return environment.proseClient
+      .sendChatState(state.chatId, chatState)
+      .fireAndForget()
+
+  case .onDisappear:
+    return .cancel(token: MessageBarTextFieldEffectToken.self)
+
+  case .binding(\.$message):
+    if state.message.isEmpty {
+      return .cancel(id: MessageBarTextFieldEffectToken.pauseTyping)
+    }
+    return Effect(value: .setChatState(.paused))
+      .delay(for: .seconds(30), scheduler: environment.mainQueue)
+      .eraseToEffect()
+      .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true)
+
+  case .sendTapped, .send, .binding:
     return .none
   }
 }.binding()
@@ -81,16 +123,9 @@ public let messageBarTextFieldReducer: Reducer<
 // MARK: State
 
 public struct MessageBarTextFieldState: Equatable {
-  var recipient: String
+  let chatId: JID
+  let chatName: Name
   @BindableState var message: String
-
-  public init(
-    recipient: String,
-    message: String = ""
-  ) {
-    self.recipient = recipient
-    self.message = message
-  }
 }
 
 // MARK: Actions
@@ -98,6 +133,9 @@ public struct MessageBarTextFieldState: Equatable {
 public enum MessageBarTextFieldAction: Equatable, BindableAction {
   case sendTapped
   case send(message: String)
+  case isTyping(Bool)
+  case setChatState(ProseCoreTCA.ChatState.Kind)
+  case onDisappear
   case binding(BindingAction<MessageBarTextFieldState>)
 }
 
@@ -111,7 +149,7 @@ struct MessageBarTextField_Previews: PreviewProvider {
       MessageBarTextField(store: Store(
         initialState: state,
         reducer: messageBarTextFieldReducer,
-        environment: ()
+        environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
       ))
     }
   }
@@ -119,27 +157,32 @@ struct MessageBarTextField_Previews: PreviewProvider {
   static var previews: some View {
     Group {
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: "This is a message that was written."
       ))
       .previewDisplayName("Simple message")
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
       ))
       .previewDisplayName("Long message")
       Preview(state: .init(
-        recipient: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"),
         message: ""
       ))
       .previewDisplayName("Long username")
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: ""
       ))
       .previewDisplayName("Empty")
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: ""
       ))
       .padding()
@@ -149,17 +192,20 @@ struct MessageBarTextField_Previews: PreviewProvider {
     .preferredColorScheme(.light)
     Group {
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: "This is a message that was written."
       ))
       .previewDisplayName("Simple message / Dark")
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: ""
       ))
       .previewDisplayName("Empty / Dark")
       Preview(state: .init(
-        recipient: "Valerian",
+        chatId: "preview@prose.org",
+        chatName: .displayName("Valerian"),
         message: ""
       ))
       .padding()
