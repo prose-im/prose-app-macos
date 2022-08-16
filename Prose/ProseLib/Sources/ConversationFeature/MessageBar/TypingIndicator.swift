@@ -106,6 +106,12 @@ struct TypingIndicator: View {
   }
 }
 
+private func boundingRect(for text: String, withFont font: NSFont, in size: CGSize) -> CGSize {
+  let attributes: [NSAttributedString.Key: Any] = [.font: font]
+  let attributedString = NSAttributedString(string: text, attributes: attributes)
+  return attributedString.boundingRect(with: size, options: [.usesLineFragmentOrigin]).size
+}
+
 private struct TypingIndicatorAlignment: AlignmentID {
   static func defaultValue(in context: ViewDimensions) -> CGFloat {
     // Align the typing indicator to the top of the view
