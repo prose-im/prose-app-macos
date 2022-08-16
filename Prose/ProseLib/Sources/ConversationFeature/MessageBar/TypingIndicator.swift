@@ -72,21 +72,12 @@ struct TypingIndicator: View {
   }
 
   /// - Returns: The longest text fitting in one line.
-  /// - Complexity: O(*n*) where *n* is the number of names.
-  /// - Note: We could estimate the maximum number of displayed names and only test
-  ///         the values around, but this would create a lot of corner cases.
-  ///         For example, if the last name is shorter than "and 1 other"
-  ///         (or its localized equivalent – which may be even longer),
-  ///         we could end up with "Rémi and 1 other are typing…" (28 characters)
-  ///         instead of "Rémi and Marc are typing…" (25 characters).
-  ///         Since there should never be a **lot** of people typing at the same time,
-  ///         and the computations would only be done when the list of users typing changes,
-  ///         it's probably okay to keep this implementation until we run into performance issues.
+  /// - Note: It has been decided to show maximum 2 names.
   /// - Note: With reasonable window sizes, the case where nothing can fit in a single line
   ///         should never happen. However, we can return the smallest text
   ///         and rely on `.lineLimit(1)` and truncation to display as mush as possible.
   func text(fitting maxWidth: CGFloat) -> String {
-    var maxNames: Int = self.typing.count
+    var maxNames: Int = 2
     var text: String
     var bounds: CGSize
     repeat {
