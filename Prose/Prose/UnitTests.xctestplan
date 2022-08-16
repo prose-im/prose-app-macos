@@ -34,6 +34,13 @@
         "identifier" : "ProseCoreViewsTests",
         "name" : "ProseCoreViewsTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:ProseLib",
+        "identifier" : "ConversationFeatureTests",
+        "name" : "ConversationFeatureTests"
+      }
     }
   ],
   "version" : 1

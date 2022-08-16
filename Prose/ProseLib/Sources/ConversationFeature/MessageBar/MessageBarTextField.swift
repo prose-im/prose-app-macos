@@ -8,6 +8,7 @@ import Assets
 import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -58,9 +59,7 @@ struct MessageBarTextField: View {
             .strokeBorder(Colors.Border.secondary.color)
         }
       )
-      .onChange(of: self.isFocused && !viewStore.message.isEmpty) {
-        self.actions.send(.isTyping($0))
-      }
+      .synchronize(viewStore.binding(\.$isFocused), self.$isFocused)
       .onDisappear { self.actions.send(.onDisappear) }
     }
   }
@@ -74,6 +73,10 @@ enum MessageBarTextFieldEffectToken: Hashable, CaseIterable {
   case pauseTyping
 }
 
+public extension DispatchQueue.SchedulerTimeType.Stride {
+  static let pauseTypingDebounceDuration: Self = .seconds(30)
+}
+
 public let messageBarTextFieldReducer: Reducer<
   MessageBarTextFieldState,
   MessageBarTextFieldAction,
@@ -85,12 +88,21 @@ public let messageBarTextFieldReducer: Reducer<
     state.message = ""
     return Effect(value: .send(message: content))
 
-  case .isTyping(true):
-    return environment.proseClient
-      .sendChatState(state.chatId, .composing)
-      .fireAndForget()
+  case .binding(\.$isFocused) where state.isFocused && !state.message.isEmpty,
+       .binding(\.$message) where !state.message.isEmpty:
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .composing)
+        .fireAndForget(),
+      Effect(value: .setChatState(.paused))
+        .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
+        .eraseToEffect()
+        .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true),
+    ])
 
-  case .isTyping(false):
+  case .binding(\.$isFocused), .binding(\.$message):
+    // Because of previous cases, we know that
+    // `state.isFocused == false || state.message.isEmpty`
     return .merge([
       environment.proseClient
         .sendChatState(state.chatId, .active)
@@ -106,15 +118,6 @@ public let messageBarTextFieldReducer: Reducer<
   case .onDisappear:
     return .cancel(token: MessageBarTextFieldEffectToken.self)
 
-  case .binding(\.$message):
-    if state.message.isEmpty {
-      return .cancel(id: MessageBarTextFieldEffectToken.pauseTyping)
-    }
-    return Effect(value: .setChatState(.paused))
-      .delay(for: .seconds(30), scheduler: environment.mainQueue)
-      .eraseToEffect()
-      .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true)
-
   case .sendTapped, .send, .binding:
     return .none
   }
@@ -125,6 +128,7 @@ public let messageBarTextFieldReducer: Reducer<
 public struct MessageBarTextFieldState: Equatable {
   let chatId: JID
   let chatName: Name
+  @BindableState var isFocused: Bool = false
   @BindableState var message: String
 }
 
@@ -133,7 +137,6 @@ public struct MessageBarTextFieldState: Equatable {
 public enum MessageBarTextFieldAction: Equatable, BindableAction {
   case sendTapped
   case send(message: String)
-  case isTyping(Bool)
   case setChatState(ProseCoreTCA.ChatState.Kind)
   case onDisappear
   case binding(BindingAction<MessageBarTextFieldState>)
@@ -170,7 +173,9 @@ struct MessageBarTextField_Previews: PreviewProvider {
       .previewDisplayName("Long message")
       Preview(state: .init(
         chatId: "preview@prose.org",
-        chatName: .displayName("Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"),
+        chatName: .displayName(
+          "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
+        ),
         message: ""
       ))
       .previewDisplayName("Long username")
