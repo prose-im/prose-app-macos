@@ -131,82 +131,84 @@ private extension Alignment {
   static let typingIndicator: Self = .init(horizontal: .leading, vertical: .typingIndicator)
 }
 
-struct TypingIndicator_Previews: PreviewProvider {
-  private struct Preview: View {
-    let typing: [TypingUser]
-    let name: String
-    var height: CGFloat = 48
-    var border: Bool = false
-    var body: some View {
-      VStack(spacing: 0) {
-        VStack(alignment: .leading) {
-          ZStack {
-            RoundedRectangle(cornerRadius: 8)
-              .fill(.background)
-            RoundedRectangle(cornerRadius: 8)
-              .strokeBorder(.separator)
+#if DEBUG
+  struct TypingIndicator_Previews: PreviewProvider {
+    private struct Preview: View {
+      let typing: [TypingUser]
+      let name: String
+      var height: CGFloat = 48
+      var border: Bool = false
+      var body: some View {
+        VStack(spacing: 0) {
+          VStack(alignment: .leading) {
+            ZStack {
+              RoundedRectangle(cornerRadius: 8)
+                .fill(.background)
+              RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(.separator)
+            }
+            .frame(height: self.height)
+            .overlay(alignment: .typingIndicator) {
+              TypingIndicator(typing: self.typing)
+                .border(self.border ? Color.red.opacity(0.5) : .clear)
+                .padding(.horizontal, 8)
+            }
+            Text(verbatim: self.name)
+              .font(.headline)
           }
-          .frame(height: self.height)
-          .overlay(alignment: .typingIndicator) {
-            TypingIndicator(typing: self.typing)
-              .border(self.border ? Color.red.opacity(0.5) : .clear)
-              .padding(.horizontal, 8)
-          }
-          Text(verbatim: self.name)
-            .font(.headline)
+          .padding()
         }
-        .padding()
-      }
-      Divider()
-    }
-  }
-
-  static let jids: [JID] = [
-    "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
-    "marc.other@prose.org", "remi.other@prose.org",
-    "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
-  ]
-  static let allUsers: [TypingUser] = Self.jids.map(TypingUser.jid)
-  static let displayNames: [TypingUser] = ["Rémi"].map(TypingUser.displayName)
-  static func users(_ count: Int) -> [TypingUser] {
-    Array(Self.allUsers.prefix(count))
-  }
-
-  static var previews: some View {
-    let previews = VStack(alignment: .leading, spacing: 0) {
-      Group {
-        Preview(typing: [], name: "Empty list")
-        Preview(typing: Self.users(1), name: "Single name")
-        Preview(typing: Self.users(2), name: "Two names")
-        Preview(typing: Self.users(3), name: "Three names")
-        Preview(typing: Self.users(4), name: "Four names")
-        Preview(typing: Self.users(5), name: "Five names")
-        Preview(typing: Self.allUsers, name: "More names")
-      }
-      Group {
-        Preview(typing: Self.users(5), name: "Five names medium width")
-          .frame(width: 400)
-        Preview(typing: Self.users(5), name: "Five names small width")
-          .frame(width: 300)
-        Preview(typing: Self.users(5), name: "Five names tiny width")
-          .frame(width: 120)
-      }
-      Group {
-        Preview(typing: Self.displayNames, name: "With small field", height: 10)
-        Preview(typing: Self.displayNames, name: "With border", border: true)
-        Preview(typing: Self.displayNames, name: "With diacritics")
-        Preview(typing: Self.displayNames, name: "Colorful background")
-          .background(Color.purple)
+        Divider()
       }
     }
-    .frame(width: 500)
-    .fixedSize()
 
-    previews
-      .preferredColorScheme(.light)
-      .previewDisplayName("Light")
-    previews
-      .preferredColorScheme(.dark)
-      .previewDisplayName("Dark")
+    static let jids: [JID] = [
+      "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
+      "marc.other@prose.org", "remi.other@prose.org",
+      "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
+    ]
+    static let allUsers: [TypingUser] = Self.jids.map(TypingUser.jid)
+    static let displayNames: [TypingUser] = ["Rémi"].map(TypingUser.displayName)
+    static func users(_ count: Int) -> [TypingUser] {
+      Array(Self.allUsers.prefix(count))
+    }
+
+    static var previews: some View {
+      let previews = VStack(alignment: .leading, spacing: 0) {
+        Group {
+          Preview(typing: [], name: "Empty list")
+          Preview(typing: Self.users(1), name: "Single name")
+          Preview(typing: Self.users(2), name: "Two names")
+          Preview(typing: Self.users(3), name: "Three names")
+          Preview(typing: Self.users(4), name: "Four names")
+          Preview(typing: Self.users(5), name: "Five names")
+          Preview(typing: Self.allUsers, name: "More names")
+        }
+        Group {
+          Preview(typing: Self.users(5), name: "Five names medium width")
+            .frame(width: 400)
+          Preview(typing: Self.users(5), name: "Five names small width")
+            .frame(width: 300)
+          Preview(typing: Self.users(5), name: "Five names tiny width")
+            .frame(width: 120)
+        }
+        Group {
+          Preview(typing: Self.displayNames, name: "With small field", height: 10)
+          Preview(typing: Self.displayNames, name: "With border", border: true)
+          Preview(typing: Self.displayNames, name: "With diacritics")
+          Preview(typing: Self.displayNames, name: "Colorful background")
+            .background(Color.purple)
+        }
+      }
+      .frame(width: 500)
+      .fixedSize()
+
+      previews
+        .preferredColorScheme(.light)
+        .previewDisplayName("Light")
+      previews
+        .preferredColorScheme(.dark)
+        .previewDisplayName("Dark")
+    }
   }
-}
+#endif
