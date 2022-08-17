@@ -58,7 +58,7 @@ struct Toolbar: ToolbarContent {
         ToolbarSecurity(
           jid: viewStore.jid,
           // TODO: Make this dynamic
-          isVerified: true
+          isVerified: false
         )
 
         ToolbarDivider()
@@ -80,6 +80,8 @@ struct Toolbar: ToolbarContent {
       Button { viewStore.send(.startVideoCallTapped) } label: {
         Label("Video", systemImage: "video")
       }
+      // https://github.com/prose-im/prose-app-macos/issues/48
+      .disabled(true)
 
       Toggle(isOn: viewStore.binding(\State.$isShowingInfo).animation()) {
         Label("Info", systemImage: "info.circle")
