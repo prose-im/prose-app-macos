@@ -41,7 +41,8 @@
       sendPresence: { _, _ in
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
-      markMessagesReadInChat: { _ in Empty(completeImmediately: true).eraseToEffect() }
+      markMessagesReadInChat: { _ in Empty(completeImmediately: true).eraseToEffect() },
+      fetchPastMessagesInChat: { _ in Empty(completeImmediately: true).eraseToEffect() }
     )
   }
 #endif

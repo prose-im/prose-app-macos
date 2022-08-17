@@ -245,6 +245,43 @@ public extension ProseClient {
       markMessagesReadInChat: { jid in
         delegate.activeChats[jid]?.markMessagesRead()
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      },
+      fetchPastMessagesInChat: { jid -> Effect<None, EquatableError> in
+        guard let client = client else {
+          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        }
+
+        delegate.activeChats.removeValue(forKey: jid)
+
+        return Future { promise in
+          client.loadMessagesInChat(jid: jid.bareJid, before: nil) { result, _ in
+            switch result {
+            case let .success(messages):
+              for var message in messages {
+                let messageWasSentByUs =
+                  message.message.from.node == client.jid.node &&
+                  message.message.from.domain == client.jid.domain
+
+                // Our messages don't have the `to` field set.
+                if messageWasSentByUs {
+                  message.message.to = jid.bareJid
+                }
+
+                delegate.handleMessage(
+                  message.message,
+                  carbon: messageWasSentByUs ? .sent : .received,
+                  date: {
+                    (message.delay?.stamp)
+                      .map { Date(timeIntervalSince1970: Double($0)) } ?? date()
+                  }
+                )
+              }
+              promise(.success(None.none))
+            case let .failure(error):
+              promise(.failure(EquatableError(error)))
+            }
+          }
+        }.eraseToEffect()
       }
     )
   }
@@ -317,21 +354,21 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     _: ProseClientProtocol,
     didReceiveMessage message: XmppMessage
   ) {
-    self.handleMessage(message, carbon: .none)
+    self.handleMessage(message, carbon: .none, date: self.date)
   }
 
   func proseClient(
     _: ProseClientProtocol,
     didReceiveMessageCarbon message: XmppForwardedMessage
   ) {
-    self.handleMessage(message.message, carbon: .received)
+    self.handleMessage(message.message, carbon: .received, date: self.date)
   }
 
   func proseClient(
     _: ProseClientProtocol,
     didReceiveSentMessageCarbon message: XmppForwardedMessage
   ) {
-    self.handleMessage(message.message, carbon: .sent)
+    self.handleMessage(message.message, carbon: .sent, date: self.date)
   }
 
   func proseClient(
@@ -363,7 +400,7 @@ private extension Delegate {
     case received
   }
 
-  func handleMessage(_ message: XmppMessage, carbon: CarbonKind?) {
+  func handleMessage(_ message: XmppMessage, carbon: CarbonKind?, date: () -> Date) {
     // Roll all updates to our active chats into one. Otherwise downstream subscribers may
     // receive multiple changes.
     var activeChats = self.activeChats
@@ -383,7 +420,7 @@ private extension Delegate {
       }
     }()
 
-    if message.replace == nil, let message = Message(message: message, timestamp: self.date()) {
+    if message.replace == nil, let message = Message(message: message, timestamp: date()) {
       activeChats[from, default: Chat(jid: from)].appendMessage(message)
 
       // We don't publish messages that were sent or received by us on other devices
@@ -395,7 +432,7 @@ private extension Delegate {
 
     if let chatState = message.chatState, carbon != .sent {
       activeChats[from, default: Chat(jid: from)].participantStates[from] =
-        .init(state: chatState, timestamp: self.date())
+        .init(state: chatState, timestamp: date())
     }
 
     if let reactions = message.reactions {
