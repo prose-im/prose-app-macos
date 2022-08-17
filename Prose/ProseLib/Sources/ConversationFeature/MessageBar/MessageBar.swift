@@ -127,12 +127,12 @@ public let messageBarReducer: Reducer<
 
 public struct MessageBarState: Equatable {
   var textField: MessageBarTextFieldState
-  var typing: [String]
+  var typing: [TypingUser]
   var reactionPicker: ReactionPickerState?
 
   public init(
     textField: MessageBarTextFieldState,
-    typing: [String] = []
+    typing: [TypingUser] = []
   ) {
     self.textField = textField
     self.typing = typing
@@ -157,8 +157,8 @@ internal struct MessageBar_Previews: PreviewProvider {
     var body: some View {
       MessageBar(store: Store(
         initialState: MessageBarState(
-          textField: .init(recipient: recipient),
-          typing: [recipient]
+          textField: .init(recipient: self.recipient),
+          typing: [.displayName(self.recipient)]
         ),
         reducer: messageBarReducer,
         environment: ()
