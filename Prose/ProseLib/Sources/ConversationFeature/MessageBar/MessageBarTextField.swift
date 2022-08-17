@@ -144,79 +144,81 @@ public enum MessageBarTextFieldAction: Equatable, BindableAction {
 
 // MARK: - Previews
 
-struct MessageBarTextField_Previews: PreviewProvider {
-  private struct Preview: View {
-    let state: MessageBarTextFieldState
+#if DEBUG
+  struct MessageBarTextField_Previews: PreviewProvider {
+    private struct Preview: View {
+      let state: MessageBarTextFieldState
 
-    var body: some View {
-      MessageBarTextField(store: Store(
-        initialState: state,
-        reducer: messageBarTextFieldReducer,
-        environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
-      ))
+      var body: some View {
+        MessageBarTextField(store: Store(
+          initialState: state,
+          reducer: messageBarTextFieldReducer,
+          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
+        ))
+      }
+    }
+
+    static var previews: some View {
+      Group {
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a message that was written."
+        ))
+        .previewDisplayName("Simple message")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
+        ))
+        .previewDisplayName("Long message")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName(
+            "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
+          ),
+          message: ""
+        ))
+        .previewDisplayName("Long username")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .previewDisplayName("Empty")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .padding()
+        .background(Color.pink)
+        .previewDisplayName("Colorful background")
+      }
+      .preferredColorScheme(.light)
+      Group {
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a message that was written."
+        ))
+        .previewDisplayName("Simple message / Dark")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .previewDisplayName("Empty / Dark")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .padding()
+        .background(Color.pink)
+        .previewDisplayName("Colorful background / Dark")
+      }
+      .preferredColorScheme(.dark)
     }
   }
-
-  static var previews: some View {
-    Group {
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: "This is a message that was written."
-      ))
-      .previewDisplayName("Simple message")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
-      ))
-      .previewDisplayName("Long message")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName(
-          "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
-        ),
-        message: ""
-      ))
-      .previewDisplayName("Long username")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: ""
-      ))
-      .previewDisplayName("Empty")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: ""
-      ))
-      .padding()
-      .background(Color.pink)
-      .previewDisplayName("Colorful background")
-    }
-    .preferredColorScheme(.light)
-    Group {
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: "This is a message that was written."
-      ))
-      .previewDisplayName("Simple message / Dark")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: ""
-      ))
-      .previewDisplayName("Empty / Dark")
-      Preview(state: .init(
-        chatId: "preview@prose.org",
-        chatName: .displayName("Valerian"),
-        message: ""
-      ))
-      .padding()
-      .background(Color.pink)
-      .previewDisplayName("Colorful background / Dark")
-    }
-    .preferredColorScheme(.dark)
-  }
-}
+#endif
