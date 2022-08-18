@@ -94,8 +94,8 @@ struct ContentView: View {
     client.messagesInChat = { _ in
       messageSubject.setFailureType(to: EquatableError.self).eraseToEffect()
     }
-    client.sendChatState = { (chatId, kind: ChatState.Kind) in
-      participants[chatId] = .init(kind: kind, timestamp: .now)
+    client.sendChatState = { (_, kind: ChatState.Kind) in
+      participants[jid] = .init(kind: kind, timestamp: .now)
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.activeChats = {

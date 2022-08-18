@@ -88,28 +88,6 @@ public let messageBarTextFieldReducer: Reducer<
     state.message = ""
     return Effect(value: .send(message: content))
 
-  case .binding(\.$isFocused) where state.isFocused && !state.message.isEmpty,
-       .binding(\.$message) where !state.message.isEmpty:
-    return .merge([
-      environment.proseClient
-        .sendChatState(state.chatId, .composing)
-        .fireAndForget(),
-      Effect(value: .setChatState(.paused))
-        .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
-        .eraseToEffect()
-        .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true),
-    ])
-
-  case .binding(\.$isFocused), .binding(\.$message):
-    // Because of previous cases, we know that
-    // `state.isFocused == false || state.message.isEmpty`
-    return .merge([
-      environment.proseClient
-        .sendChatState(state.chatId, .active)
-        .fireAndForget(),
-      .cancel(id: MessageBarTextFieldEffectToken.pauseTyping),
-    ])
-
   case let .setChatState(chatState):
     return environment.proseClient
       .sendChatState(state.chatId, chatState)
@@ -121,7 +99,39 @@ public let messageBarTextFieldReducer: Reducer<
   case .sendTapped, .send, .binding:
     return .none
   }
-}.binding()
+}
+.binding()
+.onChange(of: TextFieldState.init) { current, state, _, environment in
+  if !current.isFocused || current.message.isEmpty {
+    // If the textfield is not focused or empty we don't consider the user typing.
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .active)
+        .fireAndForget(),
+      .cancel(id: MessageBarTextFieldEffectToken.pauseTyping),
+    ])
+  } else {
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .composing)
+        .fireAndForget(),
+      Effect(value: .setChatState(.paused))
+        .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
+        .eraseToEffect()
+        .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true),
+    ])
+  }
+}
+
+private struct TextFieldState: Equatable {
+  var message: String
+  var isFocused: Bool
+
+  init(_ state: MessageBarTextFieldState) {
+    self.message = state.message
+    self.isFocused = state.isFocused
+  }
+}
 
 // MARK: State
 

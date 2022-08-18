@@ -63,7 +63,7 @@ final class TypingIndicatorTests: XCTestCase {
 
     // Open the chat
     store.send(.onAppear)
-    store.receive(.typing([]))
+    store.receive(.typingUsersChanged([]))
     XCTAssertEqual(self.participants, [:])
 
     // Focus the text field
@@ -147,11 +147,11 @@ final class TypingIndicatorTests: XCTestCase {
 
     // We open the chat in this Prose instance
     store.send(.onAppear)
-    store.receive(.typing([]))
+    store.receive(.typingUsersChanged([]))
 
     // We stop typing in another app
     self.participants[self.ownId] = .init(kind: .paused, timestamp: self.date)
-    // No action received `.typing([])` is deduplicated
+    // No action received `.typingUsersChanged([])` is deduplicated
 
     // We close the chat in this Prose instance
     store.send(.textField(.onDisappear))
@@ -177,14 +177,14 @@ final class TypingIndicatorTests: XCTestCase {
 
     // Open the chat
     store.send(.onAppear)
-    store.receive(.typing([.jid(self.recipientId)])) {
-      $0.typing = [.jid(self.recipientId)]
+    store.receive(.typingUsersChanged([.jid(self.recipientId)])) {
+      $0.typingUsers = [.jid(self.recipientId)]
     }
 
     // The recipient stops typing
     self.participants[self.recipientId] = .init(kind: .paused, timestamp: self.date)
-    store.receive(.typing([])) {
-      $0.typing = []
+    store.receive(.typingUsersChanged([])) {
+      $0.typingUsers = []
     }
 
     // Close the chat

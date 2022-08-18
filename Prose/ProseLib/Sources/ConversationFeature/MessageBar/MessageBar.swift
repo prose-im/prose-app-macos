@@ -36,8 +36,8 @@ struct MessageBar: View {
         }
         .frame(maxHeight: .infinity)
         .overlay(alignment: .typingIndicator) {
-          WithViewStore(self.store.scope(state: \.typing)) { typing in
-            TypingIndicator(typing: typing.state)
+          WithViewStore(self.store.scope(state: \.typingUsers)) { typingUsers in
+            TypingIndicator(typingUsers: typingUsers.state)
           }
           .offset(y: -1)
         }
@@ -126,14 +126,14 @@ public let messageBarReducer: Reducer<
         .replaceError(with: [])
         .removeDuplicates()
         .eraseToEffect()
-        .map(MessageBarAction.typing)
+        .map(MessageBarAction.typingUsersChanged)
         .cancellable(id: MessageBarEffectToken.observeParticipantStates)
 
     case .onDisappear:
       return .cancel(token: MessageBarEffectToken.self)
 
-    case let .typing(names):
-      state.typing = names
+    case let .typingUsersChanged(names):
+      state.typingUsers = names
       return .none
 
     case .showEmojisTapped:
@@ -160,7 +160,7 @@ public let messageBarReducer: Reducer<
 public struct MessageBarState: Equatable {
   let chatId: JID
   let loggedInUserJID: JID
-  var typing: [Name]
+  var typingUsers: [Name]
   var textField: MessageBarTextFieldState
   var reactionPicker: ReactionPickerState?
 
@@ -169,11 +169,11 @@ public struct MessageBarState: Equatable {
     loggedInUserJID: JID,
     chatName: Name,
     message: String = "",
-    typing: [Name] = []
+    typingUsers: [Name] = []
   ) {
     self.chatId = chatId
     self.loggedInUserJID = loggedInUserJID
-    self.typing = typing
+    self.typingUsers = typingUsers
     self.textField = .init(chatId: chatId, chatName: chatName, message: message)
   }
 }
@@ -182,7 +182,7 @@ public struct MessageBarState: Equatable {
 
 public enum MessageBarAction: Equatable, BindableAction {
   case onAppear, onDisappear
-  case typing([Name])
+  case typingUsersChanged([Name])
   case textFormatTapped, addAttachmentTapped, showEmojisTapped
   case textField(MessageBarTextFieldAction)
   case reactionPicker(ReactionPickerAction), reactionPickerDismissed
@@ -203,7 +203,7 @@ public enum MessageBarAction: Equatable, BindableAction {
             loggedInUserJID: "preview@prose.org",
             chatName: .jid(self.recipient),
             message: "",
-            typing: [.jid(self.recipient)]
+            typingUsers: [.jid(self.recipient)]
           ),
           reducer: messageBarReducer,
           environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
