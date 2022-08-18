@@ -73,4 +73,6 @@ public struct ProseClient {
   /// Marks all messages read in a conversation identified by `jid` to
   /// update `Chat.numberOfUnreadMessages` returned from the `activeChats` publisher.
   public var markMessagesReadInChat: (_ jid: JID) -> Effect<None, EquatableError>
+
+  public var fetchPastMessagesInChat: (_ jid: JID) -> Effect<None, EquatableError>
 }

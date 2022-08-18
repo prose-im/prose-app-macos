@@ -19,7 +19,7 @@ public struct SidebarState: Equatable {
   var footer: FooterState
   var toolbar = ToolbarState()
 
-  public init(credentials: UserCredentials, selection: Selection? = .unreadStack) {
+  public init(credentials: UserCredentials, selection: Selection? = nil) {
     self.credentials = credentials
     self.selection = selection
     self.footer = .init(credentials: credentials)

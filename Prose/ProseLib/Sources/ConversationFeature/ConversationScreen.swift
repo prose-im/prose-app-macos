@@ -65,6 +65,7 @@ public struct ConversationScreen: View {
 // MARK: Reducer
 
 enum ConversationEffectToken: Hashable, CaseIterable {
+  case fetchPastMessages
   case observeMessages
 }
 
@@ -96,11 +97,17 @@ public let conversationReducer: Reducer<
   Reducer { state, action, environment in
     switch action {
     case .onAppear:
-      return environment.proseClient.messagesInChat(state.chatId)
-        .receive(on: environment.mainQueue)
-        .catchToEffect()
-        .map(ConversationAction.messagesResult)
-        .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true)
+      return .concatenate(
+        environment.proseClient.messagesInChat(state.chatId)
+          .receive(on: environment.mainQueue)
+          .catchToEffect()
+          .map(ConversationAction.messagesResult)
+          .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true),
+        environment.proseClient.fetchPastMessagesInChat(state.chatId)
+          .ignoreOutput()
+          .fireAndForget()
+          .cancellable(id: ConversationEffectToken.fetchPastMessages, cancelInFlight: true)
+      )
 
     case .onDisappear:
       return .cancel(token: ConversationEffectToken.self)

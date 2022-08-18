@@ -69,6 +69,8 @@ struct MessageBar: View {
     .buttonStyle(.plain)
     .unredacted()
     .disabled(self.redactionReasons.contains(.placeholder))
+    // https://github.com/prose-im/prose-app-macos/issues/48
+    .disabled(true)
   }
 
   private func trailingButtons() -> some View {
@@ -76,6 +78,8 @@ struct MessageBar: View {
       Button { actions.send(.addAttachmentTapped) } label: {
         Image(systemName: "paperclip")
       }
+      // https://github.com/prose-im/prose-app-macos/issues/48
+      .disabled(true)
       Button { actions.send(.showEmojisTapped) } label: {
         Image(systemName: "face.smiling")
       }

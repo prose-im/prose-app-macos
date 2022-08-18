@@ -14,14 +14,11 @@ struct ToolbarSecurity: View {
 
   var body: some View {
     HStack(alignment: .firstTextBaseline, spacing: 4) {
-      if isVerified {
-        Image(systemName: "checkmark.seal.fill")
-          .renderingMode(.template)
-          .foregroundColor(Colors.State.green.color)
-          .accessibilityElement()
-          .accessibilityLabel("Verified")
-          .accessibilitySortPriority(1)
-      }
+      Image(systemName: self.isVerified ? "checkmark.seal.fill" : "xmark.seal.fill")
+        .foregroundColor(self.isVerified ? Colors.State.green.color : .red)
+        .accessibilityElement()
+        .accessibilityLabel(self.isVerified ? "Verified" : "Not verified")
+        .accessibilitySortPriority(1)
 
       Text(verbatim: String(describing: jid))
         .foregroundColor(Colors.Text.secondary.color)

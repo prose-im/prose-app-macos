@@ -53,14 +53,20 @@ public struct SidebarView: View {
   private var spotlightSection: some View {
     Section(L10n.Sidebar.Spotlight.title) {
       IconRow(title: L10n.Sidebar.Spotlight.unreadStack, icon: .unread)
-        .tag(Tag.unreadStack)
+//        .tag(Tag.unreadStack)
+        .opacity(0.5)
       IconRow(title: L10n.Sidebar.Spotlight.replies, icon: .reply)
-        .tag(Tag.replies)
+//        .tag(Tag.replies)
+        .opacity(0.5)
       IconRow(title: L10n.Sidebar.Spotlight.directMessages, icon: .directMessage)
-        .tag(Tag.directMessages)
+//        .tag(Tag.directMessages)
+        .opacity(0.5)
       IconRow(title: L10n.Sidebar.Spotlight.peopleAndGroups, icon: .group)
-        .tag(Tag.peopleAndGroups)
+//        .tag(Tag.peopleAndGroups)
+        .opacity(0.5)
     }
+    // https://github.com/prose-im/prose-app-macos/issues/45
+    .disabled(true)
   }
 
   private var contactsSection: some View {
@@ -78,6 +84,8 @@ public struct SidebarView: View {
           ActionButton(title: L10n.Sidebar.TeamMembers.Add.label) {
             viewStore.send(.addContactButtonTapped)
           }
+          // https://github.com/prose-im/prose-app-macos/issues/45
+          .disabled(true)
         }
       }
     }
@@ -86,9 +94,12 @@ public struct SidebarView: View {
   private var groupsSection: some View {
     Section(L10n.Sidebar.Groups.title) {
       IconRow(title: "My group", icon: .group)
+        .opacity(0.5)
       ActionButton(title: L10n.Sidebar.Groups.Add.label) {
         self.actions.send(.addGroupButtonTapped)
       }
-    }.opacity(0.5)
+    }
+    // https://github.com/prose-im/prose-app-macos/issues/45
+    .disabled(true)
   }
 }

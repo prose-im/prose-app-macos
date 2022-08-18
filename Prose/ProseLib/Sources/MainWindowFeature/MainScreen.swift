@@ -119,6 +119,8 @@ public struct MainScreenState: Equatable {
   public var sidebar: SidebarState
   public private(set) var isPlaceholder = false
 
+  // https://github.com/prose-im/prose-app-macos/issues/45 says we should disabled this,
+  // but we don't support any other predictable value, so let's keep it like this for now.
   var route = Route.unreadStack(.init())
 
   public init(jid: JID) {
