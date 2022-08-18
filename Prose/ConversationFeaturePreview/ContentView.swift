@@ -101,6 +101,10 @@ struct ContentView: View {
     client.activeChats = {
       chats.setFailureType(to: EquatableError.self).eraseToEffect()
     }
+    client.updateMessage = { _, messageId, body in
+      messageSubject.value[id: messageId]?.body = body
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    }
 
     self.store = Store(
       initialState: ConversationState(chatId: chatId, loggedInUserJID: jid),

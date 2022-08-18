@@ -3,10 +3,12 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import ComposableArchitecture
 import ProseCoreTCA
-import ProseUI
 import SwiftUI
+
+private let l10n = L10n.Content.MessageBar.self
 
 // MARK: - View
 
@@ -14,7 +16,9 @@ struct MessageBar: View {
   typealias State = MessageBarState
   typealias Action = MessageBarAction
 
-  static let height: CGFloat = 64
+  static let verticalPadding: CGFloat = 12
+  static let buttonsFont: Font = .system(size: 16)
+  static let textFieldCornerRadius: CGFloat = 16
 
   @Environment(\.redactionReasons) private var redactionReasons
 
@@ -22,49 +26,54 @@ struct MessageBar: View {
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
   var body: some View {
-    VStack(spacing: 0) {
-      Divider()
-
-      HStack(spacing: 16) {
-        leadingButtons()
-
-        ZStack {
-          MessageBarTextField(store: self.store.scope(
-            state: \.textField,
-            action: Action.textField
-          ))
+    HStack(alignment: .messageBar, spacing: 16) {
+      leadingButtons()
+        .font(Self.buttonsFont)
+        .alignmentGuide(.messageBar) {
+          $0[VerticalAlignment.center] + Self.textFieldCornerRadius
         }
-        .frame(maxHeight: .infinity)
+
+      MessageBarTextField(store: self.store.scope(
+        state: \.textField,
+        action: Action.textField
+      ), cornerRadius: Self.textFieldCornerRadius)
+        .alignmentGuide(.top) {
+          $0[VerticalAlignment.top] - Self.verticalPadding
+        }
         .overlay(alignment: .typingIndicator) {
           WithViewStore(self.store.scope(state: \.typingUsers)) { typingUsers in
             TypingIndicator(typingUsers: typingUsers.state)
           }
-          .offset(y: -1)
         }
 
-        trailingButtons()
-      }
-      .font(.title2)
-      .padding(.horizontal, 20)
-      .frame(maxHeight: Self.height)
+      trailingButtons()
+        .font(Self.buttonsFont)
+        .alignmentGuide(.messageBar) {
+          $0[VerticalAlignment.center] + Self.textFieldCornerRadius
+        }
     }
-    .frame(height: Self.height)
+    .padding(.vertical, Self.verticalPadding)
     .foregroundColor(.secondary)
-    // TODO: [Rémi Bardon] Maybe add a material background here, to make it more beautiful with content going under
-//    .background(.ultraThinMaterial)
-    .background(.background)
+    .padding(.horizontal, 20)
+    .background {
+      Rectangle()
+        .fill(.regularMaterial)
+        .overlay(alignment: .top, content: Divider.init)
+    }
+    .fixedSize(horizontal: false, vertical: true)
+    .onAppear { self.actions.send(.onAppear) }
+    .onDisappear { self.actions.send(.onDisappear) }
     // Make sure accessibility frame is correct
     .contentShape(Rectangle())
     .accessibilityElement(children: .contain)
-    .onAppear { self.actions.send(.onAppear) }
-    .onDisappear { self.actions.send(.onDisappear) }
   }
 
   private func leadingButtons() -> some View {
     HStack(spacing: 12) {
-      Button { actions.send(.textFormatTapped) } label: {
-        Image(systemName: "textformat.alt")
-      }
+      MessageFormattingButton(store: self.store.scope(
+        state: \.formatting,
+        action: Action.formatting
+      ))
     }
     .buttonStyle(.plain)
     .unredacted()
@@ -75,24 +84,33 @@ struct MessageBar: View {
 
   private func trailingButtons() -> some View {
     HStack(spacing: 12) {
-      Button { actions.send(.addAttachmentTapped) } label: {
-        Image(systemName: "paperclip")
-      }
-      // https://github.com/prose-im/prose-app-macos/issues/48
-      .disabled(true)
-      Button { actions.send(.showEmojisTapped) } label: {
-        Image(systemName: "face.smiling")
-      }
-      .reactionPicker(
-        store: self.store.scope(state: \.reactionPicker),
-        action: Action.reactionPicker,
-        dismiss: .reactionPickerDismissed
-      )
+      MessageAttachmentsButton(store: self.store.scope(
+        state: \.attachments,
+        action: Action.attachments
+      ))
+      MessageEmojisButton(store: self.store.scope(
+        state: \.emojis,
+        action: Action.emojis
+      ))
     }
     .buttonStyle(.plain)
     .unredacted()
     .disabled(self.redactionReasons.contains(.placeholder))
   }
+}
+
+private struct MessageBarAlignment: AlignmentID {
+  static func defaultValue(in context: ViewDimensions) -> CGFloat {
+    context[VerticalAlignment.bottom]
+  }
+}
+
+private extension VerticalAlignment {
+  static let messageBar: Self = .init(MessageBarAlignment.self)
+}
+
+extension Alignment {
+  static let messageBar: Self = .init(horizontal: .center, vertical: .messageBar)
 }
 
 // MARK: - The Composable Architecture
@@ -112,6 +130,21 @@ public let messageBarReducer: Reducer<
     state: \MessageBarState.textField,
     action: CasePath(MessageBarAction.textField),
     environment: { $0 }
+  ),
+  messageFormattingReducer.pullback(
+    state: \MessageBarState.formatting,
+    action: CasePath(MessageBarAction.formatting),
+    environment: { _ in () }
+  ),
+  messageAttachmentsReducer.pullback(
+    state: \MessageBarState.attachments,
+    action: CasePath(MessageBarAction.attachments),
+    environment: { _ in () }
+  ),
+  messageEmojisReducer.pullback(
+    state: \MessageBarState.emojis,
+    action: CasePath(MessageBarAction.emojis),
+    environment: { _ in () }
   ),
   Reducer { state, action, environment in
     switch action {
@@ -140,20 +173,11 @@ public let messageBarReducer: Reducer<
       state.typingUsers = names
       return .none
 
-    case .showEmojisTapped:
-      state.reactionPicker = .init()
-      return .none
-
-    case let .reactionPicker(.select(reaction)):
+    case let .emojis(.insert(reaction)):
       state.textField.message.append(contentsOf: reaction.rawValue)
-      state.reactionPicker = nil
       return .none
 
-    case .reactionPickerDismissed:
-      state.reactionPicker = nil
-      return .none
-
-    case .textFormatTapped, .addAttachmentTapped, .textField, .reactionPicker, .binding:
+    case .textField, .formatting, .attachments, .emojis, .binding:
       return .none
     }
   }.binding(),
@@ -166,7 +190,9 @@ public struct MessageBarState: Equatable {
   let loggedInUserJID: JID
   var typingUsers: [Name]
   var textField: MessageBarTextFieldState
-  var reactionPicker: ReactionPickerState?
+  var formatting: MessageFormattingState = .init()
+  var attachments: MessageAttachmentsState = .init()
+  var emojis: MessageEmojisState = .init()
 
   public init(
     chatId: JID,
@@ -178,7 +204,11 @@ public struct MessageBarState: Equatable {
     self.chatId = chatId
     self.loggedInUserJID = loggedInUserJID
     self.typingUsers = typingUsers
-    self.textField = .init(chatId: chatId, chatName: chatName, message: message)
+    self.textField = .init(
+      chatId: chatId,
+      placeholder: l10n.fieldPlaceholder(chatName.displayName),
+      message: message
+    )
   }
 }
 
@@ -187,9 +217,10 @@ public struct MessageBarState: Equatable {
 public enum MessageBarAction: Equatable, BindableAction {
   case onAppear, onDisappear
   case typingUsersChanged([Name])
-  case textFormatTapped, addAttachmentTapped, showEmojisTapped
   case textField(MessageBarTextFieldAction)
-  case reactionPicker(ReactionPickerAction), reactionPickerDismissed
+  case formatting(MessageFormattingAction)
+  case attachments(MessageAttachmentsAction)
+  case emojis(MessageEmojisAction)
   case binding(BindingAction<MessageBarState>)
 }
 
@@ -198,7 +229,16 @@ public enum MessageBarAction: Equatable, BindableAction {
 #if DEBUG
   internal struct MessageBar_Previews: PreviewProvider {
     private struct Preview: View {
-      let recipient: JID
+      let recipient: JID = "preview.recipient@prose.org"
+      let message: String
+      let isTyping: Bool
+      let showBorder: Bool
+
+      init(message: String = "", isTyping: Bool = false, showBorder: Bool = false) {
+        self.message = message
+        self.isTyping = isTyping
+        self.showBorder = showBorder
+      }
 
       var body: some View {
         MessageBar(store: Store(
@@ -206,44 +246,50 @@ public enum MessageBarAction: Equatable, BindableAction {
             chatId: self.recipient,
             loggedInUserJID: "preview@prose.org",
             chatName: .jid(self.recipient),
-            message: "",
-            typingUsers: [.jid(self.recipient)]
+            message: self.message,
+            typingUsers: self.isTyping ? [.jid(self.recipient)] : []
           ),
           reducer: messageBarReducer,
           environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
         ))
+        .frame(width: 500)
+        .padding(self.showBorder ? 1 : 0)
+        .border(self.showBorder ? Color.red : Color.clear)
+        .padding()
       }
     }
 
     static var previews: some View {
-      Group {
-        Preview(recipient: "preview.recipient@prose.org")
-          .previewDisplayName("Simple username")
-        Preview(recipient: "")
-          .previewDisplayName("Empty")
-        Preview(recipient: "preview.recipient@prose.org")
-          .padding()
-          .background(Color.pink)
-          .previewDisplayName("Colorful background")
-        Preview(recipient: "preview.recipient@prose.org")
-          .redacted(reason: .placeholder)
-          .previewDisplayName("Placeholder")
+      let previews = VStack(spacing: 16) {
+        GroupBox("Simple username") {
+          Preview(isTyping: true)
+        }
+        GroupBox("Empty with border") {
+          Preview(showBorder: true)
+        }
+        GroupBox("High") {
+          Preview(
+            message: (1...5).map { "Line \($0)" }.joined(separator: "\n"),
+            isTyping: true
+          )
+        }
+        GroupBox("Colorful background") {
+          Preview(isTyping: true)
+            .background(Color.pink)
+        }
+        GroupBox("Placeholder") {
+          Preview(isTyping: true)
+            .redacted(reason: .placeholder)
+        }
       }
-      .preferredColorScheme(.light)
-      Group {
-        Preview(recipient: "preview.recipient@prose.org")
-          .previewDisplayName("Simple username / Dark")
-        Preview(recipient: "")
-          .previewDisplayName("Empty / Dark")
-        Preview(recipient: "preview.recipient@prose.org")
-          .padding()
-          .background(Color.pink)
-          .previewDisplayName("Colorful background / Dark")
-        Preview(recipient: "preview.recipient@prose.org")
-          .redacted(reason: .placeholder)
-          .previewDisplayName("Placeholder / Dark")
-      }
-      .preferredColorScheme(.dark)
+      .fixedSize()
+      .padding(8)
+      previews
+        .preferredColorScheme(.light)
+        .previewDisplayName("Light")
+      previews
+        .preferredColorScheme(.dark)
+        .previewDisplayName("Dark")
     }
   }
 #endif
