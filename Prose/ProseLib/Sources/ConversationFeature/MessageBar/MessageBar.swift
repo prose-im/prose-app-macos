@@ -175,12 +175,6 @@ public let messageBarReducer = Reducer<
 
     case let .messageField(.field(.send(messageContent))):
       return environment.proseClient.sendMessage(state.chatId, messageContent)
-        .handleEvents(receiveCompletion: { completion in
-          if case let .failure(error) = completion {
-            logger.notice("Error when sending message: \(error)")
-          }
-        })
-        .eraseToEffect()
         .catchToEffect()
         .map(MessageBarAction.messageSendResult)
 
@@ -188,7 +182,8 @@ public let messageBarReducer = Reducer<
       state.messageField.message = ""
       return .none
 
-    case .messageSendResult(.failure):
+    case let .messageSendResult(.failure(error)):
+      logger.notice("Error when sending message: \(error)")
       // Ignore the error for now. There is no error handling in the library so far.
       // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
       return .none
