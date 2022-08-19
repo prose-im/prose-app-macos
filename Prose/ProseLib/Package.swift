@@ -85,6 +85,10 @@ let package = Package(
         "ProseCoreViews",
       ]
     ),
+    .testTarget(
+      name: "ConversationFeatureTests",
+      dependencies: ["ConversationFeature", "TestHelpers"]
+    ),
     .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
     .target(name: "EditProfileFeature", dependencies: [.featureBase]),
     .target(

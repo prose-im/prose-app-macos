@@ -3,7 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import Foundation
+import CustomDump
 import ProseCoreClientFFI
 
 /// JIDs, as defined in [XEP-0029](https://xmpp.org/extensions/xep-0029.html).
@@ -59,6 +59,12 @@ extension JID: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     try container.encode(self.rawValue)
+  }
+}
+
+extension JID: CustomDumpRepresentable {
+  public var customDumpValue: Any {
+    self.rawValue
   }
 }
 

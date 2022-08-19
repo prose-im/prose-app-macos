@@ -10,8 +10,7 @@ import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
 
-// TODO: Find a better name
-public enum TypingUser: Equatable {
+public enum Name: Equatable {
   case jid(JID), displayName(String)
 
   var displayName: String {
@@ -35,14 +34,14 @@ struct TypingIndicator: View {
   static let horizontalPadding = Self.cornerRadius
   static let verticalPadding = 2 * (Self.cornerRadius - Self.fontSize)
 
-  var typing: [String]
+  var typingUsers: [String]
 
-  init(typing: [TypingUser]) {
-    self.typing = typing.map(\.displayName)
+  init(typingUsers: [Name]) {
+    self.typingUsers = typingUsers.map(\.displayName)
   }
 
   var body: some View {
-    if !self.typing.isEmpty {
+    if !self.typingUsers.isEmpty {
       GeometryReader { geo in
         ZStack {
           Text(verbatim: self.text(fitting: geo.size.width - 2 * Self.horizontalPadding))
@@ -81,7 +80,7 @@ struct TypingIndicator: View {
     var text: String
     var bounds: CGSize
     repeat {
-      text = Self.text(for: self.typing, maxNames: maxNames)
+      text = Self.text(for: self.typingUsers, maxNames: maxNames)
       bounds = boundingRect(
         for: text,
         withFont: Self.font,
@@ -123,7 +122,7 @@ private extension VerticalAlignment {
   static let typingIndicator: Self = .init(TypingIndicatorAlignment.self)
 }
 
-private extension Alignment {
+extension Alignment {
   // Align the typing indicator to the leading edge of the view
   static let typingIndicator: Self = .init(horizontal: .leading, vertical: .typingIndicator)
 }
@@ -131,7 +130,7 @@ private extension Alignment {
 #if DEBUG
   struct TypingIndicator_Previews: PreviewProvider {
     private struct Preview: View {
-      let typing: [TypingUser]
+      let typingUsers: [Name]
       let name: String
       var height: CGFloat = 48
       var border: Bool = false
@@ -146,7 +145,7 @@ private extension Alignment {
             }
             .frame(height: self.height)
             .overlay(alignment: .typingIndicator) {
-              TypingIndicator(typing: self.typing)
+              TypingIndicator(typingUsers: self.typingUsers)
                 .border(self.border ? Color.red.opacity(0.5) : .clear)
                 .padding(.horizontal, 8)
             }
@@ -164,36 +163,36 @@ private extension Alignment {
       "marc.other@prose.org", "remi.other@prose.org",
       "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
     ]
-    static let allUsers: [TypingUser] = Self.jids.map(TypingUser.jid)
-    static let displayNames: [TypingUser] = ["Rémi"].map(TypingUser.displayName)
-    static func users(_ count: Int) -> [TypingUser] {
+    static let allUsers: [Name] = Self.jids.map(Name.jid)
+    static let displayNames: [Name] = ["Rémi"].map(Name.displayName)
+    static func users(_ count: Int) -> [Name] {
       Array(Self.allUsers.prefix(count))
     }
 
     static var previews: some View {
       let previews = VStack(alignment: .leading, spacing: 0) {
         Group {
-          Preview(typing: [], name: "Empty list")
-          Preview(typing: Self.users(1), name: "Single name")
-          Preview(typing: Self.users(2), name: "Two names")
-          Preview(typing: Self.users(3), name: "Three names")
-          Preview(typing: Self.users(4), name: "Four names")
-          Preview(typing: Self.users(5), name: "Five names")
-          Preview(typing: Self.allUsers, name: "More names")
+          Preview(typingUsers: [], name: "Empty list")
+          Preview(typingUsers: Self.users(1), name: "Single name")
+          Preview(typingUsers: Self.users(2), name: "Two names")
+          Preview(typingUsers: Self.users(3), name: "Three names")
+          Preview(typingUsers: Self.users(4), name: "Four names")
+          Preview(typingUsers: Self.users(5), name: "Five names")
+          Preview(typingUsers: Self.allUsers, name: "More names")
         }
         Group {
-          Preview(typing: Self.users(5), name: "Five names medium width")
+          Preview(typingUsers: Self.users(5), name: "Five names medium width")
             .frame(width: 400)
-          Preview(typing: Self.users(5), name: "Five names small width")
+          Preview(typingUsers: Self.users(5), name: "Five names small width")
             .frame(width: 300)
-          Preview(typing: Self.users(5), name: "Five names tiny width")
+          Preview(typingUsers: Self.users(5), name: "Five names tiny width")
             .frame(width: 120)
         }
         Group {
-          Preview(typing: Self.displayNames, name: "With small field", height: 10)
-          Preview(typing: Self.displayNames, name: "With border", border: true)
-          Preview(typing: Self.displayNames, name: "With diacritics")
-          Preview(typing: Self.displayNames, name: "Colorful background")
+          Preview(typingUsers: Self.displayNames, name: "With small field", height: 10)
+          Preview(typingUsers: Self.displayNames, name: "With border", border: true)
+          Preview(typingUsers: Self.displayNames, name: "With diacritics")
+          Preview(typingUsers: Self.displayNames, name: "Colorful background")
             .background(Color.purple)
         }
       }

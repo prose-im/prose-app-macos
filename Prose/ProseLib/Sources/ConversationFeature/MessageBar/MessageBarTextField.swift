@@ -6,7 +6,9 @@
 import AppLocalization
 import Assets
 import ComposableArchitecture
+import ProseCoreTCA
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -18,6 +20,8 @@ struct MessageBarTextField: View {
 
   @Environment(\.redactionReasons) private var redactionReasons
 
+  @FocusState private var isFocused: Bool
+
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -25,9 +29,10 @@ struct MessageBarTextField: View {
     WithViewStore(self.store) { viewStore in
       HStack(spacing: 0) {
         TextField(
-          l10n.fieldPlaceholder(viewStore.recipient),
+          l10n.fieldPlaceholder(viewStore.chatName.displayName),
           text: viewStore.binding(\State.$message)
         )
+        .focused(self.$isFocused)
         .padding(.vertical, 7.0)
         .padding(.leading, 16.0)
         .padding(.trailing, 4.0)
@@ -54,6 +59,8 @@ struct MessageBarTextField: View {
             .strokeBorder(Colors.Border.secondary.color)
         }
       )
+      .synchronize(viewStore.binding(\.$isFocused), self.$isFocused)
+      .onDisappear { self.actions.send(.onDisappear) }
     }
   }
 }
@@ -62,35 +69,77 @@ struct MessageBarTextField: View {
 
 // MARK: Reducer
 
+enum MessageBarTextFieldEffectToken: Hashable, CaseIterable {
+  case pauseTyping
+}
+
+public extension DispatchQueue.SchedulerTimeType.Stride {
+  static let pauseTypingDebounceDuration: Self = .seconds(30)
+}
+
 public let messageBarTextFieldReducer: Reducer<
   MessageBarTextFieldState,
   MessageBarTextFieldAction,
-  Void
-> = Reducer { state, action, _ in
+  ConversationEnvironment
+> = Reducer { state, action, environment in
   switch action {
   case .sendTapped where !state.message.isEmpty:
     let content = state.message
     state.message = ""
     return Effect(value: .send(message: content))
 
-  default:
+  case let .setChatState(chatState):
+    return environment.proseClient
+      .sendChatState(state.chatId, chatState)
+      .fireAndForget()
+
+  case .onDisappear:
+    return .cancel(token: MessageBarTextFieldEffectToken.self)
+
+  case .sendTapped, .send, .binding:
     return .none
   }
-}.binding()
+}
+.binding()
+.onChange(of: TextFieldState.init) { current, state, _, environment in
+  if !current.isFocused || current.message.isEmpty {
+    // If the textfield is not focused or empty we don't consider the user typing.
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .active)
+        .fireAndForget(),
+      .cancel(id: MessageBarTextFieldEffectToken.pauseTyping),
+    ])
+  } else {
+    return .merge([
+      environment.proseClient
+        .sendChatState(state.chatId, .composing)
+        .fireAndForget(),
+      Effect(value: .setChatState(.paused))
+        .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
+        .eraseToEffect()
+        .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true),
+    ])
+  }
+}
+
+private struct TextFieldState: Equatable {
+  var message: String
+  var isFocused: Bool
+
+  init(_ state: MessageBarTextFieldState) {
+    self.message = state.message
+    self.isFocused = state.isFocused
+  }
+}
 
 // MARK: State
 
 public struct MessageBarTextFieldState: Equatable {
-  var recipient: String
+  let chatId: JID
+  let chatName: Name
+  @BindableState var isFocused: Bool = false
   @BindableState var message: String
-
-  public init(
-    recipient: String,
-    message: String = ""
-  ) {
-    self.recipient = recipient
-    self.message = message
-  }
 }
 
 // MARK: Actions
@@ -98,74 +147,88 @@ public struct MessageBarTextFieldState: Equatable {
 public enum MessageBarTextFieldAction: Equatable, BindableAction {
   case sendTapped
   case send(message: String)
+  case setChatState(ProseCoreTCA.ChatState.Kind)
+  case onDisappear
   case binding(BindingAction<MessageBarTextFieldState>)
 }
 
 // MARK: - Previews
 
-struct MessageBarTextField_Previews: PreviewProvider {
-  private struct Preview: View {
-    let state: MessageBarTextFieldState
+#if DEBUG
+  struct MessageBarTextField_Previews: PreviewProvider {
+    private struct Preview: View {
+      let state: MessageBarTextFieldState
 
-    var body: some View {
-      MessageBarTextField(store: Store(
-        initialState: state,
-        reducer: messageBarTextFieldReducer,
-        environment: ()
-      ))
+      var body: some View {
+        MessageBarTextField(store: Store(
+          initialState: state,
+          reducer: messageBarTextFieldReducer,
+          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
+        ))
+      }
+    }
+
+    static var previews: some View {
+      Group {
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a message that was written."
+        ))
+        .previewDisplayName("Simple message")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
+        ))
+        .previewDisplayName("Long message")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName(
+            "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username"
+          ),
+          message: ""
+        ))
+        .previewDisplayName("Long username")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .previewDisplayName("Empty")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .padding()
+        .background(Color.pink)
+        .previewDisplayName("Colorful background")
+      }
+      .preferredColorScheme(.light)
+      Group {
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: "This is a message that was written."
+        ))
+        .previewDisplayName("Simple message / Dark")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .previewDisplayName("Empty / Dark")
+        Preview(state: .init(
+          chatId: "preview@prose.org",
+          chatName: .displayName("Valerian"),
+          message: ""
+        ))
+        .padding()
+        .background(Color.pink)
+        .previewDisplayName("Colorful background / Dark")
+      }
+      .preferredColorScheme(.dark)
     }
   }
-
-  static var previews: some View {
-    Group {
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: "This is a message that was written."
-      ))
-      .previewDisplayName("Simple message")
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
-      ))
-      .previewDisplayName("Long message")
-      Preview(state: .init(
-        recipient: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long username",
-        message: ""
-      ))
-      .previewDisplayName("Long username")
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: ""
-      ))
-      .previewDisplayName("Empty")
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: ""
-      ))
-      .padding()
-      .background(Color.pink)
-      .previewDisplayName("Colorful background")
-    }
-    .preferredColorScheme(.light)
-    Group {
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: "This is a message that was written."
-      ))
-      .previewDisplayName("Simple message / Dark")
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: ""
-      ))
-      .previewDisplayName("Empty / Dark")
-      Preview(state: .init(
-        recipient: "Valerian",
-        message: ""
-      ))
-      .padding()
-      .background(Color.pink)
-      .previewDisplayName("Colorful background / Dark")
-    }
-    .preferredColorScheme(.dark)
-  }
-}
+#endif
