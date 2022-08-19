@@ -195,6 +195,7 @@ public let messageBarReducer = Reducer<
 
     case .messageSendResult(.failure):
       // Ignore the error for now. There is no error handling in the library so far.
+      // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
       return .none
 
     case .messageField, .formatting, .attachments, .emojis, .binding:

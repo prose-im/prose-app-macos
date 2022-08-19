@@ -10,6 +10,7 @@ import ProseCoreTCA
 import ProseCoreViews
 import ProseUI
 import TcaHelpers
+import Toolbox
 
 // MARK: - State
 
@@ -41,6 +42,7 @@ public enum ChatAction: Equatable {
   case jsEventError(JSEventError)
   case reactionPicker(ReactionPickerAction), reactionPickerDismissed
   case messageEditor(EditMessageAction), messageEditorDismissed
+  case editMessageResult(Result<None, EquatableError>)
 }
 
 // MARK: - Reducer
@@ -238,15 +240,20 @@ let chatReducer = Reducer<
       return .none
 
     case let .messageEditor(.saveEdit(messageId, newMessage)):
-      #warning("TODO: Handle error")
       state.messageEditor = nil
       return environment.proseClient
         .updateMessage(state.chatId, messageId, newMessage)
         .fireAndForget()
 
-    case .messageEditor(.cancelTapped), .messageEditorDismissed:
+    case .messageEditor(.cancelTapped), .messageEditorDismissed, .editMessageResult(.success):
       state.messageEditor = nil
       return .none
+
+    case .editMessageResult(.failure):
+      // Ignore the error for now. There is no error handling in the library so far.
+      // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
+      return .none
+
 
     case .messageEditor:
       return .none
