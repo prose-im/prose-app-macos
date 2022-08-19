@@ -7,7 +7,10 @@ import ComposableArchitecture
 import SwiftUI
 
 struct MessageFormattingButton: View {
+  @Environment(\.redactionReasons) private var redactionReasons
+
   let store: Store<MessageFormattingState, MessageFormattingAction>
+
   var body: some View {
     WithViewStore(self.store) { viewStore in
       Button { viewStore.send(.buttonTapped) } label: {
@@ -18,6 +21,10 @@ struct MessageFormattingButton: View {
           .padding()
       }
     }
+    .unredacted()
+    .disabled(self.redactionReasons.contains(.placeholder))
+    // https://github.com/prose-im/prose-app-macos/issues/48
+    .disabled(true)
   }
 }
 

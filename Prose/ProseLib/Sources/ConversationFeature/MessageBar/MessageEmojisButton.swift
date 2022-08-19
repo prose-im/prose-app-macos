@@ -9,7 +9,10 @@ import ProseUI
 import SwiftUI
 
 struct MessageEmojisButton: View {
+  @Environment(\.redactionReasons) private var redactionReasons
+
   let store: Store<MessageEmojisState, MessageEmojisAction>
+  
   var body: some View {
     WithViewStore(self.store) { viewStore in
       Button { viewStore.send(.buttonTapped) } label: {
@@ -21,6 +24,8 @@ struct MessageEmojisButton: View {
         dismiss: .reactionPickerDismissed
       )
     }
+    .unredacted()
+    .disabled(self.redactionReasons.contains(.placeholder))
   }
 }
 

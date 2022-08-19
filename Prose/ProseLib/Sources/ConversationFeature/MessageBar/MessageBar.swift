@@ -21,8 +21,6 @@ struct MessageBar: View {
   static let buttonsFont: Font = .system(size: 16)
   static let messageFieldCornerRadius: CGFloat = 16
 
-  @Environment(\.redactionReasons) private var redactionReasons
-
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
@@ -77,10 +75,6 @@ struct MessageBar: View {
       ))
     }
     .buttonStyle(.plain)
-    .unredacted()
-    .disabled(self.redactionReasons.contains(.placeholder))
-    // https://github.com/prose-im/prose-app-macos/issues/48
-    .disabled(true)
   }
 
   private func trailingButtons() -> some View {
@@ -95,8 +89,6 @@ struct MessageBar: View {
       ))
     }
     .buttonStyle(.plain)
-    .unredacted()
-    .disabled(self.redactionReasons.contains(.placeholder))
   }
 }
 

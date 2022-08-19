@@ -7,15 +7,20 @@ import ComposableArchitecture
 import SwiftUI
 
 struct MessageAttachmentsButton: View {
+  @Environment(\.redactionReasons) private var redactionReasons
+
   let store: Store<MessageAttachmentsState, MessageAttachmentsAction>
+
   var body: some View {
     WithViewStore(self.store) { viewStore in
       Button { viewStore.send(.buttonTapped) } label: {
         Image(systemName: "paperclip")
       }
-      // https://github.com/prose-im/prose-app-macos/issues/48
-      .disabled(true)
     }
+    .unredacted()
+    .disabled(self.redactionReasons.contains(.placeholder))
+    // https://github.com/prose-im/prose-app-macos/issues/48
+    .disabled(true)
   }
 }
 
