@@ -27,20 +27,13 @@ struct Chat: View {
   var body: some View {
     ChatView(store: self.store)
       .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
-//      .sheet(unwrapping: viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)) { $state in
-//        EditMessageView(store: self.store.scope(
-//          state: { _ in $state.wrappedValue },
-//          action: ChatView.Action.messageEditor
-//        ))
-//      }
       .sheet(
-        isPresented: viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)
-          .isPresent()
-      ) {
-        IfLetStore(self.store.scope(
-          state: \.messageEditor,
+        unwrapping: viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)
+      ) { $state in
+        EditMessageView(store: self.store.scope(
+          state: { _ in $state.wrappedValue },
           action: ChatView.Action.messageEditor
-        ), then: EditMessageView.init(store:))
+        ))
       }
       .onKeyDown { key in
         switch key {

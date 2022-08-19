@@ -3,19 +3,15 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import AppLocalization
-import Assets
+import enum Assets.Colors
 import ComposableArchitecture
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
 import TcaHelpers
 
-private let l10n = L10n.Content.MessageBar.self
-
 // MARK: - View
 
-/// A ``MessageField`` with "composing…" logic.
 struct MessageField: View {
   typealias State = MessageFieldState
   typealias Action = MessageFieldAction
