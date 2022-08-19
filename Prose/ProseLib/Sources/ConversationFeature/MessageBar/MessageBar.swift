@@ -7,6 +7,7 @@ import AppLocalization
 import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
+import Toolbox
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -18,7 +19,7 @@ struct MessageBar: View {
 
   static let verticalPadding: CGFloat = 12
   static let buttonsFont: Font = .system(size: 16)
-  static let textFieldCornerRadius: CGFloat = 16
+  static let messageFieldCornerRadius: CGFloat = 16
 
   @Environment(\.redactionReasons) private var redactionReasons
 
@@ -30,13 +31,13 @@ struct MessageBar: View {
       leadingButtons()
         .font(Self.buttonsFont)
         .alignmentGuide(.messageBar) {
-          $0[VerticalAlignment.center] + Self.textFieldCornerRadius
+          $0[VerticalAlignment.center] + Self.messageFieldCornerRadius
         }
 
-      MessageBarTextField(store: self.store.scope(
-        state: \.textField,
-        action: Action.textField
-      ), cornerRadius: Self.textFieldCornerRadius)
+      MessageComposingField(store: self.store.scope(
+        state: \.messageField,
+        action: Action.messageField
+      ), cornerRadius: Self.messageFieldCornerRadius)
         .alignmentGuide(.top) {
           $0[VerticalAlignment.top] - Self.verticalPadding
         }
@@ -49,7 +50,7 @@ struct MessageBar: View {
       trailingButtons()
         .font(Self.buttonsFont)
         .alignmentGuide(.messageBar) {
-          $0[VerticalAlignment.center] + Self.textFieldCornerRadius
+          $0[VerticalAlignment.center] + Self.messageFieldCornerRadius
         }
     }
     .padding(.vertical, Self.verticalPadding)
@@ -121,14 +122,14 @@ enum MessageBarEffectToken: Hashable, CaseIterable {
   case observeParticipantStates
 }
 
-public let messageBarReducer: Reducer<
+public let messageBarReducer = Reducer<
   MessageBarState,
   MessageBarAction,
   ConversationEnvironment
-> = Reducer.combine([
-  messageBarTextFieldReducer.pullback(
-    state: \MessageBarState.textField,
-    action: CasePath(MessageBarAction.textField),
+>.combine(
+  messageComposingFieldReducer.pullback(
+    state: \MessageBarState.messageField,
+    action: CasePath(MessageBarAction.messageField),
     environment: { $0 }
   ),
   messageFormattingReducer.pullback(
@@ -174,14 +175,33 @@ public let messageBarReducer: Reducer<
       return .none
 
     case let .emojis(.insert(reaction)):
-      state.textField.message.append(contentsOf: reaction.rawValue)
+      state.messageField.message.append(contentsOf: reaction.rawValue)
       return .none
 
-    case .textField, .formatting, .attachments, .emojis, .binding:
+    case let .messageField(.field(.send(messageContent))):
+      return environment.proseClient.sendMessage(state.chatId, messageContent)
+        .handleEvents(receiveCompletion: { completion in
+          if case let .failure(error) = completion {
+            logger.notice("Error when sending message: \(error)")
+          }
+        })
+        .eraseToEffect()
+        .catchToEffect()
+        .map(MessageBarAction.messageSendResult)
+
+    case .messageSendResult(.success):
+      state.messageField.message = ""
+      return .none
+
+    case .messageSendResult(.failure):
+      // Ignore the error for now. There is no error handling in the library so far.
+      return .none
+
+    case .messageField, .formatting, .attachments, .emojis, .binding:
       return .none
     }
-  }.binding(),
-])
+  }.binding()
+)
 
 // MARK: State
 
@@ -189,7 +209,7 @@ public struct MessageBarState: Equatable {
   let chatId: JID
   let loggedInUserJID: JID
   var typingUsers: [Name]
-  var textField: MessageBarTextFieldState
+  var messageField: MessageFieldState
   var formatting: MessageFormattingState = .init()
   var attachments: MessageAttachmentsState = .init()
   var emojis: MessageEmojisState = .init()
@@ -204,7 +224,7 @@ public struct MessageBarState: Equatable {
     self.chatId = chatId
     self.loggedInUserJID = loggedInUserJID
     self.typingUsers = typingUsers
-    self.textField = .init(
+    self.messageField = .init(
       chatId: chatId,
       placeholder: l10n.fieldPlaceholder(chatName.displayName),
       message: message
@@ -217,7 +237,8 @@ public struct MessageBarState: Equatable {
 public enum MessageBarAction: Equatable, BindableAction {
   case onAppear, onDisappear
   case typingUsersChanged([Name])
-  case textField(MessageBarTextFieldAction)
+  case messageSendResult(Result<None, EquatableError>)
+  case messageField(MessageComposingFieldAction)
   case formatting(MessageFormattingAction)
   case attachments(MessageAttachmentsAction)
   case emojis(MessageEmojisAction)

@@ -15,9 +15,9 @@ struct EditMessageView: View {
     VStack(alignment: .leading) {
       Text("Edit your message")
         .font(.title2.bold())
-      MessageBarTextField(store: self.store.scope(
-        state: \.textField,
-        action: EditMessageAction.textField
+      MessageField(store: self.store.scope(
+        state: \.messageField,
+        action: EditMessageAction.messageField
       ), cornerRadius: 8)
     }
     .safeAreaInset(edge: .bottom, spacing: 12) {
@@ -57,9 +57,9 @@ public let editMessageReducer: Reducer<
   EditMessageAction,
   ConversationEnvironment
 > = Reducer.combine([
-  messageBarTextFieldReducer.pullback(
-    state: \EditMessageState.textField,
-    action: CasePath(EditMessageAction.textField),
+  messageFieldReducer.pullback(
+    state: \EditMessageState.messageField,
+    action: CasePath(EditMessageAction.messageField),
     environment: { $0 }
   ),
   messageFormattingReducer.pullback(
@@ -76,16 +76,16 @@ public let editMessageReducer: Reducer<
     switch action {
     case .confirmTapped:
       if !state.isConfirmButtonDisabled {
-        return Effect(value: .saveEdit(state.messageId, state.textField.message))
+        return Effect(value: .saveEdit(state.messageId, state.messageField.message))
       } else {
         return .none
       }
 
     case let .emojis(.insert(reaction)):
-      state.textField.message.append(contentsOf: reaction.rawValue)
+      state.messageField.message.append(contentsOf: reaction.rawValue)
       return .none
 
-    case .cancelTapped, .saveEdit, .textField, .formatting, .emojis:
+    case .cancelTapped, .saveEdit, .messageField, .formatting, .emojis:
       return .none
     }
   },
@@ -95,14 +95,14 @@ public let editMessageReducer: Reducer<
 
 public struct EditMessageState: Equatable {
   let messageId: Message.ID
-  var textField: MessageBarTextFieldState
+  var messageField: MessageFieldState
   var formatting: MessageFormattingState = .init()
   var emojis: MessageEmojisState = .init()
 
   let originalMessageHash: Int
   var isConfirmButtonDisabled: Bool {
-    self.textField.message.isEmpty
-      || self.textField.message.hashValue == self.originalMessageHash
+    self.messageField.message.isEmpty
+      || self.messageField.message.hashValue == self.originalMessageHash
   }
 
   public init(
@@ -111,10 +111,10 @@ public struct EditMessageState: Equatable {
     message: String
   ) {
     self.messageId = messageId
-    self.textField = .init(
+    self.messageField = .init(
       chatId: chatId,
       placeholder: message,
-      isEditingAMessage: true,
+      hideSendButton: true,
       message: message
     )
     self.originalMessageHash = message.hashValue
@@ -126,7 +126,7 @@ public struct EditMessageState: Equatable {
 public enum EditMessageAction: Equatable {
   case cancelTapped, confirmTapped
   case saveEdit(Message.ID, String)
-  case textField(MessageBarTextFieldAction)
+  case messageField(MessageFieldAction)
   case formatting(MessageFormattingAction)
   case emojis(MessageEmojisAction)
 }

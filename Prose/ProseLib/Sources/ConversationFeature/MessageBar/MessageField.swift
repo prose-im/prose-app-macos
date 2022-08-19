@@ -15,16 +15,16 @@ private let l10n = L10n.Content.MessageBar.self
 
 // MARK: - View
 
-struct MessageBarTextField: View {
-  typealias State = MessageBarTextFieldState
-  typealias Action = MessageBarTextFieldAction
+/// A ``MessageField`` with "composing…" logic.
+struct MessageField: View {
+  typealias State = MessageFieldState
+  typealias Action = MessageFieldAction
 
   @Environment(\.redactionReasons) private var redactionReasons
 
   @FocusState private var isFocused: Bool
 
   let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
   let cornerRadius: CGFloat
 
@@ -34,6 +34,7 @@ struct MessageBarTextField: View {
       HStack(alignment: .bottom, spacing: 0) {
         TextEditor(text: message)
           .focused(self.$isFocused)
+          // TextEditor has no placeholder, we need to add it ourselves
           .overlay(alignment: .topLeading) {
             if viewStore.message.isEmpty {
               Text(viewStore.placeholder)
@@ -50,19 +51,19 @@ struct MessageBarTextField: View {
           .font(.body)
           .foregroundColor(.primary)
           .textFieldStyle(.plain)
-          .onSubmit(of: .text) { actions.send(.sendTapped) }
+          .onSubmit(of: .text) { viewStore.send(.sendTapped) }
           .accessibility(hint: Text(viewStore.placeholder))
 
         if !viewStore.hideSendButton {
-          Button { actions.send(.sendTapped) } label: {
+          Button { viewStore.send(.sendTapped) } label: {
             Image(systemName: "paperplane.circle.fill")
-              .font(.system(size: 24, weight: .regular))
+              .font(.system(size: 24))
               .foregroundColor(.accentColor)
               .padding(3)
           }
           .buttonStyle(.plain)
           .unredacted()
-          .disabled(redactionReasons.contains(.placeholder))
+          .disabled(self.redactionReasons.contains(.placeholder))
         }
       }
       .background(
@@ -74,7 +75,6 @@ struct MessageBarTextField: View {
         }
       )
       .synchronize(viewStore.binding(\.$isFocused), self.$isFocused)
-      .onDisappear { self.actions.send(.onDisappear) }
     }
   }
 }
@@ -83,124 +83,65 @@ struct MessageBarTextField: View {
 
 // MARK: Reducer
 
-enum MessageBarTextFieldEffectToken: Hashable, CaseIterable {
-  case pauseTyping
-}
-
-public extension DispatchQueue.SchedulerTimeType.Stride {
-  static let pauseTypingDebounceDuration: Self = .seconds(30)
-}
-
-public let messageBarTextFieldReducer: Reducer<
-  MessageBarTextFieldState,
-  MessageBarTextFieldAction,
+public let messageFieldReducer = Reducer<
+  MessageFieldState,
+  MessageFieldAction,
   ConversationEnvironment
-> = Reducer { state, action, environment in
+> { state, action, _ in
   switch action {
   case .sendTapped where !state.message.isEmpty:
     let content = state.message
-    state.message = ""
-    return Effect(value: .send(message: content))
-
-  case let .setChatState(chatState):
-    return environment.proseClient
-      .sendChatState(state.chatId, chatState)
-      .fireAndForget()
-
-  case .onDisappear:
-    return .cancel(token: MessageBarTextFieldEffectToken.self)
+    return Effect(value: .send(message: state.message))
 
   case .sendTapped, .send, .binding:
     return .none
   }
 }
 .binding()
-.onChange(of: TextFieldState.init) { current, state, _, environment in
-  if current.isEditingAMessage {
-    // Don't send XMPP chat states when editing a message
-    return .none
-  }
-  if !current.isFocused || current.message.isEmpty {
-    // If the textfield is not focused or empty we don't consider the user typing.
-    return .merge([
-      environment.proseClient
-        .sendChatState(state.chatId, .active)
-        .fireAndForget(),
-      .cancel(id: MessageBarTextFieldEffectToken.pauseTyping),
-    ])
-  } else {
-    return .merge([
-      environment.proseClient
-        .sendChatState(state.chatId, .composing)
-        .fireAndForget(),
-      Effect(value: .setChatState(.paused))
-        .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
-        .eraseToEffect()
-        .cancellable(id: MessageBarTextFieldEffectToken.pauseTyping, cancelInFlight: true),
-    ])
-  }
-}
-
-private struct TextFieldState: Equatable {
-  var isEditingAMessage: Bool
-  var message: String
-  var isFocused: Bool
-
-  init(_ state: MessageBarTextFieldState) {
-    self.message = state.message
-    self.isFocused = state.isFocused
-    self.isEditingAMessage = state.isEditingAMessage
-  }
-}
 
 // MARK: State
 
-public struct MessageBarTextFieldState: Equatable {
+public struct MessageFieldState: Equatable {
   let chatId: JID
   let placeholder: String
-  let isEditingAMessage: Bool
+  let hideSendButton: Bool
   @BindableState var isFocused: Bool = false
   @BindableState var message: String
 
-  var hideSendButton: Bool { self.isEditingAMessage }
-
-  init(chatId: JID, placeholder: String, isEditingAMessage: Bool = false, message: String = "") {
+  init(chatId: JID, placeholder: String, hideSendButton: Bool = false, message: String = "") {
     self.chatId = chatId
     self.placeholder = placeholder
-    self.isEditingAMessage = isEditingAMessage
+    self.hideSendButton = hideSendButton
     self.message = message
   }
 }
 
 // MARK: Actions
 
-public enum MessageBarTextFieldAction: Equatable, BindableAction {
-  case sendTapped
-  case send(message: String)
-  case setChatState(ProseCoreTCA.ChatState.Kind)
-  case onDisappear
-  case binding(BindingAction<MessageBarTextFieldState>)
+public enum MessageFieldAction: Equatable, BindableAction {
+  case sendTapped, send(message: String)
+  case binding(BindingAction<MessageFieldState>)
 }
 
 // MARK: - Previews
 
 #if DEBUG
-  struct MessageBarTextField_Previews: PreviewProvider {
+  struct MessageField_Previews: PreviewProvider {
     private struct Preview: View {
-      let state: MessageBarTextFieldState
+      let state: MessageFieldState
       let height: CGFloat
 
-      init(state: MessageBarTextFieldState, height: CGFloat = 32) {
+      init(state: MessageFieldState, height: CGFloat = 32) {
         self.state = state
         self.height = height
       }
 
       var body: some View {
-        MessageBarTextField(store: Store(
+        MessageField(store: Store(
           initialState: state,
-          reducer: messageBarTextFieldReducer,
-          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
-        ), cornerRadius: MessageBar.textFieldCornerRadius)
+          reducer: messageFieldReducer,
+          environment: .init(proseClient: .noop, pasteboard: .noop, mainQueue: .main)
+        ), cornerRadius: MessageBar.messageFieldCornerRadius)
           .frame(width: 500)
           .frame(minHeight: self.height)
           .padding(8)
