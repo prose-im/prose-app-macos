@@ -49,7 +49,8 @@ struct EditMessageView: View {
       .controlSize(.large)
     }
     .padding()
-    .frame(width: 500, height: 200)
+    .frame(width: 500)
+    .frame(minHeight: 200)
   }
 }
 
@@ -117,6 +118,7 @@ public struct EditMessageState: Equatable {
     self.messageField = .init(
       chatId: chatId,
       placeholder: message,
+      isMultiline: true,
       hideSendButton: true,
       message: message
     )

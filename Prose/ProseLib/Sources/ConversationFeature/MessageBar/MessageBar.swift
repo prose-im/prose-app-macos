@@ -19,7 +19,6 @@ struct MessageBar: View {
 
   static let verticalPadding: CGFloat = 12
   static let buttonsFont: Font = .system(size: 16)
-  static let messageFieldCornerRadius: CGFloat = 16
 
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -29,26 +28,25 @@ struct MessageBar: View {
       leadingButtons()
         .font(Self.buttonsFont)
         .alignmentGuide(.messageBar) {
-          $0[VerticalAlignment.center] + Self.messageFieldCornerRadius
+          $0[VerticalAlignment.center] + MessageField.minimumHeight / 2
         }
 
-      MessageComposingField(store: self.store.scope(
-        state: \.messageField,
-        action: Action.messageField
-      ), cornerRadius: Self.messageFieldCornerRadius)
-        .alignmentGuide(.top) {
-          $0[VerticalAlignment.top] - Self.verticalPadding
+      MessageComposingField(
+        store: self.store.scope(state: \.messageField, action: Action.messageField)
+      )
+      .alignmentGuide(.top) {
+        $0[VerticalAlignment.top] - Self.verticalPadding
+      }
+      .overlay(alignment: .typingIndicator) {
+        WithViewStore(self.store.scope(state: \.typingUsers)) { typingUsers in
+          TypingIndicator(typingUsers: typingUsers.state)
         }
-        .overlay(alignment: .typingIndicator) {
-          WithViewStore(self.store.scope(state: \.typingUsers)) { typingUsers in
-            TypingIndicator(typingUsers: typingUsers.state)
-          }
-        }
+      }
 
       trailingButtons()
         .font(Self.buttonsFont)
         .alignmentGuide(.messageBar) {
-          $0[VerticalAlignment.center] + Self.messageFieldCornerRadius
+          $0[VerticalAlignment.center] + MessageField.minimumHeight / 2
         }
     }
     .padding(.vertical, Self.verticalPadding)

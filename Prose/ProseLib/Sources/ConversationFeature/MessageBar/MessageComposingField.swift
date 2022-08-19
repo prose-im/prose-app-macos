@@ -25,7 +25,12 @@ struct MessageComposingField: View {
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-  let cornerRadius: CGFloat
+  let cornerRadius: CGFloat?
+
+  init(store: Store<State, Action>, cornerRadius: CGFloat? = nil) {
+    self.store = store
+    self.cornerRadius = cornerRadius
+  }
 
   var body: some View {
     MessageField(
