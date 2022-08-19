@@ -3,9 +3,12 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
+
+private let l10n = L10n.Content.EditMessage.self
 
 // MARK: - View
 
@@ -13,7 +16,7 @@ struct EditMessageView: View {
   let store: Store<EditMessageState, EditMessageAction>
   var body: some View {
     VStack(alignment: .leading) {
-      Text("Edit your message")
+      Text(l10n.title)
         .font(.title2.bold())
       MessageField(store: self.store.scope(
         state: \.messageField,
@@ -36,9 +39,9 @@ struct EditMessageView: View {
         .font(MessageBar.buttonsFont)
         Spacer()
         WithViewStore(self.store.scope(state: \.isConfirmButtonDisabled)) { viewStore in
-          Button("Cancel", role: .cancel) { viewStore.send(.cancelTapped) }
+          Button(l10n.CancelAction.title, role: .cancel) { viewStore.send(.cancelTapped) }
             .buttonStyle(.bordered)
-          Button("Confirm") { viewStore.send(.confirmTapped) }
+          Button(l10n.ConfirmAction.title) { viewStore.send(.confirmTapped) }
             .buttonStyle(.borderedProminent)
             .disabled(viewStore.state)
         }

@@ -254,7 +254,6 @@ let chatReducer = Reducer<
       // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
       return .none
 
-
     case .messageEditor:
       return .none
     }
