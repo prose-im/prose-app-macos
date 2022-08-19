@@ -342,7 +342,7 @@ final class ProseClientTests: XCTestCase {
           ),
           .mock(
             from: "marc@prose.org",
-            id: "00000000-0000-0000-0000-000000000002",
+            id: "00000000-0000-0000-0000-000000000001",
             kind: .chat,
             body: "updated message 2",
             timestamp: date,
@@ -386,7 +386,7 @@ final class ProseClientTests: XCTestCase {
           .mock(from: "chat1@prose.org", id: "1", timestamp: date),
           .mock(
             from: "chat1@prose.org",
-            id: "3",
+            id: "2",
             body: "Updated message",
             timestamp: date,
             isEdited: true
@@ -403,7 +403,7 @@ final class ProseClientTests: XCTestCase {
     let chatMessages = TestSink<IdentifiedArrayOf<Message>>()
     var c = Set<AnyCancellable>()
 
-    try self.await(client.sendMessage("chat1@prose.org", "message 1"))
+    try self.await(client.sendMessage("chat1@prose.org", "message 0"))
     mock.delegate.proseClient(mock, didReceiveMessage: .mock(from: "chat1@prose.org", id: "1"))
 
     client.messagesInChat("chat1@prose.org").collectInto(sink: chatMessages).store(in: &c)
@@ -413,7 +413,7 @@ final class ProseClientTests: XCTestCase {
       didReceiveMessage: .mock(
         from: "chat1@prose.org",
         id: "3",
-        body: "Updated message",
+        body: "Updated carbon 2",
         replace: "2"
       )
     )
@@ -438,7 +438,7 @@ final class ProseClientTests: XCTestCase {
           from: "marc@prose.org",
           to: "chat1@prose.org",
           id: "3",
-          body: "Updated message 2",
+          body: "Updated message 0",
           replace: "00000000-0000-0000-0000-000000000000"
         )
       )
@@ -451,7 +451,7 @@ final class ProseClientTests: XCTestCase {
             from: "marc@prose.org",
             id: "00000000-0000-0000-0000-000000000000",
             kind: .chat,
-            body: "message 1",
+            body: "message 0",
             timestamp: date,
             isRead: true
           ),
@@ -462,13 +462,13 @@ final class ProseClientTests: XCTestCase {
             from: "marc@prose.org",
             id: "00000000-0000-0000-0000-000000000000",
             kind: .chat,
-            body: "message 1",
+            body: "message 0",
             timestamp: date,
             isRead: true
           ),
           .mock(
             from: "chat1@prose.org",
-            id: "2",
+            id: "1",
             body: "Updated message 1",
             timestamp: date,
             isEdited: true
@@ -477,16 +477,16 @@ final class ProseClientTests: XCTestCase {
         [
           .mock(
             from: "marc@prose.org",
-            id: "3",
+            id: "00000000-0000-0000-0000-000000000000",
             kind: .chat,
-            body: "Updated message 2",
+            body: "Updated message 0",
             timestamp: date,
             isRead: true,
             isEdited: true
           ),
           .mock(
             from: "chat1@prose.org",
-            id: "2",
+            id: "1",
             body: "Updated message 1",
             timestamp: date,
             isEdited: true

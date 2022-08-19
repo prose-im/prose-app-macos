@@ -63,21 +63,14 @@ extension Chat {
     self.messages.ids.contains(id)
   }
 
-  /// Replaces the message identified by `id` with `message` if a message with `id` exists. Use
-  /// this method instead of ``updateMessage(id:with:)`` if the identity of `message` is different
-  /// from the one being replaced.
+  /// Replaces the message identified by `message.id` with `message` if a message with `id` exists.
   ///
   /// - Parameters:
-  ///   - id: The id of the message to replace.
-  ///   - message: The replacement for the message.
+  ///   - message: The new message.
   /// - Returns: `true` if a message with `id` existed and was replaced, `false` otherwise.
-  @discardableResult mutating func replaceMessage(id: Message.ID, with message: Message) -> Bool {
-    guard let idx = self.messages.index(id: id) else {
-      return false
-    }
-    self.messages.remove(at: idx)
-    self.messages.insert(message, at: idx)
-    return true
+  /// - SeeAlso: ``updateMessage(id:using:)`` if you need to partially update the message.
+  @discardableResult mutating func updateMessage(_ message: Message) -> Bool {
+    self.updateMessage(id: message.id, using: { $0 = message })
   }
 
   /// Transforms message identified by `id` using `handler` in a transactional manner. If `handler`
@@ -89,7 +82,7 @@ extension Chat {
   /// - Returns: `true` if message with id exists, `false` otherwise.
   @discardableResult mutating func updateMessage(
     id: Message.ID,
-    with handler: (inout Message) throws -> Void
+    using handler: (inout Message) throws -> Void
   ) rethrows -> Bool {
     guard var message = self.messages[id: id] else {
       return false
