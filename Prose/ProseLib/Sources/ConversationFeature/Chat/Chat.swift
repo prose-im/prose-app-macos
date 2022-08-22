@@ -27,6 +27,14 @@ struct Chat: View {
   var body: some View {
     ChatView(store: self.store)
       .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
+      .sheet(
+        unwrapping: viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)
+      ) { $state in
+        EditMessageView(store: self.store.scope(
+          state: { _ in $state.wrappedValue },
+          action: ChatView.Action.messageEditor
+        ))
+      }
       .onKeyDown { key in
         switch key {
         case .up:

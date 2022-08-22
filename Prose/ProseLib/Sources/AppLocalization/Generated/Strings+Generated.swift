@@ -414,6 +414,32 @@ public enum L10n {
   }
 
   public enum Content {
+    public enum EditMessage {
+      /// Edit your message
+      public static let title = L10n.tr(
+        "Localizable",
+        "content.edit_message.title",
+        fallback: #"Edit your message"#
+      )
+      public enum CancelAction {
+        /// Cancel
+        public static let title = L10n.tr(
+          "Localizable",
+          "content.edit_message.cancel_action.title",
+          fallback: #"Cancel"#
+        )
+      }
+
+      public enum ConfirmAction {
+        /// Save
+        public static let title = L10n.tr(
+          "Localizable",
+          "content.edit_message.confirm_action.title",
+          fallback: #"Save"#
+        )
+      }
+    }
+
     public enum MessageBar {
       /// Message %s
       public static func fieldPlaceholder(_ p1: UnsafePointer<CChar>) -> String {

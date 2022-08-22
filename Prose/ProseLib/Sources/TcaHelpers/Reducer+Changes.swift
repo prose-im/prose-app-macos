@@ -11,18 +11,10 @@ public extension Reducer {
   func onChange<LocalState>(
     of toLocalState: @escaping (State) -> LocalState,
     perform additionalEffects: @escaping (LocalState, inout State, Action, Environment)
-      -> Effect<
-        Action, Never
-      >
+      -> Effect<Action, Never>
   ) -> Self where LocalState: Equatable {
-    .init { state, action, environment in
-      let previousLocalState = toLocalState(state)
-      let effects = self.run(&state, action, environment)
-      let localState = toLocalState(state)
-
-      return previousLocalState != localState
-        ? .merge(effects, additionalEffects(localState, &state, action, environment))
-        : effects
+    self.onChange(of: toLocalState) { _, current, state, action, environment in
+      additionalEffects(current, &state, action, environment)
     }
   }
 
@@ -58,7 +50,8 @@ public extension Reducer {
 
       return !predicate(previousLocalState, localState)
         ? .merge(
-          effects, additionalEffects(
+          effects,
+          additionalEffects(
             previousLocalState,
             localState,
             &state,

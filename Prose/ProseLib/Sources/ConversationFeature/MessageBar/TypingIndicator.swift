@@ -66,7 +66,7 @@ struct TypingIndicator: View {
         .frame(width: geo.size.width, height: geo.size.height, alignment: .bottom)
       }
       // Align the bottom of the typing indicator to the alignment guide, with a little offset
-      .alignmentGuide(.typingIndicator) { $0[VerticalAlignment.bottom] - Self.cornerRadius }
+      .alignmentGuide(.typingIndicator) { $0[VerticalAlignment.bottom] - Self.cornerRadius + 1 }
     }
   }
 
@@ -114,7 +114,7 @@ private func boundingRect(for text: String, withFont font: NSFont, in size: CGSi
 private struct TypingIndicatorAlignment: AlignmentID {
   static func defaultValue(in context: ViewDimensions) -> CGFloat {
     // Align the typing indicator to the top of the view
-    context[VerticalAlignment.top] - 1
+    context[VerticalAlignment.top]
   }
 }
 

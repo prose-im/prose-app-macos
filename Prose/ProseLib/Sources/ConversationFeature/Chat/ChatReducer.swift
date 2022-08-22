@@ -10,6 +10,7 @@ import ProseCoreTCA
 import ProseCoreViews
 import ProseUI
 import TcaHelpers
+import Toolbox
 
 // MARK: - State
 
@@ -21,6 +22,7 @@ struct ChatState: Equatable {
   var selectedMessageId: ProseCoreTCA.Message.ID?
   var menu: MessageMenuState?
   var reactionPicker: MessageReactionPickerState?
+  var messageEditor: EditMessageState?
   var alert: AlertState<ChatAction>?
 }
 
@@ -39,6 +41,8 @@ public enum ChatAction: Equatable {
   case message(MessageEvent)
   case jsEventError(JSEventError)
   case reactionPicker(ReactionPickerAction), reactionPickerDismissed
+  case messageEditor(EditMessageAction), messageEditorDismissed
+  case editMessageResult(Result<None, EquatableError>)
 }
 
 // MARK: - Reducer
@@ -52,6 +56,11 @@ let chatReducer = Reducer<
     state: OptionalPath(\ChatState.reactionPicker).appending(path: \.pickerState),
     action: CasePath(ChatAction.reactionPicker),
     environment: { _ in () }
+  ),
+  editMessageReducer.optional().pullback(
+    state: \ChatState.messageEditor,
+    action: CasePath(ChatAction.messageEditor),
+    environment: { $0 }
   ),
   Reducer { state, action, environment in
     func showReactionPicker(for messageId: ProseCoreTCA.Message.ID, origin: CGRect) {
@@ -110,26 +119,35 @@ let chatReducer = Reducer<
       return .none
 
     case let .messageMenuItemTapped(.copyText(messageId)):
-      logger.trace("Copying text of \(String(describing: messageId))…")
+      logger.trace("Copying text of \(messageId)…")
       if let message = state.messages[id: messageId] {
         environment.pasteboard.copyString(message.body)
       } else {
-        logger.notice("Could not copy text: Message \(String(describing: messageId)) not found")
+        logger.notice("Could not copy text: Message \(messageId) not found")
       }
       return .none
 
-    case let .messageMenuItemTapped(.edit(id)):
-      logger.trace("Editing \(String(describing: id))…")
+    case let .messageMenuItemTapped(.edit(messageId)):
+      logger.trace("Editing \(messageId)…")
+      if let message: Message = state.messages[id: messageId] {
+        state.messageEditor = .init(
+          chatId: state.chatId,
+          messageId: messageId,
+          message: message.body
+        )
+      } else {
+        logger.notice("Could not edit message: Message \(messageId) not found")
+      }
       return .none
 
     case let .messageMenuItemTapped(.addReaction(messageId, origin)):
-      logger.trace("Reacting to \(String(describing: messageId))…")
+      logger.trace("Reacting to \(messageId)…")
       showReactionPicker(for: messageId, origin: origin)
       return .none
 
-    case let .messageMenuItemTapped(.remove(id)):
-      logger.trace("Retracting \(String(describing: id))…")
-      return environment.proseClient.retractMessage(state.chatId, id).fireAndForget()
+    case let .messageMenuItemTapped(.remove(messageId)):
+      logger.trace("Retracting \(messageId)…")
+      return environment.proseClient.retractMessage(state.chatId, messageId).fireAndForget()
 
     case let .message(.showMenu(payload)):
       logger.trace(
@@ -156,10 +174,9 @@ let chatReducer = Reducer<
          let message = state.messages[id: messageId],
          message.from == loggedInUserJID
       {
-        // TODO: Uncomment once we support message edition
-//        menu.updateItem(withTag: .edit) {
-//          $0.isDisabled = false
-//        }
+        menu.updateItem(withTag: .edit) {
+          $0.isDisabled = false
+        }
         menu.updateItem(withTag: .remove) {
           $0.isDisabled = false
         }
@@ -220,6 +237,24 @@ let chatReducer = Reducer<
 
     case .reactionPickerDismissed:
       hideReactionPicker()
+      return .none
+
+    case let .messageEditor(.saveEdit(messageId, newMessage)):
+      state.messageEditor = nil
+      return environment.proseClient
+        .updateMessage(state.chatId, messageId, newMessage)
+        .fireAndForget()
+
+    case .messageEditor(.cancelTapped), .messageEditorDismissed, .editMessageResult(.success):
+      state.messageEditor = nil
+      return .none
+
+    case .editMessageResult(.failure):
+      // Ignore the error for now. There is no error handling in the library so far.
+      // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
+      return .none
+
+    case .messageEditor:
       return .none
     }
   },
