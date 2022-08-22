@@ -30,8 +30,8 @@ final class ProseMockClient: ProseClientProtocol {
     try self.impl.sendMessage(id, to, text, chatState)
   }
 
-  func updateMessage(id: String, carbonId: String, to: BareJid, text: String) throws {
-    try self.impl.updateMessage(id, carbonId, to, text)
+  func updateMessage(id: String, newId: String, to: BareJid, text: String) throws {
+    try self.impl.updateMessage(id, newId, to, text)
   }
 
   func sendChatState(to: BareJid, chatState: XmppChatState) throws {

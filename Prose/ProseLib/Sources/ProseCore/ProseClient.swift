@@ -65,11 +65,11 @@ public final class ProseClient: ProseClientProtocol {
 
   public func updateMessage(
     id: String,
-    carbonId: String,
+    newId: String,
     to: BareJid,
     text: String
   ) throws {
-    try self.client.updateMessage(id: id, newId: carbonId, to: to, body: text)
+		try self.client.updateMessage(id: id, newId: newId, to: to, body: text)
   }
 
   public func sendChatState(to: BareJid, chatState: XmppChatState) throws {

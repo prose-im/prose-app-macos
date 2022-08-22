@@ -163,7 +163,7 @@ public extension ProseClient {
 
           try client.updateMessage(
             id: id.rawValue,
-            carbonId: newMessageID.rawValue,
+            newId: newMessageID.rawValue,
             to: to.bareJid,
             text: body
           )

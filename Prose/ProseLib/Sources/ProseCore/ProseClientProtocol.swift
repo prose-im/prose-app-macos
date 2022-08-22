@@ -27,7 +27,7 @@ public protocol ProseClientProtocol: AnyObject {
 
   func updateMessage(
     id: String,
-    carbonId: String,
+    newId: String,
     to: BareJid,
     text: String
   ) throws
