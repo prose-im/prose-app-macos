@@ -64,19 +64,18 @@ struct ContentView: View {
     }
 
     client.sendMessage = { _, body in
-      .fireAndForget {
-        messageSubject.value.append(
-          .init(
-            from: jid,
-            id: .init(rawValue: UUID().uuidString),
-            kind: .chat,
-            body: body,
-            timestamp: Date(),
-            isRead: true,
-            isEdited: false
-          )
+      messageSubject.value.append(
+        .init(
+          from: jid,
+          id: .init(rawValue: UUID().uuidString),
+          kind: .chat,
+          body: body,
+          timestamp: Date(),
+          isRead: true,
+          isEdited: false
         )
-      }
+      )
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
     client.addReaction = { _, messageId, reaction in
       messageSubject.value[id: messageId]?.reactions.addReaction(reaction, for: jid)
@@ -100,6 +99,10 @@ struct ContentView: View {
     }
     client.activeChats = {
       chats.setFailureType(to: EquatableError.self).eraseToEffect()
+    }
+    client.updateMessage = { _, messageId, body in
+      messageSubject.value[id: messageId]?.body = body
+      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
     }
 
     self.store = Store(

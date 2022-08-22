@@ -163,17 +163,16 @@ public extension ProseClient {
 
           try client.updateMessage(
             id: id.rawValue,
-            newID: newMessageID.rawValue,
+            newId: newMessageID.rawValue,
             to: to.bareJid,
             text: body
           )
 
           var updatedMessage = messageToUpdate
-          updatedMessage.id = newMessageID
           updatedMessage.isEdited = true
           updatedMessage.body = body
 
-          delegate.activeChats[to]?.replaceMessage(id: id, with: updatedMessage)
+          delegate.activeChats[to]?.updateMessage(updatedMessage)
         } catch {
           return Effect(error: EquatableError(error))
         }
@@ -449,16 +448,14 @@ private extension Delegate {
     }
 
     if
-      let replace = message.replace,
-      let newID = message.id,
+      let messageId = message.replace,
       let body = message.body,
-      let oldMessage = activeChats[from]?.messages[id: Message.ID(rawValue: replace)]
+      let oldMessage = activeChats[from]?.messages[id: Message.ID(rawValue: messageId)]
     {
       var message = oldMessage
-      message.id = Message.ID(rawValue: newID)
       message.isEdited = true
       message.body = body
-      activeChats[from]?.replaceMessage(id: oldMessage.id, with: message)
+      activeChats[from]?.updateMessage(message)
     }
   }
 }

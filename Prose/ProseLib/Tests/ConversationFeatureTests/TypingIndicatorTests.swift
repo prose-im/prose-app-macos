@@ -67,16 +67,16 @@ final class TypingIndicatorTests: XCTestCase {
     XCTAssertEqual(self.participants, [:])
 
     // Focus the text field
-    store.send(.textField(.binding(.set(\.$isFocused, true)))) {
-      $0.textField.isFocused = true
+    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
+      $0.messageField.isFocused = true
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .active, timestamp: self.date),
     ])
 
     // Write text
-    store.send(.textField(.binding(.set(\.$message, "I write")))) {
-      $0.textField.message = "I write"
+    store.send(.messageField(.field(.binding(.set(\.$message, "I write"))))) {
+      $0.messageField.message = "I write"
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
@@ -84,47 +84,48 @@ final class TypingIndicatorTests: XCTestCase {
 
     // Wait for typing timeout
     self.scheduler.advance(by: .pauseTypingDebounceDuration)
-    store.receive(.textField(.setChatState(.paused)))
+    store.receive(.messageField(.setChatState(.paused)))
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .paused, timestamp: self.date),
     ])
 
     // Write text again
-    store.send(.textField(.binding(.set(\.$message, "I write and I continue")))) {
-      $0.textField.message = "I write and I continue"
+    store.send(.messageField(.field(.binding(.set(\.$message, "I write and I continue"))))) {
+      $0.messageField.message = "I write and I continue"
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
     ])
 
     // Send the message
-    store.send(.textField(.sendTapped)) {
-      $0.textField.message = ""
+    store.send(.messageField(.field(.sendTapped)))
+    store.receive(.messageField(.field(.send(message: "I write and I continue"))))
+    store.receive(.messageSendResult(.success(.none))) {
+      $0.messageField.message = ""
     }
-    store.receive(.textField(.send(message: "I write and I continue")))
 
     // Focus the text field while it has some text
-    store.send(.textField(.binding(.set(\.$message, "A new message")))) {
-      $0.textField.message = "A new message"
+    store.send(.messageField(.field(.binding(.set(\.$message, "A new message"))))) {
+      $0.messageField.message = "A new message"
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
     ])
-    store.send(.textField(.binding(.set(\.$isFocused, false)))) {
-      $0.textField.isFocused = false
+    store.send(.messageField(.field(.binding(.set(\.$isFocused, false))))) {
+      $0.messageField.isFocused = false
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .active, timestamp: self.date),
     ])
-    store.send(.textField(.binding(.set(\.$isFocused, true)))) {
-      $0.textField.isFocused = true
+    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
+      $0.messageField.isFocused = true
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
     ])
 
     // Close the chat
-    store.send(.textField(.onDisappear))
+    store.send(.messageField(.onDisappear))
     store.send(.onDisappear)
   }
 
@@ -154,11 +155,11 @@ final class TypingIndicatorTests: XCTestCase {
     // No action received `.typingUsersChanged([])` is deduplicated
 
     // We close the chat in this Prose instance
-    store.send(.textField(.onDisappear))
+    store.send(.messageField(.onDisappear))
     store.send(.onDisappear)
   }
 
-  func testRecipientTypingIndicatorDebounced() throws {
+  func testRecipientTypingIndicator() throws {
     let store = TestStore(
       initialState: MessageBarState(
         chatId: self.chatId,
@@ -188,7 +189,7 @@ final class TypingIndicatorTests: XCTestCase {
     }
 
     // Close the chat
-    store.send(.textField(.onDisappear))
+    store.send(.messageField(.onDisappear))
     store.send(.onDisappear)
   }
 }
