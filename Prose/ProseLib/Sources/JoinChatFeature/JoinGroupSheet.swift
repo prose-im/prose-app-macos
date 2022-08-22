@@ -92,7 +92,7 @@ public struct JoinGroupSheet: View {
         icon: "bolt.circle",
         label: l10n.State.Existing.label,
         secondaryLabel: l10n.State.Existing.sublabel(peopleCount),
-        color: Colors.State.blue.color
+        color: .blue
       )
     }
   }

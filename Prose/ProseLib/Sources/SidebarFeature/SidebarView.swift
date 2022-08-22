@@ -109,8 +109,6 @@ public struct SidebarView: View {
           ActionButton(title: L10n.Sidebar.TeamMembers.Add.label) {
             viewStore.send(.addContactButtonTapped)
           }
-          // https://github.com/prose-im/prose-app-macos/issues/45
-          .disabled(true)
         }
       }
     }
@@ -119,13 +117,13 @@ public struct SidebarView: View {
   private var groupsSection: some View {
     Section(L10n.Sidebar.Groups.title) {
       IconRow(title: "My group", icon: .group)
+        // https://github.com/prose-im/prose-app-macos/issues/45
         .opacity(0.5)
+        .disabled(true)
       ActionButton(title: L10n.Sidebar.Groups.Add.label) {
         self.viewStore.send(.addGroupButtonTapped)
       }
     }
-    // https://github.com/prose-im/prose-app-macos/issues/45
-    .disabled(true)
   }
 }
 

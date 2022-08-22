@@ -147,6 +147,9 @@ public let sidebarReducer: Reducer<
       state.sheet = nil
       return .none
 
+    case .addMember(.submitTapped), .joinGroup(.submitTapped):
+      fatalError("\(action) not implemented yet.")
+
     default:
       return .none
     }
