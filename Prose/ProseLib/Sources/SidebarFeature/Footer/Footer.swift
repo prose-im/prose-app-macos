@@ -6,7 +6,9 @@
 import AppLocalization
 import ComposableArchitecture
 import EditProfileFeature
+import ProseCoreTCA
 import SwiftUI
+import TcaHelpers
 
 private let l10n = L10n.Sidebar.Footer.self
 
@@ -14,7 +16,7 @@ private let l10n = L10n.Sidebar.Footer.self
 
 /// The small bar at the bottom of the left sidebar.
 struct Footer: View {
-  typealias State = FooterState
+  typealias State = SessionState<FooterState>
   typealias Action = FooterAction
 
   struct ViewState: Equatable {
@@ -22,6 +24,7 @@ struct Footer: View {
     let jidString: String
     let statusIcon: Character
     let statusMessage: String
+    let currentUser: UserInfo
   }
 
   static let height: CGFloat = 64
@@ -72,7 +75,10 @@ struct Footer: View {
     IfLetStore(self.store.scope(state: \.sheet)) { store in
       SwitchStore(store) {
         CaseLet(
-          state: CasePath(State.Sheet.editProfile).extract(from:),
+          state: { route in
+            CasePath(FooterState.Sheet.editProfile).extract(from: route)
+              .map { SessionState(currentUser: self.viewStore.currentUser, childState: $0) }
+          },
           action: Action.editProfile,
           then: EditProfileScreen.init(store:)
         )
@@ -84,9 +90,10 @@ struct Footer: View {
 extension Footer.ViewState {
   init(_ state: Footer.State) {
     self.isShowingSheet = state.sheet != nil
-    self.jidString = state.credentials.jidString
-    self.statusIcon = state.statusIcon
-    self.statusMessage = state.statusMessage
+    self.jidString = state.currentUser.jid.jidString
+    self.statusIcon = state.childState.statusIcon
+    self.statusMessage = state.childState.statusMessage
+    self.currentUser = state.currentUser
   }
 }
 
@@ -95,22 +102,22 @@ extension Footer.ViewState {
 // MARK: Reducer
 
 let footerReducer: Reducer<
-  FooterState,
+  SessionState<FooterState>,
   FooterAction,
   SidebarEnvironment
 > = Reducer.combine([
   footerActionMenuReducer.pullback(
-    state: \FooterState.actionButton,
+    state: \.actionButton,
     action: CasePath(FooterAction.actionButton),
     environment: { _ in () }
   ),
   footerAvatarReducer.pullback(
-    state: \FooterState.avatar,
+    state: \.avatar,
     action: CasePath(FooterAction.avatar),
     environment: { _ in () }
   ),
-  editProfileReducer._pullback(
-    state: (\FooterState.sheet).case(CasePath(FooterState.Sheet.editProfile)),
+  editProfileReducer.optional().pullback(
+    state: \.editProfile,
     action: CasePath(FooterAction.editProfile),
     environment: { $0.editProfile }
   ),
@@ -136,36 +143,50 @@ let footerReducer: Reducer<
 // MARK: State
 
 public struct FooterState: Equatable {
-  let credentials: UserCredentials
   let teamName: String
   let statusIcon: Character
   let statusMessage: String
 
-  var avatar: FooterAvatarState
+  var avatar = FooterAvatarState()
   var actionButton: FooterActionMenuState
 
   @BindableState var sheet: Sheet?
 
   init(
-    credentials: UserCredentials,
     teamName: String = "Crisp",
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
-    avatar: FooterAvatarState = .init(avatar: .placeholder),
     actionButton: FooterActionMenuState = .init()
   ) {
-    self.credentials = credentials
     self.teamName = teamName
     self.statusIcon = statusIcon
     self.statusMessage = statusMessage
-    self.avatar = avatar
     self.actionButton = actionButton
+  }
+}
+
+private extension SessionState where ChildState == FooterState {
+  var avatar: SessionState<FooterAvatarState> {
+    get { self.get(\.avatar) }
+    set { self.set(\.avatar, newValue) }
+  }
+
+  var editProfile: SessionState<EditProfileState>? {
+    get { self.get(FooterState.Sheet.Paths.editProfile) }
+    set { self.set(FooterState.Sheet.Paths.editProfile, newValue) }
   }
 }
 
 public extension FooterState {
   enum Sheet: Equatable {
     case editProfile(EditProfileState)
+  }
+}
+
+extension FooterState.Sheet {
+  enum Paths {
+    static let editProfile: OptionalPath = (\FooterState.sheet)
+      .case(CasePath(FooterState.Sheet.editProfile))
   }
 }
 
@@ -176,14 +197,14 @@ public enum FooterAction: Equatable, BindableAction {
   case avatar(FooterAvatarAction)
   case actionButton(FooterActionMenuAction)
   case editProfile(EditProfileAction)
-  case binding(BindingAction<FooterState>)
+  case binding(BindingAction<SessionState<FooterState>>)
 }
 
 // MARK: Environment
 
 extension SidebarEnvironment {
   var editProfile: EditProfileEnvironment {
-    EditProfileEnvironment()
+    EditProfileEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
   }
 }
 
@@ -206,7 +227,7 @@ extension SidebarEnvironment {
     }
 
     static var previews: some View {
-      let state = FooterState(credentials: "valerian@crisp.chat")
+      let state = SessionState.mock(FooterState())
       Preview(state: state)
         .preferredColorScheme(.light)
         .previewDisplayName("Light")

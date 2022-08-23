@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import CoreGraphics
 import Foundation
 import IdentifiedCollections
 import Toolbox
@@ -26,6 +27,7 @@ public struct ProseClient {
   public var roster: () -> Effect<Roster, EquatableError>
   public var activeChats: () -> Effect<[JID: Chat], EquatableError>
   public var presence: () -> Effect<[JID: Presence], EquatableError>
+  public var userInfos: (Set<JID>) -> Effect<[JID: UserInfo], EquatableError>
 
   /// Returns an Effect that publishes new messages as they arrive.
   ///
@@ -75,4 +77,7 @@ public struct ProseClient {
   public var markMessagesReadInChat: (_ jid: JID) -> Effect<None, EquatableError>
 
   public var fetchPastMessagesInChat: (_ jid: JID) -> Effect<None, EquatableError>
+
+  /// Sets the given image as the current user's avatar image.
+  public var setAvatarImage: (CGImage) -> Effect<None, EquatableError>
 }

@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import Combine
 import Foundation
 import ProseCoreClientFFI
 
@@ -11,6 +12,8 @@ public typealias ProseClientProvider<Client: ProseClientProtocol> =
 
 public typealias LoadMessagesCompletionHandler =
   (Result<[XmppForwardedMessage], Error>, _ isComplete: Bool) -> Void
+
+public typealias ImageId = String
 
 public protocol ProseClientProtocol: AnyObject {
   var jid: FullJid { get }
@@ -52,6 +55,11 @@ public protocol ProseClientProtocol: AnyObject {
   func unsubscribeFromUserPresence(jid: BareJid) throws
   func grantPresencePermissionToUser(jid: BareJid) throws
   func revokeOrRejectPresencePermissionFromUser(jid: BareJid) throws
+
+  func setAvatarImage(image: XmppImage) -> AnyPublisher<ImageId, Error>
+
+  func loadLatestAvatarMetadata(jid: BareJid) -> AnyPublisher<XmppAvatarMetadataInfo?, Error>
+  func loadAvatarImage(jid: BareJid, imageId: ImageId) -> AnyPublisher<XmppAvatarData?, Error>
 }
 
 public protocol ProseClientDelegate: AnyObject {

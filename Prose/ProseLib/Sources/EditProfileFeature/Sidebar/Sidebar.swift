@@ -6,6 +6,7 @@
 import AppLocalization
 import ComposableArchitecture
 import IdentifiedCollections
+import ProseCoreTCA
 import SwiftUI
 
 private let l10n = L10n.EditProfile.Sidebar.self
@@ -13,7 +14,7 @@ private let l10n = L10n.EditProfile.Sidebar.self
 // MARK: - View
 
 struct Sidebar: View {
-  typealias ViewState = SidebarState
+  typealias ViewState = SessionState<SidebarState>
   typealias ViewAction = SidebarAction
 
   static let minWidth: CGFloat = 228
@@ -32,7 +33,7 @@ struct Sidebar: View {
       .frame(minWidth: Self.minWidth)
     }
     .safeAreaInset(edge: .top, spacing: 0) {
-      SidebarHeader(store: self.store.scope(state: \.header, action: ViewAction.header))
+      SidebarHeader(store: self.store.scope(state: \.scoped.header, action: ViewAction.header))
         .padding([.horizontal, .top], 24)
         .padding(.bottom, 8)
     }
@@ -43,20 +44,20 @@ struct Sidebar: View {
 
 // MARK: Reducer
 
-public let sidebarReducer = Reducer<
-  SidebarState,
+let sidebarReducer = Reducer<
+  SessionState<SidebarState>,
   SidebarAction,
-  Void
+  SidebarEnvironment
 >.combine([
   sidebarHeaderReducer.pullback(
-    state: \SidebarState.header,
+    state: \.header,
     action: CasePath(SidebarAction.header),
-    environment: { $0 }
+    environment: \.header
   ),
   sidebarRowReducer.forEach(
-    state: \SidebarState.rows,
+    state: \.rows,
     action: CasePath(SidebarAction.row),
-    environment: { $0 }
+    environment: { _ in }
   ),
   Reducer.empty.binding()
     .onChange(of: \.selection) { previousSelection, newSelection, state, _, _ in
@@ -69,6 +70,22 @@ public let sidebarReducer = Reducer<
       return .none
     },
 ])
+
+struct SidebarEnvironment {
+  var proseClient: ProseClient
+  var mainQueue: AnySchedulerOf<DispatchQueue>
+
+  public init(proseClient: ProseClient, mainQueue: AnySchedulerOf<DispatchQueue>) {
+    self.proseClient = proseClient
+    self.mainQueue = mainQueue
+  }
+}
+
+extension SidebarEnvironment {
+  var header: SidebarHeaderEnvironment {
+    SidebarHeaderEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
+  }
+}
 
 // MARK: State
 
@@ -119,25 +136,34 @@ public extension SidebarState {
   }
 }
 
+private extension SessionState where ChildState == SidebarState {
+  var header: SessionState<SidebarHeaderState> {
+    get { self.get(\.header) }
+    set { self.set(\.header, newValue) }
+  }
+}
+
 // MARK: Actions
 
 public enum SidebarAction: Equatable, BindableAction {
   case header(SidebarHeaderAction), row(id: SidebarState.Selection, SidebarRowAction)
-  case binding(BindingAction<SidebarState>)
+  case binding(BindingAction<SessionState<SidebarState>>)
 }
 
 // MARK: - Previews
 
-struct Sidebar_Previews: PreviewProvider {
-  static var previews: some View {
-    Sidebar(store: Store(
-      initialState: SidebarState(
-        header: .init(),
-        selection: .identity
-      ),
-      reducer: sidebarReducer,
-      environment: ()
-    ))
-    .frame(maxWidth: 300)
+#if DEBUG
+  struct Sidebar_Previews: PreviewProvider {
+    static var previews: some View {
+      Sidebar(store: Store(
+        initialState: .mock(SidebarState(
+          header: .init(),
+          selection: .identity
+        )),
+        reducer: sidebarReducer,
+        environment: SidebarEnvironment(proseClient: .noop, mainQueue: .main)
+      ))
+      .frame(maxWidth: 300)
+    }
   }
-}
+#endif

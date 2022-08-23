@@ -10,7 +10,7 @@ extension AppState {
   /// Returns an `AppState` with jane.doe@prose.org logged in.
   static var authenticated = AppState(
     hasAppearedAtLeastOnce: true,
-    main: .init(jid: "jane.doe@prose.org"),
+    main: .init(currentUser: .init(jid: "jane.doe@prose.org"), childState: .init()),
     auth: nil
   )
 }

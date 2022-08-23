@@ -945,12 +945,17 @@ private extension ProseClientTests {
   ) throws -> (ProseCoreTCA.ProseClient, ProseMockClient) {
     var mockClient: ProseMockClient?
 
-    let client = ProseClient.live(provider: ProseMockClient.provider { _mockClient in
-      mockClient = _mockClient
-      _mockClient.impl.connect = { _ in
-        _mockClient.delegate.proseClientDidConnect(_mockClient)
-      }
-    }, date: date, uuid: uuid)
+    let client = ProseClient.live(
+      provider: ProseMockClient.provider { _mockClient in
+        mockClient = _mockClient
+        _mockClient.impl.connect = { _ in
+          _mockClient.delegate.proseClientDidConnect(_mockClient)
+        }
+      },
+      imageCache: .noop,
+      date: date,
+      uuid: uuid
+    )
 
     try self.await(
       client.login("marc@prose.org", "topsecret").prefix(1),

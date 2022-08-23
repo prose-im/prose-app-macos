@@ -39,7 +39,7 @@ let package = Package(
       .upToNextMajor(from: "0.1.0")
     ),
     .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.7.0")),
-    .proseCore("0.3.0"),
+    .proseCore("0.4.3"),
   ],
   targets: [
     .target(
@@ -164,6 +164,7 @@ let package = Package(
       dependencies: [
         "ProseCore",
         "Toolbox",
+        "TcaHelpers",
         .product(name: "Tagged", package: "swift-tagged"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]

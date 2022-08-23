@@ -10,23 +10,6 @@ import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self
 
-public enum Name: Equatable {
-  case jid(JID), displayName(String)
-
-  var displayName: String {
-    switch self {
-    case let .jid(jid):
-      let name: String = (jid.node ?? jid.domain)
-      return name
-        .split(separator: ".", omittingEmptySubsequences: true)
-        .joined(separator: " ")
-        .localizedCapitalized
-    case let .displayName(displayName):
-      return displayName
-    }
-  }
-}
-
 struct TypingIndicator: View {
   static let cornerRadius: CGFloat = 12
   static let fontSize: CGFloat = 10
@@ -36,8 +19,8 @@ struct TypingIndicator: View {
 
   var typingUsers: [String]
 
-  init(typingUsers: [Name]) {
-    self.typingUsers = typingUsers.map(\.displayName)
+  init(typingUsers: [UserInfo]) {
+    self.typingUsers = typingUsers.map(\.name)
   }
 
   var body: some View {
@@ -130,7 +113,7 @@ extension Alignment {
 #if DEBUG
   struct TypingIndicator_Previews: PreviewProvider {
     private struct Preview: View {
-      let typingUsers: [Name]
+      let typingUsers: [UserInfo]
       let name: String
       var height: CGFloat = 48
       var border: Bool = false
@@ -163,9 +146,9 @@ extension Alignment {
       "marc.other@prose.org", "remi.other@prose.org",
       "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
     ]
-    static let allUsers: [Name] = Self.jids.map(Name.jid)
-    static let displayNames: [Name] = ["Rémi"].map(Name.displayName)
-    static func users(_ count: Int) -> [Name] {
+    static let allUsers: [UserInfo] = Self.jids.map { UserInfo(jid: $0) }
+    static let displayNames: [UserInfo] = ["Rémi"].map { UserInfo(jid: $0) }
+    static func users(_ count: Int) -> [UserInfo] {
       Array(Self.allUsers.prefix(count))
     }
 

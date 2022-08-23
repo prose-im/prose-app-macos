@@ -14,7 +14,7 @@ private let l10n = L10n.Content.MessageBar.self
 // MARK: - View
 
 struct MessageBar: View {
-  typealias State = MessageBarState
+  typealias State = ChatSessionState<MessageBarState>
   typealias Action = MessageBarAction
 
   static let verticalPadding: CGFloat = 12
@@ -116,27 +116,27 @@ enum MessageBarEffectToken: Hashable, CaseIterable {
 }
 
 public let messageBarReducer = Reducer<
-  MessageBarState,
+  ChatSessionState<MessageBarState>,
   MessageBarAction,
   ConversationEnvironment
 >.combine(
   messageComposingFieldReducer.pullback(
-    state: \MessageBarState.messageField,
+    state: \.messageField,
     action: CasePath(MessageBarAction.messageField),
     environment: { $0 }
   ),
   messageFormattingReducer.pullback(
-    state: \MessageBarState.formatting,
+    state: \.formatting,
     action: CasePath(MessageBarAction.formatting),
     environment: { _ in () }
   ),
   messageAttachmentsReducer.pullback(
-    state: \MessageBarState.attachments,
+    state: \.attachments,
     action: CasePath(MessageBarAction.attachments),
     environment: { _ in () }
   ),
   messageEmojisReducer.pullback(
-    state: \MessageBarState.emojis,
+    state: \.emojis,
     action: CasePath(MessageBarAction.emojis),
     environment: { _ in () }
   ),
@@ -144,7 +144,7 @@ public let messageBarReducer = Reducer<
     switch action {
     case .onAppear:
       let chatId = state.chatId
-      let loggedInUserJID = state.loggedInUserJID
+      let loggedInUserJID = state.currentUser.jid
       return environment.proseClient.activeChats()
         .compactMap { $0[chatId] }
         .map(\.participantStates)
@@ -152,7 +152,7 @@ public let messageBarReducer = Reducer<
           participantStates
             .filter { $0.value.kind == .composing }
             .filter { $0.key != loggedInUserJID }
-            .map { Name.jid($0.key) }
+            .map(\.key)
         }
         .replaceError(with: [])
         .removeDuplicates()
@@ -163,8 +163,8 @@ public let messageBarReducer = Reducer<
     case .onDisappear:
       return .cancel(token: MessageBarEffectToken.self)
 
-    case let .typingUsersChanged(names):
-      state.typingUsers = names
+    case let .typingUsersChanged(jids):
+      state.typingUsers = jids.map { state.userInfos[$0, default: .init(jid: $0)] }
       return .none
 
     case let .emojis(.insert(reaction)):
@@ -195,29 +195,27 @@ public let messageBarReducer = Reducer<
 // MARK: State
 
 public struct MessageBarState: Equatable {
-  let chatId: JID
-  let loggedInUserJID: JID
-  var typingUsers: [Name]
+  var typingUsers: [UserInfo]
   var messageField: MessageFieldState
   var formatting: MessageFormattingState = .init()
   var attachments: MessageAttachmentsState = .init()
   var emojis: MessageEmojisState = .init()
 
-  public init(
-    chatId: JID,
-    loggedInUserJID: JID,
-    chatName: Name,
-    message: String = "",
-    typingUsers: [Name] = []
-  ) {
-    self.chatId = chatId
-    self.loggedInUserJID = loggedInUserJID
+  public init(message: String = "", typingUsers: [UserInfo] = []) {
     self.typingUsers = typingUsers
-    self.messageField = .init(
-      chatId: chatId,
-      placeholder: l10n.fieldPlaceholder(chatName.displayName),
-      message: message
-    )
+    self.messageField = .init(placeholder: "", message: message)
+  }
+}
+
+private extension ChatSessionState where ChildState == MessageBarState {
+  var messageField: ChatSessionState<MessageFieldState> {
+    get {
+      var messageField = self.get(\.messageField)
+      messageField.placeholder = l10n
+        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+      return messageField
+    }
+    set { self.set(\.messageField, newValue) }
   }
 }
 
@@ -225,13 +223,13 @@ public struct MessageBarState: Equatable {
 
 public enum MessageBarAction: Equatable, BindableAction {
   case onAppear, onDisappear
-  case typingUsersChanged([Name])
+  case typingUsersChanged([JID])
   case messageSendResult(Result<None, EquatableError>)
   case messageField(MessageComposingFieldAction)
   case formatting(MessageFormattingAction)
   case attachments(MessageAttachmentsAction)
   case emojis(MessageEmojisAction)
-  case binding(BindingAction<MessageBarState>)
+  case binding(BindingAction<ChatSessionState<MessageBarState>>)
 }
 
 // MARK: - Previews
@@ -252,13 +250,10 @@ public enum MessageBarAction: Equatable, BindableAction {
 
       var body: some View {
         MessageBar(store: Store(
-          initialState: MessageBarState(
-            chatId: self.recipient,
-            loggedInUserJID: "preview@prose.org",
-            chatName: .jid(self.recipient),
+          initialState: .mock(MessageBarState(
             message: self.message,
-            typingUsers: self.isTyping ? [.jid(self.recipient)] : []
-          ),
+            typingUsers: self.isTyping ? [.init(jid: self.recipient)] : []
+          )),
           reducer: messageBarReducer,
           environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
         ))

@@ -10,22 +10,24 @@ import ProseCoreTCA
 import TcaHelpers
 import Toolbox
 
-public typealias UserCredentials = JID
-
 public struct SidebarState: Equatable {
   public internal(set) var selection: Selection?
 
-  var credentials: UserCredentials
   var roster = RosterState()
-  var footer: FooterState
+  var footer = FooterState()
   var toolbar = ToolbarState()
 
   var sheet: Sheet?
 
-  public init(credentials: UserCredentials, selection: Selection? = nil) {
-    self.credentials = credentials
+  public init(selection: Selection? = nil) {
     self.selection = selection
-    self.footer = .init(credentials: credentials)
+  }
+}
+
+private extension SessionState where ChildState == SidebarState {
+  var footer: SessionState<FooterState> {
+    get { self.get(\.footer) }
+    set { self.set(\.footer, newValue) }
   }
 }
 
@@ -58,6 +60,7 @@ public enum SidebarAction: Equatable {
   case rosterResult(Result<Roster, EquatableError>)
   case activeChatsResult(Result<[JID: Chat], EquatableError>)
   case presencesResult(Result<[JID: Presence], EquatableError>)
+  case userInfosResult(Result<[JID: UserInfo], EquatableError>)
 
   case footer(FooterAction)
   case toolbar(ToolbarAction)
@@ -92,30 +95,31 @@ enum SidebarEffectToken: CaseIterable, Hashable {
   case rosterSubscription
   case presenceSubscription
   case activeChatsSubscription
+  case userInfosSubscription
 }
 
 public let sidebarReducer: Reducer<
-  SidebarState,
+  SessionState<SidebarState>,
   SidebarAction,
   SidebarEnvironment
 > = Reducer.combine([
   footerReducer.pullback(
-    state: \SidebarState.footer,
+    state: \.footer,
     action: CasePath(SidebarAction.footer),
     environment: { $0 }
   ),
   toolbarReducer.pullback(
-    state: \SidebarState.toolbar,
+    state: \.toolbar,
     action: CasePath(SidebarAction.toolbar),
     environment: { _ in () }
   ),
   addMemberReducer._pullback(
-    state: (\SidebarState.sheet).case(CasePath(SidebarState.Sheet.addMember)),
+    state: (\SessionState<SidebarState>.sheet).case(CasePath(SidebarState.Sheet.addMember)),
     action: CasePath(SidebarAction.addMember),
     environment: \.addMember
   ),
   joinGroupReducer._pullback(
-    state: (\SidebarState.sheet).case(CasePath(SidebarState.Sheet.joinGroup)),
+    state: (\SessionState<SidebarState>.sheet).case(CasePath(SidebarState.Sheet.joinGroup)),
     action: CasePath(SidebarAction.joinGroup),
     environment: \.joinGroup
   ),
@@ -150,7 +154,8 @@ public let sidebarReducer: Reducer<
     case .addMember(.submitTapped), .joinGroup(.submitTapped):
       fatalError("\(action) not implemented yet.")
 
-    default:
+    case .footer, .toolbar, .rosterResult, .activeChatsResult, .presencesResult, .userInfosResult,
+         .addMember, .joinGroup:
       return .none
     }
   },

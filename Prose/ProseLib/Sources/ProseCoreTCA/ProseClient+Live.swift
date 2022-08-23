@@ -3,12 +3,14 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppKit
 import Combine
 import ComposableArchitecture
 import Foundation
 import ProseCore
 import ProseCoreClientFFI
 import Toolbox
+import UniformTypeIdentifiers
 
 private extension Account {
   static let placeholder = Account(jid: try! .init(string: "void@prose.org"), status: .connected)
@@ -17,12 +19,13 @@ private extension Account {
 public extension ProseClient {
   static func live<Client: ProseClientProtocol>(
     provider: @escaping ProseClientProvider<Client>,
+    imageCache: AvatarImageCache,
     date: @escaping () -> Date = Date.init,
     uuid: @escaping () -> UUID = UUID.init
   ) -> Self {
     // Only one client/account for now.
     var client: Client?
-    let delegate = Delegate(date: date)
+    let delegate = Delegate(date: date, imageCache: imageCache)
 
     func toggleReaction(
       to: JID,
@@ -102,6 +105,15 @@ public extension ProseClient {
       },
       presence: {
         delegate.$presences
+          .setFailureType(to: EquatableError.self)
+          .removeDuplicates()
+          .eraseToEffect()
+      },
+      userInfos: { jids in
+        delegate.$userInfos
+          .map { (userInfos: [JID: UserInfo]) in
+            userInfos.filter { jids.contains($0.key) }
+          }
           .setFailureType(to: EquatableError.self)
           .removeDuplicates()
           .eraseToEffect()
@@ -281,6 +293,45 @@ public extension ProseClient {
             }
           }
         }.eraseToEffect()
+      },
+      setAvatarImage: { image in
+        guard let client = client else {
+          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        }
+
+        let jid = JID(fullJid: client.jid)
+
+        return Deferred {
+          Future { promise in
+            guard let jpgData = try? image
+              .prose_downsampled(maxPixelSize: 600)
+              .prose_jpegData(compressionQuality: 0.75)
+            else {
+              return promise(.failure(ProseClientError.invalidImage))
+            }
+            promise(.success(jpgData))
+          }
+        }
+        .subscribe(on: DispatchQueue.global())
+        .flatMap { (imageData: Data) in
+          client.setAvatarImage(image: XmppImage(
+            data: [UInt8](imageData),
+            mimeType: UTType.jpeg.identifier,
+            width: UInt32(truncatingIfNeeded: image.width),
+            height: UInt32(truncatingIfNeeded: image.height)
+          ))
+          .receive(on: DispatchQueue.global())
+          .tryMap { imageId in
+            try imageCache.cacheAvatarImage(jid, imageData, imageId)
+          }
+          .receive(on: DispatchQueue.main)
+          .map { cachedImageURL in
+            delegate.userInfos[jid, default: .init(jid: jid)].avatar = cachedImageURL
+          }
+        }
+        .mapError(EquatableError.init)
+        .mapVoidToNone()
+        .eraseToEffect()
       }
     )
   }
@@ -318,20 +369,26 @@ enum ProseClientError: Error {
   case connectionDidFail
   case notAuthenticated
   case unknownMessageID
+  case invalidImage
 }
 
 private final class Delegate: ProseClientDelegate, ObservableObject {
   let date: () -> Date
+  let imageCache: AvatarImageCache
 
   @Published var account = Account.placeholder
   @Published var roster = Roster(groups: [])
   @Published var activeChats = [JID: Chat]()
   @Published var presences = [JID: Presence]()
+  @Published var userInfos = [JID: UserInfo]()
 
   let incomingMessages = PassthroughSubject<Message, Never>()
 
-  init(date: @escaping () -> Date) {
+  private var loadUserInfosSubscription: AnyCancellable?
+
+  init(date: @escaping () -> Date, imageCache: AvatarImageCache) {
     self.date = date
+    self.imageCache = imageCache
   }
 
   func proseClientDidConnect(_: ProseClientProtocol) {
@@ -343,10 +400,39 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
   }
 
   func proseClient(
-    _: ProseClientProtocol,
+    _ client: ProseClientProtocol,
     didReceiveRoster roster: XmppRoster
   ) {
-    self.roster = Roster(roster: roster)
+    let newRoster = Roster(roster: roster)
+    guard newRoster != self.roster else {
+      return
+    }
+    self.roster = newRoster
+
+    self.loadUserInfosSubscription?.cancel()
+
+    let jids = Set(
+      newRoster.groups.flatMap { $0.items.map(\.jid) } +
+        CollectionOfOne(JID(fullJid: client.jid))
+    )
+    let newJids = jids.subtracting(self.userInfos.keys)
+
+    self.loadUserInfosSubscription = Publishers.MergeMany(
+      newJids.map { Self.loadUserInfo(jid: $0, client: client, imageCache: self.imageCache) }
+    )
+    .collect()
+    .receive(on: DispatchQueue.main)
+    .sink(
+      receiveCompletion: { _ in },
+      receiveValue: { userInfos in
+        let newUserInfos = Dictionary(
+          zip(userInfos.map(\.jid), userInfos),
+          uniquingKeysWith: { _, last in last }
+        )
+
+        self.userInfos.merge(newUserInfos, uniquingKeysWith: { _, last in last })
+      }
+    )
   }
 
   func proseClient(
@@ -457,5 +543,31 @@ private extension Delegate {
       message.body = body
       activeChats[from]?.updateMessage(message)
     }
+  }
+
+  static func loadUserInfo(
+    jid: JID,
+    client: ProseClientProtocol,
+    imageCache: AvatarImageCache
+  ) -> AnyPublisher<UserInfo, Error> {
+    client.loadLatestAvatarMetadata(jid: jid.bareJid)
+      .flatMap { (metadata: XmppAvatarMetadataInfo?) -> AnyPublisher<URL?, Error> in
+        guard let metadata = metadata else {
+          return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
+        }
+
+        if let url = imageCache.cachedURLForAvatarImageWithID(jid, metadata.id) {
+          return Just(url).setFailureType(to: Error.self).eraseToAnyPublisher()
+        }
+
+        return client.loadAvatarImage(jid: jid.bareJid, imageId: metadata.id)
+          .receive(on: DispatchQueue.global())
+          .tryMap { (avatarData: XmppAvatarData?) in
+            try avatarData.flatMap { try imageCache.cacheAvatarImage(jid, Data($0.data), $0.sha1) }
+          }
+          .eraseToAnyPublisher()
+      }
+      .map { avatarURL in UserInfo(jid: jid, avatar: avatarURL) }
+      .eraseToAnyPublisher()
   }
 }

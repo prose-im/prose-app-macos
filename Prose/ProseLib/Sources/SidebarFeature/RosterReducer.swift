@@ -11,6 +11,7 @@ struct RosterState: Equatable {
   var roster: Roster = .init(groups: [])
   var unreadCounts = [JID: Int]()
   var presences = [JID: Presence]()
+  var userInfos = [JID: UserInfo]()
 }
 
 extension RosterState {
@@ -21,6 +22,7 @@ extension RosterState {
         items: group.items.map { item in
           SidebarRoster.Group.Item(
             jid: item.jid,
+            avatarURL: userInfos[item.jid]?.avatar,
             numberOfUnreadMessages: self.unreadCounts[item.jid] ?? 0,
             status: self.presences[item.jid]?.onlineStatus ?? .offline
           )
@@ -50,13 +52,14 @@ extension SidebarRoster {
 extension SidebarRoster.Group {
   struct Item: Equatable {
     var jid: JID
+    var avatarURL: URL?
     var numberOfUnreadMessages: Int
     var status: OnlineStatus
   }
 }
 
 extension Reducer where
-  State == SidebarState,
+  State == SessionState<SidebarState>,
   Action == SidebarAction,
   Environment == SidebarEnvironment
 {
@@ -69,24 +72,21 @@ extension Reducer where
           return .merge(
             environment.proseClient.roster()
               .receive(on: environment.mainQueue)
-              .catchToEffect()
-              .map(SidebarAction.rosterResult)
+              .catchToEffect(SidebarAction.rosterResult)
               .cancellable(
                 id: SidebarEffectToken.rosterSubscription,
                 cancelInFlight: true
               ),
             environment.proseClient.presence()
               .receive(on: environment.mainQueue)
-              .catchToEffect()
-              .map(SidebarAction.presencesResult)
+              .catchToEffect(SidebarAction.presencesResult)
               .cancellable(
                 id: SidebarEffectToken.presenceSubscription,
                 cancelInFlight: true
               ),
             environment.proseClient.activeChats()
               .receive(on: environment.mainQueue)
-              .catchToEffect()
-              .map(SidebarAction.activeChatsResult)
+              .catchToEffect(SidebarAction.activeChatsResult)
               .cancellable(
                 id: SidebarEffectToken.activeChatsSubscription,
                 cancelInFlight: true
@@ -95,7 +95,12 @@ extension Reducer where
 
         case let .rosterResult(.success(roster)):
           state.roster.roster = roster
-          return .none
+
+          return environment.proseClient
+            .userInfos(Set(roster.groups.flatMap { $0.items.map(\.jid) }))
+            .receive(on: environment.mainQueue)
+            .catchToEffect(SidebarAction.userInfosResult)
+            .cancellable(id: SidebarEffectToken.userInfosSubscription, cancelInFlight: true)
 
         case let .rosterResult(.failure(error)):
           logger.error(
@@ -121,6 +126,16 @@ extension Reducer where
         case let .presencesResult(.failure(error)):
           logger.error(
             "Could not load presences. \(error.localizedDescription, privacy: .public)"
+          )
+          return .none
+
+        case let .userInfosResult(.success(userInfos)):
+          state.roster.userInfos = userInfos
+          return .none
+
+        case let .userInfosResult(.failure(error)):
+          logger.error(
+            "Could not load user infos. \(error.localizedDescription, privacy: .public)"
           )
           return .none
 

@@ -16,17 +16,13 @@ private let l10n = L10n.Sidebar.Footer.Actions.Account.self
 
 /// User avatar in the left sidebar footer
 struct FooterAvatar: View {
-  typealias State = FooterAvatarState
+  typealias State = SessionState<FooterAvatarState>
   typealias Action = FooterAvatarAction
 
   struct ViewState: Equatable {
     let avatar: AvatarImage
     let availability: Availability
     let isShowingPopover: Bool
-  }
-
-  struct PopoverState: Equatable {
-    let availability: Availability
     let fullName: String
     let jid: String
     let statusIcon: Character
@@ -36,12 +32,10 @@ struct FooterAvatar: View {
 
   private let store: Store<State, Action>
   @ObservedObject private var viewStore: ViewStore<ViewState, Action>
-  @ObservedObject private var popoverViewStore: ViewStore<PopoverState, Action>
 
   public init(store: Store<State, Action>) {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init))
-    self.popoverViewStore = ViewStore(store.scope(state: PopoverState.init))
   }
 
   var body: some View {
@@ -63,22 +57,17 @@ struct FooterAvatar: View {
   }
 
   private func popover() -> some View {
-    Self.popover(viewStore: self.popoverViewStore, redactionReasons: self.redactionReasons)
+    Self.popover(viewStore: self.viewStore, redactionReasons: self.redactionReasons)
   }
 
   fileprivate static func popover(
-    viewStore: ViewStore<PopoverState, Action>,
+    viewStore: ViewStore<ViewState, Action>,
     redactionReasons: RedactionReasons
   ) -> some View {
     VStack(alignment: .leading, spacing: 16) {
       // TODO: [Rémi Bardon] Refactor this view out
       HStack {
-        #if DEBUG
-          // TODO: [Rémi Bardon] Change this to Crisp icon
-          Avatar(AvatarImage(url: PreviewAsset.Avatars.baptiste.customURL), size: 32)
-        #else
-          Avatar(.placeholder, size: 32)
-        #endif
+        Avatar(viewStore.avatar, size: 32)
         VStack(alignment: .leading) {
           Text(verbatim: viewStore.fullName)
             .font(.headline)
@@ -152,7 +141,7 @@ struct FooterAvatar: View {
   }
 
   static func availabilityMenu(
-    viewStore: ViewStore<PopoverState, Action>,
+    viewStore: ViewStore<ViewState, Action>,
     redactionReasons: RedactionReasons
   ) -> some View {
     ForEach(Availability.allCases, id: \.self) { availability in
@@ -177,17 +166,11 @@ struct FooterAvatar: View {
 
 extension FooterAvatar.ViewState {
   init(_ state: FooterAvatar.State) {
-    self.avatar = state.avatar
+    self.avatar = state.currentUser.avatar.map(AvatarImage.init) ?? .placeholder
     self.availability = state.availability
     self.isShowingPopover = state.isShowingPopover
-  }
-}
-
-extension FooterAvatar.PopoverState {
-  init(_ state: FooterAvatar.State) {
-    self.availability = state.availability
-    self.fullName = state.fullName
-    self.jid = state.jid
+    self.fullName = state.currentUser.name
+    self.jid = state.currentUser.jid.jidString
     self.statusIcon = state.statusIcon
   }
 }
@@ -241,7 +224,7 @@ extension View {
 // MARK: Reducer
 
 public let footerAvatarReducer = Reducer<
-  FooterAvatarState,
+  SessionState<FooterAvatarState>,
   FooterAvatarAction,
   Void
 > { state, action, _ in
@@ -276,29 +259,20 @@ public let footerAvatarReducer = Reducer<
 // MARK: State
 
 public struct FooterAvatarState: Equatable {
-  var avatar: AvatarImage
   var availability: Availability
-  var fullName: String
-  var jid: String
   var statusIcon: Character
   var statusMessage: String
 
   @BindableState var isShowingPopover: Bool
 
   public init(
-    avatar: AvatarImage,
     availability: Availability = .available,
-    fullName: String = "Baptiste Jamin",
-    jid: String = "baptiste@crisp.chat",
     statusIcon: Character = "🚀",
     statusMessage: String = "Building new features.",
     isShowingPopover: Bool = false
   ) {
-    self.avatar = avatar
     self.availability = availability
     self.isShowingPopover = isShowingPopover
-    self.fullName = fullName
-    self.jid = jid
     self.statusIcon = statusIcon
     self.statusMessage = statusMessage
     self.isShowingPopover = isShowingPopover
@@ -317,7 +291,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
   case offlineModeTapped
   case signOutTapped
   case dismissPopover
-  case binding(BindingAction<FooterAvatarState>)
+  case binding(BindingAction<SessionState<FooterAvatarState>>)
 }
 
 // MARK: - Previews
@@ -334,24 +308,22 @@ public enum FooterAvatarAction: Equatable, BindableAction {
           HStack {
             ForEach(Availability.allCases, id: \.self) { availability in
               content(state: FooterAvatarState(
-                avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
                 availability: availability
               ))
             }
           }
           .padding()
           let store = Store(
-            initialState: FooterAvatarState(
-              avatar: .init(url: PreviewAsset.Avatars.valerian.customURL),
+            initialState: .mock(FooterAvatarState(
               availability: .available
-            ),
+            )),
             reducer: footerAvatarReducer,
             environment: ()
-          ).scope(state: FooterAvatar.PopoverState.init)
+          )
           Text("The popover 👇")
           Text("(Previews can't display it)")
           FooterAvatar.popover(
-            viewStore: ViewStore(store),
+            viewStore: ViewStore(store.scope(state: FooterAvatar.ViewState.init)),
             redactionReasons: redactionReasons
           )
           .border(Color.gray)
@@ -359,7 +331,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
           Text("(Previews can't display it)")
           VStack(alignment: .leading) {
             FooterAvatar.availabilityMenu(
-              viewStore: ViewStore(store),
+              viewStore: ViewStore(store.scope(state: FooterAvatar.ViewState.init)),
               redactionReasons: redactionReasons
             )
           }
@@ -373,7 +345,7 @@ public enum FooterAvatarAction: Equatable, BindableAction {
 
       private func content(state: FooterAvatarState) -> some View {
         FooterAvatar(store: Store(
-          initialState: state,
+          initialState: .mock(state),
           reducer: footerAvatarReducer,
           environment: ()
         ))

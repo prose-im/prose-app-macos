@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
 import Combine
 import ComposableArchitecture
 @testable import ConversationFeature
@@ -51,15 +52,7 @@ final class TypingIndicatorTests: XCTestCase {
   }
 
   func testOwnTypingIndicatorDebounced() throws {
-    let store = TestStore(
-      initialState: MessageBarState(
-        chatId: self.chatId,
-        loggedInUserJID: self.ownId,
-        chatName: .jid(self.chatId)
-      ),
-      reducer: messageBarReducer,
-      environment: self.environment
-    )
+    let store = self.makeTestStore()
 
     // Open the chat
     store.send(.onAppear)
@@ -130,15 +123,7 @@ final class TypingIndicatorTests: XCTestCase {
   }
 
   func testOwnTypingIndicatorFromOtherApp() throws {
-    let store = TestStore(
-      initialState: MessageBarState(
-        chatId: self.chatId,
-        loggedInUserJID: self.ownId,
-        chatName: .jid(self.chatId)
-      ),
-      reducer: messageBarReducer,
-      environment: self.environment
-    )
+    let store = self.makeTestStore()
 
     // We log into another app
     self.participants[self.ownId] = .init(kind: .active, timestamp: self.date)
@@ -160,15 +145,7 @@ final class TypingIndicatorTests: XCTestCase {
   }
 
   func testRecipientTypingIndicator() throws {
-    let store = TestStore(
-      initialState: MessageBarState(
-        chatId: self.chatId,
-        loggedInUserJID: self.ownId,
-        chatName: .jid(self.chatId)
-      ),
-      reducer: messageBarReducer,
-      environment: self.environment
-    )
+    let store = self.makeTestStore()
 
     // The recipient logs in
     self.participants[self.recipientId] = .init(kind: .active, timestamp: self.date)
@@ -178,8 +155,8 @@ final class TypingIndicatorTests: XCTestCase {
 
     // Open the chat
     store.send(.onAppear)
-    store.receive(.typingUsersChanged([.jid(self.recipientId)])) {
-      $0.typingUsers = [.jid(self.recipientId)]
+    store.receive(.typingUsersChanged([self.recipientId])) {
+      $0.typingUsers = [.init(jid: self.recipientId)]
     }
 
     // The recipient stops typing
@@ -191,5 +168,35 @@ final class TypingIndicatorTests: XCTestCase {
     // Close the chat
     store.send(.messageField(.onDisappear))
     store.send(.onDisappear)
+  }
+}
+
+private extension TypingIndicatorTests {
+  func makeTestStore()
+    -> TestStore<
+      ChatSessionState<MessageBarState>,
+      ChatSessionState<MessageBarState>,
+      MessageBarAction,
+      MessageBarAction,
+      ConversationEnvironment
+    >
+  {
+    var state = ChatSessionState(
+      currentUser: .init(jid: self.ownId),
+      chatId: self.chatId,
+      userInfos: [:],
+      childState: MessageBarState()
+    )
+
+    // We're setting the placeholder here manually. Otherwise this would happen later and be
+    // detected as a change by the TestStore.
+    state.messageField.placeholder =
+      L10n.Content.MessageBar.fieldPlaceholder(self.chatId.jidString)
+
+    return TestStore(
+      initialState: state,
+      reducer: messageBarReducer,
+      environment: self.environment
+    )
   }
 }

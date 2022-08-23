@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import Combine
 import Foundation
 import ProseCoreClientFFI
 
@@ -19,6 +20,11 @@ public final class ProseClient: ProseClientProtocol {
   /// When `true`, we're either already connected or in the midst of a connection attempt.
   private var isConnected = false
   private var loadMessagesCompletionHandlers = [String: LoadMessagesCompletionHandler]()
+  private var loadAvatarMetadataCompletionHandlers =
+    [String: (Result<XmppAvatarMetadataInfo?, Error>) -> Void]()
+  private var loadAvatarImageCompletionHandlers =
+    [String: (Result<XmppAvatarData?, Error>) -> Void]()
+  private var setAvatarImageCompletionHandlers = [String: (Result<ImageId, Error>) -> Void]()
 
   public var jid: FullJid {
     self.client.jid()
@@ -131,6 +137,74 @@ public final class ProseClient: ProseClientProtocol {
   public func revokeOrRejectPresencePermissionFromUser(jid: BareJid) throws {
     try self.client.revokeOrRejectPresencePermissionFromUser(jid: jid)
   }
+
+  public func setAvatarImage(image: XmppImage) -> AnyPublisher<ImageId, Error> {
+    Deferred {
+      Future { promise in
+        let requestId = UUID().uuidString
+
+        self.setAvatarImageCompletionHandlers[requestId] = { result in
+          promise(result)
+        }
+
+        do {
+          try self.client.setAvatarImage(requestId: requestId, image: image)
+        } catch {
+          self.setAvatarImageCompletionHandlers[requestId] = nil
+          promise(.failure(error))
+        }
+      }
+    }
+    .subscribe(on: self.delegateQueue)
+    .eraseToAnyPublisher()
+  }
+
+  public func loadLatestAvatarMetadata(
+    jid: BareJid
+  ) -> AnyPublisher<XmppAvatarMetadataInfo?, Error> {
+    Deferred {
+      Future { promise in
+        let requestId = UUID().uuidString
+
+        self.loadAvatarMetadataCompletionHandlers[requestId] = { result in
+          promise(result)
+        }
+
+        do {
+          try self.client.loadLatestAvatarMetadata(requestId: requestId, from: jid)
+        } catch {
+          self.loadAvatarMetadataCompletionHandlers[requestId] = nil
+          promise(.failure(error))
+        }
+      }
+    }
+    .subscribe(on: self.delegateQueue)
+    .eraseToAnyPublisher()
+  }
+
+  public func loadAvatarImage(
+    jid: BareJid,
+    imageId: ImageId
+  ) -> AnyPublisher<XmppAvatarData?, Error> {
+    Deferred {
+      Future { promise in
+        let requestId = UUID().uuidString
+
+        self.loadAvatarImageCompletionHandlers[requestId] = { result in
+          promise(result)
+        }
+
+        do {
+          try self.client.loadAvatarImage(requestId: requestId, from: jid, imageId: imageId)
+        } catch {
+          self.loadAvatarImageCompletionHandlers[requestId] = nil
+          promise(.failure(error))
+        }
+      }
+    }
+    .subscribe(on: self.delegateQueue)
+    .eraseToAnyPublisher()
+  }
 }
 
 extension ProseClient: XmppAccountObserver {
@@ -207,6 +281,41 @@ extension ProseClient: XmppAccountObserver {
       completionHandler?(.success(messages), isComplete)
     }
   }
+
+  public func didLoadAvatarImage(requestId: String, jid _: BareJid, image: XmppAvatarData?) {
+    let completionHandler = self.loadAvatarImageCompletionHandlers.removeValue(forKey: requestId)
+    completionHandler?(.success(image))
+  }
+
+  public func didLoadAvatarMetadata(
+    requestId: String,
+    jid _: BareJid,
+    metadata: [XmppAvatarMetadataInfo]
+  ) {
+    self.delegateQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
+      let completionHandler = self.loadAvatarMetadataCompletionHandlers
+        .removeValue(forKey: requestId)
+      completionHandler?(.success(metadata.last))
+    }
+  }
+
+  public func didSetAvatarImage(requestId: String, imageId: ImageId) {
+    self.delegateQueue.async { [weak self] in
+      guard let self = self else {
+        return
+      }
+      let completionHandler = self.setAvatarImageCompletionHandlers.removeValue(forKey: requestId)
+      completionHandler?(.success(imageId))
+    }
+  }
+
+  public func didReceiveUpdatedAvatarMetadata(
+    jid _: BareJid,
+    metadata _: [XmppAvatarMetadataInfo]
+  ) {}
 }
 
 private extension ProseClient {

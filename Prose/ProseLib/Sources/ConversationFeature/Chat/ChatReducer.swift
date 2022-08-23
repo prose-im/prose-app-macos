@@ -15,8 +15,6 @@ import Toolbox
 // MARK: - State
 
 struct ChatState: Equatable {
-  let loggedInUserJID: JID
-  let chatId: JID
   var isWebViewReady = false
   var messages = IdentifiedArrayOf<ProseCoreTCA.Message>()
   var selectedMessageId: ProseCoreTCA.Message.ID?
@@ -24,6 +22,13 @@ struct ChatState: Equatable {
   var reactionPicker: MessageReactionPickerState?
   var messageEditor: EditMessageState?
   var alert: AlertState<ChatAction>?
+}
+
+extension ChatSessionState where ChildState == ChatState {
+  var messageEditor: ChatSessionState<EditMessageState>? {
+    get { self.get(\.messageEditor) }
+    set { self.set(\.messageEditor, newValue) }
+  }
 }
 
 struct MessageReactionPickerState: Equatable {
@@ -48,24 +53,24 @@ public enum ChatAction: Equatable {
 // MARK: - Reducer
 
 let chatReducer = Reducer<
-  ChatState,
+  ChatSessionState<ChatState>,
   ChatAction,
   ConversationEnvironment
 >.combine([
   reactionPickerTogglingReducer._pullback(
-    state: OptionalPath(\ChatState.reactionPicker).appending(path: \.pickerState),
+    state: OptionalPath(\ChatSessionState<ChatState>.reactionPicker).appending(path: \.pickerState),
     action: CasePath(ChatAction.reactionPicker),
     environment: { _ in () }
   ),
   editMessageReducer.optional().pullback(
-    state: \ChatState.messageEditor,
+    state: \.messageEditor,
     action: CasePath(ChatAction.messageEditor),
     environment: { $0 }
   ),
   Reducer { state, action, environment in
     func showReactionPicker(for messageId: ProseCoreTCA.Message.ID, origin: CGRect) {
       let message = state.messages[id: messageId]
-      let selected = message?.reactions.reactions(for: state.loggedInUserJID)
+      let selected = message?.reactions.reactions(for: state.currentUser.jid)
       let pickerState = ReactionPickerState(selected: Set(selected ?? []))
       state.reactionPicker = MessageReactionPickerState(
         messageId: messageId,
@@ -131,7 +136,6 @@ let chatReducer = Reducer<
       logger.trace("Editing \(messageId)…")
       if let message: Message = state.messages[id: messageId] {
         state.messageEditor = .init(
-          chatId: state.chatId,
           messageId: messageId,
           message: message.body
         )
@@ -168,7 +172,7 @@ let chatReducer = Reducer<
       }
       var menu = MessageMenuState(origin: payload.origin.anchor.cgPoint, items: items)
 
-      let loggedInUserJID: JID = state.loggedInUserJID
+      let loggedInUserJID: JID = state.currentUser.jid
 
       if let messageId = payload.id,
          let message = state.messages[id: messageId],
@@ -229,7 +233,7 @@ let chatReducer = Reducer<
       guard let messageId = state.reactionPicker?.messageId else {
         preconditionFailure("We should have stored the message ID")
       }
-      let loggedInUserJID = state.loggedInUserJID
+      let loggedInUserJID = state.currentUser.jid
       state.messages[id: messageId]?.reactions.toggleReaction(reaction, for: loggedInUserJID)
       return environment.proseClient
         .toggleReaction(state.chatId, messageId, reaction)

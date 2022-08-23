@@ -12,12 +12,12 @@ struct EditProfileFeaturePreviewApp: App {
   var body: some Scene {
     WindowGroup {
       EditProfileScreen(store: Store(
-        initialState: EditProfileState(
+        initialState: .mock(EditProfileState(
           sidebarHeader: .init(),
           route: .profile(.init())
-        ),
+        )),
         reducer: editProfileReducer,
-        environment: EditProfileEnvironment()
+        environment: EditProfileEnvironment(proseClient: .noop, mainQueue: .main)
       ))
     }
   }

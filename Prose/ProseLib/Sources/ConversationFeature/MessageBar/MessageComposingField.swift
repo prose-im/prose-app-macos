@@ -15,7 +15,7 @@ private let l10n = L10n.Content.MessageBar.self
 
 /// A ``MessageField`` with typing/composing logic.
 struct MessageComposingField: View {
-  typealias State = MessageFieldState
+  typealias State = ChatSessionState<MessageFieldState>
   typealias Action = MessageComposingFieldAction
 
   @Environment(\.redactionReasons) private var redactionReasons
@@ -34,7 +34,7 @@ struct MessageComposingField: View {
 
   var body: some View {
     MessageField(
-      store: self.store.scope(state: { $0 }, action: Action.field),
+      store: self.store.scope(state: \.childState, action: Action.field),
       cornerRadius: self.cornerRadius
     )
     .onDisappear { self.actions.send(.onDisappear) }
@@ -54,16 +54,16 @@ public extension DispatchQueue.SchedulerTimeType.Stride {
 }
 
 public let messageComposingFieldReducer = Reducer<
-  MessageFieldState,
+  ChatSessionState<MessageFieldState>,
   MessageComposingFieldAction,
   ConversationEnvironment
 >.combine(
   messageFieldReducer.pullback(
-    state: .self,
+    state: \.childState,
     action: CasePath(MessageComposingFieldAction.field),
     environment: { $0 }
   )
-  .onChange(of: TextFieldState.init) { current, state, _, environment in
+  .onChange(of: { TextFieldState($0.childState) }) { current, state, _, environment in
     if !current.isFocused || current.message.isEmpty {
       // If the text field is not focused or empty we don't consider the user typing.
       return .merge(

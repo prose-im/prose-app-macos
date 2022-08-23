@@ -17,19 +17,24 @@ import UnreadFeature
 // MARK: - View
 
 public struct MainScreen: View {
-  public typealias State = MainScreenState
+  public typealias State = SessionState<MainScreenState>
   public typealias Action = MainScreenAction
 
   private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<SessionState<None>, Never>
 
   // swiftlint:disable:next type_contents_order
   public init(store: Store<State, Action>) {
     self.store = store
+    self.viewStore = ViewStore(
+      store.scope(state: { SessionState(currentUser: $0.currentUser, childState: .none) })
+        .actionless
+    )
   }
 
   public var body: some View {
     NavigationView {
-      SidebarView(store: self.store.scope(state: \.sidebar, action: Action.sidebar))
+      SidebarView(store: self.store.scope(state: \.scoped.sidebar, action: Action.sidebar))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("Sidebar")
 
@@ -40,7 +45,10 @@ public struct MainScreen: View {
           then: UnreadScreen.init(store:)
         )
         CaseLet(
-          state: CasePath(MainScreenState.Route.chat).extract,
+          state: { route in
+            CasePath(MainScreenState.Route.chat).extract(from: route)
+              .map { SessionState(currentUser: self.viewStore.currentUser, childState: $0) }
+          },
           action: MainScreenAction.chat,
           then: ConversationScreen.init(store:)
         )
@@ -59,7 +67,7 @@ public struct MainScreen: View {
 // MARK: Reducer
 
 public let mainWindowReducer = Reducer<
-  MainScreenState,
+  SessionState<MainScreenState>,
   MainScreenAction,
   MainScreenEnvironment
 >.combine([
@@ -69,15 +77,14 @@ public let mainWindowReducer = Reducer<
     environment: \.sidebar
   ),
   unreadReducer._pullback(
-    state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.unreadStack)),
+    state: (\SessionState<MainScreenState>.route).case(CasePath(MainScreenState.Route.unreadStack)),
     action: CasePath(MainScreenAction.unreadStack),
     environment: \.unread
   ),
-  conversationReducer._pullback(
-    state: (\MainScreenState.route).case(CasePath(MainScreenState.Route.chat)),
+  conversationReducer.optional().pullback(
+    state: \.chat,
     action: CasePath(MainScreenAction.chat),
-    environment: \.chat,
-    breakpointOnNil: false
+    environment: \.chat
   ),
 ])
 .onChange(of: \.sidebar.selection) { selection, state, _, environment in
@@ -91,13 +98,15 @@ public let mainWindowReducer = Reducer<
   case .peopleAndGroups:
     state.route = .peopleAndGroups
   case let .chat(jid):
-    var priorRoute = state.route
-    var conversationState = ConversationState(chatId: jid, loggedInUserJID: state.jid)
+    var conversationState = SessionState(
+      currentUser: state.currentUser,
+      childState: ConversationState(chatId: jid)
+    )
     var effects = Effect<MainScreenAction, Never>.none
 
     // If another chat was selected already, we'll manually send the `.onAppear` and
     // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
-    if case var .chat(priorConversationState) = priorRoute {
+    if var priorConversationState = state.get(MainScreenState.Route.Paths.chat) {
       effects = .concatenate([
         conversationReducer(&priorConversationState, .onDisappear, environment.chat)
           .map(MainScreenAction.chat),
@@ -106,7 +115,7 @@ public let mainWindowReducer = Reducer<
       ])
     }
 
-    state.route = .chat(conversationState)
+    state.route = .chat(conversationState.childState)
     return effects
   }
   return .none
@@ -115,18 +124,44 @@ public let mainWindowReducer = Reducer<
 // MARK: State
 
 public struct MainScreenState: Equatable {
-  let jid: JID
-  public var sidebar: SidebarState
-  public private(set) var isPlaceholder = false
+  public var sidebar = SidebarState()
+  public fileprivate(set) var isPlaceholder = false
 
   // https://github.com/prose-im/prose-app-macos/issues/45 says we should disabled this,
   // but we don't support any other predictable value, so let's keep it like this for now.
   var route = Route.unreadStack(.init())
 
-  public init(jid: JID) {
-    self.jid = jid
-    self.sidebar = .init(credentials: jid)
+  public init() {}
+}
+
+private extension SessionState where ChildState == MainScreenState {
+  var sidebar: SessionState<SidebarState> {
+    get { self.get(\.sidebar) }
+    set { self.set(\.sidebar, newValue) }
   }
+
+  var chat: SessionState<ConversationState>? {
+    get { self.get(MainScreenState.Route.Paths.chat) }
+    set { self.set(MainScreenState.Route.Paths.chat, newValue) }
+  }
+}
+
+private extension MainScreenState.Route {
+  enum Paths {
+    static let chat: OptionalPath = (\MainScreenState.route)
+      .case(CasePath(MainScreenState.Route.chat))
+  }
+}
+
+public extension SessionState where ChildState == MainScreenState {
+  static var placeholder: Self = {
+    var state = SessionState(
+      currentUser: .init(jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")),
+      childState: MainScreenState()
+    )
+    state.isPlaceholder = true
+    return state
+  }()
 }
 
 extension MainScreenState {
@@ -137,16 +172,6 @@ extension MainScreenState {
     case peopleAndGroups
     case chat(ConversationState)
   }
-}
-
-public extension MainScreenState {
-  static var placeholder: MainScreenState = {
-    var state = MainScreenState(
-      jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")
-    )
-    state.isPlaceholder = true
-    return state
-  }()
 }
 
 // MARK: Actions
@@ -201,7 +226,10 @@ extension MainScreenEnvironment {
   internal struct MainWindow_Previews: PreviewProvider {
     static var previews: some View {
       MainScreen(store: Store(
-        initialState: MainScreenState(jid: "preview@prose.org"),
+        initialState: .init(
+          currentUser: .init(jid: "preview@prose.org"),
+          childState: MainScreenState()
+        ),
         reducer: mainWindowReducer,
         environment: MainScreenEnvironment(
           proseClient: .noop,
