@@ -70,11 +70,15 @@ extension Message {
 
 extension Message: Encodable {
   enum CodingKeys: String, CodingKey {
-    case id, type, date, content, from, reactions
+    case id, type, date, content, from, reactions, metas
   }
 
   enum UserCodingKeys: String, CodingKey {
     case jid, name
+  }
+  
+  enum MetaCodingKeys: String, CodingKey {
+    case encrypted, edited
   }
 
   fileprivate static var dateFormatter: ISO8601DateFormatter = {
@@ -96,6 +100,13 @@ extension Message: Encodable {
       // FIXME: Find a way to set `name` to the correct value
       try container.encode(String(describing: self.from), forKey: .name)
     }
+    
+    do {
+      var container = container.nestedContainer(keyedBy: MetaCodingKeys.self, forKey: .metas)
+      try container.encode(self.isEdited, forKey: .edited)
+      try container.encode(false, forKey: .encrypted)
+    }
+    
     try container.encode(self.reactions, forKey: .reactions)
   }
 }
