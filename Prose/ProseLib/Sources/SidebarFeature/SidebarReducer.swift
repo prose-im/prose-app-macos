@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import Foundation
+import JoinChatFeature
 import ProseCoreTCA
 import TcaHelpers
 import Toolbox
@@ -18,6 +19,8 @@ public struct SidebarState: Equatable {
   var roster = RosterState()
   var footer: FooterState
   var toolbar = ToolbarState()
+
+  var sheet: Sheet?
 
   public init(credentials: UserCredentials, selection: Selection? = nil) {
     self.credentials = credentials
@@ -36,6 +39,13 @@ public extension SidebarState {
   }
 }
 
+public extension SidebarState {
+  enum Sheet: Equatable {
+    case addMember(AddMemberSheetState)
+    case joinGroup(JoinGroupSheetState)
+  }
+}
+
 public enum SidebarAction: Equatable {
   case onAppear
   case onDisappear
@@ -51,6 +61,11 @@ public enum SidebarAction: Equatable {
 
   case footer(FooterAction)
   case toolbar(ToolbarAction)
+
+  case addMember(AddMemberSheetAction)
+  case joinGroup(JoinGroupSheetAction)
+
+  case showSheet(SidebarState.Sheet?)
 }
 
 public struct SidebarEnvironment {
@@ -60,6 +75,16 @@ public struct SidebarEnvironment {
   public init(proseClient: ProseClient, mainQueue: AnySchedulerOf<DispatchQueue>) {
     self.proseClient = proseClient
     self.mainQueue = mainQueue
+  }
+}
+
+extension SidebarEnvironment {
+  var addMember: AddMemberSheetEnvironment {
+    AddMemberSheetEnvironment(mainQueue: self.mainQueue)
+  }
+
+  var joinGroup: JoinGroupSheetEnvironment {
+    JoinGroupSheetEnvironment(mainQueue: self.mainQueue)
   }
 }
 
@@ -84,6 +109,16 @@ public let sidebarReducer: Reducer<
     action: CasePath(SidebarAction.toolbar),
     environment: { _ in () }
   ),
+  addMemberReducer._pullback(
+    state: (\SidebarState.sheet).case(CasePath(SidebarState.Sheet.addMember)),
+    action: CasePath(SidebarAction.addMember),
+    environment: \.addMember
+  ),
+  joinGroupReducer._pullback(
+    state: (\SidebarState.sheet).case(CasePath(SidebarState.Sheet.joinGroup)),
+    action: CasePath(SidebarAction.joinGroup),
+    environment: \.joinGroup
+  ),
   Reducer { state, action, _ in
     switch action {
     case .onAppear:
@@ -97,14 +132,25 @@ public let sidebarReducer: Reducer<
       return .none
 
     case .addContactButtonTapped:
-      logger.info("Add contact button tapped")
+      state.sheet = .addMember(AddMemberSheetState())
       return .none
 
     case .addGroupButtonTapped:
-      logger.info("Add group button tapped")
+      state.sheet = .joinGroup(JoinGroupSheetState())
       return .none
 
-    case .footer, .toolbar, .rosterResult, .activeChatsResult, .presencesResult:
+    case let .showSheet(sheet):
+      state.sheet = sheet
+      return .none
+
+    case .addMember(.cancelTapped), .joinGroup(.cancelTapped):
+      state.sheet = nil
+      return .none
+
+    case .addMember(.submitTapped), .joinGroup(.submitTapped):
+      fatalError("\(action) not implemented yet.")
+
+    default:
       return .none
     }
   },

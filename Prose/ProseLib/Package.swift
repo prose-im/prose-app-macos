@@ -17,6 +17,7 @@ let package = Package(
       "ConversationFeature",
       "ConversationInfoFeature",
       "EditProfileFeature",
+      "JoinChatFeature",
       "MainWindowFeature",
       "ProseUI",
       "SettingsFeature",
@@ -71,10 +72,12 @@ let package = Package(
       "ProseUI",
       "ProseCoreTCA",
     ]),
+    .target(name: "JoinChatFeature", dependencies: [.featureBase]),
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
     .target(name: "SidebarFeature", dependencies: [
       .featureBase,
       "EditProfileFeature",
+      "JoinChatFeature",
     ]),
     .target(
       name: "ConversationFeature",
