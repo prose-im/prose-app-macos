@@ -15,6 +15,9 @@
 		2CBFFE77287D7D1900A53992 /* XCUIApplication+Prose.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBFFE76287D7D1900A53992 /* XCUIApplication+Prose.swift */; };
 		2CBFFE79287D7D2B00A53992 /* RosterSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBFFE78287D7D2B00A53992 /* RosterSelectionTests.swift */; };
 		2CF10E9D287D8D0B0006DCFF /* UITestHostApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF10E9C287D8D0B0006DCFF /* UITestHostApp.swift */; };
+		4688166F28B67A7400916EC6 /* ProseUIPreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4688166E28B67A7400916EC6 /* ProseUIPreviewApp.swift */; };
+		4688167128B67A7400916EC6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4688167028B67A7400916EC6 /* ContentView.swift */; };
+		4688168028B67ADF00916EC6 /* Previews in Frameworks */ = {isa = PBXBuildFile; productRef = 4688167F28B67ADF00916EC6 /* Previews */; };
 		46A46C7428635B8E00F27E40 /* ConversationFeaturePreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A46C7328635B8E00F27E40 /* ConversationFeaturePreviewApp.swift */; };
 		46A46C7628635B8E00F27E40 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A46C7528635B8E00F27E40 /* ContentView.swift */; };
 		46A46C7828635B9000F27E40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7728635B9000F27E40 /* Assets.xcassets */; };
@@ -58,6 +61,10 @@
 		2CBFFE76287D7D1900A53992 /* XCUIApplication+Prose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIApplication+Prose.swift"; sourceTree = "<group>"; };
 		2CBFFE78287D7D2B00A53992 /* RosterSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RosterSelectionTests.swift; sourceTree = "<group>"; };
 		2CF10E9C287D8D0B0006DCFF /* UITestHostApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestHostApp.swift; sourceTree = "<group>"; };
+		4688166C28B67A7400916EC6 /* ProseUIPreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProseUIPreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4688166E28B67A7400916EC6 /* ProseUIPreviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProseUIPreviewApp.swift; sourceTree = "<group>"; };
+		4688167028B67A7400916EC6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4688167728B67A7600916EC6 /* ProseUIPreview.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ProseUIPreview.entitlements; sourceTree = "<group>"; };
 		46A46C7128635B8E00F27E40 /* ConversationFeaturePreview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConversationFeaturePreview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46A46C7328635B8E00F27E40 /* ConversationFeaturePreviewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationFeaturePreviewApp.swift; sourceTree = "<group>"; };
 		46A46C7528635B8E00F27E40 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -86,6 +93,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4688166928B67A7400916EC6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4688168028B67ADF00916EC6 /* Previews in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +191,16 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		4688166D28B67A7400916EC6 /* ProseUIPreview */ = {
+			isa = PBXGroup;
+			children = (
+				4688166E28B67A7400916EC6 /* ProseUIPreviewApp.swift */,
+				4688167028B67A7400916EC6 /* ContentView.swift */,
+				4688167728B67A7600916EC6 /* ProseUIPreview.entitlements */,
+			);
+			path = ProseUIPreview;
+			sourceTree = "<group>";
+		};
 		46A46C7228635B8E00F27E40 /* ConversationFeaturePreview */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,6 +240,7 @@
 				46D306E9287C249100CCA25F /* EditProfileFeaturePreview */,
 				2CBFFE4F287D6DFE00A53992 /* UITestHost */,
 				2CBFFE68287D7B0B00A53992 /* ProseUITests */,
+				4688166D28B67A7400916EC6 /* ProseUIPreview */,
 				52EA116F274C23C2007DA1C5 /* Products */,
 				2C4F3D0E27F716C2004B79F3 /* Frameworks */,
 			);
@@ -229,6 +255,7 @@
 				46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */,
 				2CBFFE4E287D6DFE00A53992 /* UITestHost.app */,
 				2CBFFE67287D7B0B00A53992 /* ProseUITests.xctest */,
+				4688166C28B67A7400916EC6 /* ProseUIPreview.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -287,6 +314,26 @@
 			productName = ProseUITests;
 			productReference = 2CBFFE67287D7B0B00A53992 /* ProseUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		4688166B28B67A7400916EC6 /* ProseUIPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4688167A28B67A7600916EC6 /* Build configuration list for PBXNativeTarget "ProseUIPreview" */;
+			buildPhases = (
+				4688166828B67A7400916EC6 /* Sources */,
+				4688166928B67A7400916EC6 /* Frameworks */,
+				4688166A28B67A7400916EC6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ProseUIPreview;
+			packageProductDependencies = (
+				4688167F28B67ADF00916EC6 /* Previews */,
+			);
+			productName = ProseUIPreview;
+			productReference = 4688166C28B67A7400916EC6 /* ProseUIPreview.app */;
+			productType = "com.apple.product-type.application";
 		};
 		46A46C7028635B8E00F27E40 /* ConversationFeaturePreview */ = {
 			isa = PBXNativeTarget;
@@ -366,6 +413,9 @@
 						CreatedOnToolsVersion = 14.0;
 						TestTargetID = 2CBFFE4D287D6DFE00A53992;
 					};
+					4688166B28B67A7400916EC6 = {
+						CreatedOnToolsVersion = 14.0;
+					};
 					46A46C7028635B8E00F27E40 = {
 						CreatedOnToolsVersion = 14.0;
 					};
@@ -397,6 +447,7 @@
 				46D306E7287C249100CCA25F /* EditProfileFeaturePreview */,
 				2CBFFE4D287D6DFE00A53992 /* UITestHost */,
 				2CBFFE66287D7B0B00A53992 /* ProseUITests */,
+				4688166B28B67A7400916EC6 /* ProseUIPreview */,
 			);
 		};
 /* End PBXProject section */
@@ -412,6 +463,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		2CBFFE65287D7B0B00A53992 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4688166A28B67A7400916EC6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -460,6 +518,15 @@
 			files = (
 				2CBFFE79287D7D2B00A53992 /* RosterSelectionTests.swift in Sources */,
 				2CBFFE77287D7D1900A53992 /* XCUIApplication+Prose.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4688166828B67A7400916EC6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4688167128B67A7400916EC6 /* ContentView.swift in Sources */,
+				4688166F28B67A7400916EC6 /* ProseUIPreviewApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,6 +660,58 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = UITestHost;
+			};
+			name = Release;
+		};
+		4688167828B67A7600916EC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = ProseUIPreview/ProseUIPreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Prose. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.prose.ProseUIPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		4688167928B67A7600916EC6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = ProseUIPreview/ProseUIPreview.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Prose. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.prose.ProseUIPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -898,6 +1017,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		4688167A28B67A7600916EC6 /* Build configuration list for PBXNativeTarget "ProseUIPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4688167828B67A7600916EC6 /* Debug */,
+				4688167928B67A7600916EC6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		46A46C7F28635B9000F27E40 /* Build configuration list for PBXNativeTarget "ConversationFeaturePreview" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -944,6 +1072,10 @@
 		2CBFFE61287D775800A53992 /* TestHostApp */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TestHostApp;
+		};
+		4688167F28B67ADF00916EC6 /* Previews */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Previews;
 		};
 		46A46C80286362B300F27E40 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
