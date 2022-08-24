@@ -86,6 +86,7 @@ final class TypesEncodingTests: XCTestCase {
       {"content":"Hello unit tests","date":"2022-08-11T00:00:00.000Z",\
       "from":{"jid":"remi@prose.org","name":"remi@prose.org"},\
       "id":"test-message-id",\
+      "metas":{"edited":false,"encrypted":false},\
       "reactions":[{"authors":["remi@prose.org"],"reaction":"👋"}],\
       "type":"text"}
       """
