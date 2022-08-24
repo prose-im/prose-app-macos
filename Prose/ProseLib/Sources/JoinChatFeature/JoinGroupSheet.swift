@@ -125,44 +125,7 @@ public let joinGroupReducer = Reducer<
   JoinGroupSheetState,
   JoinGroupSheetAction,
   JoinGroupSheetEnvironment
-> { state, action, environment in
-  switch action {
-  case let .didUpdateText(text):
-    state.isProcessing = true
-    return Effect(value: .didCheckText(text))
-      .delay(for: 0.5, scheduler: environment.mainQueue)
-      .eraseToEffect()
-
-  case let .didCheckText(text):
-    state.isProcessing = false
-
-    switch text {
-    case "":
-      state.info = .none
-    case "invalid":
-      state.info = .invalid
-    case "unknown@prose.org":
-      state.info = .unknown
-    case let text where text.hasSuffix("."):
-      state.info = .invalid
-    case let text where text.contains("@") && text.contains("."):
-      state.info = .existing(4)
-    default:
-      state.info = .invalid
-    }
-
-    return .none
-
-  case .binding(\.$text):
-    struct Token: Hashable {}
-    return Effect(value: .didUpdateText(state.text))
-      .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
-      .eraseToEffect()
-
-  default:
-    return .none
-  }
-}.binding()
+>.empty.binding()
 
 // MARK: State
 
@@ -229,31 +192,79 @@ public extension JoinGroupSheetEnvironment {
   }
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct JoinGroupSheet_Previews: PreviewProvider {
-  static func preview(_ initialState: JoinGroupSheetState = .init()) -> some View {
-    JoinGroupSheet(store: Store(
-      initialState: initialState,
-      reducer: joinGroupReducer,
-      environment: .live()
-    ))
-  }
+  // MARK: - Previews
 
-  static var previews: some View {
-    preview()
-      .previewDisplayName("Base")
-    preview(.init(text: "remi@prose.org", info: .existing(4)))
-      .previewDisplayName("Success")
-    preview(.init(text: "someone@prose.org", info: .unknown))
-      .previewDisplayName("Unknown")
-    preview(.init(text: "remi@notfinished", info: .invalid))
-      .previewDisplayName("Not finished")
-    preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
-      .previewDisplayName("Processing")
-    Text("Preview")
-      .frame(width: 480, height: 360)
-      .sheet(isPresented: .constant(true)) { preview() }
-      .previewDisplayName("Sheet")
+  struct JoinGroupSheet_Previews: PreviewProvider {
+    static func preview(_ initialState: JoinGroupSheetState = .init()) -> some View {
+      JoinGroupSheet(store: Store(
+        initialState: initialState,
+        reducer: joinGroupReducer.combined(
+          with:
+          Reducer { state, action, environment in
+            switch action {
+            case let .didUpdateText(text):
+              state.isProcessing = true
+              return Effect(value: .didCheckText(text))
+                .delay(for: 0.5, scheduler: environment.mainQueue)
+                .eraseToEffect()
+
+            case let .didCheckText(text):
+              state.isProcessing = false
+
+              switch text {
+              case "":
+                state.info = .none
+              case "invalid":
+                state.info = .invalid
+              case "unknown@prose.org":
+                state.info = .unknown
+              case let text where text.hasSuffix("."):
+                state.info = .invalid
+              case let text
+                where text.contains("@") && text.contains("."):
+                state.info = .existing(4)
+              default:
+                state.info = .invalid
+              }
+
+              return .none
+
+            case .binding(\.$text):
+              struct Token: Hashable {}
+              return Effect(value: .didUpdateText(state.text))
+                .debounce(
+                  id: Token(),
+                  for: 0.5,
+                  scheduler: environment.mainQueue
+                )
+                .eraseToEffect()
+
+            default:
+              return .none
+            }
+          }
+        ),
+        environment: .live()
+      ))
+    }
+
+    static var previews: some View {
+      preview()
+        .previewDisplayName("Base")
+      preview(.init(text: "remi@prose.org", info: .existing(4)))
+        .previewDisplayName("Success")
+      preview(.init(text: "someone@prose.org", info: .unknown))
+        .previewDisplayName("Unknown")
+      preview(.init(text: "remi@notfinished", info: .invalid))
+        .previewDisplayName("Not finished")
+      preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
+        .previewDisplayName("Processing")
+      Text("Preview")
+        .frame(width: 480, height: 360)
+        .sheet(isPresented: .constant(true)) { preview() }
+        .previewDisplayName("Sheet")
+    }
   }
-}
+#endif

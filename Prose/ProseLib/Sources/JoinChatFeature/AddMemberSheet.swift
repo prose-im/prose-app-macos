@@ -125,44 +125,7 @@ public let addMemberReducer = Reducer<
   AddMemberSheetState,
   AddMemberSheetAction,
   AddMemberSheetEnvironment
-> { state, action, environment in
-  switch action {
-  case let .didUpdateText(text):
-    state.isProcessing = true
-    return Effect(value: .didCheckText(text))
-      .delay(for: 0.5, scheduler: environment.mainQueue)
-      .eraseToEffect()
-
-  case let .didCheckText(text):
-    state.isProcessing = false
-
-    switch text {
-    case "":
-      state.info = .none
-    case "invalid":
-      state.info = .invalid
-    case "unknown@prose.org":
-      state.info = .unknown
-    case let text where text.hasSuffix("."):
-      state.info = .invalid
-    case let text where text.contains("@") && text.contains("."):
-      state.info = .existing("Firstname Lastname")
-    default:
-      state.info = .invalid
-    }
-
-    return .none
-
-  case .binding(\.$text):
-    struct Token: Hashable {}
-    return Effect(value: .didUpdateText(state.text))
-      .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
-      .eraseToEffect()
-
-  default:
-    return .none
-  }
-}.binding()
+>.empty.binding()
 
 // MARK: State
 
@@ -237,31 +200,73 @@ public extension AddMemberSheetEnvironment {
   }
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct AddMemberSheet_Previews: PreviewProvider {
-  static func preview(_ initialState: AddMemberSheetState = .init()) -> some View {
-    AddMemberSheet(store: Store(
-      initialState: initialState,
-      reducer: addMemberReducer,
-      environment: .live()
-    ))
-  }
+  // MARK: - Previews
 
-  static var previews: some View {
-    preview()
-      .previewDisplayName("Base")
-    preview(.init(text: "remi@prose.org", info: .existing("Rémi Bardon")))
-      .previewDisplayName("Success")
-    preview(.init(text: "someone@prose.org", info: .unknown))
-      .previewDisplayName("Unknown")
-    preview(.init(text: "remi@notfinished", info: .invalid))
-      .previewDisplayName("Not finished")
-    preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
-      .previewDisplayName("Processing")
-    Text("Preview")
-      .frame(width: 480, height: 360)
-      .sheet(isPresented: .constant(true)) { preview() }
-      .previewDisplayName("Sheet")
+  struct AddMemberSheet_Previews: PreviewProvider {
+    static func preview(_ initialState: AddMemberSheetState = .init()) -> some View {
+      AddMemberSheet(store: Store(
+        initialState: initialState,
+        reducer: addMemberReducer.combined(
+          with: Reducer { state, action, environment in
+            switch action {
+            case let .didUpdateText(text):
+              state.isProcessing = true
+              return Effect(value: .didCheckText(text))
+                .delay(for: 0.5, scheduler: environment.mainQueue)
+                .eraseToEffect()
+
+            case let .didCheckText(text):
+              state.isProcessing = false
+
+              switch text {
+              case "":
+                state.info = .none
+              case "invalid":
+                state.info = .invalid
+              case "unknown@prose.org":
+                state.info = .unknown
+              case let text where text.hasSuffix("."):
+                state.info = .invalid
+              case let text where text.contains("@") && text.contains("."):
+                state.info = .existing("Firstname Lastname")
+              default:
+                state.info = .invalid
+              }
+
+              return .none
+
+            case .binding(\.$text):
+              struct Token: Hashable {}
+              return Effect(value: .didUpdateText(state.text))
+                .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
+                .eraseToEffect()
+
+            default:
+              return .none
+            }
+          }
+        ),
+        environment: .live()
+      ))
+    }
+
+    static var previews: some View {
+      preview()
+        .previewDisplayName("Base")
+      preview(.init(text: "remi@prose.org", info: .existing("Rémi Bardon")))
+        .previewDisplayName("Success")
+      preview(.init(text: "someone@prose.org", info: .unknown))
+        .previewDisplayName("Unknown")
+      preview(.init(text: "remi@notfinished", info: .invalid))
+        .previewDisplayName("Not finished")
+      preview(.init(text: "remi@prose.org", info: .none, isProcessing: true))
+        .previewDisplayName("Processing")
+      Text("Preview")
+        .frame(width: 480, height: 360)
+        .sheet(isPresented: .constant(true)) { preview() }
+        .previewDisplayName("Sheet")
+    }
   }
-}
+#endif
