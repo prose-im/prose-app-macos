@@ -20,6 +20,7 @@ let package = Package(
       "JoinChatFeature",
       "MainWindowFeature",
       "ProseUI",
+      "SearchSuggestionsFeature",
       "SettingsFeature",
       "SidebarFeature",
       "UnreadFeature",
@@ -102,6 +103,10 @@ let package = Package(
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
     ),
+    .target(name: "SearchSuggestionsFeature", dependencies: [
+      "AutoSuggestClient",
+      .featureBase,
+    ]),
     .target(
       name: "UnreadFeature",
       dependencies: [
@@ -111,6 +116,8 @@ let package = Package(
     ),
 
     // MARK: Dependencies
+
+    .target(name: "AutoSuggestClient", dependencies: [.base]),
 
     .target(name: "CredentialsClient", dependencies: [.base]),
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
