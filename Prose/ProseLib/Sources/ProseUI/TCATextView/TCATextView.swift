@@ -135,8 +135,6 @@ struct _TCATextView: NSViewRepresentable {
       _: NSTextView,
       doCommandBy commandSelector: Selector
     ) -> Bool {
-      return false
-
       let event: KeyEvent
       switch commandSelector {
       case #selector(NSResponder.moveUp(_:)):
@@ -149,12 +147,15 @@ struct _TCATextView: NSViewRepresentable {
         return false
       }
 
-      self.viewStore.send(.keyboardEventReceived(event))
-
-      // NOTE: We cannot know if the event was handled here… so let's suppose it was.
-      //       This means the user cannot type a new line, even if we don't handle the action.
-      //       We could work around this **if needed**.
-      return true
+      if self.viewStore.interceptedEvents.contains(event) {
+        self.viewStore.send(.keyboardEventReceived(event))
+        // NOTE: We cannot know if the event was handled here… so let's suppose it was.
+        //       This means the user cannot type a new line, even if we don't handle the action.
+        //       We could work around this **if needed**.
+        return true
+      } else {
+        return false
+      }
     }
   }
 }
@@ -188,7 +189,8 @@ final class MyScrollableTextView: NSView {
     // Create scroll view
 
     let scrollView = NSTextView.scrollableTextView()
-    scrollView.drawsBackground = false
+    scrollView.drawsBackground = true
+    scrollView.backgroundColor = .textBackgroundColor
     scrollView.hasVerticalScroller = true
     scrollView.hasHorizontalScroller = false
     scrollView.autohidesScrollers = true
@@ -218,7 +220,6 @@ final class MyScrollableTextView: NSView {
     self.layer?.borderWidth = coordinator.viewStore.borderWidth
     self.layer?.borderColor = NSColor.separatorColor.cgColor
     self.layer?.cornerRadius = coordinator.viewStore.cornerRadius
-    self.layer?.backgroundColor = NSColor.textBackgroundColor.cgColor
 
     // Add views
 
@@ -366,6 +367,7 @@ public struct TCATextViewState: Equatable {
   var cornerRadius: CGFloat
   var textContainerInset: NSSize
   var showFocusRing: Bool
+  var interceptedEvents: Set<KeyEvent>
 
   /// - Note: The default values replicate the rounded `NSTextField` style.
   public init(
@@ -377,7 +379,8 @@ public struct TCATextViewState: Equatable {
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
     textContainerInset: NSSize? = nil,
-    showFocusRing: Bool = true
+    showFocusRing: Bool = true,
+    interceptEvents: Set<KeyEvent> = []
   ) {
     var typingAttributes = typingAttributes ?? AttributeContainer()
     typingAttributes.merge(Self.defaultAttributes, mergePolicy: .keepCurrent)
@@ -395,6 +398,7 @@ public struct TCATextViewState: Equatable {
     self.cornerRadius = cornerRadius ?? 6
     self.textContainerInset = textContainerInset ?? NSSize(width: 5, height: 5)
     self.showFocusRing = showFocusRing
+    self.interceptedEvents = interceptEvents
   }
 
   public init(
@@ -406,7 +410,8 @@ public struct TCATextViewState: Equatable {
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
     textContainerInset: NSSize? = nil,
-    showFocusRing: Bool = true
+    showFocusRing: Bool = true,
+    interceptEvents: Set<KeyEvent> = []
   ) {
     self.init(
       text: AttributedString(text, attributes: Self.defaultAttributes),
@@ -417,7 +422,8 @@ public struct TCATextViewState: Equatable {
       borderWidth: borderWidth,
       cornerRadius: cornerRadius,
       textContainerInset: textContainerInset,
-      showFocusRing: showFocusRing
+      showFocusRing: showFocusRing,
+      interceptEvents: interceptEvents
     )
   }
 }
@@ -465,26 +471,30 @@ public enum TCATextViewAction: Equatable {
           GroupBox("Simple message") {
             Preview(state: .init(
               text: "This is a message that was written.",
-              placeholder: "Message Valerian"
+              placeholder: "Message Valerian",
+              interceptEvents: [.newline]
             ))
           }
           GroupBox("Long message") {
             Preview(state: .init(
               text: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written.",
-              placeholder: "Message Valerian"
+              placeholder: "Message Valerian",
+              interceptEvents: [.newline]
             ))
           }
           GroupBox("Long username") {
             Preview(state: .init(
-              placeholder: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long placeholder"
+              placeholder: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long placeholder",
+              interceptEvents: [.newline]
             ))
           }
           GroupBox("Empty") {
-            Preview(state: .init(placeholder: "Message Valerian"))
+            Preview(state: .init())
           }
           GroupBox("High, single line") {
             Preview(state: .init(
-              placeholder: "Message Valerian"
+              placeholder: "Message Valerian",
+              interceptEvents: [.newline]
             ))
           }
           GroupBox("High, multi line") {
@@ -509,8 +519,8 @@ public enum TCATextViewAction: Equatable {
                   placeholder: "Message Valerian"
                 ))
                 .blendMode(.difference)
-                //              .blendMode(.multiply)
-                //              .opacity(0.5)
+//                .blendMode(.multiply)
+//                .opacity(0.5)
               }
               Preview(state: .init(
                 placeholder: "Message Valerian"
@@ -519,9 +529,9 @@ public enum TCATextViewAction: Equatable {
                 Preview(state: .init(
                   placeholder: "Message Valerian"
                 ))
-                //              .blendMode(.difference)
+//                .blendMode(.difference)
                 .blendMode(.multiply)
-                //              .opacity(0.5)
+//                .opacity(0.5)
               }
             }
           }
