@@ -19,52 +19,53 @@ public enum ItemProviderError: Error {
 public extension NSItemProvider {
   func prose_systemImagePublisher() -> AnyPublisher<PlatformImage, Error> {
     #if os(macOS)
-      if #available(macOS 13.0, *) {
-        return self.prose_publisher(ofClass: PlatformImage.self)
-      } else {
-        return Deferred {
-          Future { promise in
-            let identifier = [UTType]([.png, .jpeg, .image, .fileURL])
-              .lazy
-              .map(\.identifier)
-              .filter(self.hasItemConformingToTypeIdentifier)
-              .first
+      // TODO: Enable this on Xcode 14.
+//      if #available(macOS 13.0, *) {
+//        return self.prose_publisher(ofClass: PlatformImage.self)
+//      } else {
+      return Deferred {
+        Future { promise in
+          let identifier = [UTType]([.png, .jpeg, .image, .fileURL])
+            .lazy
+            .map(\.identifier)
+            .filter(self.hasItemConformingToTypeIdentifier)
+            .first
 
-            guard let identifier = identifier else {
+          guard let identifier = identifier else {
+            return promise(.failure(ItemProviderError.couldNotRetrieveItem))
+          }
+
+          self.loadItem(forTypeIdentifier: identifier) { data, error in
+            if let error = error {
+              return promise(.failure(error))
+            }
+            guard let data = data else {
               return promise(.failure(ItemProviderError.couldNotRetrieveItem))
             }
 
-            self.loadItem(forTypeIdentifier: identifier) { data, error in
-              if let error = error {
-                return promise(.failure(error))
-              }
-              guard let data = data else {
-                return promise(.failure(ItemProviderError.couldNotRetrieveItem))
-              }
-
-              if identifier == UTType.fileURL.identifier {
-                guard
-                  let data = data as? Data,
-                  let url = URL(dataRepresentation: data, relativeTo: nil),
-                  let image = NSImage(contentsOf: url)
-                else {
-                  return promise(.failure(ItemProviderError.invalidItemData))
-                }
-                return promise(.success(image))
-              }
-
+            if identifier == UTType.fileURL.identifier {
               guard
                 let data = data as? Data,
-                let image = NSImage(data: data)
+                let url = URL(dataRepresentation: data, relativeTo: nil),
+                let image = NSImage(contentsOf: url)
               else {
                 return promise(.failure(ItemProviderError.invalidItemData))
               }
-
-              promise(.success(image))
+              return promise(.success(image))
             }
+
+            guard
+              let data = data as? Data,
+              let image = NSImage(data: data)
+            else {
+              return promise(.failure(ItemProviderError.invalidItemData))
+            }
+
+            promise(.success(image))
           }
-        }.eraseToAnyPublisher()
-      }
+        }
+      }.eraseToAnyPublisher()
+//      }
     #else
       return self.prose_publisher(ofClass: PlatformImage.self)
     #endif

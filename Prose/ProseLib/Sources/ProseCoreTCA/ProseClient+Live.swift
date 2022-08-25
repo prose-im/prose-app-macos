@@ -302,7 +302,7 @@ public extension ProseClient {
         let jid = JID(fullJid: client.jid)
 
         return Deferred {
-          Future { promise in
+          Future<Data, Error> { promise in
             guard let jpgData = try? image
               .prose_downsampled(maxPixelSize: 600)
               .prose_jpegData(compressionQuality: 0.75)
