@@ -11,25 +11,52 @@ import Toolbox
 
 // MARK: - View
 
-public struct TCATextView: NSViewRepresentable {
-  public typealias ViewState = TCATextViewState
-  public typealias ViewAction = TCATextViewAction
+public struct TCATextView: View {
+  public typealias State = TCATextViewState
+  public typealias Action = TCATextViewAction
 
-  private let store: Store<ViewState, ViewAction>
-  @ObservedObject private var viewStore: ViewStore<ViewState, ViewAction>
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<State, Action>
 
-  public init(store: Store<ViewState, ViewAction>) {
+  public init(store: Store<State, Action>) {
     self.store = store
     self.viewStore = ViewStore(store)
   }
 
-  public func makeNSView(context: Context) -> MyScrollableTextView {
+  public var body: some View {
+    _TCATextView(store: self.store)
+      .focusable()
+      .overlay(alignment: .topLeading) {
+        if let placeholder = self.viewStore.placeholder, self.viewStore.text.characters.isEmpty {
+          Text(placeholder)
+            .padding(self.viewStore.textContainerInset.prose_edgeInsets)
+            .allowsHitTesting(false)
+            .accessibility(hidden: true)
+        }
+      }
+      .fixedSize(horizontal: false, vertical: true)
+  }
+}
+
+struct _TCATextView: NSViewRepresentable {
+  typealias State = TCATextViewState
+  typealias Action = TCATextViewAction
+
+  private let store: Store<State, Action>
+  @ObservedObject private var viewStore: ViewStore<State, Action>
+
+  init(store: Store<State, Action>) {
+    self.store = store
+    self.viewStore = ViewStore(store)
+  }
+
+  func makeNSView(context: Context) -> MyScrollableTextView {
     let view = MyScrollableTextView(frame: .zero, coordinator: context.coordinator)
     view.textView.textStorage?.setAttributedString(NSAttributedString(self.viewStore.text))
     return view
   }
 
-  public func updateNSView(_ view: MyScrollableTextView, context: Context) {
+  func updateNSView(_ view: MyScrollableTextView, context: Context) {
     let textView = view.textView
 
     let textHasChanged = !context.coordinator.isSendingTextChangeToStore
@@ -47,15 +74,15 @@ public struct TCATextView: NSViewRepresentable {
     textView.scrollRangeToVisible(textView.selectedRange())
   }
 
-  public func makeCoordinator() -> Coordinator {
+  func makeCoordinator() -> Coordinator {
     Coordinator(viewStore: self.viewStore)
   }
 
-  public final class Coordinator: NSObject, NSTextViewDelegate {
+  final class Coordinator: NSObject, NSTextViewDelegate {
     let textContentStorage: NSTextContentStorage
     let textLayoutManager: NSTextLayoutManager
 
-    let viewStore: ViewStore<ViewState, ViewAction>
+    let viewStore: ViewStore<State, Action>
 
     var cancellables = Set<AnyCancellable>()
 
@@ -68,7 +95,7 @@ public struct TCATextView: NSViewRepresentable {
     /// make sense) we keep track of what's going on.
     var textViewIsChanging = false
 
-    init(viewStore: ViewStore<ViewState, ViewAction>) {
+    init(viewStore: ViewStore<State, Action>) {
       self.viewStore = viewStore
 
       // Create and initialize the supporting layout, container, and storage management.
@@ -80,7 +107,7 @@ public struct TCATextView: NSViewRepresentable {
       self.textContentStorage.addTextLayoutManager(self.textLayoutManager)
     }
 
-    public func textDidChange(_: Notification) {
+    func textDidChange(_: Notification) {
       self.textViewIsChanging = false
 
       assert(self.textContentStorage.attributedString != nil)
@@ -97,14 +124,14 @@ public struct TCATextView: NSViewRepresentable {
       self.isSendingTextChangeToStore = false
     }
 
-    public func textViewDidChangeSelection(_: Notification) {
+    func textViewDidChangeSelection(_: Notification) {
       guard !self.textViewIsChanging else { return }
 
       let selectionRange: NSRange? = self.textContentStorage.prose_selectionRange()
       self.viewStore.send(.selectionDidChange(selectionRange))
     }
 
-    public func textView(
+    func textView(
       _: NSTextView,
       doCommandBy commandSelector: Selector
     ) -> Bool {
@@ -132,11 +159,11 @@ public struct TCATextView: NSViewRepresentable {
   }
 }
 
-public final class MyScrollableTextView: NSView {
+final class MyScrollableTextView: NSView {
   fileprivate let textView: MyTextView
   var textViewHeightConstraint: NSLayoutConstraint!
 
-  weak var coordinator: TCATextView.Coordinator?
+  weak var coordinator: _TCATextView.Coordinator?
 
   var textContainerHeight: CGFloat {
     guard let coordinator = self.coordinator else {
@@ -155,7 +182,7 @@ public final class MyScrollableTextView: NSView {
     return height
   }
 
-  init(frame frameRect: NSRect, coordinator: TCATextView.Coordinator) {
+  init(frame frameRect: NSRect, coordinator: _TCATextView.Coordinator) {
     self.coordinator = coordinator
 
     // Create scroll view
@@ -176,6 +203,7 @@ public final class MyScrollableTextView: NSView {
     textView.delegate = coordinator
     textView.typingAttributes = coordinator.viewStore.typingAttributes.attributes
     textView.hasFocusRing = coordinator.viewStore.showFocusRing
+    textView.drawsBackground = false
     // Remove default 5pt horizontal padding
     textContainer?.lineFragmentPadding = 0
     textView.textContainerInset = coordinator.viewStore.textContainerInset
@@ -190,6 +218,7 @@ public final class MyScrollableTextView: NSView {
     self.layer?.borderWidth = coordinator.viewStore.borderWidth
     self.layer?.borderColor = NSColor.separatorColor.cgColor
     self.layer?.cornerRadius = coordinator.viewStore.cornerRadius
+    self.layer?.backgroundColor = NSColor.textBackgroundColor.cgColor
 
     // Add views
 
@@ -242,13 +271,13 @@ public final class MyScrollableTextView: NSView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override public func resize(withOldSuperviewSize oldSize: NSSize) {
+  override func resize(withOldSuperviewSize oldSize: NSSize) {
     super.resize(withOldSuperviewSize: oldSize)
     // Allow live resize of the text field
     self._updateSize()
   }
 
-  override public func viewDidEndLiveResize() {
+  override func viewDidEndLiveResize() {
     super.viewDidEndLiveResize()
     // FIX: For some reason, when resizing quickly, the last live resize
     //      (`resize(withOldSuperviewSize:)`) doesn't seem to have the correct size.
@@ -323,7 +352,13 @@ public let textViewReducer = Reducer<
 // MARK: State
 
 public struct TCATextViewState: Equatable {
+  static let defaultAttributes = AttributeContainer([
+    .font: NSFont.systemFont(ofSize: 12),
+    .foregroundColor: NSColor.textColor,
+  ])
+
   public var text: AttributedString
+  let placeholder: AttributedString?
   var typingAttributes: AttributeContainer
   var selection: NSRange?
   var height: CGFloat
@@ -335,26 +370,55 @@ public struct TCATextViewState: Equatable {
   /// - Note: The default values replicate the rounded `NSTextField` style.
   public init(
     text: AttributedString? = nil,
+    placeholder: String? = nil,
     typingAttributes: AttributeContainer? = nil,
     selection: NSRange? = nil,
-    height: CGFloat = 24,
-    borderWidth: CGFloat = 1,
-    cornerRadius: CGFloat = 6,
-    textContainerInset: NSSize = NSSize(width: 5, height: 5),
+    height: CGFloat? = nil,
+    borderWidth: CGFloat? = nil,
+    cornerRadius: CGFloat? = nil,
+    textContainerInset: NSSize? = nil,
     showFocusRing: Bool = true
   ) {
     var typingAttributes = typingAttributes ?? AttributeContainer()
-    typingAttributes.merge(AttributeContainer([
-      .foregroundColor: NSColor.textColor,
-    ]), mergePolicy: .keepCurrent)
+    typingAttributes.merge(Self.defaultAttributes, mergePolicy: .keepCurrent)
     self.text = text ?? AttributedString("", attributes: typingAttributes)
+    self.placeholder = placeholder.map { string in
+      let placeholderAttributes = typingAttributes.merging(AttributeContainer([
+        .foregroundColor: NSColor.secondaryLabelColor,
+      ]), mergePolicy: .keepNew)
+      return AttributedString(string, attributes: placeholderAttributes)
+    }
     self.typingAttributes = typingAttributes
     self.selection = selection
-    self.height = height
-    self.borderWidth = borderWidth
-    self.cornerRadius = cornerRadius
-    self.textContainerInset = textContainerInset
+    self.height = height ?? 24
+    self.borderWidth = borderWidth ?? 1
+    self.cornerRadius = cornerRadius ?? 6
+    self.textContainerInset = textContainerInset ?? NSSize(width: 5, height: 5)
     self.showFocusRing = showFocusRing
+  }
+
+  public init(
+    text: String,
+    placeholder: String? = nil,
+    typingAttributes: AttributeContainer? = nil,
+    selection: NSRange? = nil,
+    height: CGFloat? = nil,
+    borderWidth: CGFloat? = nil,
+    cornerRadius: CGFloat? = nil,
+    textContainerInset: NSSize? = nil,
+    showFocusRing: Bool = true
+  ) {
+    self.init(
+      text: AttributedString(text, attributes: Self.defaultAttributes),
+      placeholder: placeholder,
+      typingAttributes: typingAttributes,
+      selection: selection,
+      height: height,
+      borderWidth: borderWidth,
+      cornerRadius: cornerRadius,
+      textContainerInset: textContainerInset,
+      showFocusRing: showFocusRing
+    )
   }
 }
 
@@ -366,76 +430,116 @@ public enum TCATextViewAction: Equatable {
   case keyboardEventReceived(KeyEvent)
 }
 
-// MARK: - Previews
+#if DEBUG
 
-struct TCATextView_Previews: PreviewProvider {
-  struct Preview: View {
-    let store: Store<TCATextView.ViewState, TCATextView.ViewAction>
-    var body: some View {
-      HStack(alignment: .top) {
-        TCATextView(store: self.store)
-        WithViewStore(self.store) { viewStore in
-          VStack(alignment: .leading) {
-            let attributedString = NSAttributedString(viewStore.text)
+  // MARK: - Previews
 
-            Text("Text: \"\(attributedString.string)\"")
-            Text("Length: \(attributedString.length)")
-            Text(
-              "Contains attachments: \(String(describing: attributedString.containsAttachments))"
-            )
+  struct TCATextView_Previews: PreviewProvider {
+    private struct Preview: View {
+      let state: TCATextViewState
+      let height: CGFloat?
 
-            Text("Selection range: \(String(describing: viewStore.selection))")
+      init(
+        state: TCATextViewState,
+        height: CGFloat? = nil
+      ) {
+        self.state = state
+        self.height = height
+      }
 
-            let selectedText: NSAttributedString? = viewStore.selection
-              .map(attributedString.attributedSubstring(from:))
-            Text("Selected text: \(String(describing: selectedText?.string))")
+      var body: some View {
+        TCATextView(store: Store(
+          initialState: state,
+          reducer: textViewReducer,
+          environment: ()
+        ))
+        .frame(width: 500)
+        .frame(minHeight: self.height)
+        .padding(8)
+      }
+    }
 
-//          let rangeFromLastAttachment: NSRange? = viewStore.selection
-//            .map(attributedString.prose_rangeFromLastAttachmentToCaret(selectionRange:))
-//          Text("Range to last attachment: \(String(describing: rangeFromLastAttachment))")
-
-//          let textFromLastAttachment: NSAttributedString? = rangeFromLastAttachment
-//            .map(attributedString.attributedSubstring(from:))
-//          Text("Text to last attachment: \(String(describing: textFromLastAttachment?.string))")
+    static var previews: some View {
+      let previews = ScrollView(.vertical) {
+        VStack(spacing: 16) {
+          GroupBox("Simple message") {
+            Preview(state: .init(
+              text: "This is a message that was written.",
+              placeholder: "Message Valerian"
+            ))
+          }
+          GroupBox("Long message") {
+            Preview(state: .init(
+              text: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written.",
+              placeholder: "Message Valerian"
+            ))
+          }
+          GroupBox("Long username") {
+            Preview(state: .init(
+              placeholder: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long placeholder"
+            ))
+          }
+          GroupBox("Empty") {
+            Preview(state: .init(placeholder: "Message Valerian"))
+          }
+          GroupBox("High, single line") {
+            Preview(state: .init(
+              placeholder: "Message Valerian"
+            ))
+          }
+          GroupBox("High, multi line") {
+            Preview(state: .init(
+              placeholder: "Message Valerian"
+            ))
+          }
+          GroupBox("Multi line, small corners") {
+            Preview(state: .init(
+              placeholder: "Message Valerian"
+            ))
+          }
+          GroupBox("Single line vs multi line") {
+            VStack(spacing: 0) {
+              Preview(state: .init(
+                text: "This is a message that was written.",
+                placeholder: "Message Valerian"
+              ))
+              .overlay {
+                Preview(state: .init(
+                  text: "This is a message that was written.",
+                  placeholder: "Message Valerian"
+                ))
+                .blendMode(.difference)
+                //              .blendMode(.multiply)
+                //              .opacity(0.5)
+              }
+              Preview(state: .init(
+                placeholder: "Message Valerian"
+              ))
+              .overlay {
+                Preview(state: .init(
+                  placeholder: "Message Valerian"
+                ))
+                //              .blendMode(.difference)
+                .blendMode(.multiply)
+                //              .opacity(0.5)
+              }
+            }
+          }
+          GroupBox("Colorful background") {
+            Preview(state: .init(
+              placeholder: "Message Valerian"
+            ))
+            .background(Color.pink)
           }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
+        .padding(8)
       }
-      .padding()
-      .background(Color(nsColor: .textBackgroundColor))
-      .frame(width: 300)
-      .fixedSize()
+      previews
+        .preferredColorScheme(.light)
+        .previewDisplayName("Light")
+      previews
+        .preferredColorScheme(.dark)
+        .previewDisplayName("Dark")
     }
   }
-
-  static var previews: some View {
-    Preview(store: Store(
-      initialState: TCATextViewState(),
-      reducer: textViewReducer,
-      environment: ()
-    ))
-    .previewDisplayName("Default")
-    Preview(store: Store(
-      initialState: TCATextViewState(
-        height: 24,
-        cornerRadius: 12,
-        textContainerInset: NSSize(width: 8, height: 5),
-        showFocusRing: false
-      ),
-      reducer: textViewReducer,
-      environment: ()
-    ))
-    .previewDisplayName("Rounded")
-    Preview(store: Store(
-      initialState: TCATextViewState(
-        height: 48,
-        borderWidth: 4,
-        cornerRadius: 0,
-        showFocusRing: false
-      ),
-      reducer: textViewReducer,
-      environment: ()
-    ))
-    .previewDisplayName("Squared")
-  }
-}
+#endif

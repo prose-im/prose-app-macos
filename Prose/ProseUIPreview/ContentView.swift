@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
   struct Preview: View {
-    let store: Store<TCATextView.ViewState, TCATextView.ViewAction>
+    let store: Store<TCATextViewState, TCATextViewAction>
     var body: some View {
       VStack(alignment: .leading) {
         TCATextView(store: self.store)
@@ -44,7 +44,7 @@ struct ContentView: View {
         .frame(maxHeight: .infinity, alignment: .top)
       }
       .padding()
-      .background(Color(nsColor: .textBackgroundColor))
+      .background(Color(nsColor: .windowBackgroundColor))
       .frame(minWidth: 300)
 //      .fixedSize()
     }
