@@ -54,6 +54,7 @@ public extension CGImageSource {
       kCGImageSourceCreateThumbnailFromImageAlways: true,
       kCGImageSourceCreateThumbnailWithTransform: true,
       kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+      kCGImageSourceShouldCacheImmediately: true,
     ] as CFDictionary
 
     return CGImageSourceCreateThumbnailAtIndex(self, 0, downsampleOptions)

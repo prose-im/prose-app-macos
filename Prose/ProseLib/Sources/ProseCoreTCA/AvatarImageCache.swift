@@ -42,7 +42,8 @@ public extension AvatarImageCache {
         return nil
       },
       cacheAvatarImage: { jid, imageData, imageId in
-        guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil)
+        let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, imageSourceOptions)
         else {
           throw ImageCacheError.couldNotDecodeAvatarData
         }

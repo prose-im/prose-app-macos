@@ -43,6 +43,9 @@ public extension NSItemProvider {
               return promise(.failure(ItemProviderError.couldNotRetrieveItem))
             }
 
+            // TODO: Instead of creating an image if a URL was dropped, we should use
+            // CGImageSourceCreateThumbnailAtIndex to downsample the image first.
+
             if identifier == UTType.fileURL.identifier {
               guard
                 let data = data as? Data,
