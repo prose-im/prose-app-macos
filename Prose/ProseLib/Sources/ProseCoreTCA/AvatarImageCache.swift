@@ -15,6 +15,7 @@ public struct AvatarImageCache {
 }
 
 enum ImageCacheError: Error {
+  case couldNotGenerateURL
   case couldNotDecodeAvatarData
 }
 
@@ -24,10 +25,10 @@ public extension AvatarImageCache {
 
     try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
-    func fileURL(for jid: JID, imageId: String) -> URL {
-      let filename = "\(jid.bareJid.node ?? "")-\(jid.bareJid.domain)-\(imageId)".unicodeScalars
+    func fileURL(for jid: JID, imageId: String) -> URL? {
+      let filename = "\(jid.bareJid.node ?? "")-\(jid.bareJid.domain)-\(imageId)"
         .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
-      return cacheDirectory.appendingPathComponent(String(filename), conformingTo: .jpeg)
+      return filename.map { cacheDirectory.appendingPathComponent($0, conformingTo: .jpeg) }
     }
 
     let maxPixelSize = 300
@@ -35,8 +36,10 @@ public extension AvatarImageCache {
 
     return .init(
       cachedURLForAvatarImageWithID: { jid, imageId in
-        let url = fileURL(for: jid, imageId: imageId)
-        return fileManager.fileExists(atPath: url.path) ? url : nil
+        if let url = fileURL(for: jid, imageId: imageId) {
+          return fileManager.fileExists(atPath: url.path) ? url : nil
+        }
+        return nil
       },
       cacheAvatarImage: { jid, imageData, imageId in
         guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, nil)
@@ -44,7 +47,9 @@ public extension AvatarImageCache {
           throw ImageCacheError.couldNotDecodeAvatarData
         }
 
-        let url = fileURL(for: jid, imageId: imageId)
+        guard let url = fileURL(for: jid, imageId: imageId) else {
+          throw ImageCacheError.couldNotGenerateURL
+        }
 
         try imageSource.prose_downsample(
           to: url,
