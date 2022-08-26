@@ -127,13 +127,13 @@ public struct ToolbarState: Equatable {
   @BindableState var isShowingInfo: Bool
 
   public init(
-    user _: User?,
+    user: User?,
     showingInfo: Bool = false
   ) {
-    self.user = .init(
+    self.user = user ?? .init(
       jid: JID(rawValue: "hello@prose.org")!,
-      displayName: "¯\\_(ツ)_/¯",
-      fullName: "¯\\_(ツ)_/¯",
+      displayName: #"¯\_(ツ)_/¯"#,
+      fullName: #"¯\_(ツ)_/¯"#,
       avatar: nil,
       jobTitle: "Chatbot",
       company: "Acme Inc.",
