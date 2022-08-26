@@ -26,7 +26,7 @@ public extension AvatarImageCache {
 
     func fileURL(for jid: JID, imageId: String) -> URL {
       let filename = "\(jid.bareJid.node ?? "")-\(jid.bareJid.domain)-\(imageId)".unicodeScalars
-        .filter(CharacterSet.urlPathAllowed.contains)
+        .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
       return cacheDirectory.appendingPathComponent(String(filename), conformingTo: .jpeg)
     }
 
