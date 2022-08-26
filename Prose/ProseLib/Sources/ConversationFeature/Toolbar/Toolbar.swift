@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - View
 
 struct Toolbar: ToolbarContent {
-  typealias State = ToolbarState
+  typealias State = ChatSessionState<ToolbarState>
   typealias Action = ToolbarAction
 
   @Environment(\.redactionReasons) private var redactionReasons
@@ -35,12 +35,12 @@ struct Toolbar: ToolbarContent {
   static func navigationButtons(store: Store<State, Action>) -> some View {
     CommonToolbarNavigation()
 
-    IfLetStore(store.scope(state: \State.user)) { store in
+    IfLetStore(store.scope(state: { $0.userInfos[$0.chatId] })) { store in
       ToolbarDivider()
 
       WithViewStore(store) { viewStore in
         ToolbarTitle(
-          name: viewStore.fullName,
+          name: viewStore.name,
           // TODO: Make this dynamic
           status: .online
         )
@@ -53,7 +53,7 @@ struct Toolbar: ToolbarContent {
     store: Store<State, Action>,
     redactionReasons: RedactionReasons
   ) -> some View {
-    IfLetStore(store.scope(state: \State.user)) { store in
+    IfLetStore(store.scope(state: { $0.userInfos[$0.chatId] })) { store in
       WithViewStore(store) { viewStore in
         ToolbarSecurity(
           jid: viewStore.jid,
@@ -86,7 +86,7 @@ struct Toolbar: ToolbarContent {
       Toggle(isOn: viewStore.binding(\State.$isShowingInfo).animation()) {
         Label("Info", systemImage: "info.circle")
       }
-      .disabled(viewStore.user == nil)
+      .disabled(viewStore.childState.user == nil)
     }
     .unredacted()
     .disabled(redactionReasons.contains(.placeholder))
@@ -98,7 +98,7 @@ struct Toolbar: ToolbarContent {
 // MARK: Reducer
 
 public let toolbarReducer: Reducer<
-  ToolbarState,
+  ChatSessionState<ToolbarState>,
   ToolbarAction,
   Void
 > = Reducer { state, action, _ in
@@ -106,7 +106,7 @@ public let toolbarReducer: Reducer<
   case .startVideoCallTapped:
     logger.info("Start video call tapped")
 
-  case .binding(\ToolbarState.$isShowingInfo):
+  case .binding(\.$isShowingInfo):
     if state.isShowingInfo {
       logger.info("Show info tapped")
     } else {
@@ -130,7 +130,17 @@ public struct ToolbarState: Equatable {
     user: User?,
     showingInfo: Bool = false
   ) {
-    self.user = user
+    self.user = user ?? .init(
+      jid: JID(rawValue: "hello@prose.org")!,
+      displayName: #"¯\_(ツ)_/¯"#,
+      fullName: #"¯\_(ツ)_/¯"#,
+      avatar: nil,
+      jobTitle: "Chatbot",
+      company: "Acme Inc.",
+      emailAddress: "chatbot@prose.org",
+      phoneNumber: "0000000",
+      location: "The Internets"
+    )
     self.isShowingInfo = showingInfo
   }
 }
@@ -139,43 +149,45 @@ public struct ToolbarState: Equatable {
 
 public enum ToolbarAction: Equatable, BindableAction {
   case startVideoCallTapped
-  case binding(BindingAction<ToolbarState>)
+  case binding(BindingAction<ChatSessionState<ToolbarState>>)
 }
 
 // MARK: - Previews
 
-internal struct Toolbar_Previews: PreviewProvider {
-  private struct Preview: View {
-    @Environment(\.redactionReasons) private var redactionReasons
+#if DEBUG
+  internal struct Toolbar_Previews: PreviewProvider {
+    private struct Preview: View {
+      @Environment(\.redactionReasons) private var redactionReasons
 
-    let state: ToolbarState
+      let state: ToolbarState
 
-    var body: some View {
-      let store = Store(
-        initialState: state,
-        reducer: toolbarReducer,
-        environment: ()
-      )
-      VStack(alignment: .leading) {
-        HStack {
-          Toolbar.navigationButtons(store: store)
+      var body: some View {
+        let store = Store(
+          initialState: .mock(state),
+          reducer: toolbarReducer,
+          environment: ()
+        )
+        VStack(alignment: .leading) {
+          HStack {
+            Toolbar.navigationButtons(store: store)
+          }
+          HStack {
+            Toolbar.otherButtons(
+              store: store,
+              redactionReasons: redactionReasons
+            )
+          }
         }
-        HStack {
-          Toolbar.otherButtons(
-            store: store,
-            redactionReasons: redactionReasons
-          )
-        }
+        .padding()
+        .previewLayout(.sizeThatFits)
       }
-      .padding()
-      .previewLayout(.sizeThatFits)
+    }
+
+    static var previews: some View {
+      Preview(state: .init(user: nil))
+      Preview(state: .init(user: nil))
+        .redacted(reason: .placeholder)
+        .previewDisplayName("Placeholder")
     }
   }
-
-  static var previews: some View {
-    Preview(state: .init(user: nil))
-    Preview(state: .init(user: nil))
-      .redacted(reason: .placeholder)
-      .previewDisplayName("Placeholder")
-  }
-}
+#endif

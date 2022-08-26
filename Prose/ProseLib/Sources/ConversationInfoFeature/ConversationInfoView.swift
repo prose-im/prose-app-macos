@@ -26,26 +26,26 @@ public struct ConversationInfoView: View {
         VStack(spacing: 12) {
           IdentitySection(
             store: self.store
-              .scope(state: \State.identity, action: Action.identity)
+              .scope(state: \.identity, action: Action.identity)
           )
           QuickActionsSection(
             store: self.store
-              .scope(state: \State.quickActions, action: Action.quickActions)
+              .scope(state: \.quickActions, action: Action.quickActions)
           )
         }
         .padding(.horizontal)
 
         InformationSection(
           store: self.store
-            .scope(state: \State.information, action: Action.information)
+            .scope(state: \.information, action: Action.information)
         )
         SecuritySection(
           store: self.store
-            .scope(state: \State.security, action: Action.security)
+            .scope(state: \.security, action: Action.security)
         )
         ActionsSection(
           store: self.store
-            .scope(state: \State.actions, action: Action.actions)
+            .scope(state: \.actions, action: Action.actions)
         )
       }
       .padding(.vertical)

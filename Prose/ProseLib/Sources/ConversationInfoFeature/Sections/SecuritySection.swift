@@ -58,7 +58,7 @@ struct SecuritySection: View {
         infoButton(action: { actions.send(.showIdVerificationInfoTapped) })
           .popover(unwrapping: viewStore.binding(\.$identityPopover)) { _ in
             IfLetStore(
-              self.store.scope(state: \State.identityPopover, action: Action.identityPopover),
+              self.store.scope(state: \.identityPopover, action: Action.identityPopover),
               then: IdentityPopover.init(store:)
             )
           }

@@ -15,7 +15,7 @@ import Toolbox
 // MARK: - View
 
 public struct ConversationScreen: View {
-  public typealias State = ConversationState
+  public typealias State = SessionState<ConversationState>
   public typealias Action = ConversationAction
 
   private let store: Store<State, Action>
@@ -39,7 +39,7 @@ public struct ConversationScreen: View {
       .safeAreaInset(edge: .trailing, spacing: 0) {
         WithViewStore(
           self.store
-            .scope(state: \State.toolbar.isShowingInfo)
+            .scope(state: \.toolbar.childState.isShowingInfo)
         ) { showingInfo in
           HStack(spacing: 0) {
             Divider()
@@ -67,46 +67,52 @@ public struct ConversationScreen: View {
 enum ConversationEffectToken: Hashable, CaseIterable {
   case fetchPastMessages
   case observeMessages
+  case observeUserInfos
 }
 
 public let conversationReducer = Reducer<
-  ConversationState,
+  SessionState<ConversationState>,
   ConversationAction,
   ConversationEnvironment
 >.combine([
   messageBarReducer.pullback(
-    state: \ConversationState.messageBar,
+    state: \.messageBar,
     action: CasePath(ConversationAction.messageBar),
     environment: { $0 }
   ),
   conversationInfoReducer.optional().pullback(
-    state: \ConversationState.info,
+    state: \.info,
     action: CasePath(ConversationAction.info),
     environment: { _ in () }
   ),
   toolbarReducer.pullback(
-    state: \ConversationState.toolbar,
+    state: \.toolbar,
     action: CasePath(ConversationAction.toolbar),
     environment: { _ in () }
   ),
   chatReducer.pullback(
-    state: \ConversationState.chat,
+    state: \.chat,
     action: CasePath(ConversationAction.chat),
     environment: { $0 }
   ),
   Reducer { state, action, environment in
     switch action {
     case .onAppear:
-      return .concatenate(
-        environment.proseClient.messagesInChat(state.chatId)
+      return .merge(
+        environment.proseClient.messagesInChat(state.childState.chatId)
           .receive(on: environment.mainQueue)
           .catchToEffect()
           .map(ConversationAction.messagesResult)
           .cancellable(id: ConversationEffectToken.observeMessages, cancelInFlight: true),
-        environment.proseClient.fetchPastMessagesInChat(state.chatId)
+        environment.proseClient.fetchPastMessagesInChat(state.childState.chatId)
           .ignoreOutput()
           .fireAndForget()
-          .cancellable(id: ConversationEffectToken.fetchPastMessages, cancelInFlight: true)
+          .cancellable(id: ConversationEffectToken.fetchPastMessages, cancelInFlight: true),
+        environment.proseClient.userInfos([state.chat.currentUser.jid, state.childState.chatId])
+          .receive(on: environment.mainQueue)
+          .catchToEffect()
+          .map(ConversationAction.userInfosResult)
+          .cancellable(id: ConversationEffectToken.observeUserInfos)
       )
 
     case .onDisappear:
@@ -114,11 +120,21 @@ public let conversationReducer = Reducer<
 
     case let .messagesResult(.success(messages)):
       state.chat.messages = messages
-      return environment.proseClient.markMessagesReadInChat(state.chatId).fireAndForget()
+      return environment.proseClient.markMessagesReadInChat(state.childState.chatId).fireAndForget()
 
     case let .messagesResult(.failure(error)):
       logger.error(
         "Could not load messages. \(error.localizedDescription, privacy: .public)"
+      )
+      return .none
+
+    case let .userInfosResult(.success(userInfos)):
+      state.userInfos = userInfos
+      return .none
+
+    case let .userInfosResult(.failure(error)):
+      logger.error(
+        "Could not load user infos. \(error.localizedDescription, privacy: .public)"
       )
       return .none
 
@@ -138,33 +154,45 @@ public let conversationReducer = Reducer<
 
 public struct ConversationState: Equatable {
   let chatId: JID
+  var userInfos = [JID: UserInfo]()
   var info: ConversationInfoState?
   var toolbar: ToolbarState
-  var messageBar: MessageBarState
-  var chat: ChatState
+  var messageBar = MessageBarState()
+  var chat = ChatState()
 
-  public init(chatId: JID, loggedInUserJID: JID) {
+  public init(chatId: JID) {
     self.chatId = chatId
-    self.toolbar = .init(user: .init(
-      jid: chatId,
-      displayName: chatId.jidString,
-      fullName: Name.jid(chatId).displayName,
-      avatar: nil,
-      jobTitle: "Chatbot",
-      company: "Acme Inc.",
-      emailAddress: "chatbot@prose.org",
-      phoneNumber: "0000000",
-      location: "The Internets"
-    ))
-    self.messageBar = .init(
-      chatId: chatId,
-      loggedInUserJID: loggedInUserJID,
-      chatName: .jid(chatId)
+    self.toolbar = .init(user: nil)
+  }
+}
+
+private extension SessionState where ChildState == ConversationState {
+  var chat: ChatSessionState<ChatState> {
+    get { self.get(\.chat) }
+    set { self.set(\.chat, newValue) }
+  }
+
+  var messageBar: ChatSessionState<MessageBarState> {
+    get { self.get(\.messageBar) }
+    set { self.set(\.messageBar, newValue) }
+  }
+
+  var toolbar: ChatSessionState<ToolbarState> {
+    get { self.get(\.toolbar) }
+    set { self.set(\.toolbar, newValue) }
+  }
+
+  func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {
+    ChatSessionState<T>(
+      currentUser: self.currentUser,
+      chatId: self.childState.chatId,
+      userInfos: self.childState.userInfos,
+      childState: toLocalState(self.childState)
     )
-    self.chat = ChatState(
-      loggedInUserJID: loggedInUserJID,
-      chatId: chatId
-    )
+  }
+
+  mutating func set<T>(_ keyPath: WritableKeyPath<ChildState, T>, _ newValue: ChatSessionState<T>) {
+    self.childState[keyPath: keyPath] = newValue.childState
   }
 }
 
@@ -175,6 +203,7 @@ public enum ConversationAction: Equatable {
   case onDisappear
 
   case messagesResult(Result<IdentifiedArrayOf<Message>, EquatableError>)
+  case userInfosResult(Result<[JID: UserInfo], EquatableError>)
 
   case info(ConversationInfoAction)
   case toolbar(ToolbarAction)
@@ -208,10 +237,7 @@ public struct ConversationEnvironment {
     private struct Preview: View {
       var body: some View {
         ConversationScreen(store: Store(
-          initialState: ConversationState(
-            chatId: "alexandre@crisp.chat",
-            loggedInUserJID: "preview@prose.org"
-          ),
+          initialState: .mock(ConversationState(chatId: "alexandre@crisp.chat")),
           reducer: conversationReducer,
           environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
         ))

@@ -49,7 +49,7 @@ struct Chat: View {
 }
 
 struct ChatView: NSViewRepresentable {
-  typealias State = ChatState
+  typealias State = ChatSessionState<ChatState>
   typealias Action = ChatAction
 
   final class Coordinator: NSObject {
@@ -111,7 +111,7 @@ struct ChatView: NSViewRepresentable {
         WKUserScript(source: jsScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
       )
       completion(nil, nil)
-    }.setAccountJID(self.viewStore.loggedInUserJID)
+    }.setAccountJID(self.viewStore.currentUser.jid)
 
     let actions = ViewStore(self.store.stateless)
     // Allow right clicking messages
@@ -156,80 +156,20 @@ struct ChatView: NSViewRepresentable {
 
     // Send an event when the web view finishes loading
     webView.publisher(for: \.isLoading)
-      .filter { isLoading in !isLoading }
+      .filter { !$0 }
       .prefix(1)
       .sink { [viewStore] _ in
         viewStore.send(.webViewReady)
       }
       .store(in: &context.coordinator.cancellables)
 
-    let ffi = context.coordinator.ffi.expect("Expected ProseCoreViews FFI to be set")
-
-    // Update messages
     self.viewStore.publisher
-      .drop(while: { !$0.isWebViewReady })
-      .map(\.messages)
-      // Do not run `updateMessages` until there are messages to show,
-      // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
-      .drop(while: \.isEmpty)
-      .removeDuplicates()
-      .sink { [weak coordinator = context.coordinator] messages in
-        guard let coordinator = coordinator else { return }
-        ffi.messagingStore.updateMessages(to: messages.elements, oldMessages: &coordinator.messages)
-      }
-      .store(in: &context.coordinator.cancellables)
-
-    // Update highlighted message
-    self.viewStore.publisher
-      .drop(while: { !$0.isWebViewReady })
-      .map(\.selectedMessageId)
-      // Do not run `highlightMessage` while `selectedMessageId`,
-      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
-      .drop(while: { $0 == nil })
-      .removeDuplicates()
-      .sink { messageId in
-        ffi.messagingStore.highlightMessage(messageId)
-      }
-      .store(in: &context.coordinator.cancellables)
-
-    // Show message menu
-    self.viewStore.publisher
-      .drop(while: { !$0.isWebViewReady })
-      .map(\.menu)
-      // Do not run `hideMenu` if the menu was never presented,
-      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
-      .drop(while: { $0 == nil })
-      .removeDuplicates()
-      .sink { [weak coordinator = context.coordinator] menuState in
-        guard let coordinator = coordinator else { return }
-        if let menuState: MessageMenuState = menuState {
-          self.showMenu(menuState, on: webView, coordinator: coordinator)
-        } else {
-          self.hideMenu(coordinator: coordinator)
-        }
-      }
-      .store(in: &context.coordinator.cancellables)
-
-    // Show reaction picker
-    self.viewStore.publisher
-      // NOTE: We don't *need* the web view to be ready, but it would not make sense
-      //       to show the picker anyway
-      .drop(while: { !$0.isWebViewReady })
-      .map(\.reactionPicker)
-      // Do not run `hideReactionPicker` if the picker was never presented,
-      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
-      .drop(while: { $0 == nil })
-      .removeDuplicates()
-      .sink { [weak coordinator = context.coordinator] pickerState in
-        guard let coordinator = coordinator else { return }
-        if let pickerState: MessageReactionPickerState = pickerState {
-          self.showReactionPicker(
-            pickerState,
-            on: webView,
-            coordinator: coordinator
-          )
-        } else {
-          self.hideReactionPicker(coordinator: coordinator)
+      .map(\.isWebViewReady)
+      .drop(while: { !$0 })
+      .prefix(1)
+      .sink { [weak coordinator = context.coordinator] _ in
+        if let coordinator = coordinator {
+          self.webViewDidBecomeReady(webView, coordinator: coordinator)
         }
       }
       .store(in: &context.coordinator.cancellables)
@@ -258,6 +198,81 @@ struct ChatView: NSViewRepresentable {
     }
 
     signposter.endInterval(#function, interval)
+  }
+}
+
+private extension ChatView {
+  func webViewDidBecomeReady(_ webView: WKWebView, coordinator: Coordinator) {
+    logger.info("WebView became ready.")
+
+    let ffi = coordinator.ffi.expect("Expected ProseCoreViews FFI to be set")
+
+    // Update messages
+    self.viewStore.publisher.messages
+      // Do not run `updateMessages` until there are messages to show,
+      // but still allow starting with a non-empty value (which `dropFirst()` would prevent).
+      .drop(while: \.isEmpty)
+      .removeDuplicates()
+      .sink { [weak coordinator = coordinator] messages in
+        guard let coordinator = coordinator else { return }
+        ffi.messagingStore.updateMessages(to: messages.elements, oldMessages: &coordinator.messages)
+      }
+      .store(in: &coordinator.cancellables)
+
+    // Update highlighted message
+    self.viewStore.publisher.selectedMessageId
+      // Do not run `highlightMessage` while `selectedMessageId`,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { messageId in
+        ffi.messagingStore.highlightMessage(messageId)
+      }
+      .store(in: &coordinator.cancellables)
+
+    // Show message menu
+    self.viewStore.publisher.menu
+      // Do not run `hideMenu` if the menu was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { [weak coordinator = coordinator] menuState in
+        guard let coordinator = coordinator else { return }
+        if let menuState: MessageMenuState = menuState {
+          self.showMenu(menuState, on: webView, coordinator: coordinator)
+        } else {
+          self.hideMenu(coordinator: coordinator)
+        }
+      }
+      .store(in: &coordinator.cancellables)
+
+    // Show reaction picker
+    self.viewStore.publisher.reactionPicker
+      // Do not run `hideReactionPicker` if the picker was never presented,
+      // but still allow starting with a non-nil value (which `dropFirst()` would prevent).
+      .drop(while: { $0 == nil })
+      .removeDuplicates()
+      .sink { [weak coordinator = coordinator] pickerState in
+        guard let coordinator = coordinator else { return }
+        if let pickerState: MessageReactionPickerState = pickerState {
+          self.showReactionPicker(
+            pickerState,
+            on: webView,
+            coordinator: coordinator
+          )
+        } else {
+          self.hideReactionPicker(coordinator: coordinator)
+        }
+      }
+      .store(in: &coordinator.cancellables)
+
+    self.viewStore.publisher.userInfos
+      .sink(receiveValue: { userInfos in
+        userInfos.forEach { jid, info in
+          ffi.messagingStore.identify(jid, info)
+        }
+      })
+      .store(in: &coordinator.cancellables)
   }
 
   func showMenu(_ menuState: MessageMenuState, on webView: WKWebView, coordinator: Coordinator) {

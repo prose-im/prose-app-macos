@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import Combine
 import Foundation
 import ProseCore
 import ProseCoreClientFFI
@@ -85,6 +86,18 @@ final class ProseMockClient: ProseClientProtocol {
   func revokeOrRejectPresencePermissionFromUser(jid: BareJid) throws {
     try self.impl.revokeOrRejectPresencePermissionFromUser(jid)
   }
+
+  func setAvatarImage(image: XmppImage) -> AnyPublisher<ImageId, Error> {
+    self.impl.setAvatarImage(image)
+  }
+
+  func loadLatestAvatarMetadata(jid: BareJid) -> AnyPublisher<XmppAvatarMetadataInfo?, Error> {
+    self.impl.loadLatestAvatarMetadata(jid)
+  }
+
+  func loadAvatarImage(jid: BareJid, imageId: String) -> AnyPublisher<XmppAvatarData?, Error> {
+    self.impl.loadAvatarImage(jid, imageId)
+  }
 }
 
 extension ProseMockClient {
@@ -119,4 +132,16 @@ struct ProseMockClientImpl {
   var unsubscribeFromUserPresence: (BareJid) throws -> Void = { _ in }
   var grantPresencePermissionToUser: (BareJid) throws -> Void = { _ in }
   var revokeOrRejectPresencePermissionFromUser: (BareJid) throws -> Void = { _ in }
+
+  var setAvatarImage: (XmppImage) -> AnyPublisher<ImageId, Error> = { _ in
+    Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
+  }
+
+  var loadLatestAvatarMetadata: (BareJid) -> AnyPublisher<XmppAvatarMetadataInfo?, Error> = { _ in
+    Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
+  }
+
+  var loadAvatarImage: (BareJid, String) -> AnyPublisher<XmppAvatarData?, Error> = { _, _ in
+    Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
+  }
 }

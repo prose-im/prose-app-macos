@@ -11,6 +11,7 @@ import MainWindowFeature
 import NotificationsClient
 import PasteboardClient
 import ProseCore
+import struct ProseCoreTCA.AvatarImageCache
 import struct ProseCoreTCA.ProseClient
 import Toolbox
 import UserDefaultsClient
@@ -56,10 +57,17 @@ public struct AppEnvironment {
 
 public extension AppEnvironment {
   static var live: Self {
-    Self(
+    let imageCache = (try? AvatarImageCache.live(
+      cacheDirectory: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(
+        "avatar-cache",
+        conformingTo: .directory
+      )
+    )).expect("Could not initialize AvatarImageCache")
+
+    return Self(
       userDefaults: .live(.standard),
       credentials: .live(service: "org.prose.app"),
-      proseClient: .live(provider: ProseCore.ProseClient.init),
+      proseClient: .live(provider: ProseCore.ProseClient.init, imageCache: imageCache),
       pasteboard: .live(),
       notifications: .live,
       mainQueue: .main,

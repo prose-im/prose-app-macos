@@ -123,21 +123,18 @@ public let messageFieldReducer = Reducer<
 // MARK: State
 
 public struct MessageFieldState: Equatable {
-  let chatId: JID
-  let placeholder: String
+  var placeholder: String
   let isMultiline: Bool
   let hideSendButton: Bool
   @BindableState var isFocused: Bool = false
   @BindableState var message: String
 
   init(
-    chatId: JID,
     placeholder: String,
     isMultiline: Bool = false,
     hideSendButton: Bool = false,
     message: String = ""
   ) {
-    self.chatId = chatId
     self.placeholder = placeholder
     self.isMultiline = isMultiline
     self.hideSendButton = hideSendButton
@@ -187,37 +184,33 @@ public enum MessageFieldAction: Equatable, BindableAction {
       let previews = VStack(spacing: 16) {
         GroupBox("Simple message") {
           Preview(state: .init(
-            chatId: "preview@prose.org",
             placeholder: "Message Valerian",
             message: "This is a message that was written."
           ))
         }
         GroupBox("Long message") {
           Preview(state: .init(
-            chatId: "preview@prose.org",
             placeholder: "Message Valerian",
             message: "This is a \(Array(repeating: "very", count: 20).joined(separator: " ")) long message that was written."
           ))
         }
         GroupBox("Long username") {
           Preview(state: .init(
-            chatId: "preview@prose.org",
             placeholder: "Very \(Array(repeating: "very", count: 20).joined(separator: " ")) long placeholder"
           ))
         }
         GroupBox("Empty") {
-          Preview(state: .init(chatId: "preview@prose.org", placeholder: "Message Valerian"))
+          Preview(state: .init(placeholder: "Message Valerian"))
         }
         GroupBox("High, single line") {
           Preview(
-            state: .init(chatId: "preview@prose.org", placeholder: "Message Valerian"),
+            state: .init(placeholder: "Message Valerian"),
             height: 128
           )
         }
         GroupBox("High, multi line") {
           Preview(
             state: .init(
-              chatId: "preview@prose.org",
               placeholder: "Message Valerian",
               isMultiline: true
             ),
@@ -227,7 +220,6 @@ public enum MessageFieldAction: Equatable, BindableAction {
         GroupBox("Multi line, small corners") {
           Preview(
             state: .init(
-              chatId: "preview@prose.org",
               placeholder: "Message Valerian",
               isMultiline: true
             ),
@@ -237,13 +229,11 @@ public enum MessageFieldAction: Equatable, BindableAction {
         GroupBox("Single line vs multi line") {
           VStack(spacing: 0) {
             Preview(state: .init(
-              chatId: "preview@prose.org",
               placeholder: "Message Valerian",
               message: "This is a message that was written."
             ))
             .overlay {
               Preview(state: .init(
-                chatId: "preview@prose.org",
                 placeholder: "Message Valerian",
                 isMultiline: true,
                 message: "This is a message that was written."
@@ -253,13 +243,11 @@ public enum MessageFieldAction: Equatable, BindableAction {
 //              .opacity(0.5)
             }
             Preview(state: .init(
-              chatId: "preview@prose.org",
               placeholder: "Message Valerian",
               message: ""
             ))
             .overlay {
               Preview(state: .init(
-                chatId: "preview@prose.org",
                 placeholder: "Message Valerian",
                 isMultiline: true,
                 message: ""
@@ -271,7 +259,7 @@ public enum MessageFieldAction: Equatable, BindableAction {
           }
         }
         GroupBox("Colorful background") {
-          Preview(state: .init(chatId: "preview@prose.org", placeholder: "Message Valerian"))
+          Preview(state: .init(placeholder: "Message Valerian"))
             .background(Color.pink)
         }
       }

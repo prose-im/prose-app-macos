@@ -14,7 +14,7 @@ XCBEAUTIFY:
 # ################ Web Views ################
 
 VIEWS_LIB_URL=https://github.com/prose-im/prose-core-views
-VIEWS_LIB_VERSION=0.13.0
+VIEWS_LIB_VERSION=0.14.0
 VIEWS_ARCHIVE_NAME=release-${VIEWS_LIB_VERSION}.tar.gz
 DESTINATION=Prose/ProseLib/Sources/ProseCoreViews/Resources/Views
 

@@ -6,18 +6,19 @@
 import AppLocalization
 import ComposableArchitecture
 import JoinChatFeature
+import ProseCoreTCA
 import SwiftUI
 import SwiftUINavigation
 
 public struct SidebarView: View {
-  public typealias State = SidebarState
+  public typealias State = SessionState<SidebarState>
   public typealias Action = SidebarAction
 
   typealias Tag = SidebarState.Selection
 
   struct ViewState: Equatable {
-    let selection: State.Selection?
-    let sheet: State.Sheet?
+    let selection: SidebarState.Selection?
+    let sheet: SidebarState.Sheet?
   }
 
   @Environment(\.redactionReasons) private var redactionReasons
@@ -42,7 +43,7 @@ public struct SidebarView: View {
     .listStyle(.sidebar)
     .frame(minWidth: 280)
     .safeAreaInset(edge: .bottom, spacing: 0) {
-      Footer(store: self.store.scope(state: \.footer, action: Action.footer))
+      Footer(store: self.store.scope(state: \.scoped.footer, action: Action.footer))
         // Make sure accessibility frame isn't inset by the window's rounded corners
         .contentShape(Rectangle())
         // Make footer have a higher priority, to be accessible over the scroll view
@@ -59,12 +60,12 @@ public struct SidebarView: View {
       IfLetStore(self.store.scope(state: \.sheet)) { store in
         SwitchStore(store) {
           CaseLet(
-            state: CasePath(State.Sheet.addMember).extract(from:),
+            state: CasePath(SidebarState.Sheet.addMember).extract(from:),
             action: Action.addMember,
             then: AddMemberSheet.init(store:)
           )
           CaseLet(
-            state: CasePath(State.Sheet.joinGroup).extract(from:),
+            state: CasePath(SidebarState.Sheet.joinGroup).extract(from:),
             action: Action.joinGroup,
             then: JoinGroupSheet.init(store:)
           )
@@ -101,7 +102,7 @@ public struct SidebarView: View {
           ForEach(group.items, id: \.jid) { item in
             ContactRow(
               title: item.jid.jidString,
-              avatar: .placeholder,
+              avatar: .init(url: item.avatarURL),
               count: item.numberOfUnreadMessages,
               status: item.status
             ).tag(Tag.chat(item.jid))
@@ -128,7 +129,7 @@ public struct SidebarView: View {
 }
 
 private extension SidebarView.ViewState {
-  init(_ state: SidebarState) {
+  init(_ state: SessionState<SidebarState>) {
     self.selection = state.selection
     self.sheet = state.sheet
   }

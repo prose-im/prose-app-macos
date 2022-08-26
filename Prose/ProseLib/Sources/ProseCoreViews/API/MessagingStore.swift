@@ -14,6 +14,7 @@ public struct MessagingStore {
   public let retractMessage: JSFunc1<Message.ID, Void>
   public let highlightMessage: JSFunc1<Message.ID?, Void>
   public let interact: JSFunc3<Message.ID, MessageAction, Bool, Void>
+  public let identify: JSFunc2<JID, UserInfo, Void>
 
   private let update: JSFunc2<Message.ID, Message, Void>
 
@@ -23,6 +24,7 @@ public struct MessagingStore {
     self.update = cls.update
     self.retractMessage = cls.retract
     self.highlightMessage = cls.highlight
+    self.identify = cls.identify
     self.interact = cls.interact
   }
 

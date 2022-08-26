@@ -94,12 +94,7 @@ extension Message: Encodable {
     try container.encode("text", forKey: .type)
     try container.encode(Self.dateFormatter.string(from: self.timestamp), forKey: .date)
     try container.encode(self.body, forKey: .content)
-    do {
-      var container = container.nestedContainer(keyedBy: UserCodingKeys.self, forKey: .from)
-      try container.encode(self.from, forKey: .jid)
-      // FIXME: Find a way to set `name` to the correct value
-      try container.encode(String(describing: self.from), forKey: .name)
-    }
+    try container.encode(self.from, forKey: .from)
 
     do {
       var container = container.nestedContainer(keyedBy: MetaCodingKeys.self, forKey: .metas)

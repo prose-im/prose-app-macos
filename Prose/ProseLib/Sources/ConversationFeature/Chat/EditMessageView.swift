@@ -13,7 +13,7 @@ private let l10n = L10n.Content.EditMessage.self
 // MARK: - View
 
 struct EditMessageView: View {
-  let store: Store<EditMessageState, EditMessageAction>
+  let store: Store<ChatSessionState<EditMessageState>, EditMessageAction>
   var body: some View {
     VStack(alignment: .leading) {
       Text(l10n.title)
@@ -38,7 +38,7 @@ struct EditMessageView: View {
         .buttonStyle(.plain)
         .font(MessageBar.buttonsFont)
         Spacer()
-        WithViewStore(self.store.scope(state: \.isConfirmButtonDisabled)) { viewStore in
+        WithViewStore(self.store.scope(state: \.childState.isConfirmButtonDisabled)) { viewStore in
           Button(l10n.CancelAction.title, role: .cancel) { viewStore.send(.cancelTapped) }
             .buttonStyle(.bordered)
           Button(l10n.ConfirmAction.title) { viewStore.send(.confirmTapped) }
@@ -57,30 +57,30 @@ struct EditMessageView: View {
 // MARK: Reducer
 
 public let editMessageReducer: Reducer<
-  EditMessageState,
+  ChatSessionState<EditMessageState>,
   EditMessageAction,
   ConversationEnvironment
 > = Reducer.combine([
   messageFieldReducer.pullback(
-    state: \EditMessageState.messageField,
+    state: \.messageField,
     action: CasePath(EditMessageAction.messageField),
     environment: { $0 }
   ),
   messageFormattingReducer.pullback(
-    state: \EditMessageState.formatting,
+    state: \.formatting,
     action: CasePath(EditMessageAction.formatting),
     environment: { _ in () }
   ),
   messageEmojisReducer.pullback(
-    state: \EditMessageState.emojis,
+    state: \.emojis,
     action: CasePath(EditMessageAction.emojis),
     environment: { _ in () }
   ),
   Reducer { state, action, _ in
     switch action {
     case .confirmTapped:
-      if !state.isConfirmButtonDisabled {
-        return Effect(value: .saveEdit(state.messageId, state.messageField.message))
+      if !state.childState.isConfirmButtonDisabled {
+        return Effect(value: .saveEdit(state.childState.messageId, state.messageField.message))
       } else {
         return .none
       }
@@ -110,13 +110,11 @@ public struct EditMessageState: Equatable {
   }
 
   public init(
-    chatId: JID,
     messageId: Message.ID,
     message: String
   ) {
     self.messageId = messageId
     self.messageField = .init(
-      chatId: chatId,
       placeholder: message,
       isMultiline: true,
       hideSendButton: true,
@@ -143,7 +141,6 @@ public enum EditMessageAction: Equatable {
   struct EditMessageView_Previews: PreviewProvider {
     static var previews: some View {
       Self.preview(state: EditMessageState(
-        chatId: "preview@prose.org",
         messageId: "message-id",
         message: "The message being edited"
       ))
@@ -151,7 +148,6 @@ public enum EditMessageAction: Equatable {
         .frame(width: 800, height: 500)
         .sheet(isPresented: .constant(true)) {
           Self.preview(state: EditMessageState(
-            chatId: "preview@prose.org",
             messageId: "message-id",
             message: "The message being edited"
           ))
@@ -161,7 +157,7 @@ public enum EditMessageAction: Equatable {
 
     static func preview(state: EditMessageState) -> some View {
       EditMessageView(store: Store(
-        initialState: state,
+        initialState: .mock(state),
         reducer: editMessageReducer,
         environment: ConversationEnvironment(
           proseClient: .noop,

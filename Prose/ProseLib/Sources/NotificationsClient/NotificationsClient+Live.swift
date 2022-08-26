@@ -40,9 +40,9 @@ public extension NotificationsClient {
       notificationPermission: {
         permissionSubject.eraseToEffect()
       },
-      scheduleLocalNotification: { message in
+      scheduleLocalNotification: { message, userInfo in
         let content = UNMutableNotificationContent()
-        content.title = message.from.jidString
+        content.title = userInfo.name
         content.body = message.body
         content.sound = .default
         content.threadIdentifier = message.from.jidString

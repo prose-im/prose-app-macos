@@ -16,6 +16,7 @@
       roster: { Empty(completeImmediately: false).eraseToEffect() },
       activeChats: { Empty(completeImmediately: false).eraseToEffect() },
       presence: { Empty(completeImmediately: false).eraseToEffect() },
+      userInfos: { _ in Empty(completeImmediately: false).eraseToEffect() },
       incomingMessages: { Empty(completeImmediately: false).eraseToEffect() },
       messagesInChat: { _ in
         Just([]).setFailureType(to: EquatableError.self).eraseToEffect()
@@ -42,7 +43,8 @@
         Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       markMessagesReadInChat: { _ in Empty(completeImmediately: true).eraseToEffect() },
-      fetchPastMessagesInChat: { _ in Empty(completeImmediately: true).eraseToEffect() }
+      fetchPastMessagesInChat: { _ in Empty(completeImmediately: true).eraseToEffect() },
+      setAvatarImage: { _ in Empty(completeImmediately: true).eraseToEffect() }
     )
   }
 #endif

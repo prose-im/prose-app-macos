@@ -12,7 +12,7 @@ import SwiftUI
 import Toolbox
 
 struct ContentView: View {
-  let store: Store<ConversationState, ConversationAction>
+  let store: Store<SessionState<ConversationState>, ConversationAction>
 
   init() {
     let jid: JID = "preview@prose.org"
@@ -106,7 +106,7 @@ struct ContentView: View {
     }
 
     self.store = Store(
-      initialState: ConversationState(chatId: chatId, loggedInUserJID: jid),
+      initialState: .mock(ConversationState(chatId: chatId), currentUser: .init(jid: jid)),
       reducer: conversationReducer,
       environment: ConversationEnvironment(
         proseClient: client,
