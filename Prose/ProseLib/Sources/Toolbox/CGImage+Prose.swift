@@ -67,7 +67,7 @@ public extension CGImage {
       height: self.height
     )
 
-    guard Int(imageSize.width) > maxPixelSize || Int(imageSize.height) > maxPixelSize else {
+    guard Int(max(imageSize.width, imageSize.height)) > maxPixelSize else {
       return self
     }
 
