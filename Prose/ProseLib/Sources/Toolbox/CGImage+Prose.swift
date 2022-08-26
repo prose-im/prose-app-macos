@@ -71,19 +71,14 @@ public extension CGImage {
       return self
     }
 
-    let newSize: CGSize
-    switch imageSize {
-    case _ where imageSize.width > imageSize.height:
-      newSize = CGSize(
-        width: CGFloat(maxPixelSize),
-        height: imageSize.height / imageSize.width * CGFloat(maxPixelSize)
-      )
-    default:
-      newSize = CGSize(
-        width: imageSize.width / imageSize.height * CGFloat(maxPixelSize),
-        height: CGFloat(maxPixelSize)
-      )
-    }
+    let widthRatio = CGFloat(maxPixelSize) / imageSize.width
+    let heightRatio = CGFloat(maxPixelSize) / imageSize.height
+    // Scale to fit
+    let scaleFactor = min(widthRatio, heightRatio)
+    let newSize = CGSize(
+      width: imageSize.width * scaleFactor,
+      height: imageSize.height * scaleFactor
+    )
 
     guard let colorSpace = self.colorSpace else {
       throw DownsamplingError.invalidInputImage
