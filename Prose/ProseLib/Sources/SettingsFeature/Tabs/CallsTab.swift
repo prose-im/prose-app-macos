@@ -133,7 +133,9 @@ struct CallsTab: View {
         }
       }
     }
-    .groupBoxStyle(FormGroupBoxStyle())
+    .groupBoxStyle(FormGroupBoxStyle(
+      firstColumnWidth: SettingsConstants.firstFormColumnWidth
+    ))
     .padding()
     .disabled(true)
   }

@@ -222,6 +222,23 @@
 "content.edit_message.cancel_action.title" = "Cancel";
 "content.edit_message.confirm_action.title" = "Save";
 
+"content.message_bar.field_placeholder" = "Message %s";
+
+"content.message_bar.formatting.button.ax_label" = "Text formatting";
+"content.message_bar.formatting.button.ax_hint" = "Shows a popover with text formatting actions.";
+"content.message_bar.formatting.font_section.title" = "Font";
+"content.message_bar.formatting.font_section.bold" = "Bold";
+"content.message_bar.formatting.font_section.italic" = "Italic";
+"content.message_bar.formatting.font_section.underline" = "Underline";
+"content.message_bar.formatting.font_section.strikethrough" = "Strikethrough";
+"content.message_bar.formatting.lists_section.title" = "Lists";
+"content.message_bar.formatting.lists_section.bulleted_list" = "Bulleted list";
+"content.message_bar.formatting.lists_section.numbered_list" = "Numbered list";
+"content.message_bar.formatting.lists_section.quote_block" = "Quote block";
+"content.message_bar.formatting.inserts_section.title" = "Inserts";
+"content.message_bar.formatting.inserts_section.link" = "Link list";
+"content.message_bar.formatting.inserts_section.code" = "Code";
+
 "content.message_details.information.title" = "Information";
 
 "content.message_details.security.title" = "Security";
@@ -233,8 +250,6 @@
 "content.message_details.actions.encryption_settings" = "Encryption settings";
 "content.message_details.actions.remove_contact" = "Remove from contacts";
 "content.message_details.actions.block" = "Block contact";
-
-"content.message_bar.field_placeholder" = "Message %s";
 
 "settings.tabs.general" = "General";
 "settings.tabs.accounts" = "Accounts";

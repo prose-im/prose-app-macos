@@ -15,6 +15,7 @@ public extension EdgeInsets {
   var prose_nsEdgeInsets: NSEdgeInsets {
     NSEdgeInsets(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
   }
+
   var prose_vInsets: CGFloat { self.top + self.bottom }
   var prose_hInsets: CGFloat { self.leading + self.trailing }
 }

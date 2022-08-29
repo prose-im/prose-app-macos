@@ -61,7 +61,7 @@ public let messageFieldReducer = Reducer<
   Reducer { state, action, _ in
     switch action {
     case .sendTapped where state.canSendMessage,
-        .textField(.keyboardEventReceived(.newline)) where state.canSendMessage:
+         .textField(.keyboardEventReceived(.newline)) where state.canSendMessage:
       let content: String = state.message
       return Effect(value: .send(message: content))
 

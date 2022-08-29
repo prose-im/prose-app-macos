@@ -5,6 +5,7 @@
 
 import AppLocalization
 import Assets
+import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Settings.General.self
@@ -115,7 +116,9 @@ struct GeneralTab: View {
         .frame(width: SettingsConstants.selectNormalWidth)
       }
     }
-    .groupBoxStyle(FormGroupBoxStyle())
+    .groupBoxStyle(FormGroupBoxStyle(
+      firstColumnWidth: SettingsConstants.firstFormColumnWidth
+    ))
     .padding()
     .disabled(true)
   }

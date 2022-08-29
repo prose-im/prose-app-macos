@@ -10,18 +10,27 @@ import SwiftUI
 /// To work around it, this `GroupBoxStyle` mimics the macOS form style.
 ///
 /// - Note: This style might break some layout, accessibility and readability benefits of the system style.
-struct FormGroupBoxStyle: GroupBoxStyle {
+public struct FormGroupBoxStyle: GroupBoxStyle {
   let firstColumnWidth: CGFloat
-  init(firstColumnWidth: CGFloat = SettingsConstants.firstFormColumnWidth) {
+  let titleAlignment: HorizontalAlignment
+
+  public init(
+    firstColumnWidth: CGFloat,
+    titleAlignment: HorizontalAlignment = .trailing
+  ) {
     self.firstColumnWidth = firstColumnWidth
+    self.titleAlignment = titleAlignment
   }
 
-  func makeBody(configuration: Configuration) -> some View {
+  public func makeBody(configuration: Configuration) -> some View {
     HStack(alignment: .top) {
-      VStack(alignment: .trailing) {
+      VStack(alignment: self.titleAlignment) {
         configuration.label
       }
-      .frame(width: self.firstColumnWidth, alignment: .trailing)
+      .frame(
+        width: self.firstColumnWidth,
+        alignment: Alignment(horizontal: self.titleAlignment, vertical: .center)
+      )
       VStack(alignment: .leading) {
         configuration.content
       }

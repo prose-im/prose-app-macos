@@ -85,9 +85,9 @@ struct _TCATextView: NSViewRepresentable {
 
     view._updateSize()
 
-    if self.viewStore.isFocused && textView.window?.firstResponder != textView {
+    if self.viewStore.isFocused, textView.window?.firstResponder != textView {
       textView.window?.makeFirstResponder(textView)
-    } else if !self.viewStore.isFocused && textView.window?.firstResponder == textView {
+    } else if !self.viewStore.isFocused, textView.window?.firstResponder == textView {
       textView.window?.resignFirstResponder()
     }
 
@@ -284,7 +284,8 @@ final class MyScrollableTextView: NSView {
       scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
       scrollView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
       scrollView.contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-      scrollView.contentView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
+      scrollView.contentView.trailingAnchor
+        .constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
     ])
 
     self.translatesAutoresizingMaskIntoConstraints = false
@@ -397,6 +398,7 @@ extension EdgeInsets {
       height: min(self.top, self.bottom)
     )
   }
+
   /// - NOTE: This cannot be negative.
   var overflowLeading: CGFloat { self.leading - self.minHInset }
   /// - NOTE: This cannot be negative.
