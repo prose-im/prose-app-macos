@@ -183,7 +183,9 @@ struct _TCATextView: NSViewRepresentable {
 
     func textViewDidChangeTypingAttributes(_ notification: Notification) {
       guard let textView = notification.object as? MyTextView else {
-        assertionFailure("`notification.object` is a `\(type(of: notification.object))`, expected a `MyTextView`")
+        assertionFailure(
+          "`notification.object` is a `\(type(of: notification.object))`, expected a `MyTextView`"
+        )
         return
       }
       let typingAttributes = AttributeContainer(textView.typingAttributes)
