@@ -52,7 +52,9 @@ struct ContentView: View {
 
   var body: some View {
     Preview(store: Store(
-      initialState: TCATextViewState(),
+      initialState: TCATextViewState(
+        maxHeight: 128
+      ),
       reducer: textViewReducer,
       environment: ()
     ))

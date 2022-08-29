@@ -34,7 +34,6 @@ public struct TCATextView: View {
             .accessibility(hidden: true)
         }
       }
-      .fixedSize(horizontal: false, vertical: true)
   }
 }
 
@@ -200,7 +199,11 @@ final class MyScrollableTextView: NSView {
 
     let textContainer: NSTextContainer? = coordinator.textLayoutManager.textContainer
     assert(textContainer != nil)
-    let textView = MyTextView(frame: .zero, textContainer: textContainer)
+    let textView = MyTextView(
+      frame: .init(origin: .zero, size: frameRect.size),
+      textContainer: textContainer
+    )
+    textContainer?.size = frameRect.size
     self.textView = textView
     textView.delegate = coordinator
     textView.typingAttributes = coordinator.viewStore.typingAttributes.attributes
@@ -256,15 +259,28 @@ final class MyScrollableTextView: NSView {
       scrollView.contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
     ])
 
-    let heightConstraint = self.heightAnchor.constraint(equalTo: textView.heightAnchor)
-    heightConstraint.priority = .defaultHigh
-    let maxHeightConstraint = self.heightAnchor.constraint(lessThanOrEqualToConstant: 128)
-    maxHeightConstraint.priority = .required
     self.translatesAutoresizingMaskIntoConstraints = false
-    NSLayoutConstraint.activate([
-      heightConstraint,
-      maxHeightConstraint,
-    ])
+    let heightConstraint = self.heightAnchor
+      .constraint(equalTo: textView.heightAnchor)
+    heightConstraint.priority = .defaultHigh
+    heightConstraint.isActive = true
+    if let minHeight = coordinator.viewStore.minHeight {
+      #if DEBUG
+        if let maxHeight = coordinator.viewStore.maxHeight {
+          assert(minHeight <= maxHeight)
+        }
+      #endif
+      let minHeightConstraint = self.heightAnchor
+        .constraint(greaterThanOrEqualToConstant: minHeight)
+      minHeightConstraint.priority = .required
+      minHeightConstraint.isActive = true
+    }
+    if let maxHeight = coordinator.viewStore.maxHeight {
+      let maxHeightConstraint = self.heightAnchor
+        .constraint(lessThanOrEqualToConstant: maxHeight)
+      maxHeightConstraint.priority = .required
+      maxHeightConstraint.isActive = true
+    }
   }
 
   @available(*, unavailable)
@@ -289,9 +305,9 @@ final class MyScrollableTextView: NSView {
   }
 
   func _updateSize() {
+    self._resizeTextContainer()
     let height = self.textContainerHeight
     self.textViewHeightConstraint.constant = height
-    self._resizeTextContainer()
     // Make sure we layout the text again
     // FIX: This fixes the text not appearing sometimes after an insert from `updateNSView`
     if let textLayoutManager = self.textView.textLayoutManager {
@@ -362,7 +378,9 @@ public struct TCATextViewState: Equatable {
   let placeholder: AttributedString?
   var typingAttributes: AttributeContainer
   var selection: NSRange?
-  var height: CGFloat
+  /// NOTE: [Rémi Bardon] It's not ideal having the sizes here, but I tried using SwiftUI's
+  ///       `.frame` modifier, but I couldn't make it work correctly.
+  var minHeight, maxHeight: CGFloat?
   var borderWidth: CGFloat
   var cornerRadius: CGFloat
   var textContainerInset: NSSize
@@ -375,7 +393,8 @@ public struct TCATextViewState: Equatable {
     placeholder: String? = nil,
     typingAttributes: AttributeContainer? = nil,
     selection: NSRange? = nil,
-    height: CGFloat? = nil,
+    minHeight: CGFloat? = nil,
+    maxHeight: CGFloat? = nil,
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
     textContainerInset: NSSize? = nil,
@@ -393,7 +412,8 @@ public struct TCATextViewState: Equatable {
     }
     self.typingAttributes = typingAttributes
     self.selection = selection
-    self.height = height ?? 24
+    self.minHeight = minHeight
+    self.maxHeight = maxHeight
     self.borderWidth = borderWidth ?? 1
     self.cornerRadius = cornerRadius ?? 6
     self.textContainerInset = textContainerInset ?? NSSize(width: 5, height: 5)
@@ -406,7 +426,8 @@ public struct TCATextViewState: Equatable {
     placeholder: String? = nil,
     typingAttributes: AttributeContainer? = nil,
     selection: NSRange? = nil,
-    height: CGFloat? = nil,
+    minHeight: CGFloat? = nil,
+    maxHeight: CGFloat? = nil,
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
     textContainerInset: NSSize? = nil,
@@ -418,7 +439,8 @@ public struct TCATextViewState: Equatable {
       placeholder: placeholder,
       typingAttributes: typingAttributes,
       selection: selection,
-      height: height,
+      minHeight: minHeight,
+      maxHeight: maxHeight,
       borderWidth: borderWidth,
       cornerRadius: cornerRadius,
       textContainerInset: textContainerInset,
@@ -491,20 +513,16 @@ public enum TCATextViewAction: Equatable {
           GroupBox("Empty") {
             Preview(state: .init())
           }
-          GroupBox("High, single line") {
-            Preview(state: .init(
-              placeholder: "Message Valerian",
-              interceptEvents: [.newline]
-            ))
-          }
           GroupBox("High, multi line") {
             Preview(state: .init(
-              placeholder: "Message Valerian"
+              placeholder: "Message Valerian",
+              minHeight: 128
             ))
           }
           GroupBox("Multi line, small corners") {
             Preview(state: .init(
-              placeholder: "Message Valerian"
+              placeholder: "Message Valerian",
+              cornerRadius: 4
             ))
           }
           GroupBox("Single line vs multi line") {
@@ -544,6 +562,7 @@ public enum TCATextViewAction: Equatable {
         }
         .padding(8)
       }
+      .frame(minHeight: 720)
       previews
         .preferredColorScheme(.light)
         .previewDisplayName("Light")
