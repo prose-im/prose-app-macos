@@ -168,7 +168,10 @@ public let messageBarReducer = Reducer<
       return .none
 
     case let .emojis(.insert(reaction)):
-      state.messageField.message.append(contentsOf: reaction.rawValue)
+      // NOTE: We could find a way to use [smartInsert](https://developer.apple.com/documentation/appkit/nstextview/1449467-smartinsert)
+      //       to add proper spacing (system behavior).
+      state.messageField.textField.replaceSelection(with: reaction.rawValue)
+      state.messageField.textField.isFocused = true
       return .none
 
     case let .messageField(.field(.send(messageContent))):
@@ -177,7 +180,7 @@ public let messageBarReducer = Reducer<
         .map(MessageBarAction.messageSendResult)
 
     case .messageSendResult(.success):
-      state.messageField.message = ""
+      state.messageField.textField.clear()
       return .none
 
     case let .messageSendResult(.failure(error)):
@@ -211,8 +214,9 @@ private extension ChatSessionState where ChildState == MessageBarState {
   var messageField: ChatSessionState<MessageFieldState> {
     get {
       var messageField = self.get(\.messageField)
-      messageField.placeholder = l10n
-        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+      messageField.textField.setPlaceholder(
+        to: l10n.fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+      )
       return messageField
     }
     set { self.set(\.messageField, newValue) }

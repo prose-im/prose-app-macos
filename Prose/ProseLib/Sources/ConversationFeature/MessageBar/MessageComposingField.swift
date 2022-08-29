@@ -25,17 +25,9 @@ struct MessageComposingField: View {
   let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
 
-  let cornerRadius: CGFloat?
-
-  init(store: Store<State, Action>, cornerRadius: CGFloat? = nil) {
-    self.store = store
-    self.cornerRadius = cornerRadius
-  }
-
   var body: some View {
     MessageField(
-      store: self.store.scope(state: \.childState, action: Action.field),
-      cornerRadius: self.cornerRadius
+      store: self.store.scope(state: \.childState, action: Action.field)
     )
     .onDisappear { self.actions.send(.onDisappear) }
   }
@@ -106,7 +98,7 @@ private struct TextFieldState: Equatable {
 
   init(_ state: MessageFieldState) {
     self.message = state.message
-    self.isFocused = state.isFocused
+    self.isFocused = state.textField.isFocused
   }
 }
 

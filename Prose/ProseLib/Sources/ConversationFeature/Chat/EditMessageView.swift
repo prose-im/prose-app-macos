@@ -21,7 +21,7 @@ struct EditMessageView: View {
       MessageField(store: self.store.scope(
         state: \.messageField,
         action: EditMessageAction.messageField
-      ), cornerRadius: 8)
+      ))
     }
     .safeAreaInset(edge: .bottom, spacing: 12) {
       HStack {
@@ -86,7 +86,7 @@ public let editMessageReducer: Reducer<
       }
 
     case let .emojis(.insert(reaction)):
-      state.messageField.message.append(contentsOf: reaction.rawValue)
+      state.messageField.textField.replaceSelection(with: reaction.rawValue)
       return .none
 
     case .cancelTapped, .saveEdit, .messageField, .formatting, .emojis:
@@ -117,7 +117,6 @@ public struct EditMessageState: Equatable {
     self.messageField = .init(
       placeholder: message,
       isMultiline: true,
-      hideSendButton: true,
       message: message
     )
     self.originalMessageHash = message.hashValue
