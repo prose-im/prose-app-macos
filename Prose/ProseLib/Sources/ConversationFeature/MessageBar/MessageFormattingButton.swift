@@ -14,6 +14,7 @@ struct MessageFormattingButton: View {
   @Environment(\.redactionReasons) private var redactionReasons
 
   let store: Store<MessageFormattingState, MessageFormattingAction>
+  private var actions: ViewStore<Void, MessageFormattingAction> { ViewStore(self.store.stateless) }
 
   var body: some View {
     WithViewStore(self.store) { viewStore in
@@ -21,7 +22,11 @@ struct MessageFormattingButton: View {
         Label(l10n.Button.axLabel, systemImage: "textformat.alt")
       }
       .labelStyle(.iconOnly)
-      .popover(isPresented: viewStore.binding(\.$isShowingPopover), content: self.popover)
+      .popover(
+        isPresented: viewStore.binding(\.$isShowingPopover),
+        arrowEdge: .bottom,
+        content: self.popover
+      )
       .accessibility(hint: Text(verbatim: l10n.Button.axHint))
     }
     .unredacted()
@@ -34,16 +39,18 @@ struct MessageFormattingButton: View {
     VStack {
       GroupBox {
         ControlGroup {
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.bold)) } label: {
             Label(l10n.FontSection.bold, systemImage: "bold")
           }
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.italic)) } label: {
             Label(l10n.FontSection.italic, systemImage: "italic")
           }
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.underline)) } label: {
             Label(l10n.FontSection.underline, systemImage: "underline")
           }
-          Button {} label: {
+          // https://github.com/prose-im/prose-app-macos/issues/48
+          .disabled(true)
+          Button { self.actions.send(.formatTapped(.strikethrough)) } label: {
             Label(l10n.FontSection.strikethrough, systemImage: "strikethrough")
           }
         }
@@ -57,13 +64,13 @@ struct MessageFormattingButton: View {
         .opacity(0.5)
       GroupBox {
         ControlGroup {
-          Button {} label: {
-            Label(l10n.ListsSection.bulletedList, systemImage: "list.bullet")
+          Button { self.actions.send(.formatTapped(.unorderedList)) } label: {
+            Label(l10n.ListsSection.unorderedList, systemImage: "list.bullet")
           }
-          Button {} label: {
-            Label(l10n.ListsSection.numberedList, systemImage: "list.number")
+          Button { self.actions.send(.formatTapped(.orderedList)) } label: {
+            Label(l10n.ListsSection.orderedList, systemImage: "list.number")
           }
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.quoteBlock)) } label: {
             Label(l10n.ListsSection.quoteBlock, systemImage: "text.quote")
           }
           // https://github.com/prose-im/prose-app-macos/issues/48
@@ -79,10 +86,10 @@ struct MessageFormattingButton: View {
         .opacity(0.5)
       GroupBox {
         ControlGroup {
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.link)) } label: {
             Label(l10n.InsertsSection.link, systemImage: "link")
           }
-          Button {} label: {
+          Button { self.actions.send(.formatTapped(.code)) } label: {
             Label(l10n.InsertsSection.code, systemImage: "chevron.left.forwardslash.chevron.right")
           }
         }
@@ -114,7 +121,7 @@ let messageFormattingReducer = Reducer<
     state.isShowingPopover = true
     return .none
 
-  case .binding:
+  case .formatTapped, .binding:
     return .none
   }
 }.binding()
@@ -123,8 +130,15 @@ public struct MessageFormattingState: Equatable {
   @BindableState var isShowingPopover: Bool = false
 }
 
+public enum MessageTextFormat: Equatable {
+  case bold, italic, underline, strikethrough
+  case unorderedList, orderedList, quoteBlock
+  case link, code
+}
+
 public enum MessageFormattingAction: Equatable, BindableAction {
   case buttonTapped
+  case formatTapped(MessageTextFormat)
   case binding(BindingAction<MessageFormattingState>)
 }
 

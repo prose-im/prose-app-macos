@@ -232,8 +232,8 @@
 "content.message_bar.formatting.font_section.underline" = "Underline";
 "content.message_bar.formatting.font_section.strikethrough" = "Strikethrough";
 "content.message_bar.formatting.lists_section.title" = "Lists";
-"content.message_bar.formatting.lists_section.bulleted_list" = "Bulleted list";
-"content.message_bar.formatting.lists_section.numbered_list" = "Numbered list";
+"content.message_bar.formatting.lists_section.unordered_list" = "Unordered list";
+"content.message_bar.formatting.lists_section.ordered_list" = "Ordered list";
 "content.message_bar.formatting.lists_section.quote_block" = "Quote block";
 "content.message_bar.formatting.inserts_section.title" = "Inserts";
 "content.message_bar.formatting.inserts_section.link" = "Link list";

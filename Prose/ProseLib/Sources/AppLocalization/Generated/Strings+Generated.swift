@@ -542,17 +542,11 @@ public enum L10n {
         }
 
         public enum ListsSection {
-          /// Bulleted list
-          public static let bulletedList = L10n.tr(
+          /// Ordered list
+          public static let orderedList = L10n.tr(
             "Localizable",
-            "content.message_bar.formatting.lists_section.bulleted_list",
-            fallback: #"Bulleted list"#
-          )
-          /// Numbered list
-          public static let numberedList = L10n.tr(
-            "Localizable",
-            "content.message_bar.formatting.lists_section.numbered_list",
-            fallback: #"Numbered list"#
+            "content.message_bar.formatting.lists_section.ordered_list",
+            fallback: #"Ordered list"#
           )
           /// Quote block
           public static let quoteBlock = L10n.tr(
@@ -565,6 +559,12 @@ public enum L10n {
             "Localizable",
             "content.message_bar.formatting.lists_section.title",
             fallback: #"Lists"#
+          )
+          /// Unordered list
+          public static let unorderedList = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.lists_section.unordered_list",
+            fallback: #"Unordered list"#
           )
         }
       }

@@ -69,18 +69,22 @@ struct _TCATextView: NSViewRepresentable {
   func updateNSView(_ view: MyScrollableTextView, context: Context) {
     let textView = view.textView
 
+    // NOTE: We need to store `self.viewStore.selection` here because
+    //       `textView.textStorage?.setAttributedString` causes a mutation.
+    let selection = self.viewStore.selection
+
     let textHasChanged = !context.coordinator.isSendingTextChangeToStore
       && self.viewStore.text != AttributedString(textView.attributedString())
     if textHasChanged {
       // Update the text storage
       assert(textView.textStorage != nil)
       textView.textStorage?.setAttributedString(NSAttributedString(self.viewStore.text))
-      if let selection = self.viewStore.selection {
-        textView.setSelectedRange(selection, affinity: .upstream, stillSelecting: false)
-      }
       // For some reason, the text here is not exactly the same, some attributes change a little.
       // We need to synchronize the state and the view otherwise things break.
       self.viewStore.send(.textDidChange(AttributedString(textView.attributedString())))
+    }
+    if let selection = selection, textView.selectedRange() != selection {
+      textView.setSelectedRange(selection, affinity: .upstream, stillSelecting: false)
     }
 
     view._updateSize()
@@ -448,8 +452,8 @@ public struct TCATextViewState: Equatable {
 
   public var text: AttributedString
   var placeholder: AttributedString?
-  var typingAttributes: AttributeContainer
-  var selection: NSRange?
+  public internal(set) var typingAttributes: AttributeContainer
+  public var selection: NSRange?
   /// NOTE: [Rémi Bardon] It's not ideal having the sizes here, but I tried using SwiftUI's
   ///       `.frame` modifier, but I couldn't make it work correctly.
   var minHeight, maxHeight: CGFloat?
@@ -462,6 +466,7 @@ public struct TCATextViewState: Equatable {
   public var isFocused: Bool = false
 
   public var isEmpty: Bool { self.text.characters.isEmpty }
+  public var range: NSRange { NSRange(location: 0, length: NSAttributedString(self.text).length) }
 
   /// - Note: The default values replicate the rounded `NSTextField` style.
   public init(
@@ -532,21 +537,90 @@ public struct TCATextViewState: Equatable {
     }
   }
 
-  public mutating func replaceSelection(with string: String, keepSelection: Bool = false) {
+  public mutating func replaceSelection(
+    using transform: (NSMutableAttributedString) -> Void,
+    keepSelection: Bool = false
+  ) {
     let text = NSMutableAttributedString(self.text)
-    let attStr = NSAttributedString(AttributedString(string, attributes: self.typingAttributes))
+    defer { self.text = AttributedString(text) }
     if let range = self.selection {
-      text.replaceCharacters(in: range, with: attStr)
+      let subStr = NSMutableAttributedString(
+        attributedString: NSAttributedString(self.text).attributedSubstring(from: range)
+      )
+      transform(subStr)
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.replaceCharacters(in: range, with: replacement)
       if !keepSelection {
-        self.selection = NSRange(location: range.location + attStr.length, length: 0)
+        self.selection = NSRange(location: range.location + replacement.length, length: 0)
       }
     } else {
-      text.append(attStr)
+      let subStr = NSMutableAttributedString(
+        AttributedString("", attributes: self.typingAttributes)
+      )
+      transform(subStr)
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.append(replacement)
       if !keepSelection {
         self.selection = NSRange(location: text.length, length: 0)
       }
     }
-    self.text = AttributedString(text)
+  }
+
+  public mutating func replaceSelection(with string: String, keepSelection: Bool = false) {
+    let typingAttributes = self.typingAttributes
+    self.replaceSelection(using: { subStr in
+      let range = NSRange(location: 0, length: subStr.length)
+      subStr.replaceCharacters(in: range, with: NSAttributedString(
+        AttributedString(string, attributes: typingAttributes)
+      ))
+    }, keepSelection: keepSelection)
+  }
+
+  public mutating func replaceSelectedLines(
+    using transform: (NSMutableAttributedString, _ indices: ReversedCollection<[Int]>) -> Void,
+    keepSelection: Bool = false
+  ) {
+    let text = NSMutableAttributedString(self.text)
+    defer { self.text = AttributedString(text) }
+
+    guard let selection = self.selection else {
+      let subStr = NSMutableAttributedString(
+        AttributedString("", attributes: self.typingAttributes)
+      )
+      transform(subStr, [0].reversed())
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.append(replacement)
+      if !keepSelection {
+        self.selection = NSRange(location: text.length, length: 0)
+      }
+      return
+    }
+
+    let attr = NSAttributedString(self.text)
+    let range = NSRange(location: 0, length: attr.length)
+
+    var indices: [Int] = []
+    var lineBreak: Int
+    var position: Int = selection.upperBound
+    repeat {
+      lineBreak = attr.lineBreak(before: position, within: range)
+      if lineBreak == NSNotFound { break }
+      indices.insert(lineBreak, at: 0)
+      position = lineBreak
+    } while position > selection.lowerBound
+
+    if indices.isEmpty {
+      indices = [0]
+    }
+
+    let location: Int = indices.first!
+    let replacementRange = NSRange(location: location, length: selection.upperBound - location)
+    let subStr = NSMutableAttributedString(
+      attributedString: attr.attributedSubstring(from: replacementRange)
+    )
+    transform(subStr, indices.map({ $0 - location }).reversed())
+    let replacement = NSAttributedString(attributedString: subStr)
+    text.replaceCharacters(in: replacementRange, with: replacement)
   }
 
   public mutating func clear() {
@@ -561,6 +635,14 @@ public struct TCATextViewState: Equatable {
 
   public mutating func setPlaceholder(to string: String) {
     self.placeholder = Self.placeholder(for: string, typingAttributes: self.typingAttributes)
+  }
+
+  public mutating func offsetSelection(by locationOffset: Int) {
+    self.selection.prose_offset(by: locationOffset, in: self.range)
+  }
+
+  public mutating func extendSelection(by lengthOffset: Int) {
+    self.selection.prose_extend(by: lengthOffset, in: self.range)
   }
 }
 
