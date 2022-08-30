@@ -4,6 +4,7 @@
 //
 
 import AppLocalization
+import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Settings.Accounts.self

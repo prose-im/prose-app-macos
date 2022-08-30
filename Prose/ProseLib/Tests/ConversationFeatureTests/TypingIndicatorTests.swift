@@ -60,16 +60,17 @@ final class TypingIndicatorTests: XCTestCase {
     XCTAssertEqual(self.participants, [:])
 
     // Focus the text field
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
-      $0.messageField.isFocused = true
+    store.send(.messageField(.field(.textField(.setFocused(true))))) {
+      $0.messageField.textField.isFocused = true
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .active, timestamp: self.date),
     ])
 
     // Write text
-    store.send(.messageField(.field(.binding(.set(\.$message, "I write"))))) {
-      $0.messageField.message = "I write"
+    var newMessage = AttributedString("I write")
+    store.send(.messageField(.field(.textField(.textDidChange(newMessage))))) {
+      $0.messageField.textField.text = newMessage
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
@@ -83,8 +84,9 @@ final class TypingIndicatorTests: XCTestCase {
     ])
 
     // Write text again
-    store.send(.messageField(.field(.binding(.set(\.$message, "I write and I continue"))))) {
-      $0.messageField.message = "I write and I continue"
+    newMessage = AttributedString("I write and I continue")
+    store.send(.messageField(.field(.textField(.textDidChange(newMessage))))) {
+      $0.messageField.textField.text = newMessage
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
@@ -98,20 +100,21 @@ final class TypingIndicatorTests: XCTestCase {
     }
 
     // Focus the text field while it has some text
-    store.send(.messageField(.field(.binding(.set(\.$message, "A new message"))))) {
-      $0.messageField.message = "A new message"
+    newMessage = AttributedString("A new message")
+    store.send(.messageField(.field(.textField(.textDidChange(newMessage))))) {
+      $0.messageField.textField.text = newMessage
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
     ])
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, false))))) {
-      $0.messageField.isFocused = false
+    store.send(.messageField(.field(.textField(.setFocused(false))))) {
+      $0.messageField.textField.isFocused = false
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .active, timestamp: self.date),
     ])
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
-      $0.messageField.isFocused = true
+    store.send(.messageField(.field(.textField(.setFocused(true))))) {
+      $0.messageField.textField.isFocused = true
     }
     XCTAssertEqual(self.participants, [
       self.ownId: .init(kind: .composing, timestamp: self.date),
@@ -190,8 +193,9 @@ private extension TypingIndicatorTests {
 
     // We're setting the placeholder here manually. Otherwise this would happen later and be
     // detected as a change by the TestStore.
-    state.messageField.placeholder =
-      L10n.Content.MessageBar.fieldPlaceholder(self.chatId.jidString)
+    state.messageField.textField.setPlaceholder(
+      to: L10n.Content.MessageBar.fieldPlaceholder(self.chatId.jidString)
+    )
 
     return TestStore(
       initialState: state,

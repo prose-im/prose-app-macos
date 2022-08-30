@@ -4,6 +4,7 @@
 //
 
 import AppLocalization
+import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Settings.Messages.self
@@ -58,7 +59,9 @@ struct MessagesTab: View {
         .frame(width: SettingsConstants.selectNormalWidth)
       }
     }
-    .groupBoxStyle(FormGroupBoxStyle())
+    .groupBoxStyle(FormGroupBoxStyle(
+      firstColumnWidth: SettingsConstants.firstFormColumnWidth
+    ))
     .padding()
     .disabled(true)
   }

@@ -34,7 +34,7 @@ struct ContentView: View {
         from: jid,
         id: .init(rawValue: UUID().uuidString),
         kind: .normal,
-        body: "Hi!",
+        body: "**Hi!**",
         timestamp: .now - 12,
         isRead: true,
         isEdited: false,
@@ -44,7 +44,7 @@ struct ContentView: View {
         from: jid,
         id: .init(rawValue: UUID().uuidString),
         kind: .normal,
-        body: "How are you?",
+        body: "How are _you_?",
         timestamp: .now - 10,
         isRead: true,
         isEdited: false

@@ -168,7 +168,10 @@ public let messageBarReducer = Reducer<
       return .none
 
     case let .emojis(.insert(reaction)):
-      state.messageField.message.append(contentsOf: reaction.rawValue)
+      // NOTE: We could find a way to use [smartInsert](https://developer.apple.com/documentation/appkit/nstextview/1449467-smartinsert)
+      //       to add proper spacing (system behavior).
+      state.messageField.textField.replaceSelection(with: reaction.rawValue)
+      state.messageField.textField.isFocused = true
       return .none
 
     case let .messageField(.field(.send(messageContent))):
@@ -176,8 +179,92 @@ public let messageBarReducer = Reducer<
         .catchToEffect()
         .map(MessageBarAction.messageSendResult)
 
+    case let .formatting(.formatTapped(format)):
+      func surround(between delimiter1: String, and delimiter2: String, selectionOffset: Int) {
+        let typingAttributes = state.messageField.textField.typingAttributes.attributes
+        state.messageField.textField.replaceSelection { (subStr: NSMutableAttributedString) in
+          let startAttributes, endAttributes: [NSAttributedString.Key: Any]
+          if subStr.length == 0 {
+            startAttributes = typingAttributes
+            endAttributes = typingAttributes
+          } else {
+            startAttributes = subStr.attributes(at: 0, effectiveRange: nil)
+            endAttributes = subStr.attributes(at: subStr.length - 1, effectiveRange: nil)
+          }
+          subStr.insert(NSAttributedString(string: delimiter1, attributes: startAttributes), at: 0)
+          subStr.append(NSAttributedString(string: delimiter2, attributes: endAttributes))
+        }
+        state.messageField.textField.offsetSelection(by: selectionOffset)
+      }
+      func surround(by delimiter: String, selectionOffset: Int) {
+        surround(between: delimiter, and: delimiter, selectionOffset: selectionOffset)
+      }
+
+      switch format {
+      case .bold:
+        surround(by: "**", selectionOffset: -2)
+      case .italic:
+        surround(by: "_", selectionOffset: -1)
+      case .underline:
+        surround(between: "<u>", and: "</u>", selectionOffset: -4)
+      case .strikethrough:
+        surround(by: "~~", selectionOffset: -2)
+      case .unorderedList:
+        var selection = state.messageField.textField.selection
+        var range = state.messageField.textField.range
+        state.messageField.textField.replaceSelectedLines {
+          (subStr: NSMutableAttributedString, indices: ReversedCollection<[Int]>) in
+          indices.forEach { index in
+            subStr.insert(NSAttributedString(string: "- "), at: index)
+            range.length += 2
+            selection.prose_extend(by: 2, in: range)
+          }
+        }
+        selection.prose_extend(by: -2, in: range)
+        selection.prose_offset(by: 2, in: range)
+        state.messageField.textField.selection = selection
+      case .orderedList:
+        var selection = state.messageField.textField.selection
+        var range = state.messageField.textField.range
+        state.messageField.textField.replaceSelectedLines {
+          (subStr: NSMutableAttributedString, indices: ReversedCollection<[Int]>) in
+          var number = indices.count
+          indices.forEach { index in
+            let insertedString = "\(number). "
+            subStr.insert(NSAttributedString(string: insertedString), at: index)
+            number -= 1
+            range.length += insertedString.count
+            selection.prose_extend(by: insertedString.count, in: range)
+          }
+        }
+        // First item is always "1. "
+        selection.prose_extend(by: -3, in: range)
+        selection.prose_offset(by: 3, in: range)
+        state.messageField.textField.selection = selection
+      case .quoteBlock:
+        var selection = state.messageField.textField.selection
+        var range = state.messageField.textField.range
+        state.messageField.textField.replaceSelectedLines {
+          (subStr: NSMutableAttributedString, indices: ReversedCollection<[Int]>) in
+          indices.forEach { index in
+            subStr.insert(NSAttributedString(string: "> "), at: index)
+            range.length += 2
+            selection.prose_extend(by: 2, in: range)
+          }
+        }
+        selection.prose_extend(by: -2, in: range)
+        selection.prose_offset(by: 2, in: range)
+        state.messageField.textField.selection = selection
+      case .link:
+        surround(between: "[", and: "]()", selectionOffset: -1)
+      case .code:
+        surround(by: "`", selectionOffset: -1)
+      }
+      state.messageField.textField.isFocused = true
+      return .none
+
     case .messageSendResult(.success):
-      state.messageField.message = ""
+      state.messageField.textField.clear()
       return .none
 
     case let .messageSendResult(.failure(error)):
@@ -211,8 +298,9 @@ private extension ChatSessionState where ChildState == MessageBarState {
   var messageField: ChatSessionState<MessageFieldState> {
     get {
       var messageField = self.get(\.messageField)
-      messageField.placeholder = l10n
-        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+      messageField.textField.setPlaceholder(
+        to: l10n.fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+      )
       return messageField
     }
     set { self.set(\.messageField, newValue) }

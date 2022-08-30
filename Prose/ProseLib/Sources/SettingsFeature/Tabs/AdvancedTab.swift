@@ -4,6 +4,7 @@
 //
 
 import AppLocalization
+import ProseUI
 import SwiftUI
 
 private let l10n = L10n.Settings.Advanced.self
@@ -50,7 +51,9 @@ struct AdvancedTab: View {
         Toggle(l10n.Reports.crashToggle, isOn: $reportsCrash)
       }
     }
-    .groupBoxStyle(FormGroupBoxStyle())
+    .groupBoxStyle(FormGroupBoxStyle(
+      firstColumnWidth: SettingsConstants.firstFormColumnWidth
+    ))
     .padding()
     .disabled(true)
   }

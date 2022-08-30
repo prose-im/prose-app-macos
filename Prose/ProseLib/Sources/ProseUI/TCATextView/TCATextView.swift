@@ -4,9 +4,11 @@
 //
 
 import AppKit
+import enum Assets.Colors
 import Combine
 import ComposableArchitecture
 import SwiftUI
+import TcaHelpers
 import Toolbox
 
 // MARK: - View
@@ -16,24 +18,33 @@ public struct TCATextView: View {
   public typealias Action = TCATextViewAction
 
   private let store: Store<State, Action>
-  @ObservedObject private var viewStore: ViewStore<State, Action>
 
   public init(store: Store<State, Action>) {
     self.store = store
-    self.viewStore = ViewStore(store)
   }
 
   public var body: some View {
-    _TCATextView(store: self.store)
-      .focusable()
-      .overlay(alignment: .topLeading) {
-        if let placeholder = self.viewStore.placeholder, self.viewStore.text.characters.isEmpty {
-          Text(placeholder)
-            .padding(self.viewStore.textContainerInset.prose_edgeInsets)
-            .allowsHitTesting(false)
-            .accessibility(hidden: true)
+    WithViewStore(self.store) { viewStore in
+      _TCATextView(store: self.store)
+        .overlay(alignment: .topLeading) {
+          if let placeholder = viewStore.placeholder, viewStore.isEmpty {
+            Text(placeholder)
+              .padding(viewStore.textContainerInset.prose_edgeInsets)
+              .allowsHitTesting(false)
+              .accessibility(hidden: true)
+          }
         }
-      }
+        .accessibility(hint: Text(viewStore.placeholder ?? ""))
+        .background {
+          ZStack {
+            RoundedRectangle(cornerRadius: viewStore.cornerRadius)
+              .fill(Color(nsColor: .textBackgroundColor))
+            RoundedRectangle(cornerRadius: viewStore.cornerRadius)
+              .strokeBorder(Colors.Border.secondary.color, lineWidth: viewStore.borderWidth)
+          }
+          .ignoresSafeArea(.container, edges: .horizontal)
+        }
+    }
   }
 }
 
@@ -58,29 +69,45 @@ struct _TCATextView: NSViewRepresentable {
   func updateNSView(_ view: MyScrollableTextView, context: Context) {
     let textView = view.textView
 
+    // NOTE: We need to store `self.viewStore.selection` here because
+    //       `textView.textStorage?.setAttributedString` causes a mutation.
+    let selection = self.viewStore.selection
+
     let textHasChanged = !context.coordinator.isSendingTextChangeToStore
       && self.viewStore.text != AttributedString(textView.attributedString())
     if textHasChanged {
-      logger.debug("Updating text…")
       // Update the text storage
       assert(textView.textStorage != nil)
       textView.textStorage?.setAttributedString(NSAttributedString(self.viewStore.text))
+      // For some reason, the text here is not exactly the same, some attributes change a little.
+      // We need to synchronize the state and the view otherwise things break.
+      self.viewStore.send(.textDidChange(AttributedString(textView.attributedString())))
+    }
+    if let selection = selection, textView.selectedRange() != selection {
+      textView.setSelectedRange(selection, affinity: .upstream, stillSelecting: false)
     }
 
     view._updateSize()
+
+    if self.viewStore.isFocused, textView.window?.firstResponder != textView {
+      textView.window?.makeFirstResponder(textView)
+    } else if !self.viewStore.isFocused, textView.window?.firstResponder == textView {
+      textView.window?.resignFirstResponder()
+    }
 
     // Scroll to the caret
     textView.scrollRangeToVisible(textView.selectedRange())
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(viewStore: self.viewStore)
+    Coordinator(store: self.store, viewStore: self.viewStore)
   }
 
   final class Coordinator: NSObject, NSTextViewDelegate {
     let textContentStorage: NSTextContentStorage
     let textLayoutManager: NSTextLayoutManager
 
+    let store: Store<State, Action>
     let viewStore: ViewStore<State, Action>
 
     var cancellables = Set<AnyCancellable>()
@@ -94,7 +121,8 @@ struct _TCATextView: NSViewRepresentable {
     /// make sense) we keep track of what's going on.
     var textViewIsChanging = false
 
-    init(viewStore: ViewStore<State, Action>) {
+    init(store: Store<State, Action>, viewStore: ViewStore<State, Action>) {
+      self.store = store
       self.viewStore = viewStore
 
       // Create and initialize the supporting layout, container, and storage management.
@@ -156,6 +184,17 @@ struct _TCATextView: NSViewRepresentable {
         return false
       }
     }
+
+    func textViewDidChangeTypingAttributes(_ notification: Notification) {
+      guard let textView = notification.object as? MyTextView else {
+        assertionFailure(
+          "`notification.object` is a `\(type(of: notification.object))`, expected a `MyTextView`"
+        )
+        return
+      }
+      let typingAttributes = AttributeContainer(textView.typingAttributes)
+      self.viewStore.send(.typingAttributesDidChange(typingAttributes))
+    }
   }
 }
 
@@ -188,8 +227,7 @@ final class MyScrollableTextView: NSView {
     // Create scroll view
 
     let scrollView = NSTextView.scrollableTextView()
-    scrollView.drawsBackground = true
-    scrollView.backgroundColor = .textBackgroundColor
+    scrollView.drawsBackground = false
     scrollView.hasVerticalScroller = true
     scrollView.hasHorizontalScroller = false
     scrollView.autohidesScrollers = true
@@ -203,7 +241,9 @@ final class MyScrollableTextView: NSView {
       frame: .init(origin: .zero, size: frameRect.size),
       textContainer: textContainer
     )
+    textView.actions = ViewStore(coordinator.store.stateless)
     textContainer?.size = frameRect.size
+    textContainer?.heightTracksTextView = false
     self.textView = textView
     textView.delegate = coordinator
     textView.typingAttributes = coordinator.viewStore.typingAttributes.attributes
@@ -212,17 +252,11 @@ final class MyScrollableTextView: NSView {
     // Remove default 5pt horizontal padding
     textContainer?.lineFragmentPadding = 0
     textView.textContainerInset = coordinator.viewStore.textContainerInset
-    textView.isHorizontallyResizable = true
+    // We resize manually
+    textView.isHorizontallyResizable = false
+    textView.isVerticallyResizable = false
 
     super.init(frame: frameRect)
-
-    // Create border
-
-    self.wantsLayer = true
-    assert(self.layer != nil)
-    self.layer?.borderWidth = coordinator.viewStore.borderWidth
-    self.layer?.borderColor = NSColor.separatorColor.cgColor
-    self.layer?.cornerRadius = coordinator.viewStore.cornerRadius
 
     // Add views
 
@@ -254,9 +288,10 @@ final class MyScrollableTextView: NSView {
       scrollView.topAnchor.constraint(equalTo: self.topAnchor),
       scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
       scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-      scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+      scrollView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
       scrollView.contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-      scrollView.contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+      scrollView.contentView.trailingAnchor
+        .constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
     ])
 
     self.translatesAutoresizingMaskIntoConstraints = false
@@ -323,6 +358,8 @@ final class MyScrollableTextView: NSView {
 }
 
 private final class MyTextView: NSTextView {
+  var actions: ViewStore<Void, TCATextViewAction>!
+
   override class var defaultFocusRingType: NSFocusRingType { .exterior }
   override var focusRingMaskBounds: NSRect { self.bounds }
 
@@ -341,6 +378,37 @@ private final class MyTextView: NSTextView {
       super.drawFocusRingMask()
     }
   }
+
+  override func becomeFirstResponder() -> Bool {
+    let res = super.becomeFirstResponder()
+    if res {
+      self.actions.send(.setFocused(true))
+    }
+    return res
+  }
+
+  @discardableResult override func resignFirstResponder() -> Bool {
+    let res = super.resignFirstResponder()
+    if res {
+      self.actions.send(.setFocused(false))
+    }
+    return res
+  }
+}
+
+extension EdgeInsets {
+  var minHInset: CGFloat { min(self.leading, self.trailing) }
+  var minSize: CGSize {
+    CGSize(
+      width: self.minHInset,
+      height: min(self.top, self.bottom)
+    )
+  }
+
+  /// - NOTE: This cannot be negative.
+  var overflowLeading: CGFloat { self.leading - self.minHInset }
+  /// - NOTE: This cannot be negative.
+  var overflowTrailing: CGFloat { self.trailing - self.minHInset }
 }
 
 // MARK: - The Composable Architecture
@@ -361,6 +429,14 @@ public let textViewReducer = Reducer<
     state.selection = range
     return .none
 
+  case let .typingAttributesDidChange(typingAttributes):
+    state.typingAttributes = typingAttributes
+    return .none
+
+  case let .setFocused(isFocused):
+    state.isFocused = isFocused
+    return .none
+
   case .keyboardEventReceived:
     return .none
   }
@@ -375,17 +451,22 @@ public struct TCATextViewState: Equatable {
   ])
 
   public var text: AttributedString
-  let placeholder: AttributedString?
-  var typingAttributes: AttributeContainer
-  var selection: NSRange?
+  var placeholder: AttributedString?
+  public internal(set) var typingAttributes: AttributeContainer
+  public var selection: NSRange?
   /// NOTE: [Rémi Bardon] It's not ideal having the sizes here, but I tried using SwiftUI's
   ///       `.frame` modifier, but I couldn't make it work correctly.
   var minHeight, maxHeight: CGFloat?
   var borderWidth: CGFloat
   var cornerRadius: CGFloat
-  var textContainerInset: NSSize
+  var textContainerInset: CGSize
   var showFocusRing: Bool
-  var interceptedEvents: Set<KeyEvent>
+  public var interceptedEvents: Set<KeyEvent>
+
+  public var isFocused: Bool = false
+
+  public var isEmpty: Bool { self.text.characters.isEmpty }
+  public var range: NSRange { NSRange(location: 0, length: NSAttributedString(self.text).length) }
 
   /// - Note: The default values replicate the rounded `NSTextField` style.
   public init(
@@ -397,26 +478,21 @@ public struct TCATextViewState: Equatable {
     maxHeight: CGFloat? = nil,
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
-    textContainerInset: NSSize? = nil,
+    textContainerInset: CGSize? = nil,
     showFocusRing: Bool = true,
     interceptEvents: Set<KeyEvent> = []
   ) {
     var typingAttributes = typingAttributes ?? AttributeContainer()
     typingAttributes.merge(Self.defaultAttributes, mergePolicy: .keepCurrent)
     self.text = text ?? AttributedString("", attributes: typingAttributes)
-    self.placeholder = placeholder.map { string in
-      let placeholderAttributes = typingAttributes.merging(AttributeContainer([
-        .foregroundColor: NSColor.secondaryLabelColor,
-      ]), mergePolicy: .keepNew)
-      return AttributedString(string, attributes: placeholderAttributes)
-    }
+    self.placeholder = Self.placeholder(for: placeholder, typingAttributes: typingAttributes)
     self.typingAttributes = typingAttributes
     self.selection = selection
     self.minHeight = minHeight
     self.maxHeight = maxHeight
     self.borderWidth = borderWidth ?? 1
     self.cornerRadius = cornerRadius ?? 6
-    self.textContainerInset = textContainerInset ?? NSSize(width: 5, height: 5)
+    self.textContainerInset = textContainerInset ?? CGSize(width: 5, height: 5)
     self.showFocusRing = showFocusRing
     self.interceptedEvents = interceptEvents
   }
@@ -430,7 +506,7 @@ public struct TCATextViewState: Equatable {
     maxHeight: CGFloat? = nil,
     borderWidth: CGFloat? = nil,
     cornerRadius: CGFloat? = nil,
-    textContainerInset: NSSize? = nil,
+    textContainerInset: CGSize? = nil,
     showFocusRing: Bool = true,
     interceptEvents: Set<KeyEvent> = []
   ) {
@@ -448,6 +524,126 @@ public struct TCATextViewState: Equatable {
       interceptEvents: interceptEvents
     )
   }
+
+  static func placeholder(
+    for string: String?,
+    typingAttributes: AttributeContainer
+  ) -> AttributedString? {
+    string.map { string in
+      let placeholderAttributes = typingAttributes.merging(AttributeContainer([
+        .foregroundColor: NSColor.secondaryLabelColor,
+      ]), mergePolicy: .keepNew)
+      return AttributedString(string, attributes: placeholderAttributes)
+    }
+  }
+
+  public mutating func replaceSelection(
+    using transform: (NSMutableAttributedString) -> Void,
+    keepSelection: Bool = false
+  ) {
+    let text = NSMutableAttributedString(self.text)
+    defer { self.text = AttributedString(text) }
+    if let range = self.selection {
+      let subStr = NSMutableAttributedString(
+        attributedString: NSAttributedString(self.text).attributedSubstring(from: range)
+      )
+      transform(subStr)
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.replaceCharacters(in: range, with: replacement)
+      if !keepSelection {
+        self.selection = NSRange(location: range.location + replacement.length, length: 0)
+      }
+    } else {
+      let subStr = NSMutableAttributedString(
+        AttributedString("", attributes: self.typingAttributes)
+      )
+      transform(subStr)
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.append(replacement)
+      if !keepSelection {
+        self.selection = NSRange(location: text.length, length: 0)
+      }
+    }
+  }
+
+  public mutating func replaceSelection(with string: String, keepSelection: Bool = false) {
+    let typingAttributes = self.typingAttributes
+    self.replaceSelection(using: { subStr in
+      let range = NSRange(location: 0, length: subStr.length)
+      subStr.replaceCharacters(in: range, with: NSAttributedString(
+        AttributedString(string, attributes: typingAttributes)
+      ))
+    }, keepSelection: keepSelection)
+  }
+
+  public mutating func replaceSelectedLines(
+    using transform: (NSMutableAttributedString, _ indices: ReversedCollection<[Int]>) -> Void,
+    keepSelection: Bool = false
+  ) {
+    let text = NSMutableAttributedString(self.text)
+    defer { self.text = AttributedString(text) }
+
+    guard let selection = self.selection else {
+      let subStr = NSMutableAttributedString(
+        AttributedString("", attributes: self.typingAttributes)
+      )
+      transform(subStr, [0].reversed())
+      let replacement = NSAttributedString(attributedString: subStr)
+      text.append(replacement)
+      if !keepSelection {
+        self.selection = NSRange(location: text.length, length: 0)
+      }
+      return
+    }
+
+    let attr = NSAttributedString(self.text)
+    let range = NSRange(location: 0, length: attr.length)
+
+    var indices: [Int] = []
+    var lineBreak: Int
+    var position: Int = selection.upperBound
+    repeat {
+      lineBreak = attr.lineBreak(before: position, within: range)
+      if lineBreak == NSNotFound { break }
+      indices.insert(lineBreak, at: 0)
+      position = lineBreak
+    } while position > selection.lowerBound
+
+    if indices.isEmpty {
+      indices = [0]
+    }
+
+    let location: Int = indices.first!
+    let replacementRange = NSRange(location: location, length: selection.upperBound - location)
+    let subStr = NSMutableAttributedString(
+      attributedString: attr.attributedSubstring(from: replacementRange)
+    )
+    transform(subStr, indices.map({ $0 - location }).reversed())
+    let replacement = NSAttributedString(attributedString: subStr)
+    text.replaceCharacters(in: replacementRange, with: replacement)
+  }
+
+  public mutating func clear() {
+    self.text = AttributedString("", attributes: self.typingAttributes)
+    self.selection = NSRange(location: 0, length: 0)
+  }
+
+  public mutating func setText(to string: String) {
+    self.text = AttributedString(string, attributes: self.typingAttributes)
+    self.selection = NSRange(location: NSAttributedString(self.text).length, length: 0)
+  }
+
+  public mutating func setPlaceholder(to string: String) {
+    self.placeholder = Self.placeholder(for: string, typingAttributes: self.typingAttributes)
+  }
+
+  public mutating func offsetSelection(by locationOffset: Int) {
+    self.selection.prose_offset(by: locationOffset, in: self.range)
+  }
+
+  public mutating func extendSelection(by lengthOffset: Int) {
+    self.selection.prose_extend(by: lengthOffset, in: self.range)
+  }
 }
 
 // MARK: Actions
@@ -455,7 +651,9 @@ public struct TCATextViewState: Equatable {
 public enum TCATextViewAction: Equatable {
   case textDidChange(AttributedString)
   case selectionDidChange(NSRange?)
+  case typingAttributesDidChange(AttributeContainer)
   case keyboardEventReceived(KeyEvent)
+  case setFocused(Bool)
 }
 
 #if DEBUG

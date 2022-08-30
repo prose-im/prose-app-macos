@@ -470,6 +470,104 @@ public enum L10n {
           fallback: #"Plural format key: "%#@typing@""#
         )
       }
+
+      public enum Formatting {
+        public enum Button {
+          /// Shows a popover with text formatting actions.
+          public static let axHint = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.button.ax_hint",
+            fallback: #"Shows a popover with text formatting actions."#
+          )
+          /// Text formatting
+          public static let axLabel = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.button.ax_label",
+            fallback: #"Text formatting"#
+          )
+        }
+
+        public enum FontSection {
+          /// Bold
+          public static let bold = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.font_section.bold",
+            fallback: #"Bold"#
+          )
+          /// Italic
+          public static let italic = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.font_section.italic",
+            fallback: #"Italic"#
+          )
+          /// Strikethrough
+          public static let strikethrough = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.font_section.strikethrough",
+            fallback: #"Strikethrough"#
+          )
+          /// Font
+          public static let title = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.font_section.title",
+            fallback: #"Font"#
+          )
+          /// Underline
+          public static let underline = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.font_section.underline",
+            fallback: #"Underline"#
+          )
+        }
+
+        public enum InsertsSection {
+          /// Code
+          public static let code = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.inserts_section.code",
+            fallback: #"Code"#
+          )
+          /// Link list
+          public static let link = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.inserts_section.link",
+            fallback: #"Link list"#
+          )
+          /// Inserts
+          public static let title = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.inserts_section.title",
+            fallback: #"Inserts"#
+          )
+        }
+
+        public enum ListsSection {
+          /// Ordered list
+          public static let orderedList = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.lists_section.ordered_list",
+            fallback: #"Ordered list"#
+          )
+          /// Quote block
+          public static let quoteBlock = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.lists_section.quote_block",
+            fallback: #"Quote block"#
+          )
+          /// Lists
+          public static let title = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.lists_section.title",
+            fallback: #"Lists"#
+          )
+          /// Unordered list
+          public static let unorderedList = L10n.tr(
+            "Localizable",
+            "content.message_bar.formatting.lists_section.unordered_list",
+            fallback: #"Unordered list"#
+          )
+        }
+      }
     }
 
     public enum MessageDetails {
