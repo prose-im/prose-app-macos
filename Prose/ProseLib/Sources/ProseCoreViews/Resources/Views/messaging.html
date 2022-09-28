@@ -1,9 +1,9 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.9f1b33bb.css"><script src="messaging.3477b7db.js" defer></script></head><body id="app" v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Messaging</title><style>#app{visibility:hidden}</style><link rel="stylesheet" href="messaging.afa3a576.css"><script src="messaging.d4843923.js" defer></script></head><body v-scope="App()" @vue:mounted="mounted" @vue:unmounted="unmounted" :class="[
       'app--' + $context.style.theme,
       {
         'app--visible': isReady
       }
-    ]">  <div class="loader loader--backwards" v-scope="Loader()" v-if="$store.feed.loaders.backwards"></div> <div class="entry" v-for="entry in $store.feed.entries" v-scope="Entry(entry)" v-once="" :key="dayChangeCount + '/' + $context.i18n.code + '/' + entry.id + '@' + (entry.updatedAt || 0)"> <div class="message" v-if="message" v-scope="Message(message)"> <span class="avatar message-avatar" v-if="user" v-scope="Avatar(user)" @vue:mounted="mounted"> <span v-if="avatarUrl" :style="{
+    ]" id="app">  <div v-if="$store.feed.loaders.backwards" v-scope="Loader()" class="loader loader--backwards"></div> <div v-for="entry in $store.feed.entries" v-scope="Entry(entry)" v-once="" :key="dayChangeCount + '/' + $context.i18n.code + '/' + entry.id + '@' + (entry.updatedAt || 0)" class="entry"> <div v-if="message" v-scope="Message(message)" :data-entry-id="entry.id" class="message"> <span v-if="user" v-scope="Avatar(user)" @vue:mounted="mounted" class="avatar message-avatar"> <span v-if="avatarUrl" :style="{
               backgroundImage: ('url(\'' + avatarUrl + '\')')
             }" class="avatar-image"></span> <span v-else="" :style="{ backgroundColor: defaultPalette }" class="avatar-image avatar-image--placeholder"> <span v-if="defaultInitials" class="avatar-initials"> {{ defaultInitials }} </span> </span> </span> <div class="message-inner" @vue:mounted="mounted"> <div v-if="user" class="message-origin"> <span class="message-origin-name">{{ user.name || user.jid }}</span> <span v-if="date" class="message-origin-date">{{ date }}</span> <span v-if="attributes && attributes.length > 0" class="message-origin-attributes"> <span v-for="attribute in attributes" :title="$context.i18n._.attributes[attribute] || ''" :class="[
                   'message-origin-attribute',
@@ -35,7 +35,7 @@
                     {
                       'message-action--active': (line.locks && line.locks.actions === true)
                     }
-                  ]"></span> </span> </p> </div> </div> </div> <div class="separator" v-else-if="separator" v-scope="Separator(separator)"> <span class="separator-label">{{ label }}</span> </div> </div> <div class="loader loader--forwards" v-scope="Loader()" v-if="$store.feed.loaders.forwards"></div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> <span v-if="edited" class="message-text-flag"> ({{ $context.i18n._.attributes.edited }}) </span> </template> <template id="template-message-line-file"> <span :class="[
+                  ]"></span> </span> </p> </div> </div> </div> <div v-else-if="separator" v-scope="Separator(separator)" class="separator"> <span class="separator-label">{{ label }}</span> </div> </div> <div v-if="$store.feed.loaders.forwards" v-scope="Loader()" class="loader loader--forwards"></div>  <template id="template-message-line-text"> <span v-if="html" v-html="html" class="message-text-inner"></span> <span v-if="edited" class="message-text-flag"> ({{ $context.i18n._.attributes.edited }}) </span> </template> <template id="template-message-line-file"> <span :class="[
           'message-file-inner',
           {
             'message-file-inner--expanded': isExpanded
