@@ -16,7 +16,7 @@ extension AppEnvironment {
     notifications: .noop,
     mainQueue: .main,
     openURL: { url, _ in
-      Effect.fireAndForget {
+      EffectPublisher.fireAndForget {
         logger.info("Not opening url \(url.absoluteString) in UITest.")
       }
     }

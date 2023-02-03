@@ -9,7 +9,7 @@ import Foundation
 import Toolbox
 
 public extension Publisher where Failure == Never {
-  func eraseToFailingEffect() -> Effect<Output, EquatableError> {
+  func eraseToFailingEffect() -> EffectPublisher<Output, EquatableError> {
     self.setFailureType(to: EquatableError.self).eraseToEffect()
   }
 }

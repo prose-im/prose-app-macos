@@ -223,7 +223,7 @@ extension View {
 
 // MARK: Reducer
 
-public let footerAvatarReducer = Reducer<
+public let footerAvatarReducer = AnyReducer<
   SessionState<FooterAvatarState>,
   FooterAvatarAction,
   Void
@@ -263,7 +263,7 @@ public struct FooterAvatarState: Equatable {
   var statusIcon: Character
   var statusMessage: String
 
-  @BindableState var isShowingPopover: Bool
+  @BindingState var isShowingPopover: Bool
 
   public init(
     availability: Availability = .available,

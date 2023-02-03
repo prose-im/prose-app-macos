@@ -56,11 +56,16 @@ private class KeyView<Content: View>: NSHostingView<Content> {
 }
 
 public extension View {
-  /// - Copyright: Inspired by [How to handle keyDown in SwiftUI for macOS](https://onmyway133.com/posts/how-to-handle-keydown-in-swiftui-for-macos/)
-  ///              and [Handle Keyboard Presses Using SwiftUI in macOS](https://www.swiftjectivec.com/handling-keyboard-presses-in-swiftui-for-macos/).
-  /// - Note: Do not use `self.background(KeyAwareView(onEvent: onEvent))`, which breaks the responder chain
-  ///         if `self` can become first responder. By having ``KeyAwareView`` as a wrapper around `self`,
-  ///         we ensure ``KeyAwareView`` stays first responder as long as we need it to, and it correctly
+  /// - Copyright: Inspired by [How to handle keyDown in SwiftUI for
+  /// macOS](https://onmyway133.com/posts/how-to-handle-keydown-in-swiftui-for-macos/)
+  ///              and [Handle Keyboard Presses Using SwiftUI in
+  /// macOS](https://www.swiftjectivec.com/handling-keyboard-presses-in-swiftui-for-macos/).
+  /// - Note: Do not use `self.background(KeyAwareView(onEvent: onEvent))`, which breaks the
+  /// responder chain
+  ///         if `self` can become first responder. By having ``KeyAwareView`` as a wrapper around
+  /// `self`,
+  ///         we ensure ``KeyAwareView`` stays first responder as long as we need it to, and it
+  /// correctly
   ///         receives the key events.
   func onKeyDown(perform onEvent: @escaping (KeyEvent) -> Void) -> some View {
     KeyAwareView(rootView: self, onEvent: onEvent).accessibilityElement(children: .contain)

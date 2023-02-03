@@ -43,11 +43,11 @@ public struct AuthenticationScreen: View {
 
 // MARK: Reducer
 
-public let authenticationReducer: Reducer<
+public let authenticationReducer: AnyReducer<
   AuthenticationState,
   AuthenticationAction,
   AuthenticationEnvironment
-> = Reducer.combine([
+> = AnyReducer.combine([
   basicAuthReducer._pullback(
     state: (\AuthenticationState.route).case(CasePath(AuthRoute.basicAuth)),
     action: CasePath(AuthenticationAction.basicAuth),
@@ -58,11 +58,11 @@ public let authenticationReducer: Reducer<
     action: CasePath(AuthenticationAction.mfa),
     environment: { $0 }
   ),
-  Reducer { state, action, _ in
+  AnyReducer { state, action, _ in
     switch action {
     case let .basicAuth(.didPassChallenge(.success(jid, password))),
          let .mfa(.didPassChallenge(.success(jid, password))):
-      return Effect(value: .didLogIn(Credentials(jid: jid, password: password)))
+      return EffectTask(value: .didLogIn(Credentials(jid: jid, password: password)))
 
     case let .basicAuth(.didPassChallenge(route)),
          let .mfa(.didPassChallenge(route)):

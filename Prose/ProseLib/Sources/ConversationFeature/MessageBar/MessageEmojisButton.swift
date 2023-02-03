@@ -29,7 +29,7 @@ struct MessageEmojisButton: View {
   }
 }
 
-let messageEmojisReducer = Reducer<
+let messageEmojisReducer = AnyReducer<
   MessageEmojisState,
   MessageEmojisAction,
   Void
@@ -41,7 +41,7 @@ let messageEmojisReducer = Reducer<
 
   case let .reactionPicker(.select(reaction)):
     state.reactionPicker = nil
-    return Effect(value: .insert(reaction))
+    return EffectTask(value: .insert(reaction))
 
   case .reactionPickerDismissed:
     state.reactionPicker = nil

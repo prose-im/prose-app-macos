@@ -29,7 +29,7 @@ public enum ReactionPickerAction: Equatable {
   case select(Reaction), deselect(Reaction)
 }
 
-public let reactionPickerTogglingReducer = Reducer<
+public let reactionPickerTogglingReducer = AnyReducer<
   ReactionPickerState,
   ReactionPickerAction,
   Void
@@ -133,13 +133,13 @@ struct ReactionPicker_Previews: PreviewProvider {
       case reactionPicker(ReactionPickerAction)
     }
 
-    static let reducer = Reducer<State, Action, Void>.combine([
+    static let reducer = AnyReducer<State, Action, Void>.combine([
       reactionPickerTogglingReducer.optional().pullback(
         state: \.reactionPicker,
         action: CasePath(Action.reactionPicker),
         environment: { $0 }
       ),
-      Reducer { state, action, _ in
+      AnyReducer { state, action, _ in
         switch action {
         case let .reactionPicker(.select(reaction)):
           state.text = reaction.rawValue
@@ -181,7 +181,7 @@ struct ReactionPicker_Previews: PreviewProvider {
     struct State: Equatable {
       var reactionPicker: ReactionPickerState?
       var text: String = ""
-      @BindableState var isShowingPopover: Bool = false
+      @BindingState var isShowingPopover: Bool = false
     }
 
     enum Action: Equatable, BindableAction {
@@ -189,13 +189,13 @@ struct ReactionPicker_Previews: PreviewProvider {
       case binding(BindingAction<State>)
     }
 
-    static let reducer = Reducer<State, Action, Void>.combine([
+    static let reducer = AnyReducer<State, Action, Void>.combine([
       //      reactionPickerTogglingReducer.optional().pullback(
 //        state: \.reactionPicker,
 //        action: CasePath(Action.reactionPicker),
 //        environment: { $0 }
 //      ),
-      Reducer { state, action, _ in
+      AnyReducer { state, action, _ in
         switch action {
         case let .reactionPicker(.select(reaction)):
           state.text = reaction.rawValue

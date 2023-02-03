@@ -8,7 +8,8 @@ import SwiftUI
 public extension String {
   /// Convert a `String` to a Markdown `AttributedString`.
   ///
-  /// SwiftUI automatically renders Markdown, but only for static strings used in the `Text` initializer.
+  /// SwiftUI automatically renders Markdown, but only for static strings used in the `Text`
+  /// initializer.
   /// If a string is localized, it doesn't render Markdown.
   /// That's why we have to use:
   ///

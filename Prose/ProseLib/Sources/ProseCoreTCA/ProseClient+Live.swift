@@ -31,13 +31,13 @@ public extension ProseClient {
       to: JID,
       id: Message.ID,
       reaction: Reaction
-    ) -> Effect<None, EquatableError> {
+    ) -> EffectPublisher<None, EquatableError> {
       guard let client = client else {
-        return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+        return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
       }
 
       guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
-        return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+        return EffectPublisher(error: EquatableError(ProseClientError.unknownMessageID))
       }
 
       do {
@@ -51,7 +51,7 @@ public extension ProseClient {
           )
         }
       } catch {
-        return Effect(error: EquatableError(error))
+        return EffectPublisher(error: EquatableError(error))
       }
 
       return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
@@ -69,7 +69,7 @@ public extension ProseClient {
         do {
           try client?.connect(credential: .password(password))
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         return delegate.$account
@@ -130,7 +130,7 @@ public extension ProseClient {
       },
       sendMessage: { to, body in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         let messageID = Message.ID(rawValue: uuid().uuidString)
@@ -143,7 +143,7 @@ public extension ProseClient {
             chatState: .active
           )
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         let jid = JID(fullJid: client.jid)
@@ -163,11 +163,11 @@ public extension ProseClient {
       },
       updateMessage: { to, id, body in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         guard let messageToUpdate = delegate.activeChats[to]?.messages[id: id] else {
-          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+          return EffectPublisher(error: EquatableError(ProseClientError.unknownMessageID))
         }
 
         do {
@@ -186,14 +186,14 @@ public extension ProseClient {
 
           delegate.activeChats[to]?.updateMessage(updatedMessage)
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       addReaction: { to, id, reaction in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         guard delegate
@@ -211,44 +211,44 @@ public extension ProseClient {
       },
       retractMessage: { to, id in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         guard delegate.activeChats[to]?.containsMessage(id: id) == true else {
-          return Effect(error: EquatableError(ProseClientError.unknownMessageID))
+          return EffectPublisher(error: EquatableError(ProseClientError.unknownMessageID))
         }
 
         do {
           try client.retractMessage(to: to.bareJid, messageId: id.rawValue)
           delegate.activeChats[to]?.removeMessage(id: id)
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       sendChatState: { to, kind in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         do {
           try client.sendChatState(to: to.bareJid, chatState: kind.ffi)
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
       sendPresence: { show, status in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         do {
           try client.sendPresence(show: show.ffi, status: status)
         } catch {
-          return Effect(error: EquatableError(error))
+          return EffectPublisher(error: EquatableError(error))
         }
 
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
@@ -257,9 +257,9 @@ public extension ProseClient {
         delegate.activeChats[jid]?.markMessagesRead()
         return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
       },
-      fetchPastMessagesInChat: { jid -> Effect<None, EquatableError> in
+      fetchPastMessagesInChat: { jid -> EffectPublisher<None, EquatableError> in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         delegate.activeChats.removeValue(forKey: jid)
@@ -296,7 +296,7 @@ public extension ProseClient {
       },
       setAvatarImage: { image in
         guard let client = client else {
-          return Effect(error: EquatableError(ProseClientError.notAuthenticated))
+          return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
         let jid = JID(fullJid: client.jid)

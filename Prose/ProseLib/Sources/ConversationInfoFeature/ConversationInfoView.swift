@@ -65,7 +65,7 @@ public extension ConversationInfoView {
         security: .placeholder,
         actions: .placeholder
       ),
-      reducer: Reducer.empty,
+      reducer: AnyReducer.empty,
       environment: ()
     ))
     .redacted(reason: .placeholder)
@@ -76,11 +76,11 @@ public extension ConversationInfoView {
 
 // MARK: Reducer
 
-public let conversationInfoReducer: Reducer<
+public let conversationInfoReducer: AnyReducer<
   ConversationInfoState,
   ConversationInfoAction,
   Void
-> = Reducer.combine([
+> = AnyReducer.combine([
   identitySectionReducer.pullback(
     state: \ConversationInfoState.identity,
     action: CasePath(ConversationInfoAction.identity),

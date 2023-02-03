@@ -10,7 +10,8 @@ let package = Package(
   products: [
     .library(name: "App", targets: ["App"]),
     .library(name: "TestHostApp", targets: ["TestHostApp"]),
-    // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
+    // For efficiency, Xcode doesn't build all targets when building for previews. This library does
+    // it.
     .library(name: "Previews", targets: [
       "AddressBookFeature",
       "AuthenticationFeature",
@@ -28,17 +29,13 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/pointfreeco/swift-composable-architecture",
-      .upToNextMajor(from: "0.33.1")
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-case-paths",
-      .upToNextMajor(from: "0.9.1")
+      .upToNextMajor(from: "0.50.1")
     ),
     .package(
       url: "https://github.com/pointfreeco/swiftui-navigation",
-      .upToNextMajor(from: "0.1.0")
+      .upToNextMajor(from: "0.6.1")
     ),
-    .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.7.0")),
+    .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.9.0")),
     .proseCore("0.4.3"),
   ],
   targets: [
@@ -196,7 +193,8 @@ enum Environment {
   static let settings: Settings = {
     // If the `IS_RELEASE_BUILD` env var is set we're switching to the release settings.
     // The env var can only be set when running xcodebuild outside of Xcode.
-    // No better way yet? https://forums.swift.org/t/spm-resources-only-in-debug-configuration/38046/14
+    // No better way yet?
+    // https://forums.swift.org/t/spm-resources-only-in-debug-configuration/38046/14
     guard ProcessInfo.processInfo.environment["IS_RELEASE_BUILD"] != "1" else {
       return .release
     }

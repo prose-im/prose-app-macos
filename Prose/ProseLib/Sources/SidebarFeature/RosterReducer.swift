@@ -58,7 +58,7 @@ extension SidebarRoster.Group {
   }
 }
 
-extension Reducer where
+extension AnyReducer where
   State == SessionState<SidebarState>,
   Action == SidebarAction,
   Environment == SidebarEnvironment
@@ -66,7 +66,7 @@ extension Reducer where
   func roster() -> Self {
     .combine(
       self,
-      Reducer { state, action, environment in
+      AnyReducer { state, action, environment in
         switch action {
         case .onAppear:
           return .merge(

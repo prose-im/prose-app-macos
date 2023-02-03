@@ -24,7 +24,7 @@ struct MessageAttachmentsButton: View {
   }
 }
 
-let messageAttachmentsReducer = Reducer<
+let messageAttachmentsReducer = AnyReducer<
   MessageAttachmentsState,
   MessageAttachmentsAction,
   Void

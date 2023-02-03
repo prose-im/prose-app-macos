@@ -66,11 +66,11 @@ public struct UnreadScreen: View {
 
 // MARK: Reducer
 
-public let unreadReducer: Reducer<
+public let unreadReducer: AnyReducer<
   UnreadState,
   UnreadAction,
   UnreadEnvironment
-> = Reducer { _, action, _ in
+> = AnyReducer { _, action, _ in
   switch action {
   case .onAppear:
     return .none

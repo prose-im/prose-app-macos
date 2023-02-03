@@ -6,9 +6,9 @@
 import ComposableArchitecture
 import Foundation
 
-public extension Effect {
+public extension EffectTask {
   // Source: https://forums.swift.org/t/ifletstore-and-effect-cancellation-on-view-disappear/38272/23
-  static func cancel<T>(token: T.Type) -> Effect where T: CaseIterable, T: Hashable {
-    .merge(token.allCases.map(Effect.cancel(id:)))
+  static func cancel<T>(token: T.Type) -> EffectTask<Action> where T: CaseIterable, T: Hashable {
+    .merge(token.allCases.map(EffectTask.cancel(id:)))
   }
 }

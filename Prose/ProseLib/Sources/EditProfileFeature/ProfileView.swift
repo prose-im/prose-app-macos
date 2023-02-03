@@ -100,7 +100,7 @@ struct ProfileView: View {
 
 // MARK: Reducer
 
-public let profileReducer = Reducer<
+public let profileReducer = AnyReducer<
   ProfileState,
   ProfileAction,
   Void
@@ -118,11 +118,11 @@ public let profileReducer = Reducer<
 // MARK: State
 
 public struct ProfileState: Equatable {
-  @BindableState var organization: String
-  @BindableState var jobTitle: String
-  @BindableState var autoDetectLocation: Bool
-  @BindableState var location: String
-  @BindableState var isLocationPermissionAllowed: Bool
+  @BindingState var organization: String
+  @BindingState var jobTitle: String
+  @BindingState var autoDetectLocation: Bool
+  @BindingState var location: String
+  @BindingState var isLocationPermissionAllowed: Bool
 
   var locationPermissionLabel: String {
     self.isLocationPermissionAllowed

@@ -121,7 +121,7 @@ public struct JoinGroupSheet: View {
 
 // MARK: Reducer
 
-public let joinGroupReducer = Reducer<
+public let joinGroupReducer = AnyReducer<
   JoinGroupSheetState,
   JoinGroupSheetAction,
   JoinGroupSheetEnvironment
@@ -140,7 +140,7 @@ public struct JoinGroupSheetState: Equatable {
   var info: InfoMessage
   var isProcessing: Bool
 
-  @BindableState var text: String
+  @BindingState var text: String
 
   var isFormValid: Bool {
     switch self.info {
@@ -202,11 +202,11 @@ public extension JoinGroupSheetEnvironment {
         initialState: initialState,
         reducer: joinGroupReducer.combined(
           with:
-          Reducer { state, action, environment in
+          AnyReducer { state, action, environment in
             switch action {
             case let .didUpdateText(text):
               state.isProcessing = true
-              return Effect(value: .didCheckText(text))
+              return EffectTask(value: .didCheckText(text))
                 .delay(for: 0.5, scheduler: environment.mainQueue)
                 .eraseToEffect()
 
@@ -233,7 +233,7 @@ public extension JoinGroupSheetEnvironment {
 
             case .binding(\.$text):
               struct Token: Hashable {}
-              return Effect(value: .didUpdateText(state.text))
+              return EffectTask(value: .didUpdateText(state.text))
                 .debounce(
                   id: Token(),
                   for: 0.5,

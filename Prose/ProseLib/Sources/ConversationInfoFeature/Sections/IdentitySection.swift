@@ -50,11 +50,11 @@ struct IdentitySection: View {
 
 // MARK: Reducer
 
-public let identitySectionReducer: Reducer<
+public let identitySectionReducer: AnyReducer<
   IdentitySectionState,
   IdentitySectionAction,
   Void
-> = Reducer.empty
+> = AnyReducer.empty
 
 // MARK: State
 

@@ -97,11 +97,11 @@ struct Toolbar: ToolbarContent {
 
 // MARK: Reducer
 
-public let toolbarReducer: Reducer<
+public let toolbarReducer: AnyReducer<
   ChatSessionState<ToolbarState>,
   ToolbarAction,
   Void
-> = Reducer { state, action, _ in
+> = AnyReducer { state, action, _ in
   switch action {
   case .startVideoCallTapped:
     logger.info("Start video call tapped")
@@ -124,7 +124,7 @@ public let toolbarReducer: Reducer<
 
 public struct ToolbarState: Equatable {
   let user: User?
-  @BindableState var isShowingInfo: Bool
+  @BindingState var isShowingInfo: Bool
 
   public init(
     user: User?,

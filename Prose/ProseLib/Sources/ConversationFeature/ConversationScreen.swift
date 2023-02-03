@@ -70,7 +70,7 @@ enum ConversationEffectToken: Hashable, CaseIterable {
   case observeUserInfos
 }
 
-public let conversationReducer = Reducer<
+public let conversationReducer = AnyReducer<
   SessionState<ConversationState>,
   ConversationAction,
   ConversationEnvironment
@@ -95,7 +95,7 @@ public let conversationReducer = Reducer<
     action: CasePath(ConversationAction.chat),
     environment: { $0 }
   ),
-  Reducer { state, action, environment in
+  AnyReducer { state, action, environment in
     switch action {
     case .onAppear:
       return .merge(

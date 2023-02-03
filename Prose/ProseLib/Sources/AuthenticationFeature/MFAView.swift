@@ -30,20 +30,20 @@ struct MFAView: View {
 
 // MARK: Reducer
 
-public let mfaReducer: Reducer<
+public let mfaReducer: AnyReducer<
   MFAState,
   MFAAction,
   AuthenticationEnvironment
-> = Reducer.combine([
+> = AnyReducer.combine([
   mfa6DigitsReducer.pullback(
     state: CasePath(MFAState.sixDigits),
     action: CasePath(MFAAction.sixDigits),
     environment: { $0 }
   ),
-  Reducer { _, action, _ in
+  AnyReducer { _, action, _ in
     switch action {
     case let .sixDigits(.verifyOneTimeCodeResult(.success(route))):
-      return Effect(value: .didPassChallenge(next: route))
+      return EffectTask(value: .didPassChallenge(next: route))
 
     default:
       break

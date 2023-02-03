@@ -66,7 +66,7 @@ public struct MainScreen: View {
 
 // MARK: Reducer
 
-public let mainWindowReducer = Reducer<
+public let mainWindowReducer = AnyReducer<
   SessionState<MainScreenState>,
   MainScreenAction,
   MainScreenEnvironment
@@ -102,7 +102,7 @@ public let mainWindowReducer = Reducer<
       currentUser: state.currentUser,
       childState: ConversationState(chatId: jid)
     )
-    var effects = Effect<MainScreenAction, Never>.none
+    var effects = EffectTask<MainScreenAction>.none
 
     // If another chat was selected already, we'll manually send the `.onAppear` and
     // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.

@@ -53,11 +53,11 @@ struct Toolbar: ToolbarContent {
 
 // MARK: Reducer
 
-let toolbarReducer: Reducer<
+let toolbarReducer: AnyReducer<
   ToolbarState,
   ToolbarAction,
   Void
-> = Reducer { state, action, _ in
+> = AnyReducer { state, action, _ in
   switch action {
   case .startCallTapped:
     // TODO: [Rémi Bardon] Handle action

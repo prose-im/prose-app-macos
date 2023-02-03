@@ -88,7 +88,7 @@ struct AuthenticationView: View {
 
 // MARK: Reducer
 
-public let authenticationReducer = Reducer<
+public let authenticationReducer = AnyReducer<
   AuthenticationState,
   AuthenticationAction,
   Void

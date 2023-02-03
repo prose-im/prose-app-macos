@@ -91,7 +91,7 @@ public struct EditProfileScreen: View {
 
 // MARK: Reducer
 
-public let editProfileReducer = Reducer<
+public let editProfileReducer = AnyReducer<
   SessionState<EditProfileState>,
   EditProfileAction,
   EditProfileEnvironment
@@ -123,7 +123,7 @@ public let editProfileReducer = Reducer<
     action: CasePath(EditProfileAction.encryption),
     environment: { _ in () }
   ),
-  Reducer { _, action, _ in
+  AnyReducer { _, action, _ in
     switch action {
     case .saveProfileTapped:
       logger.trace("Save profile tapped")

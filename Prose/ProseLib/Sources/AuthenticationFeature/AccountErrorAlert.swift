@@ -26,7 +26,7 @@ public extension View {
 
 // MARK: Reducer
 
-private let accountErrorAlertReducer = Reducer<
+private let accountErrorAlertReducer = AnyReducer<
   AlertState<AccountErrorAlertAction>,
   AccountErrorAlertAction,
   Void
@@ -42,17 +42,17 @@ public protocol WithAccountErrorAction {
   static func accountErrorAlert(_ action: AccountErrorAlertAction) -> Self
 }
 
-public extension Reducer where Action: WithAccountErrorAction & Equatable {
+public extension AnyReducer where Action: WithAccountErrorAction & Equatable {
   func accountErrorAlert(
     state toAlertState: WritableKeyPath<State, AlertState<AccountErrorAlertAction>?>
-  ) -> Reducer<State, Action, Environment> {
-    Reducer.combine([
+  ) -> AnyReducer<State, Action, Environment> {
+    AnyReducer.combine([
       accountErrorAlertReducer.optional().pullback(
         state: toAlertState,
         action: CasePath(Action.accountErrorAlert),
         environment: { _ in () }
       ),
-      Reducer { state, action, _ in
+      AnyReducer { state, action, _ in
         switch action {
         case .accountErrorAlert(.show):
           state[keyPath: toAlertState] = makeAlert()
@@ -112,7 +112,7 @@ struct AccountErrorAlert_Previews: PreviewProvider {
       case accountErrorAlert(AccountErrorAlertAction)
     }
 
-    static let reducer = Reducer<State, Action, Void>.empty
+    static let reducer = AnyReducer<State, Action, Void>.empty
       .accountErrorAlert(state: \.alert)
 
     let store: Store<State, Action>

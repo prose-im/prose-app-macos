@@ -98,7 +98,7 @@ struct IdentityView: View {
 
 // MARK: Reducer
 
-public let identityReducer = Reducer<
+public let identityReducer = AnyReducer<
   IdentityState,
   IdentityAction,
   Void
@@ -124,14 +124,14 @@ public let identityReducer = Reducer<
 // MARK: State
 
 public struct IdentityState: Equatable {
-  @BindableState var firstName: String
-  @BindableState var lastName: String
-  @BindableState var email: String
-  @BindableState var phone: String
+  @BindingState var firstName: String
+  @BindingState var lastName: String
+  @BindingState var email: String
+  @BindingState var phone: String
 
-  @BindableState var isNameVerified: Bool
-  @BindableState var isEmailVerified: Bool
-  @BindableState var isPhoneVerified: Bool
+  @BindingState var isNameVerified: Bool
+  @BindingState var isEmailVerified: Bool
+  @BindingState var isPhoneVerified: Bool
 
   public init(
     firstName: String = "Baptiste",

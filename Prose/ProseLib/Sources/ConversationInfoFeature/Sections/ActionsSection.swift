@@ -49,11 +49,11 @@ struct ActionsSection: View {
 
 // MARK: Reducer
 
-public let actionsSectionReducer: Reducer<
+public let actionsSectionReducer: AnyReducer<
   ActionsSectionState,
   ActionsSectionAction,
   Void
-> = Reducer { _, action, _ in
+> = AnyReducer { _, action, _ in
   switch action {
   case .viewSharedFilesTapped:
     logger.info("View shared files tapped")

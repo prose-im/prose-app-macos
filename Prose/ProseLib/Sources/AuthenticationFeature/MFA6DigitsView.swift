@@ -150,11 +150,11 @@ public struct MFA6DigitsView: View {
 
 // MARK: Reducer
 
-public let mfa6DigitsReducer: Reducer<
+public let mfa6DigitsReducer: AnyReducer<
   MFA6DigitsState,
   MFA6DigitsAction,
   AuthenticationEnvironment
-> = Reducer { state, action, environment in
+> = AnyReducer { state, action, environment in
   struct CodeFilteringCancelId: Hashable {}
 
   switch action {
@@ -162,7 +162,7 @@ public let mfa6DigitsReducer: Reducer<
     state.focusedField = .textField
 
   case .submitButtonTapped:
-    return Effect(value: .verifyOneTimeCode)
+    return EffectTask(value: .verifyOneTimeCode)
 
   case let .showPopoverTapped(popover):
     state.popover = popover
@@ -174,7 +174,7 @@ public let mfa6DigitsReducer: Reducer<
     let code = state.filteredCode
     let jid = state.jid
     let password = state.password
-    return Effect.task {
+    return EffectTask.task {
       if isFormValid, code != "000000" {
         return .verifyOneTimeCodeResult(.success(.success(jid: jid, password: password)))
       } else {
@@ -214,28 +214,28 @@ public let mfa6DigitsReducer: Reducer<
         .filter(CharacterSet.decimalDigits.contains).prefix(6)
     )
 
-    var effects: [Effect<MFA6DigitsAction, Never>] = []
+    var effects: [EffectTask<MFA6DigitsAction>] = []
 
     // Raw code needs update if the user typed letters (we need to remove them)
     let rawCodeNeedsUpdate = filteredCode != oldRawCode
     if rawCodeNeedsUpdate {
-      effects.append(Effect(value: .binding(.set(\.$rawCode, filteredCode))))
+      effects.append(EffectTask(value: .binding(.set(\.$rawCode, filteredCode))))
     }
 
     // Filtered code needs update if the user typed numbers (we need to add them)
     let filteredCodeNeedsUpdate = filteredCode != oldFilteredCode
     if filteredCodeNeedsUpdate {
-      effects.append(Effect(value: .binding(.set(\.$filteredCode, filteredCode))))
+      effects.append(EffectTask(value: .binding(.set(\.$filteredCode, filteredCode))))
     }
 
-    return Effect.merge(effects)
+    return EffectTask.merge(effects)
       .delay(for: .milliseconds(10), scheduler: environment.mainQueue)
       .eraseToEffect()
       .cancellable(id: CodeFilteringCancelId(), cancelInFlight: true)
 
   case .binding(\.$filteredCode):
     if state.isFormValid {
-      return Effect(value: .verifyOneTimeCode)
+      return EffectTask(value: .verifyOneTimeCode)
     }
 
   case .verifyOneTimeCodeResult, .binding:
@@ -260,13 +260,13 @@ public struct MFA6DigitsState: Equatable {
   /// - Note: [Rémi Bardon] This should only be temporary
   let password: String
 
-  @BindableState var rawCode: String
-  @BindableState var filteredCode: String
+  @BindingState var rawCode: String
+  @BindingState var filteredCode: String
   var isLoading: Bool
   var alert: AlertState<MFA6DigitsAction>?
 
-  @BindableState var focusedField: Field?
-  @BindableState var popover: Popover?
+  @BindingState var focusedField: Field?
+  @BindingState var popover: Popover?
 
   var isFormValid: Bool { self.filteredCode.count == 6 }
   var isMainButtonEnabled: Bool { self.isFormValid && !self.isLoading }

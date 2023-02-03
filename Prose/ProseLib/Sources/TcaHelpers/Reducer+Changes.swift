@@ -7,11 +7,11 @@ import ComposableArchitecture
 
 // Source: https://github.com/pointfreeco/isowords/blob/244925184babddd477d637bdc216fb34d1d8f88d/Sources/TcaHelpers/OnChange.swift
 
-public extension Reducer {
+public extension AnyReducer {
   func onChange<LocalState>(
     of toLocalState: @escaping (State) -> LocalState,
     perform additionalEffects: @escaping (LocalState, inout State, Action, Environment)
-      -> Effect<Action, Never>
+      -> EffectTask<Action>
   ) -> Self where LocalState: Equatable {
     self.onChange(of: toLocalState) { _, current, state, action, environment in
       additionalEffects(current, &state, action, environment)
@@ -41,7 +41,7 @@ public extension Reducer {
       _ state: inout State,
       _ action: Action,
       _ environment: Environment
-    ) -> Effect<Action, Never>
+    ) -> EffectTask<Action>
   ) -> Self {
     .init { state, action, environment in
       let previousLocalState = toLocalState(state)
@@ -81,7 +81,7 @@ public extension Reducer {
       _ state: inout State,
       _ action: Action,
       _ environment: Environment
-    ) -> Effect<Action, Never>
+    ) -> EffectTask<Action>
   ) -> Self where LocalState: Equatable {
     self.onChange(of: toLocalState, by: ==, perform: additionalEffects)
   }

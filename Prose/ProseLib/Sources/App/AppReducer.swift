@@ -23,13 +23,13 @@ import UserDefaultsClient
 
 // MARK: Reducer
 
-public let appReducer: Reducer<
+public let appReducer: AnyReducer<
   AppState,
   AppAction,
   AppEnvironment
-> = Reducer.combine([
-  Reducer { state, action, environment in
-    func proceedToMainFlow(with credentials: Credentials) -> Effect<AppAction, Never> {
+> = AnyReducer.combine([
+  AnyReducer { state, action, environment in
+    func proceedToMainFlow(with credentials: Credentials) -> EffectTask<AppAction> {
       state.main = SessionState(
         currentUser: .init(jid: credentials.jid),
         childState: MainScreenState()
@@ -44,7 +44,7 @@ public let appReducer: Reducer<
         .cancellable(id: AppEffectToken.observeCurrentUserInfo, cancelInFlight: true)
     }
 
-    func proceedToLogin(jid: JID? = nil) -> Effect<AppAction, Never> {
+    func proceedToLogin(jid: JID? = nil) -> EffectTask<AppAction> {
       state.auth = .init(
         route: .basicAuth(.init(
           jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
@@ -57,8 +57,8 @@ public let appReducer: Reducer<
     case .onAppear where !state.hasAppearedAtLeastOnce:
       state.hasAppearedAtLeastOnce = true
 
-      return Effect.merge(
-        Effect<Credentials?, EquatableError>.result {
+      return EffectTask.merge(
+        EffectPublisher<Credentials?, EquatableError>.result {
           Result {
             try environment.userDefaults.loadCurrentAccount()
               .flatMap(environment.credentials.loadCredentials)
@@ -115,7 +115,8 @@ public let appReducer: Reducer<
               )
 
             // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
-            //       see <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
+            //       see
+            //       <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
           }
         }
       )
@@ -173,9 +174,9 @@ public let appReducer: Reducer<
   ).disabled(when: \.isMainWindowDisabled),
 ])
 
-extension Reducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
+extension AnyReducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
   func disabled(when isDisabled: @escaping (AppState) -> Bool) -> Self {
-    Reducer { state, action, environment in
+    AnyReducer { state, action, environment in
       guard !isDisabled(state) else {
         return .none
       }

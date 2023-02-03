@@ -115,7 +115,7 @@ enum MessageBarEffectToken: Hashable, CaseIterable {
   case observeParticipantStates
 }
 
-public let messageBarReducer = Reducer<
+public let messageBarReducer = AnyReducer<
   ChatSessionState<MessageBarState>,
   MessageBarAction,
   ConversationEnvironment
@@ -140,7 +140,7 @@ public let messageBarReducer = Reducer<
     action: CasePath(MessageBarAction.emojis),
     environment: { _ in () }
   ),
-  Reducer { state, action, environment in
+  AnyReducer { state, action, environment in
     switch action {
     case .onAppear:
       let chatId = state.chatId

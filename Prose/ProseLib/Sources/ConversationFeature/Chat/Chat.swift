@@ -283,7 +283,8 @@ private extension ChatView {
         let menu = MessageMenu(title: "Actions")
         menu.viewStore = self.viewStore
 
-        // Enable items, which are disabled by default because the responder chain doesn't handle the actions
+        // Enable items, which are disabled by default because the responder chain doesn't handle
+        // the actions
         menu.autoenablesItems = false
 
         menu.delegate = coordinator

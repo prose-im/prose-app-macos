@@ -35,7 +35,8 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
   }
 
   /// - Note: `AnyView(Color.clear.fixedSize())` allows SwiftUI to keep some space for views.
-  ///         If we were using `EmptyView`, the second column (of a ``ThreeColumns<_, _, EmptyView>``)
+  ///         If we were using `EmptyView`, the second column (of a ``ThreeColumns<_, _,
+  /// EmptyView>``)
   ///         would span all the way until the trailing edge, which is not what we want.
   init(
     _ label: String,

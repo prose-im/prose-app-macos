@@ -26,10 +26,10 @@ public struct BasicAuthState: Equatable {
     case chatAddress, noAccount, passwordLost
   }
 
-  @BindableState var jid: String
-  @BindableState var password: String
-  @BindableState var focusedField: Field?
-  @BindableState var popover: Popover?
+  @BindingState var jid: String
+  @BindingState var password: String
+  @BindingState var focusedField: Field?
+  @BindingState var popover: Popover?
 
   var isLoading: Bool
   var alert: AlertState<BasicAuthAction>?
@@ -38,7 +38,8 @@ public struct BasicAuthState: Equatable {
   var isAddressValid: Bool { !self.jid.isEmpty }
   var isPasswordValid: Bool { !self.password.isEmpty }
   var isLogInButtonEnabled: Bool { self.isFormValid }
-  /// The action button is shown either when the form is valid or when the login request is in flight
+  /// The action button is shown either when the form is valid or when the login request is in
+  /// flight
   /// (for cancellation).
   var isActionButtonEnabled: Bool { self.isLogInButtonEnabled || self.isLoading }
 
@@ -72,14 +73,14 @@ public enum BasicAuthAction: Equatable, BindableAction {
 
 // MARK: Reducer
 
-public let basicAuthReducer = Reducer<
+public let basicAuthReducer = AnyReducer<
   BasicAuthState,
   BasicAuthAction,
   AuthenticationEnvironment
 > { state, action, environment in
   struct CancelId: Hashable {}
 
-  func performLogin() -> Effect<BasicAuthAction, Never> {
+  func performLogin() -> EffectTask<BasicAuthAction> {
     guard state.isFormValid else {
       return .none
     }
@@ -91,7 +92,7 @@ public let basicAuthReducer = Reducer<
     do {
       jid = try JID(string: state.jid)
     } catch {
-      return Effect(value: .loginResult(.failure(EquatableError(error))))
+      return EffectTask(value: .loginResult(.failure(EquatableError(error))))
     }
     let password = state.password
 
@@ -122,11 +123,11 @@ public let basicAuthReducer = Reducer<
 
   case .cancelLogInTapped:
     state.isLoading = false
-    return Effect.cancel(id: CancelId())
+    return EffectTask.cancel(id: CancelId())
 
   case let .loginResult(.success(route)):
     state.isLoading = false
-    return Effect(value: .didPassChallenge(next: route))
+    return EffectTask(value: .didPassChallenge(next: route))
 
   case let .loginResult(.failure(reason)):
     logger.debug("Login failure: \(String(reflecting: reason))")

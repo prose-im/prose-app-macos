@@ -158,11 +158,11 @@ struct FooterActionMenu: View {
 
 // MARK: Reducer
 
-let footerActionMenuReducer: Reducer<
+let footerActionMenuReducer: AnyReducer<
   FooterActionMenuState,
   FooterActionMenuAction,
   Void
-> = Reducer { state, action, _ in
+> = AnyReducer { state, action, _ in
   switch action {
   case .showMenuTapped:
     state.showingMenu = true
@@ -190,7 +190,7 @@ let footerActionMenuReducer: Reducer<
 // MARK: State
 
 public struct FooterActionMenuState: Equatable {
-  @BindableState var showingMenu: Bool
+  @BindingState var showingMenu: Bool
 
   public init(
     showingMenu: Bool = false

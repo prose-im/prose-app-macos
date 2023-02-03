@@ -52,7 +52,7 @@ public enum ChatAction: Equatable {
 
 // MARK: - Reducer
 
-let chatReducer = Reducer<
+let chatReducer = AnyReducer<
   ChatSessionState<ChatState>,
   ChatAction,
   ConversationEnvironment
@@ -67,7 +67,7 @@ let chatReducer = Reducer<
     action: CasePath(ChatAction.messageEditor),
     environment: { $0 }
   ),
-  Reducer { state, action, environment in
+  AnyReducer { state, action, environment in
     func showReactionPicker(for messageId: ProseCoreTCA.Message.ID, origin: CGRect) {
       let message = state.messages[id: messageId]
       let selected = message?.reactions.reactions(for: state.currentUser.jid)

@@ -60,11 +60,11 @@ struct InformationSection: View {
 
 // MARK: Reducer
 
-public let informationSectionReducer: Reducer<
+public let informationSectionReducer: AnyReducer<
   InformationSectionState,
   InformationSectionAction,
   Void
-> = Reducer.empty
+> = AnyReducer.empty
 
 // MARK: State
 

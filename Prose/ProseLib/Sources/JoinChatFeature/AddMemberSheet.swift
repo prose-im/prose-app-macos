@@ -121,7 +121,7 @@ public struct AddMemberSheet: View {
 
 // MARK: Reducer
 
-public let addMemberReducer = Reducer<
+public let addMemberReducer = AnyReducer<
   AddMemberSheetState,
   AddMemberSheetAction,
   AddMemberSheetEnvironment
@@ -140,7 +140,7 @@ public struct AddMemberSheetState: Equatable {
   var info: InfoMessage = .none
   var isProcessing: Bool = false
 
-  @BindableState var text: String
+  @BindingState var text: String
 
   var isFormValid: Bool {
     switch self.info {
@@ -209,11 +209,11 @@ public extension AddMemberSheetEnvironment {
       AddMemberSheet(store: Store(
         initialState: initialState,
         reducer: addMemberReducer.combined(
-          with: Reducer { state, action, environment in
+          with: AnyReducer { state, action, environment in
             switch action {
             case let .didUpdateText(text):
               state.isProcessing = true
-              return Effect(value: .didCheckText(text))
+              return EffectTask(value: .didCheckText(text))
                 .delay(for: 0.5, scheduler: environment.mainQueue)
                 .eraseToEffect()
 
@@ -239,7 +239,7 @@ public extension AddMemberSheetEnvironment {
 
             case .binding(\.$text):
               struct Token: Hashable {}
-              return Effect(value: .didUpdateText(state.text))
+              return EffectTask(value: .didUpdateText(state.text))
                 .debounce(id: Token(), for: 0.5, scheduler: environment.mainQueue)
                 .eraseToEffect()
 

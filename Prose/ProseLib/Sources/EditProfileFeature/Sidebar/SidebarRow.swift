@@ -65,7 +65,7 @@ struct SidebarRow: View {
 
 // MARK: Reducer
 
-public let sidebarRowReducer = Reducer<
+public let sidebarRowReducer = AnyReducer<
   SidebarRowState,
   SidebarRowAction,
   Void

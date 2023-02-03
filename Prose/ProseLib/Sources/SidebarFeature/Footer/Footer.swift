@@ -101,11 +101,11 @@ extension Footer.ViewState {
 
 // MARK: Reducer
 
-let footerReducer: Reducer<
+let footerReducer: AnyReducer<
   SessionState<FooterState>,
   FooterAction,
   SidebarEnvironment
-> = Reducer.combine([
+> = AnyReducer.combine([
   footerActionMenuReducer.pullback(
     state: \.actionButton,
     action: CasePath(FooterAction.actionButton),
@@ -121,7 +121,7 @@ let footerReducer: Reducer<
     action: CasePath(FooterAction.editProfile),
     environment: { $0.editProfile }
   ),
-  Reducer { state, action, _ in
+  AnyReducer { state, action, _ in
     switch action {
     case .dismissSheet, .editProfile(.cancelTapped):
       state.sheet = nil
@@ -150,7 +150,7 @@ public struct FooterState: Equatable {
   var avatar = FooterAvatarState()
   var actionButton: FooterActionMenuState
 
-  @BindableState var sheet: Sheet?
+  @BindingState var sheet: Sheet?
 
   init(
     teamName: String = "Crisp",

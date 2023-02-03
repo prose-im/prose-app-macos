@@ -98,11 +98,11 @@ enum SidebarEffectToken: CaseIterable, Hashable {
   case userInfosSubscription
 }
 
-public let sidebarReducer: Reducer<
+public let sidebarReducer: AnyReducer<
   SessionState<SidebarState>,
   SidebarAction,
   SidebarEnvironment
-> = Reducer.combine([
+> = AnyReducer.combine([
   footerReducer.pullback(
     state: \.footer,
     action: CasePath(SidebarAction.footer),
@@ -123,7 +123,7 @@ public let sidebarReducer: Reducer<
     action: CasePath(SidebarAction.joinGroup),
     environment: \.joinGroup
   ),
-  Reducer { state, action, _ in
+  AnyReducer { state, action, _ in
     switch action {
     case .onAppear:
       return .none

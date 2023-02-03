@@ -44,7 +44,7 @@ struct Sidebar: View {
 
 // MARK: Reducer
 
-let sidebarReducer = Reducer<
+let sidebarReducer = AnyReducer<
   SessionState<SidebarState>,
   SidebarAction,
   SidebarEnvironment
@@ -59,7 +59,7 @@ let sidebarReducer = Reducer<
     action: CasePath(SidebarAction.row),
     environment: { _ in }
   ),
-  Reducer.empty.binding()
+  AnyReducer.empty.binding()
     .onChange(of: \.selection) { previousSelection, newSelection, state, _, _ in
       if let previousSelection = previousSelection {
         state.rows[id: previousSelection]?.isSelected = false
@@ -118,7 +118,7 @@ public struct SidebarState: Equatable {
     ),
   ]
 
-  @BindableState public internal(set) var selection: Selection?
+  @BindingState public internal(set) var selection: Selection?
 
   public init(
     header: SidebarHeaderState,

@@ -18,6 +18,6 @@ public enum NotificationPermission: Equatable {
 
 public struct NotificationsClient {
   public var promptForPushNotifications: () -> Void
-  public var notificationPermission: () -> Effect<NotificationPermission, Never>
-  public var scheduleLocalNotification: (Message, UserInfo) -> Effect<None, EquatableError>
+  public var notificationPermission: () -> EffectTask<NotificationPermission>
+  public var scheduleLocalNotification: (Message, UserInfo) -> EffectPublisher<None, EquatableError>
 }

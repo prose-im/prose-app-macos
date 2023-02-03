@@ -28,7 +28,7 @@ struct MessageFormattingButton: View {
   }
 }
 
-let messageFormattingReducer = Reducer<
+let messageFormattingReducer = AnyReducer<
   MessageFormattingState,
   MessageFormattingAction,
   Void
@@ -44,7 +44,7 @@ let messageFormattingReducer = Reducer<
 }.binding()
 
 public struct MessageFormattingState: Equatable {
-  @BindableState var isShowingPopover: Bool = false
+  @BindingState var isShowingPopover: Bool = false
 }
 
 public enum MessageFormattingAction: Equatable, BindableAction {

@@ -56,11 +56,11 @@ struct EditMessageView: View {
 
 // MARK: Reducer
 
-public let editMessageReducer: Reducer<
+public let editMessageReducer: AnyReducer<
   ChatSessionState<EditMessageState>,
   EditMessageAction,
   ConversationEnvironment
-> = Reducer.combine([
+> = AnyReducer.combine([
   messageFieldReducer.pullback(
     state: \.messageField,
     action: CasePath(EditMessageAction.messageField),
@@ -76,11 +76,11 @@ public let editMessageReducer: Reducer<
     action: CasePath(EditMessageAction.emojis),
     environment: { _ in () }
   ),
-  Reducer { state, action, _ in
+  AnyReducer { state, action, _ in
     switch action {
     case .confirmTapped:
       if !state.childState.isConfirmButtonDisabled {
-        return Effect(value: .saveEdit(state.childState.messageId, state.messageField.message))
+        return EffectTask(value: .saveEdit(state.childState.messageId, state.messageField.message))
       } else {
         return .none
       }

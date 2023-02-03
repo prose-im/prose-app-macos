@@ -179,7 +179,7 @@ import ComposableArchitecture
 
 // MARK: Reducer
 
-public let encryptionReducer = Reducer<
+public let encryptionReducer = AnyReducer<
   EncryptionState,
   EncryptionAction,
   Void
@@ -246,11 +246,11 @@ public struct EncryptionState: Equatable {
   let deviceName: String
   let deviceId: String
 
-  @BindableState var deviceSecurityHash: String
+  @BindingState var deviceSecurityHash: String
 
-  @BindableState var devices: IdentifiedArrayOf<Device>
-  @BindableState var sortOrder: [KeyPathComparator<Device>]
-  @BindableState var selectedDevice: Device.ID?
+  @BindingState var devices: IdentifiedArrayOf<Device>
+  @BindingState var sortOrder: [KeyPathComparator<Device>]
+  @BindingState var selectedDevice: Device.ID?
 
   var sortedDevices: [Device] {
     self.devices.sorted(using: self.sortOrder)

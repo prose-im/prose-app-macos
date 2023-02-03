@@ -172,15 +172,13 @@ final class TypingIndicatorTests: XCTestCase {
 }
 
 private extension TypingIndicatorTests {
-  func makeTestStore()
-    -> TestStore<
-      ChatSessionState<MessageBarState>,
-      ChatSessionState<MessageBarState>,
-      MessageBarAction,
-      MessageBarAction,
-      ConversationEnvironment
-    >
-  {
+  func makeTestStore() -> TestStore<
+    ChatSessionState<MessageBarState>,
+    MessageBarAction,
+    ChatSessionState<MessageBarState>,
+    MessageBarAction,
+    ConversationEnvironment
+  > {
     var state = ChatSessionState(
       currentUser: .init(jid: self.ownId),
       chatId: self.chatId,

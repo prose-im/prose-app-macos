@@ -36,11 +36,11 @@ struct QuickActionsSection: View {
 
 // MARK: Reducer
 
-public let quickActionsSectionReducer: Reducer<
+public let quickActionsSectionReducer: AnyReducer<
   QuickActionsSectionState,
   QuickActionsSectionAction,
   Void
-> = Reducer { _, action, _ in
+> = AnyReducer { _, action, _ in
   switch action {
   case .startCallTapped:
     // TODO: Handle action

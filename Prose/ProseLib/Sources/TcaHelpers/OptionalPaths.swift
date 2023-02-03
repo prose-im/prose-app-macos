@@ -4,6 +4,7 @@
 //
 
 import ComposableArchitecture
+import Darwin
 
 public protocol Path {
   associatedtype Root
@@ -168,7 +169,7 @@ public extension OptionalPath where Root == Value? {
   }
 }
 
-public extension Reducer {
+public extension AnyReducer {
   func _pullback<GlobalState, GlobalAction, GlobalEnvironment, StatePath, ActionPath>(
     state toLocalState: StatePath,
     action toLocalAction: ActionPath,
@@ -176,7 +177,7 @@ public extension Reducer {
     breakpointOnNil: Bool = true,
     file: StaticString = #file,
     line: UInt = #line
-  ) -> Reducer<GlobalState, GlobalAction, GlobalEnvironment>
+  ) -> AnyReducer<GlobalState, GlobalAction, GlobalEnvironment>
     where
     StatePath: Path, StatePath.Root == GlobalState, StatePath.Value == State,
     ActionPath: Path, ActionPath.Root == GlobalAction, ActionPath.Value == Action
@@ -199,8 +200,10 @@ public extension Reducer {
               "nil". This can happen for a few reasons:
 
               * The optional reducer was combined with or run from another reducer that set \
-              "\(State
-                .self)" to "nil" before the optional reducer ran. Combine or run optional \
+              "\(
+                State
+                  .self
+              )" to "nil" before the optional reducer ran. Combine or run optional \
               reducers before reducers that can set their state to "nil". This ensures that \
               optional reducers can handle their actions while their state is still non-"nil".
 

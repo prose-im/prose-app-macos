@@ -104,7 +104,7 @@ struct MessageField: View {
 
 // MARK: Reducer
 
-public let messageFieldReducer = Reducer<
+public let messageFieldReducer = AnyReducer<
   MessageFieldState,
   MessageFieldAction,
   ConversationEnvironment
@@ -112,7 +112,7 @@ public let messageFieldReducer = Reducer<
   switch action {
   case .sendTapped where !state.message.isEmpty:
     let content = state.message
-    return Effect(value: .send(message: state.message))
+    return EffectTask(value: .send(message: state.message))
 
   case .sendTapped, .send, .binding:
     return .none
@@ -126,8 +126,8 @@ public struct MessageFieldState: Equatable {
   var placeholder: String
   let isMultiline: Bool
   let hideSendButton: Bool
-  @BindableState var isFocused: Bool = false
-  @BindableState var message: String
+  @BindingState var isFocused: Bool = false
+  @BindingState var message: String
 
   init(
     placeholder: String,

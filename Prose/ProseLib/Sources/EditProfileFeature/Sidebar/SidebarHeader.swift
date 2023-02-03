@@ -103,7 +103,7 @@ enum SidebarHeaderEffectToken: Hashable, CaseIterable {
 
 // MARK: Reducer
 
-let sidebarHeaderReducer = Reducer<
+let sidebarHeaderReducer = AnyReducer<
   SessionState<SidebarHeaderState>,
   SidebarHeaderAction,
   SidebarHeaderEnvironment
@@ -175,7 +175,7 @@ public struct SidebarHeaderState: Equatable {
   let fullName: String
   let jid: String
 
-  @BindableState var isAvatarHovered: Bool
+  @BindingState var isAvatarHovered: Bool
 
   public init(
     avatar: AvatarImage = .placeholder,

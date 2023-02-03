@@ -104,7 +104,7 @@ struct SecuritySection: View {
 
 // MARK: Reducer
 
-public let securitySectionReducer = Reducer<
+public let securitySectionReducer = AnyReducer<
   SecuritySectionState,
   SecuritySectionAction,
   Void
@@ -129,7 +129,7 @@ public struct SecuritySectionState: Equatable {
   let isIdentityVerified: Bool
   let encryptionFingerprint: String?
 
-  @BindableState var identityPopover: IdentityPopoverState?
+  @BindingState var identityPopover: IdentityPopoverState?
 }
 
 extension SecuritySectionState {

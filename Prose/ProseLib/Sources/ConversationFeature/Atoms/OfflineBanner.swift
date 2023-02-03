@@ -45,7 +45,7 @@ struct OfflineBanner: View {
 
 // MARK: Reducer
 
-public let offlineBannerReducer = Reducer<
+public let offlineBannerReducer = AnyReducer<
   OfflineBannerState,
   OfflineBannerAction,
   Void

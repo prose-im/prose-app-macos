@@ -157,7 +157,7 @@ private extension HorizontalAlignment {
 
 // MARK: Reducer
 
-public let identityPopoverReducer = Reducer<
+public let identityPopoverReducer = AnyReducer<
   IdentityPopoverState,
   IdentityPopoverAction,
   Void

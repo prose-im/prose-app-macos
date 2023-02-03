@@ -53,7 +53,7 @@ public extension DispatchQueue.SchedulerTimeType.Stride {
   static let pauseTypingDebounceDuration: Self = .seconds(30)
 }
 
-public let messageComposingFieldReducer = Reducer<
+public let messageComposingFieldReducer = AnyReducer<
   ChatSessionState<MessageFieldState>,
   MessageComposingFieldAction,
   ConversationEnvironment
@@ -77,14 +77,14 @@ public let messageComposingFieldReducer = Reducer<
         environment.proseClient
           .sendChatState(state.chatId, .composing)
           .fireAndForget(),
-        Effect(value: .setChatState(.paused))
+        EffectTask(value: .setChatState(.paused))
           .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
           .eraseToEffect()
           .cancellable(id: MessageComposingFieldEffectToken.pauseTyping, cancelInFlight: true)
       )
     }
   },
-  Reducer { state, action, environment in
+  AnyReducer { state, action, environment in
     switch action {
     case let .setChatState(chatState):
       return environment.proseClient

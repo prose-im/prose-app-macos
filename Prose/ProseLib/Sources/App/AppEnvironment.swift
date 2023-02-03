@@ -34,7 +34,7 @@ public struct AppEnvironment {
 
   public var mainQueue: AnySchedulerOf<DispatchQueue>
 
-  public var openURL: (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
+  public var openURL: (URL, OpenURLConfiguration) -> EffectPublisher<Void, URLOpeningError>
 
   public init(
     userDefaults: UserDefaultsClient,
@@ -43,7 +43,7 @@ public struct AppEnvironment {
     pasteboard: PasteboardClient,
     notifications: NotificationsClient,
     mainQueue: AnySchedulerOf<DispatchQueue>,
-    openURL: @escaping (URL, OpenURLConfiguration) -> Effect<Void, URLOpeningError>
+    openURL: @escaping (URL, OpenURLConfiguration) -> EffectPublisher<Void, URLOpeningError>
   ) {
     self.userDefaults = userDefaults
     self.credentials = credentials
@@ -71,8 +71,8 @@ public extension AppEnvironment {
       pasteboard: .live(),
       notifications: .live,
       mainQueue: .main,
-      openURL: { url, openConfig -> Effect<Void, URLOpeningError> in
-        Effect.future { callback in
+      openURL: { url, openConfig -> EffectPublisher<Void, URLOpeningError> in
+        EffectPublisher.future { callback in
           #if canImport(AppKit)
             NSWorkspace.shared.open(url, configuration: openConfig) { _, error in
               if let error = error {
