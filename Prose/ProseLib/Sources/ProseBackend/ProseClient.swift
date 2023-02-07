@@ -5,16 +5,27 @@
 
 import Combine
 import Foundation
-import ProseCoreClientFFI
+import ProseCore
 
 enum ProseClientError: Error {
   case unsupportedCredentials
 }
 
+extension ProseClient: ConnectionHandler {
+  public func connectionDidChange(event: ConnectionEvent) {
+    switch event {
+    case .connect:
+      print("Connected")
+    case .disconnect(let error):
+      print("Disconnected. Error?", error.localizedDescription)
+    }
+  }
+}
+
 public final class ProseClient: ProseClientProtocol {
   public private(set) weak var delegate: ProseClientDelegate?
 
-  private let client: ProseCoreClientFFI.XmppClient
+  private let client: ProseCore.XmppClient
   private let delegateQueue: DispatchQueue
 
   /// When `true`, we're either already connected or in the midst of a connection attempt.
@@ -53,7 +64,7 @@ public final class ProseClient: ProseClientProtocol {
     }
 
     self.isConnected = true
-    try self.client.connect(password: password, observer: self)
+    try self.client.connect(password: password, handler: self)
   }
 
   public func disconnect() {

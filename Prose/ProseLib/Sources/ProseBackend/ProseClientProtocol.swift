@@ -5,7 +5,7 @@
 
 import Combine
 import Foundation
-import ProseCoreClientFFI
+import ProseCore
 
 public typealias ProseClientProvider<Client: ProseClientProtocol> =
   (FullJid, ProseClientDelegate, DispatchQueue) -> Client

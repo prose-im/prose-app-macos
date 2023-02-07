@@ -101,7 +101,7 @@ public struct SidebarView: View {
         Section(group.name) {
           ForEach(group.items, id: \.jid) { item in
             ContactRow(
-              title: item.jid.jidString,
+              title: item.jid.rawValue,
               avatar: .init(url: item.avatarURL),
               count: item.numberOfUnreadMessages,
               status: item.status

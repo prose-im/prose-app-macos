@@ -5,24 +5,25 @@
 
 import Foundation
 import IdentifiedCollections
+import ProseCore
 
 public struct Chat {
-  public var jid: JID
+  public var jid: BareJid
 
   /// The number of unread messages in the chat.
   public var numberOfUnreadMessages = 0
 
   /// The chat states of the participants in the chat, mapped to their JID.
-  public var participantStates = [JID: ChatState]()
+  public var participantStates = [BareJid: ChatState]()
 
   /// These will most likely discarded when a chat is closed and will live in the database.
   /// So no outside access.
   internal private(set) var messages = IdentifiedArrayOf<Message>()
 
   public init(
-    jid: JID,
+    jid: BareJid,
     numberOfUnreadMessages: Int = 0,
-    participantStates: [JID: ChatState] = [:]
+    participantStates: [BareJid: ChatState] = [:]
   ) {
     self.jid = jid
     self.numberOfUnreadMessages = numberOfUnreadMessages

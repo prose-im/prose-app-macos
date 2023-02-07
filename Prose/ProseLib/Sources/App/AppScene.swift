@@ -10,14 +10,10 @@ import SettingsFeature
 import SwiftUI
 
 public struct AppScene: Scene {
-  private let store: Store<AppState, AppAction>
+  private let store: StoreOf<App>
 
-  public init(store: Store<AppState, AppAction> = Store(
-    initialState: AppState(),
-    reducer: appReducer,
-    environment: AppEnvironment.live
-  )) {
-    self.store = store
+  public init() {
+    self.store = Store(initialState: .init(), reducer: App())
   }
 
   public var body: some Scene {
@@ -35,22 +31,22 @@ public struct AppScene: Scene {
   }
 }
 
-public struct AppView: View {
+struct AppView: View {
   struct ViewState: Equatable {
     var isMainWindowRedacted: Bool
     var isAuthScreenPresented: Bool
   }
 
-  private let store: Store<AppState, AppAction>
-  @ObservedObject private var viewStore: ViewStore<ViewState, AppAction>
+  private let store: StoreOf<App>
+  @ObservedObject private var viewStore: ViewStore<ViewState, App.Action>
 
-  public init(store: Store<AppState, AppAction>) {
+  init(store: StoreOf<App>) {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init))
   }
 
   public var body: some View {
-    MainScreen(store: self.store.scope(state: \.main, action: AppAction.main))
+    MainScreen(store: self.store.scope(state: \.main, action: App.Action.main))
       .redacted(reason: self.viewStore.isMainWindowRedacted ? .placeholder : [])
       .frame(minWidth: 1280, minHeight: 720)
       .onAppear { self.viewStore.send(.onAppear) }
@@ -58,7 +54,7 @@ public struct AppView: View {
         isPresented:
         self.viewStore.binding(get: \.isAuthScreenPresented, send: .dismissAuthenticationSheet)
       ) {
-        IfLetStore(self.store.scope(state: \.auth, action: AppAction.auth)) { store in
+        IfLetStore(self.store.scope(state: \.auth, action: App.Action.auth)) { store in
           AuthenticationScreen(store: store)
         }
       }
@@ -66,7 +62,7 @@ public struct AppView: View {
 }
 
 private extension AppView.ViewState {
-  init(_ appState: AppState) {
+  init(_ appState: App.State) {
     self.isMainWindowRedacted = appState.isMainWindowRedacted
     self.isAuthScreenPresented = appState.auth != nil
   }

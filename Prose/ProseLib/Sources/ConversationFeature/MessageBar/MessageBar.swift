@@ -8,6 +8,7 @@ import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
 import Toolbox
+import ProseCore
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -148,7 +149,7 @@ public let messageBarReducer = AnyReducer<
       return environment.proseClient.activeChats()
         .compactMap { $0[chatId] }
         .map(\.participantStates)
-        .map { (participantStates: [JID: ProseCoreTCA.ChatState]) in
+        .map { (participantStates: [BareJid: ProseCoreTCA.ChatState]) in
           participantStates
             .filter { $0.value.kind == .composing }
             .filter { $0.key != loggedInUserJID }
@@ -212,7 +213,7 @@ private extension ChatSessionState where ChildState == MessageBarState {
     get {
       var messageField = self.get(\.messageField)
       messageField.placeholder = l10n
-        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.jidString)
+        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.rawValue)
       return messageField
     }
     set { self.set(\.messageField, newValue) }
@@ -223,7 +224,7 @@ private extension ChatSessionState where ChildState == MessageBarState {
 
 public enum MessageBarAction: Equatable, BindableAction {
   case onAppear, onDisappear
-  case typingUsersChanged([JID])
+  case typingUsersChanged([BareJid])
   case messageSendResult(Result<None, EquatableError>)
   case messageField(MessageComposingFieldAction)
   case formatting(MessageFormattingAction)
@@ -234,67 +235,67 @@ public enum MessageBarAction: Equatable, BindableAction {
 
 // MARK: - Previews
 
-#if DEBUG
-  internal struct MessageBar_Previews: PreviewProvider {
-    private struct Preview: View {
-      let recipient: JID = "preview.recipient@prose.org"
-      let message: String
-      let isTyping: Bool
-      let showBorder: Bool
-
-      init(message: String = "", isTyping: Bool = false, showBorder: Bool = false) {
-        self.message = message
-        self.isTyping = isTyping
-        self.showBorder = showBorder
-      }
-
-      var body: some View {
-        MessageBar(store: Store(
-          initialState: .mock(MessageBarState(
-            message: self.message,
-            typingUsers: self.isTyping ? [.init(jid: self.recipient)] : []
-          )),
-          reducer: messageBarReducer,
-          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
-        ))
-        .frame(width: 500)
-        .padding(self.showBorder ? 1 : 0)
-        .border(self.showBorder ? Color.red : Color.clear)
-        .padding()
-      }
-    }
-
-    static var previews: some View {
-      let previews = VStack(spacing: 16) {
-        GroupBox("Simple username") {
-          Preview(isTyping: true)
-        }
-        GroupBox("Empty with border") {
-          Preview(showBorder: true)
-        }
-        GroupBox("High") {
-          Preview(
-            message: (1...5).map { "Line \($0)" }.joined(separator: "\n"),
-            isTyping: true
-          )
-        }
-        GroupBox("Colorful background") {
-          Preview(isTyping: true)
-            .background(Color.pink)
-        }
-        GroupBox("Placeholder") {
-          Preview(isTyping: true)
-            .redacted(reason: .placeholder)
-        }
-      }
-      .fixedSize()
-      .padding(8)
-      previews
-        .preferredColorScheme(.light)
-        .previewDisplayName("Light")
-      previews
-        .preferredColorScheme(.dark)
-        .previewDisplayName("Dark")
-    }
-  }
-#endif
+//#if DEBUG
+//  internal struct MessageBar_Previews: PreviewProvider {
+//    private struct Preview: View {
+//      let recipient: JID = "preview.recipient@prose.org"
+//      let message: String
+//      let isTyping: Bool
+//      let showBorder: Bool
+//
+//      init(message: String = "", isTyping: Bool = false, showBorder: Bool = false) {
+//        self.message = message
+//        self.isTyping = isTyping
+//        self.showBorder = showBorder
+//      }
+//
+//      var body: some View {
+//        MessageBar(store: Store(
+//          initialState: .mock(MessageBarState(
+//            message: self.message,
+//            typingUsers: self.isTyping ? [.init(jid: self.recipient)] : []
+//          )),
+//          reducer: messageBarReducer,
+//          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
+//        ))
+//        .frame(width: 500)
+//        .padding(self.showBorder ? 1 : 0)
+//        .border(self.showBorder ? Color.red : Color.clear)
+//        .padding()
+//      }
+//    }
+//
+//    static var previews: some View {
+//      let previews = VStack(spacing: 16) {
+//        GroupBox("Simple username") {
+//          Preview(isTyping: true)
+//        }
+//        GroupBox("Empty with border") {
+//          Preview(showBorder: true)
+//        }
+//        GroupBox("High") {
+//          Preview(
+//            message: (1...5).map { "Line \($0)" }.joined(separator: "\n"),
+//            isTyping: true
+//          )
+//        }
+//        GroupBox("Colorful background") {
+//          Preview(isTyping: true)
+//            .background(Color.pink)
+//        }
+//        GroupBox("Placeholder") {
+//          Preview(isTyping: true)
+//            .redacted(reason: .placeholder)
+//        }
+//      }
+//      .fixedSize()
+//      .padding(8)
+//      previews
+//        .preferredColorScheme(.light)
+//        .previewDisplayName("Light")
+//      previews
+//        .preferredColorScheme(.dark)
+//        .previewDisplayName("Dark")
+//    }
+//  }
+//#endif

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCoreClientFFI
+import ProseCore
 
 public struct Presence: Equatable {
   public var kind: Kind?

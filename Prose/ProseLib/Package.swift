@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7
 
 import Foundation
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
   name: "ProseLib",
   defaultLocalization: "en",
-  platforms: [.macOS(.v12)],
+  platforms: [.macOS(.v13)],
   products: [
     .library(name: "App", targets: ["App"]),
     .library(name: "TestHostApp", targets: ["TestHostApp"]),
@@ -36,7 +36,11 @@ let package = Package(
       .upToNextMajor(from: "0.6.1")
     ),
     .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.9.0")),
-    .proseCore("0.4.3"),
+    .package(
+      name: "ProseCore",
+      path: "/Users/mb/Documents/Prose/prose-wrapper-swift/Build/spm/ProseCore"
+    ),
+    // .proseCore("0.4.3"),
   ],
   targets: [
     .target(
@@ -46,7 +50,7 @@ let package = Package(
         "SettingsFeature",
         "AuthenticationFeature",
         "CredentialsClient",
-        "UserDefaultsClient",
+        "AccountBookmarksClient",
         "NotificationsClient",
       ]
     ),
@@ -112,7 +116,10 @@ let package = Package(
     .target(name: "CredentialsClient", dependencies: [.base]),
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
-    .target(name: "UserDefaultsClient", dependencies: [.base]),
+    .target(
+      name: "AccountBookmarksClient",
+      dependencies: [.base]
+    ),
     .target(name: "NotificationsClient", dependencies: [.base]),
     .target(name: "PasteboardClient", dependencies: [.base]),
 
@@ -155,11 +162,17 @@ let package = Package(
       ]
     ),
 
-    .target(name: "ProseCore", dependencies: [.proseCore]),
+    .target(
+      name: "ProseBackend",
+      dependencies: [
+        .product(name: "ProseCore", package: "ProseCore"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
     .target(
       name: "ProseCoreTCA",
       dependencies: [
-        "ProseCore",
+        "ProseBackend",
         "Toolbox",
         "TcaHelpers",
         .product(name: "Tagged", package: "swift-tagged"),
@@ -245,9 +258,9 @@ extension Package.Dependency {
 
 extension Target.Dependency {
   static var proseCore: Target.Dependency {
-    Environment.settings.useLocalProseLib
-      ? "ProseCoreClientFFI"
-      : .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift")
+//    Environment.settings.useLocalProseLib
+    "ProseCoreClientFFI"
+//      : .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift")
   }
 
   static let base = Target.Dependency.target(name: "Base")

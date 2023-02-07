@@ -1,11 +1,4 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
-#if canImport(AppKit)
-  import AppKit
-#endif
+import AccountBookmarksClient
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
@@ -17,217 +10,211 @@ import ProseCore
 import ProseCoreTCA
 import struct ProseCoreTCA.ProseClient
 import Toolbox
-import UserDefaultsClient
 
-// MARK: - The Composable Architecture
+struct App: ReducerProtocol {
+  struct State: Equatable {
+    var hasAppearedAtLeastOnce = false
 
-// MARK: Reducer
+    var main: SessionState<MainScreenState> = .placeholder
+    var auth: Authentication.State?
 
-public let appReducer: AnyReducer<
-  AppState,
-  AppAction,
-  AppEnvironment
-> = AnyReducer.combine([
-  AnyReducer { state, action, environment in
-    func proceedToMainFlow(with credentials: Credentials) -> EffectTask<AppAction> {
-      state.main = SessionState(
-        currentUser: .init(jid: credentials.jid),
-        childState: MainScreenState()
-      )
-      state.auth = nil
+    var isMainWindowEnabled: Bool { self.auth == nil }
+    /// - Note: When we'll support multi-account, we'll need to make this a regular value,
+    ///         as we don't want to redact the view when the user adds a new account.
+    var isMainWindowRedacted: Bool { self.auth != nil }
 
-      return environment.proseClient.userInfos([credentials.jid])
-        .catch { _ in Just([:]) }
-        .compactMap { $0[credentials.jid] }
-        .receive(on: environment.mainQueue)
-        .eraseToEffect(AppAction.currentUserInfoChanged)
-        .cancellable(id: AppEffectToken.observeCurrentUserInfo, cancelInFlight: true)
+    public init() {}
+  }
+
+  public enum Action: Equatable {
+    case onAppear
+    case dismissAuthenticationSheet
+
+    case authenticationResult(TaskResult<[Credentials]>)
+    case connectionResult(Result<None, EquatableError>)
+    case didReceiveMessage(Message, UserInfo)
+    case currentUserInfoChanged(UserInfo)
+
+    case auth(Authentication.Action)
+    case main(MainScreenAction)
+  }
+
+  private enum EffectToken: Hashable, CaseIterable {
+    case observeCurrentUserInfo
+  }
+  
+  @Dependency(\.accountBookmarksClient) var accountBookmarks
+  @Dependency(\.credentialsClient) var credentials
+  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.notificationsClient) var notifications
+  @Dependency(\.pasteboardClient) var pasteboard
+  @Dependency(\.legacyProseClient) var legacyProseClient
+
+  public var body: some ReducerProtocol<State, Action> {
+    self.core
+    .ifLet(\.auth, action: /Action.auth) {
+      Authentication()
     }
-
-    func proceedToLogin(jid: JID? = nil) -> EffectTask<AppAction> {
-      state.auth = .init(
-        route: .basicAuth(.init(
-          jid: (jid ?? environment.userDefaults.loadCurrentAccount())?.rawValue ?? ""
-        ))
-      )
-      return .cancel(id: AppEffectToken.observeCurrentUserInfo)
+    
+    ConditionallyEnable(when: \.isMainWindowEnabled) {
+      Scope(state: \.main, action: /Action.main) {
+        Reduce(
+          mainWindowReducer,
+          environment: .init(
+            proseClient: self.legacyProseClient,
+            pasteboard: pasteboard,
+            mainQueue: self.mainQueue
+          )
+        )
+      }
     }
+  }
+  
+  #warning("Handle logout")
 
-    switch action {
-    case .onAppear where !state.hasAppearedAtLeastOnce:
-      state.hasAppearedAtLeastOnce = true
+  @ReducerBuilder<State, Action>
+  private var core: some ReducerProtocol<State, Action> {
+    Reduce { state, action in
+      func proceedToMainFlow(with credentials: Credentials) -> EffectTask<Action> {
+        state.main = SessionState(
+          currentUser: .init(jid: credentials.jid),
+          childState: MainScreenState()
+        )
+        state.auth = nil
+        
+        return .none
 
-      return EffectTask.merge(
-        EffectPublisher<Credentials?, EquatableError>.result {
-          Result {
-            try environment.userDefaults.loadCurrentAccount()
-              .flatMap(environment.credentials.loadCredentials)
-          }.mapError(EquatableError.init)
-        }
-        .catchToEffect()
-        .map(AppAction.authenticationResult),
+//        return environment.proseClient.userInfos([credentials.jid])
+//          .catch { _ in Just([:]) }
+//          .compactMap { $0[credentials.jid] }
+//          .receive(on: environment.mainQueue)
+//          .eraseToEffect(Action.currentUserInfoChanged)
+//          .cancellable(id: EffectToken.observeCurrentUserInfo, cancelInFlight: true)
+      }
 
-        .fireAndForget {
-          environment.notifications.promptForPushNotifications()
-        },
+      func proceedToLogin(jid: JID? = nil) -> EffectTask<Action> {
+        state.auth = .init()
+        return .cancel(id: EffectToken.observeCurrentUserInfo)
+      }
 
-        environment.proseClient.incomingMessages()
-          .flatMap { message in
-            environment.proseClient.userInfos([message.from])
-              .catch { _ in Just([:]) }
-              .compactMap { userInfos in
-                userInfos[message.from].map { (message: message, userInfo: $0) }
+      switch action {
+      case .onAppear where !state.hasAppearedAtLeastOnce:
+        state.hasAppearedAtLeastOnce = true
+
+        return .merge(
+          .fireAndForget {
+            self.notifications.promptForPushNotifications()
+          },
+          .task {
+            await .authenticationResult(
+              TaskResult {
+                try self.accountBookmarks.loadBookmarks()
+                  .lazy
+                  .map(\.jid)
+                  .compactMap(self.credentials.loadCredentials)
               }
-              .prefix(1)
+            )
           }
-          .receive(on: environment.mainQueue)
-          .eraseToEffect()
-          .map { args in AppAction.didReceiveMessage(args.message, args.userInfo) }
-      )
 
-    case let .authenticationResult(.success(.some(credentials))):
-      return .merge(
-        proceedToMainFlow(with: credentials),
-        environment.proseClient.login(credentials.jid, credentials.password)
-          .receive(on: environment.mainQueue)
-          .catchToEffect()
-          .map(AppAction.connectionResult)
-      )
+//          environment.proseClient.incomingMessages()
+//            .flatMap { message in
+//              environment.proseClient.userInfos([message.from])
+//                .catch { _ in Just([:]) }
+//                .compactMap { userInfos in
+//                  userInfos[message.from].map { (message: message, userInfo: $0) }
+//                }
+//                .prefix(1)
+//            }
+//            .receive(on: environment.mainQueue)
+//            .eraseToEffect()
+//            .map { args in AppAction.didReceiveMessage(args.message, args.userInfo) }
+        )
+      
+      case let .authenticationResult(.success(credentials)) where credentials.isEmpty:
+        return proceedToLogin()
 
-    case .authenticationResult(.success(.none)):
-      return proceedToLogin()
+      case let .authenticationResult(.success(credentials)):
+        return .none
+//        return .merge(
+//          proceedToMainFlow(with: credentials),
+//          environment.proseClient.login(credentials.jid, credentials.password)
+//            .receive(on: environment.mainQueue)
+//            .catchToEffect()
+//            .map(AppAction.connectionResult)
+//        )
 
-    case let .authenticationResult(.failure(error)):
-      logger.error("Error when loading credentials: \(error.localizedDescription)")
-      return proceedToLogin()
+      case let .authenticationResult(.failure(error)):
+        logger.error("Error when loading credentials: \(error.localizedDescription)")
+        return proceedToLogin()
 
-    case let .auth(.didLogIn(credentials)):
-      return .merge(
-        proceedToMainFlow(with: credentials),
-        .fireAndForget {
-          environment.userDefaults.saveCurrentAccount(credentials.jid)
-          do {
-            try environment.credentials.save(credentials)
-          } catch {
-            logger
-              .warning(
-                "Failed to store credentials for '\(credentials.jid)': \(error.localizedDescription)"
-              )
+      case let .auth(.didLogIn(credentials)):
+        return proceedToMainFlow(with: credentials)
 
-            // NOTE: [Rémi Bardon] Let's do nothing else here. For explanation,
-            //       see
-            //       <https://github.com/prose-im/prose-app-macos/pull/37#discussion_r898929025>.
-          }
+      case .connectionResult(.success):
+        logger.info("Connection established.")
+        return .none
+
+      case .connectionResult(.failure):
+        return proceedToLogin()
+
+      case let .didReceiveMessage(message, userInfo):
+        return self.notifications.scheduleLocalNotification(message, userInfo)
+          .fireAndForget()
+
+      case let .currentUserInfoChanged(info):
+        state.main = SessionState(currentUser: info, childState: state.main.childState)
+        return .none
+
+      case .dismissAuthenticationSheet:
+        if state.main.childState.isPlaceholder {
+          // We don't have a valid account and the user wants to dismiss the authentication sheet.
+          exit(0)
         }
-      )
+        state.auth = nil
+        return .none
 
-    case .main(.sidebar(.footer(.avatar(.signOutTapped)))):
-      let jid = environment.userDefaults.loadCurrentAccount()
-
-      if let jid = jid {
-        do {
-          try environment.credentials.deleteCredentials(jid)
-        } catch {
-          fatalError("Failed to sign out: \(error.localizedDescription)")
-        }
-      }
-
-      environment.userDefaults.deleteCurrentAccount()
-
-      return proceedToLogin(jid: jid)
-
-    case .connectionResult(.success):
-      logger.info("Connection established.")
-      return .none
-
-    case .connectionResult(.failure):
-      return proceedToLogin()
-
-    case let .didReceiveMessage(message, userInfo):
-      return environment.notifications.scheduleLocalNotification(message, userInfo).fireAndForget()
-
-    case let .currentUserInfoChanged(info):
-      state.main = SessionState(currentUser: info, childState: state.main.childState)
-      return .none
-
-    case .dismissAuthenticationSheet:
-      if state.main.childState.isPlaceholder {
-        // We don't have a valid account and the user wants to dismiss the authentication sheet.
-        exit(0)
-      }
-      state.auth = nil
-      return .none
-
-    case .onAppear, .auth, .main:
-      return .none
-    }
-  },
-  authenticationReducer.optional().pullback(
-    state: \AppState.auth,
-    action: CasePath(AppAction.auth),
-    environment: { $0.auth }
-  ),
-  mainWindowReducer.pullback(
-    state: \AppState.main,
-    action: CasePath(AppAction.main),
-    environment: { $0.main }
-  ).disabled(when: \.isMainWindowDisabled),
-])
-
-extension AnyReducer where State == AppState, Action == AppAction, Environment == AppEnvironment {
-  func disabled(when isDisabled: @escaping (AppState) -> Bool) -> Self {
-    AnyReducer { state, action, environment in
-      guard !isDisabled(state) else {
+      case .onAppear, .auth, .main:
         return .none
       }
-      return self(&state, action, environment)
     }
   }
 }
 
-// MARK: State
+struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtocol
+  where State == Child.State, Action == Child.Action {
 
-public struct AppState: Equatable {
-  var hasAppearedAtLeastOnce: Bool
+  let child: Child
+  let enableWhen: KeyPath<Child.State, Bool>
 
-  var main: SessionState<MainScreenState>
-  var auth: AuthenticationState?
-
-  var isMainWindowDisabled: Bool { self.auth != nil }
-  /// - Note: When we'll support multi-account, we'll need to make this a regular value,
-  ///         as we don't want to redact the view when the user adds a new account.
-  var isMainWindowRedacted: Bool { self.auth != nil }
-
-  public init(
-    hasAppearedAtLeastOnce: Bool = false,
-    main: SessionState<MainScreenState> = .placeholder,
-    auth: AuthenticationState? = nil
-  ) {
-    self.hasAppearedAtLeastOnce = hasAppearedAtLeastOnce
-    self.main = main
-    self.auth = auth
+  init(when: KeyPath<Child.State, Bool>, @ReducerBuilder<State, Action> _ child: () -> Child) {
+    self.enableWhen = when
+    self.child = child()
+  }
+  
+  func reduce(into state: inout Child.State, action: Child.Action) -> EffectTask<Child.Action> {
+    if state[keyPath: self.enableWhen] {
+      return self.child.reduce(into: &state, action: action)
+    }
+    return .none
   }
 }
 
-public enum URLOpeningError: Error, Equatable {
-  case failedToOpen(EquatableError)
-}
-
-// MARK: Actions
-
-public enum AppAction: Equatable {
-  case onAppear
-  case dismissAuthenticationSheet
-
-  case authenticationResult(Result<Credentials?, EquatableError>)
-  case connectionResult(Result<None, EquatableError>)
-  case didReceiveMessage(Message, UserInfo)
-  case currentUserInfoChanged(UserInfo)
-
-  case auth(AuthenticationAction)
-  case main(MainScreenAction)
-}
-
-enum AppEffectToken: Hashable, CaseIterable {
-  case observeCurrentUserInfo
-}
+// public let appReducer: AnyReducer<
+//  AppState,
+//  AppAction,
+//  AppEnvironment
+// > = AnyReducer.combine([
+//  AnyReducer { state, action, environment in
+//
+//  },
+//  authenticationReducer.optional().pullback(
+//    state: \AppState.auth,
+//    action: CasePath(AppAction.auth),
+//    environment: { $0.auth }
+//  ),
+//  mainWindowReducer.pullback(
+//    state: \AppState.main,
+//    action: CasePath(AppAction.main),
+//    environment: { $0.main }
+//  ).disabled(when: \.isMainWindowDisabled),
+// ])

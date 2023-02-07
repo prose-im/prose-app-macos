@@ -9,6 +9,10 @@ import Foundation
 import Toolbox
 import UserNotifications
 
+extension NotificationsClient: DependencyKey {
+  public static var liveValue = NotificationsClient.live
+}
+
 public extension NotificationsClient {
   static let live: Self = {
     let permissionSubject = CurrentValueSubject<NotificationPermission, Never>(.notDetermined)

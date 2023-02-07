@@ -7,6 +7,7 @@ import AppLocalization
 import Assets
 import ProseCoreTCA
 import SwiftUI
+import ProseBackend
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -141,7 +142,7 @@ extension Alignment {
       }
     }
 
-    static let jids: [JID] = [
+    static let jids: [BareJid] = [
       "marc.preview@prose.org", "remi.preview@prose.org", "valerian.preview@prose.org",
       "marc.other@prose.org", "remi.other@prose.org",
       "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",

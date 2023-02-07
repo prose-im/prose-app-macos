@@ -170,7 +170,7 @@ extension FooterAvatar.ViewState {
     self.availability = state.availability
     self.isShowingPopover = state.isShowingPopover
     self.fullName = state.currentUser.name
-    self.jid = state.currentUser.jid.jidString
+    self.jid = state.currentUser.jid.rawValue
     self.statusIcon = state.statusIcon
   }
 }

@@ -8,12 +8,12 @@ import Combine
 import ComposableArchitecture
 import Foundation
 import ProseCore
-import ProseCoreClientFFI
 import Toolbox
 import UniformTypeIdentifiers
+import ProseBackend
 
 private extension Account {
-  static let placeholder = Account(jid: try! .init(string: "void@prose.org"), status: .connected)
+  static let placeholder = Account(jid: BareJid(node: "void", domain: "prose.org"), status: .connected)
 }
 
 public extension ProseClient {
@@ -28,7 +28,7 @@ public extension ProseClient {
     let delegate = Delegate(date: date, imageCache: imageCache)
 
     func toggleReaction(
-      to: JID,
+      to: BareJid,
       id: Message.ID,
       reaction: Reaction
     ) -> EffectPublisher<None, EquatableError> {
@@ -41,12 +41,12 @@ public extension ProseClient {
       }
 
       do {
-        let jid = JID(fullJid: client.jid)
+        let jid = client.jid.bareJid
         try delegate.activeChats[to]?.updateMessage(id: id) { message in
           message.reactions.toggleReaction(reaction, for: jid)
           try client.sendReactions(
             Set(message.reactions.reactions(for: jid).map(\.rawValue)),
-            to: to.bareJid,
+            to: to,
             messageId: message.id.rawValue
           )
         }
@@ -61,7 +61,7 @@ public extension ProseClient {
       login: { jid, password in
         delegate.account = .init(jid: jid, status: .connecting)
         client = provider(
-          FullJid(node: jid.bareJid.node, domain: jid.bareJid.domain, resource: "macOS"),
+          FullJid(node: jid.node, domain: jid.domain, resource: "macOS"),
           delegate,
           .main
         )
@@ -88,7 +88,7 @@ public extension ProseClient {
         delegate.$roster.map { roster in
           if let jid = client?.jid {
             return roster.appendingItemToFirstGroup(
-              .init(jid: JID(fullJid: jid), subscription: .both)
+              .init(jid: jid.bareJid, subscription: .both)
             )
           }
           return roster
@@ -111,7 +111,7 @@ public extension ProseClient {
       },
       userInfos: { jids in
         delegate.$userInfos
-          .map { (userInfos: [JID: UserInfo]) in
+          .map { (userInfos: [BareJid: UserInfo]) in
             userInfos.filter { jids.contains($0.key) }
           }
           .setFailureType(to: EquatableError.self)
@@ -138,7 +138,7 @@ public extension ProseClient {
         do {
           try client.sendMessage(
             id: messageID.rawValue,
-            to: to.bareJid,
+            to: to,
             text: body,
             chatState: .active
           )
@@ -176,7 +176,7 @@ public extension ProseClient {
           try client.updateMessage(
             id: id.rawValue,
             newId: newMessageID.rawValue,
-            to: to.bareJid,
+            to: to,
             text: body
           )
 
@@ -200,7 +200,7 @@ public extension ProseClient {
           .activeChats[to]?
           .messages[id: id]?
           .reactions[reaction]?
-          .contains(JID(fullJid: client.jid)) != true
+          .contains(client.jid.bareJid) != true
         else {
           return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
         }
@@ -219,7 +219,7 @@ public extension ProseClient {
         }
 
         do {
-          try client.retractMessage(to: to.bareJid, messageId: id.rawValue)
+          try client.retractMessage(to: to, messageId: id.rawValue)
           delegate.activeChats[to]?.removeMessage(id: id)
         } catch {
           return EffectPublisher(error: EquatableError(error))
@@ -233,7 +233,7 @@ public extension ProseClient {
         }
 
         do {
-          try client.sendChatState(to: to.bareJid, chatState: kind.ffi)
+          try client.sendChatState(to: to, chatState: kind.ffi)
         } catch {
           return EffectPublisher(error: EquatableError(error))
         }
@@ -265,7 +265,7 @@ public extension ProseClient {
         delegate.activeChats.removeValue(forKey: jid)
 
         return Future { promise in
-          client.loadMessagesInChat(jid: jid.bareJid, before: nil) { result, _ in
+          client.loadMessagesInChat(jid: jid, before: nil) { result, _ in
             switch result {
             case let .success(messages):
               for var message in messages {
@@ -275,7 +275,7 @@ public extension ProseClient {
 
                 // Our messages don't have the `to` field set.
                 if messageWasSentByUs {
-                  message.message.to = jid.bareJid
+                  message.message.to = jid
                 }
 
                 delegate.handleMessage(
@@ -299,7 +299,7 @@ public extension ProseClient {
           return EffectPublisher(error: EquatableError(ProseClientError.notAuthenticated))
         }
 
-        let jid = JID(fullJid: client.jid)
+        let jid = client.jid.bareJid
 
         return Deferred {
           Future<Data, Error> { promise in
@@ -378,9 +378,9 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
 
   @Published var account = Account.placeholder
   @Published var roster = Roster(groups: [])
-  @Published var activeChats = [JID: Chat]()
-  @Published var presences = [JID: Presence]()
-  @Published var userInfos = [JID: UserInfo]()
+  @Published var activeChats = [BareJid: Chat]()
+  @Published var presences = [BareJid: Presence]()
+  @Published var userInfos = [BareJid: UserInfo]()
 
   let incomingMessages = PassthroughSubject<Message, Never>()
 
@@ -413,7 +413,7 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
 
     let jids = Set(
       newRoster.groups.flatMap { $0.items.map(\.jid) } +
-        CollectionOfOne(JID(fullJid: client.jid))
+        CollectionOfOne(client.jid.bareJid)
     )
     let newJids = jids.subtracting(self.userInfos.keys)
 
@@ -460,7 +460,7 @@ private final class Delegate: ProseClientDelegate, ObservableObject {
     _: ProseClientProtocol,
     didReceivePresence presence: XmppPresence
   ) {
-    if let jid = presence.from.map(JID.init) {
+    if let jid = presence.from {
       self.presences[jid] = .init(presence: presence, timestamp: self.date())
     }
   }
@@ -493,15 +493,13 @@ private extension Delegate {
       self.activeChats = activeChats
     }
 
-    let from: JID = {
+    let from: BareJid = {
       switch carbon {
       case .none, .received:
-        return JID(bareJid: message.from)
+        return message.from
       case .sent:
-        return JID(
-          bareJid: message.to
+        return message.to
             .expect("A received message carbon sent by us should have a receiver ('to') set.")
-        )
       }
     }()
 
@@ -524,7 +522,7 @@ private extension Delegate {
       activeChats[from]?.updateMessage(id: Message.ID(rawValue: reactions.id)) { messageToUpdate in
         messageToUpdate.reactions.setReactions(
           reactions.reactions.map(Reaction.init(rawValue:)),
-          for: JID(bareJid: message.from)
+          for: message.from
         )
       }
     }
@@ -546,11 +544,11 @@ private extension Delegate {
   }
 
   static func loadUserInfo(
-    jid: JID,
+    jid: BareJid,
     client: ProseClientProtocol,
     imageCache: AvatarImageCache
   ) -> AnyPublisher<UserInfo, Error> {
-    client.loadLatestAvatarMetadata(jid: jid.bareJid)
+    client.loadLatestAvatarMetadata(jid: jid)
       .flatMap { (metadata: XmppAvatarMetadataInfo?) -> AnyPublisher<URL?, Error> in
         guard let metadata = metadata else {
           return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
@@ -560,7 +558,7 @@ private extension Delegate {
           return Just(url).setFailureType(to: Error.self).eraseToAnyPublisher()
         }
 
-        return client.loadAvatarImage(jid: jid.bareJid, imageId: metadata.id)
+        return client.loadAvatarImage(jid: jid, imageId: metadata.id)
           .receive(on: DispatchQueue.global())
           .tryMap { (avatarData: XmppAvatarData?) in
             try avatarData.flatMap { try imageCache.cacheAvatarImage(jid, Data($0.data), $0.sha1) }

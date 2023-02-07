@@ -11,6 +11,7 @@ import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
 import Toolbox
+import ProseCore
 
 // MARK: - View
 
@@ -153,14 +154,14 @@ public let conversationReducer = AnyReducer<
 // MARK: State
 
 public struct ConversationState: Equatable {
-  let chatId: JID
-  var userInfos = [JID: UserInfo]()
+  let chatId: BareJid
+  var userInfos = [BareJid: UserInfo]()
   var info: ConversationInfoState?
   var toolbar: ToolbarState
   var messageBar = MessageBarState()
   var chat = ChatState()
 
-  public init(chatId: JID) {
+  public init(chatId: BareJid) {
     self.chatId = chatId
     self.toolbar = .init(user: nil)
   }
@@ -203,7 +204,7 @@ public enum ConversationAction: Equatable {
   case onDisappear
 
   case messagesResult(Result<IdentifiedArrayOf<Message>, EquatableError>)
-  case userInfosResult(Result<[JID: UserInfo], EquatableError>)
+  case userInfosResult(Result<[BareJid: UserInfo], EquatableError>)
 
   case info(ConversationInfoAction)
   case toolbar(ToolbarAction)
@@ -229,30 +230,30 @@ public struct ConversationEnvironment {
   }
 }
 
-#if DEBUG
-
-  // MARK: - Previews
-
-  struct ConversationScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-      var body: some View {
-        ConversationScreen(store: Store(
-          initialState: .mock(ConversationState(chatId: "alexandre@crisp.chat")),
-          reducer: conversationReducer,
-          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
-        ))
-        .previewLayout(.sizeThatFits)
-      }
-    }
-
-    static var previews: some View {
-      Preview()
-      Preview()
-        .preferredColorScheme(.dark)
-        .previewDisplayName("Dark mode")
-      Preview()
-        .redacted(reason: .placeholder)
-        .previewDisplayName("Placeholder")
-    }
-  }
-#endif
+//#if DEBUG
+//
+//  // MARK: - Previews
+//
+//  struct ConversationScreen_Previews: PreviewProvider {
+//    private struct Preview: View {
+//      var body: some View {
+//        ConversationScreen(store: Store(
+//          initialState: .mock(ConversationState(chatId: "alexandre@crisp.chat")),
+//          reducer: conversationReducer,
+//          environment: .init(proseClient: .noop, pasteboard: .live(), mainQueue: .main)
+//        ))
+//        .previewLayout(.sizeThatFits)
+//      }
+//    }
+//
+//    static var previews: some View {
+//      Preview()
+//      Preview()
+//        .preferredColorScheme(.dark)
+//        .previewDisplayName("Dark mode")
+//      Preview()
+//        .redacted(reason: .placeholder)
+//        .previewDisplayName("Placeholder")
+//    }
+//  }
+//#endif

@@ -5,6 +5,8 @@
 
 import ComposableArchitecture
 import SwiftUI
+import ProseCoreTCA
+import CredentialsClient
 
 // MARK: - View
 
@@ -30,7 +32,13 @@ struct MFAView: View {
 
 // MARK: Reducer
 
-public let mfaReducer: AnyReducer<
+struct AuthenticationEnvironment {
+  var proseClient: ProseClient
+  var credentials: CredentialsClient
+  var mainQueue: AnySchedulerOf<DispatchQueue>
+}
+
+let mfaReducer: AnyReducer<
   MFAState,
   MFAAction,
   AuthenticationEnvironment
@@ -62,6 +70,6 @@ public enum MFAState: Equatable {
 // MARK: Actions
 
 public enum MFAAction: Equatable {
-  case didPassChallenge(next: AuthRoute)
+  case didPassChallenge(next: Authentication.Route)
   case sixDigits(MFA6DigitsAction)
 }

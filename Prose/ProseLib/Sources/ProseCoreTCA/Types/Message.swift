@@ -5,7 +5,7 @@
 
 import Foundation
 import OrderedCollections
-import ProseCoreClientFFI
+import ProseCore
 import Tagged
 
 // MARK: - Message
@@ -138,7 +138,7 @@ extension MessageKind {
 // MARK: - MessageReactions
 
 public struct MessageReactions: Equatable {
-  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<JID>>
+  public typealias WrappedValue = OrderedDictionary<Reaction, OrderedSet<BareJid>>
 
   public private(set) var reactions: WrappedValue
 
@@ -146,15 +146,15 @@ public struct MessageReactions: Equatable {
     self.reactions = reactions
   }
 
-  public mutating func addReaction(_ reaction: Reaction, for jid: JID) {
-    self.reactions[reaction, default: OrderedSet<JID>()].append(jid)
+  public mutating func addReaction(_ reaction: Reaction, for jid: BareJid) {
+    self.reactions[reaction, default: OrderedSet<BareJid>()].append(jid)
   }
 
-  public mutating func toggleReaction(_ reaction: Reaction, for jid: JID) {
+  public mutating func toggleReaction(_ reaction: Reaction, for jid: BareJid) {
     self.reactions.prose_toggle(jid, forKey: reaction)
   }
 
-  public mutating func setReactions(_ reactions: [Reaction], for jid: JID) {
+  public mutating func setReactions(_ reactions: [Reaction], for jid: BareJid) {
     let updatedReactions = Set(reactions)
 
     for reaction in self.reactions.keys where !updatedReactions.contains(reaction) {
@@ -169,19 +169,19 @@ public struct MessageReactions: Equatable {
     }
   }
 
-  public func reactions(for jid: JID) -> [Reaction] {
+  public func reactions(for jid: BareJid) -> [Reaction] {
     self.reactions.compactMap { reaction, jids in
       jids.contains(jid) ? reaction : nil
     }
   }
 
-  subscript(reaction: Reaction) -> OrderedSet<JID>? {
+  subscript(reaction: Reaction) -> OrderedSet<BareJid>? {
     self.reactions[reaction]
   }
 }
 
 extension MessageReactions: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (Reaction, OrderedSet<JID>)...) {
+  public init(dictionaryLiteral elements: (Reaction, OrderedSet<BareJid>)...) {
     self.init(reactions: OrderedDictionary(uniqueKeysWithValues: elements))
   }
 }
@@ -197,7 +197,7 @@ extension MessageReactions: Encodable {
     for (key, value) in self.reactions where !value.isEmpty {
       var container = arrayContainer.nestedContainer(keyedBy: CodingKeys.self)
       try container.encode(key, forKey: .reaction)
-      try container.encode(value.map(\.jidString), forKey: .authors)
+      try container.encode(value.map(\.rawValue), forKey: .authors)
     }
   }
 }

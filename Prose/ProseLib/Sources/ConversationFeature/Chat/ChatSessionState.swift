@@ -4,20 +4,21 @@
 //
 
 import Foundation
+import ProseCore
 import ProseCoreTCA
 
 @dynamicMemberLookup
 public struct ChatSessionState<ChildState: Equatable>: Equatable {
   public let currentUser: UserInfo
-  public let chatId: JID
-  public let userInfos: [JID: UserInfo]
+  public let chatId: BareJid
+  public let userInfos: [BareJid: UserInfo]
 
   public var childState: ChildState
 
   public init(
     currentUser: UserInfo,
-    chatId: JID,
-    userInfos: [JID: UserInfo],
+    chatId: BareJid,
+    userInfos: [BareJid: UserInfo],
     childState: ChildState
   ) {
     self.currentUser = currentUser

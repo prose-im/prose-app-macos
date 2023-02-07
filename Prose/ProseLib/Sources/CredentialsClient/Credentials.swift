@@ -4,14 +4,14 @@
 //
 
 import Foundation
-import ProseCoreTCA
+import ProseCore
 
 public struct Credentials: Hashable {
-  public let jid: JID
+  public let jid: BareJid
   public let password: String
 
   public init(
-    jid: JID,
+    jid: BareJid,
     password: String
   ) {
     self.jid = jid

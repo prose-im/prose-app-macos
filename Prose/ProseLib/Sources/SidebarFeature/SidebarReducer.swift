@@ -9,6 +9,7 @@ import JoinChatFeature
 import ProseCoreTCA
 import TcaHelpers
 import Toolbox
+import ProseCore
 
 public struct SidebarState: Equatable {
   public internal(set) var selection: Selection?
@@ -37,7 +38,7 @@ public extension SidebarState {
     case replies
     case directMessages
     case peopleAndGroups
-    case chat(JID)
+    case chat(BareJid)
   }
 }
 
@@ -58,9 +59,9 @@ public enum SidebarAction: Equatable {
   case addGroupButtonTapped
 
   case rosterResult(Result<Roster, EquatableError>)
-  case activeChatsResult(Result<[JID: Chat], EquatableError>)
-  case presencesResult(Result<[JID: Presence], EquatableError>)
-  case userInfosResult(Result<[JID: UserInfo], EquatableError>)
+  case activeChatsResult(Result<[BareJid: Chat], EquatableError>)
+  case presencesResult(Result<[BareJid: Presence], EquatableError>)
+  case userInfosResult(Result<[BareJid: UserInfo], EquatableError>)
 
   case footer(FooterAction)
   case toolbar(ToolbarAction)

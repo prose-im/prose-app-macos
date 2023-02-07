@@ -4,12 +4,13 @@
 //
 
 import Assets
+import ProseCore
 import ProseCoreTCA
 import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.
 struct ToolbarSecurity: View {
-  let jid: JID
+  let jid: BareJid
   let isVerified: Bool
 
   var body: some View {

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCoreClientFFI
+import ProseCore
 
 public struct Roster: Equatable {
   public var groups: [Group]
@@ -28,10 +28,10 @@ public extension Roster {
 
 public extension Roster.Group {
   struct Item: Equatable {
-    public var jid: JID
+    public var jid: BareJid
     public var subscription: Subscription
 
-    public init(jid: JID, subscription: Roster.Group.Item.Subscription) {
+    public init(jid: BareJid, subscription: Roster.Group.Item.Subscription) {
       self.jid = jid
       self.subscription = subscription
     }
@@ -65,7 +65,7 @@ extension Roster.Group {
 extension Roster.Group.Item {
   init(item: XmppRosterItem) {
     self.init(
-      jid: .init(bareJid: item.jid),
+      jid: item.jid,
       subscription: .init(subscription: item.subscription)
     )
   }

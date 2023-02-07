@@ -13,8 +13,8 @@ import TcaHelpers
 private let l10n = L10n.Authentication.BasicAuth.self
 
 struct BasicAuthView: View {
-  typealias State = BasicAuthState
-  typealias Action = BasicAuthAction
+  typealias State = BasicAuth.State
+  typealias Action = BasicAuth.Action
 
   @Environment(\.redactionReasons) private var redactionReasons
 
@@ -159,34 +159,34 @@ struct PopoverGroupBoxStyle: GroupBoxStyle {
   }
 }
 
-#if DEBUG
-  struct BasicAuthView_Previews: PreviewProvider {
-    private struct Preview: View {
-      let state: BasicAuthView.State
-
-      var body: some View {
-        BasicAuthView(store: Store(
-          initialState: state,
-          reducer: basicAuthReducer,
-          environment: AuthenticationEnvironment(
-            proseClient: .noop,
-            credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
-            mainQueue: .main
-          )
-        ))
-        .previewLayout(.sizeThatFits)
-      }
-    }
-
-    static var previews: some View {
-      Preview(state: .init())
-      Preview(state: .init(jid: "remi@prose.org", password: "password"))
-      Preview(state: .init(jid: "remi@prose.org", password: "password"))
-        .preferredColorScheme(.dark)
-        .previewDisplayName("Dark mode")
-      Preview(state: .init())
-        .redacted(reason: .placeholder)
-        .previewDisplayName("Placeholder")
-    }
-  }
-#endif
+//#if DEBUG
+//  struct BasicAuthView_Previews: PreviewProvider {
+//    private struct Preview: View {
+//      let state: BasicAuthView.State
+//
+//      var body: some View {
+//        BasicAuthView(store: Store(
+//          initialState: state,
+//          reducer: basicAuthReducer,
+//          environment: AuthenticationEnvironment(
+//            proseClient: .noop,
+//            credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
+//            mainQueue: .main
+//          )
+//        ))
+//        .previewLayout(.sizeThatFits)
+//      }
+//    }
+//
+//    static var previews: some View {
+//      Preview(state: .init())
+//      Preview(state: .init(jid: "remi@prose.org", password: "password"))
+//      Preview(state: .init(jid: "remi@prose.org", password: "password"))
+//        .preferredColorScheme(.dark)
+//        .previewDisplayName("Dark mode")
+//      Preview(state: .init())
+//        .redacted(reason: .placeholder)
+//        .previewDisplayName("Placeholder")
+//    }
+//  }
+//#endif

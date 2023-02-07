@@ -21,3 +21,18 @@ public struct NotificationsClient {
   public var notificationPermission: () -> EffectTask<NotificationPermission>
   public var scheduleLocalNotification: (Message, UserInfo) -> EffectPublisher<None, EquatableError>
 }
+
+public extension DependencyValues {
+  var notificationsClient: NotificationsClient {
+    get { self[NotificationsClient.self] }
+    set { self[NotificationsClient.self] = newValue }
+  }
+}
+
+extension NotificationsClient: TestDependencyKey {
+  public static var testValue = NotificationsClient(
+    promptForPushNotifications: unimplemented("\(Self.self).promptForPushNotifications"),
+    notificationPermission: unimplemented("\(Self.self).notificationPermission"),
+    scheduleLocalNotification: unimplemented("\(Self.self).scheduleLocalNotification")
+  )
+}

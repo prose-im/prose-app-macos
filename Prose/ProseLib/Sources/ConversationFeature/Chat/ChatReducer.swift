@@ -172,11 +172,11 @@ let chatReducer = AnyReducer<
       }
       var menu = MessageMenuState(origin: payload.origin.anchor.cgPoint, items: items)
 
-      let loggedInUserJID: JID = state.currentUser.jid
+      let loggedInUserJID = state.currentUser.jid
 
       if let messageId = payload.id,
          let message = state.messages[id: messageId],
-         message.from == loggedInUserJID
+         message.from.bareJid == loggedInUserJID
       {
         menu.updateItem(withTag: .edit) {
           $0.isDisabled = false

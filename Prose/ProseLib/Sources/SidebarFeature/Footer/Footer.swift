@@ -90,7 +90,7 @@ struct Footer: View {
 extension Footer.ViewState {
   init(_ state: Footer.State) {
     self.isShowingSheet = state.sheet != nil
-    self.jidString = state.currentUser.jid.jidString
+    self.jidString = state.currentUser.jid.rawValue
     self.statusIcon = state.childState.statusIcon
     self.statusMessage = state.childState.statusMessage
     self.currentUser = state.currentUser

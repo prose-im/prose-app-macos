@@ -6,12 +6,13 @@
 import ComposableArchitecture
 import Foundation
 import ProseCoreTCA
+import ProseCore
 
 struct RosterState: Equatable {
   var roster: Roster = .init(groups: [])
-  var unreadCounts = [JID: Int]()
-  var presences = [JID: Presence]()
-  var userInfos = [JID: UserInfo]()
+  var unreadCounts = [BareJid: Int]()
+  var presences = [BareJid: Presence]()
+  var userInfos = [BareJid: UserInfo]()
 }
 
 extension RosterState {
@@ -51,7 +52,7 @@ extension SidebarRoster {
 
 extension SidebarRoster.Group {
   struct Item: Equatable {
-    var jid: JID
+    var jid: BareJid
     var avatarURL: URL?
     var numberOfUnreadMessages: Int
     var status: OnlineStatus

@@ -1,19 +1,13 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
 import ComposableArchitecture
 import CredentialsClient
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
-
-// MARK: - View
+import ProseCore
 
 public struct AuthenticationScreen: View {
-  public typealias State = AuthenticationState
-  public typealias Action = AuthenticationAction
+  public typealias State = Authentication.State
+  public typealias Action = Authentication.Action
 
   private let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -25,12 +19,12 @@ public struct AuthenticationScreen: View {
   public var body: some View {
     SwitchStore(self.store.scope(state: \State.route)) {
       CaseLet(
-        state: CasePath(AuthRoute.basicAuth).extract(from:),
+        state: /Authentication.Route.basicAuth,
         action: Action.basicAuth,
         then: BasicAuthView.init(store:)
       )
       CaseLet(
-        state: CasePath(AuthRoute.mfa).extract(from:),
+        state: /Authentication.Route.mfa,
         action: Action.mfa,
         then: MFAView.init(store:)
       )
@@ -39,102 +33,82 @@ public struct AuthenticationScreen: View {
   }
 }
 
-// MARK: - The Composabe Architecture
+public struct Authentication: ReducerProtocol {
+  public struct State: Equatable {
+    var route = Route.basicAuth(.init())
 
-// MARK: Reducer
-
-public let authenticationReducer: AnyReducer<
-  AuthenticationState,
-  AuthenticationAction,
-  AuthenticationEnvironment
-> = AnyReducer.combine([
-  basicAuthReducer._pullback(
-    state: (\AuthenticationState.route).case(CasePath(AuthRoute.basicAuth)),
-    action: CasePath(AuthenticationAction.basicAuth),
-    environment: { $0 }
-  ),
-  mfaReducer._pullback(
-    state: (\AuthenticationState.route).case(CasePath(AuthRoute.mfa)),
-    action: CasePath(AuthenticationAction.mfa),
-    environment: { $0 }
-  ),
-  AnyReducer { state, action, _ in
-    switch action {
-    case let .basicAuth(.didPassChallenge(.success(jid, password))),
-         let .mfa(.didPassChallenge(.success(jid, password))):
-      return EffectTask(value: .didLogIn(Credentials(jid: jid, password: password)))
-
-    case let .basicAuth(.didPassChallenge(route)),
-         let .mfa(.didPassChallenge(route)):
-      state.route = route
-
-    default:
-      break
-    }
-
-    return .none
-  },
-])
-
-// MARK: State
-
-public struct AuthenticationState: Equatable {
-  var route: AuthRoute
-
-  public init(
-    route: AuthRoute
-  ) {
-    self.route = route
+    public init() {}
   }
-}
 
-public enum AuthRoute: Equatable {
-  case basicAuth(BasicAuthState)
-  case mfa(MFAState)
-  case success(jid: JID, password: String)
-}
+  public enum Action: Equatable {
+    case didLogIn(Credentials)
+    case basicAuth(BasicAuth.Action)
+    case mfa(MFAAction)
+  }
 
-// MARK: Actions
+  public enum Route: Equatable {
+    case basicAuth(BasicAuth.State)
+    case mfa(MFAState)
+    case success(jid: BareJid, password: String)
+  }
+  
+  public init() {}
 
-public enum AuthenticationAction: Equatable {
-  case didLogIn(Credentials)
-  case basicAuth(BasicAuthAction)
-  case mfa(MFAAction)
-}
+  @Dependency(\.credentialsClient) var credentials
+  @Dependency(\.legacyProseClient) var legacyProseClient
+  @Dependency(\.mainQueue) var mainQueue
 
-// MARK: Environment
+  public var body: some ReducerProtocol<State, Action> {
+    self.core
 
-public struct AuthenticationEnvironment {
-  var proseClient: ProseClient
-  var credentials: CredentialsClient
-  var mainQueue: AnySchedulerOf<DispatchQueue>
+    Scope(state: \.route, action: /.self) {
+      EmptyReducer()
+        .ifCaseLet(/Route.basicAuth, action: /Action.basicAuth) {
+          BasicAuth()
+        }
+        .ifCaseLet(/Route.mfa, action: /Action.mfa) {
+          Reduce(
+            mfaReducer,
+            environment: AuthenticationEnvironment(
+              proseClient: self.legacyProseClient,
+              credentials: self.credentials,
+              mainQueue: self.mainQueue
+            )
+          )
+        }
+    }
+  }
 
-  public init(
-    proseClient: ProseClient,
-    credentials: CredentialsClient,
-    mainQueue: AnySchedulerOf<DispatchQueue>
-  ) {
-    self.proseClient = proseClient
-    self.credentials = credentials
-    self.mainQueue = mainQueue
+  @ReducerBuilder<State, Action>
+  private var core: some ReducerProtocol<State, Action> {
+    Reduce { state, action in
+      switch action {
+      case let .basicAuth(.didPassChallenge(.success(jid, password))),
+           let .mfa(.didPassChallenge(.success(jid, password))):
+        return EffectTask(value: .didLogIn(Credentials(jid: jid, password: password)))
+
+      case let .basicAuth(.didPassChallenge(route)),
+           let .mfa(.didPassChallenge(route)):
+        state.route = route
+
+      default:
+        break
+      }
+
+      return .none
+    }
   }
 }
 
 #if DEBUG
-
-  // MARK: - Previews
-
   internal struct AuthenticationScreen_Previews: PreviewProvider {
     private struct Preview: View {
       var body: some View {
         AuthenticationScreen(store: Store(
-          initialState: AuthenticationState(route: .basicAuth(.init())),
-          reducer: authenticationReducer,
-          environment: AuthenticationEnvironment(
-            proseClient: .noop,
-            credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
-            mainQueue: .main
-          )
+          initialState: .init(),
+          reducer: Authentication()
+            .dependency(\.legacyProseClient, .noop)
+            .dependency(\.credentialsClient, .live(service: "org.prose.app.preview.\(Self.self)"))
         ))
       }
     }

@@ -4,10 +4,10 @@
 //
 
 import Foundation
-import ProseCoreTCA
+import ProseCore
 
 public struct MessagingContext {
-  public let setAccountJID: JSFunc1<JID, Void>
+  public let setAccountJID: JSFunc1<BareJid, Void>
   public let setStyleTheme: JSFunc1<StyleTheme?, Void>
 
   public init(evaluator: @escaping JSEvaluator) {

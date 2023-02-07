@@ -6,12 +6,12 @@
 import Foundation
 import ImageIO
 import ProseCore
-import ProseCoreClientFFI
 import Toolbox
+import ProseBackend
 
 public struct AvatarImageCache {
-  public var cachedURLForAvatarImageWithID: (JID, _ imageId: String) -> URL?
-  public var cacheAvatarImage: (JID, _ imageData: Data, _ imageId: ImageId) throws -> URL
+  public var cachedURLForAvatarImageWithID: (BareJid, _ imageId: String) -> URL?
+  public var cacheAvatarImage: (BareJid, _ imageData: Data, _ imageId: ImageId) throws -> URL
 }
 
 enum ImageCacheError: Error {
@@ -25,8 +25,8 @@ public extension AvatarImageCache {
 
     try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
 
-    func fileURL(for jid: JID, imageId: String) -> URL? {
-      let filename = "\(jid.bareJid.node ?? "")-\(jid.bareJid.domain)-\(imageId)"
+    func fileURL(for jid: BareJid, imageId: String) -> URL? {
+      let filename = "\(jid.node ?? "")-\(jid.domain)-\(imageId)"
         .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
       return filename.map { cacheDirectory.appendingPathComponent($0, conformingTo: .jpeg) }
     }

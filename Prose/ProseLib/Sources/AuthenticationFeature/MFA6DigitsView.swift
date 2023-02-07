@@ -7,6 +7,7 @@ import AppLocalization
 import Combine
 import ComposableArchitecture
 import ProseCoreTCA
+import ProseCore
 import ProseUI
 import SwiftUI
 import SwiftUINavigation
@@ -150,7 +151,7 @@ public struct MFA6DigitsView: View {
 
 // MARK: Reducer
 
-public let mfa6DigitsReducer: AnyReducer<
+let mfa6DigitsReducer: AnyReducer<
   MFA6DigitsState,
   MFA6DigitsAction,
   AuthenticationEnvironment
@@ -256,7 +257,7 @@ public struct MFA6DigitsState: Equatable {
     case cannotGenerateCode, noAccount
   }
 
-  let jid: JID
+  let jid: BareJid
   /// - Note: [Rémi Bardon] This should only be temporary
   let password: String
 
@@ -272,7 +273,7 @@ public struct MFA6DigitsState: Equatable {
   var isMainButtonEnabled: Bool { self.isFormValid && !self.isLoading }
 
   public init(
-    jid: JID,
+    jid: BareJid,
     password: String,
     code: String = "",
     isLoading: Bool = false,
@@ -300,7 +301,7 @@ public struct MFA6DigitsState: Equatable {
 public enum MFA6DigitsAction: Equatable, BindableAction {
   case onAppear, onGlobalTapGesture
   case submitButtonTapped, showPopoverTapped(MFA6DigitsState.Popover)
-  case verifyOneTimeCode, verifyOneTimeCodeResult(Result<AuthRoute, MFAError>)
+  case verifyOneTimeCode, verifyOneTimeCodeResult(Result<Authentication.Route, MFAError>)
   case alertDismissed
   case binding(BindingAction<MFA6DigitsState>)
 }

@@ -32,14 +32,14 @@ struct SidebarHeader: View {
         VStack {
           Text(verbatim: viewStore.currentUser.name)
             .font(.headline)
-          Text(verbatim: viewStore.currentUser.jid.jidString)
+          Text(verbatim: viewStore.currentUser.jid.rawValue)
             .font(.subheadline)
             .foregroundColor(.secondary)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
           l10n.ProfileDetails
-            .axLabel(viewStore.currentUser.name, viewStore.currentUser.jid.jidString)
+            .axLabel(viewStore.currentUser.name, viewStore.currentUser.jid.rawValue)
         )
         // Higher priority on the profile label
         .accessibilitySortPriority(1)
