@@ -1,9 +1,9 @@
 import ComposableArchitecture
 import CredentialsClient
+import ProseCore
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
-import ProseCore
 
 public struct AuthenticationScreen: View {
   public typealias State = Authentication.State
@@ -41,7 +41,7 @@ public struct Authentication: ReducerProtocol {
   }
 
   public enum Action: Equatable {
-    case didLogIn(Credentials)
+    case didLogIn(BareJid)
     case basicAuth(BasicAuth.Action)
     case mfa(MFAAction)
   }
@@ -49,9 +49,8 @@ public struct Authentication: ReducerProtocol {
   public enum Route: Equatable {
     case basicAuth(BasicAuth.State)
     case mfa(MFAState)
-    case success(jid: BareJid, password: String)
   }
-  
+
   public init() {}
 
   @Dependency(\.credentialsClient) var credentials
@@ -81,21 +80,11 @@ public struct Authentication: ReducerProtocol {
 
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
-    Reduce { state, action in
-      switch action {
-      case let .basicAuth(.didPassChallenge(.success(jid, password))),
-           let .mfa(.didPassChallenge(.success(jid, password))):
-        return EffectTask(value: .didLogIn(Credentials(jid: jid, password: password)))
-
-      case let .basicAuth(.didPassChallenge(route)),
-           let .mfa(.didPassChallenge(route)):
-        state.route = route
-
-      default:
-        break
+    Reduce { _, action in
+      guard case let .basicAuth(.loginResult(.success(jid))) = action else {
+        return .none
       }
-
-      return .none
+      return .task { .didLogIn(jid) }
     }
   }
 }

@@ -3,8 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import Foundation
-import ProseCore
+import AppDomain
 import ComposableArchitecture
 
 public struct CredentialsClient {

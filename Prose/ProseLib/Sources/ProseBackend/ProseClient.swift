@@ -12,7 +12,7 @@ enum ProseClientError: Error {
 }
 
 extension ProseClient: ConnectionHandler {
-  public func connectionDidChange(event: ConnectionEvent) {
+  public func connectionStatusDidChange(event: ConnectionEvent) {
     switch event {
     case .connect:
       print("Connected")

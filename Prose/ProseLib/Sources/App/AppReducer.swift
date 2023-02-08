@@ -1,10 +1,11 @@
 import AccountBookmarksClient
+import AppDomain
 import AuthenticationFeature
 import Combine
 import ComposableArchitecture
 import CredentialsClient
 import Foundation
-import MainWindowFeature
+import MainScreenFeature
 import NotificationsClient
 import ProseCore
 import ProseCoreTCA
@@ -15,13 +16,13 @@ struct App: ReducerProtocol {
   struct State: Equatable {
     var hasAppearedAtLeastOnce = false
 
-    var main: SessionState<MainScreenState> = .placeholder
+    var main: SessionState<MainScreen.MainScreenState> = .placeholder
     var auth: Authentication.State?
 
-    var isMainWindowEnabled: Bool { self.auth == nil }
+    var isMainScreenEnabled: Bool { self.auth == nil }
     /// - Note: When we'll support multi-account, we'll need to make this a regular value,
     ///         as we don't want to redact the view when the user adds a new account.
-    var isMainWindowRedacted: Bool { self.auth != nil }
+    var isMainScreenRedacted: Bool { self.auth != nil }
 
     public init() {}
   }
@@ -31,18 +32,20 @@ struct App: ReducerProtocol {
     case dismissAuthenticationSheet
 
     case authenticationResult(TaskResult<[Credentials]>)
-    case connectionResult(Result<None, EquatableError>)
     case didReceiveMessage(Message, UserInfo)
     case currentUserInfoChanged(UserInfo)
+    case availableAccountsChanged([Account])
 
     case auth(Authentication.Action)
-    case main(MainScreenAction)
+    case main(MainScreen.Action)
   }
 
   private enum EffectToken: Hashable, CaseIterable {
     case observeCurrentUserInfo
+    case observeAvailableAccounts
   }
-  
+
+  @Dependency(\.accountsClient) var accounts
   @Dependency(\.accountBookmarksClient) var accountBookmarks
   @Dependency(\.credentialsClient) var credentials
   @Dependency(\.mainQueue) var mainQueue
@@ -52,36 +55,27 @@ struct App: ReducerProtocol {
 
   public var body: some ReducerProtocol<State, Action> {
     self.core
-    .ifLet(\.auth, action: /Action.auth) {
-      Authentication()
-    }
-    
-    ConditionallyEnable(when: \.isMainWindowEnabled) {
+      .ifLet(\.auth, action: /Action.auth) {
+        Authentication()
+      }
+
+    ConditionallyEnable(when: \.isMainScreenEnabled) {
       Scope(state: \.main, action: /Action.main) {
-        Reduce(
-          mainWindowReducer,
-          environment: .init(
-            proseClient: self.legacyProseClient,
-            pasteboard: pasteboard,
-            mainQueue: self.mainQueue
-          )
-        )
+        MainScreen()
       }
     }
   }
-  
-  #warning("Handle logout")
 
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
-      func proceedToMainFlow(with credentials: Credentials) -> EffectTask<Action> {
+      func proceedToMainFlow(with jid: BareJid) -> EffectTask<Action> {
         state.main = SessionState(
-          currentUser: .init(jid: credentials.jid),
-          childState: MainScreenState()
+          currentUser: .init(jid: jid),
+          childState: MainScreen.MainScreenState()
         )
         state.auth = nil
-        
+
         return .none
 
 //        return environment.proseClient.userInfos([credentials.jid])
@@ -92,7 +86,7 @@ struct App: ReducerProtocol {
 //          .cancellable(id: EffectToken.observeCurrentUserInfo, cancelInFlight: true)
       }
 
-      func proceedToLogin(jid: JID? = nil) -> EffectTask<Action> {
+      func proceedToLogin(jid _: JID? = nil) -> EffectTask<Action> {
         state.auth = .init()
         return .cancel(id: EffectToken.observeCurrentUserInfo)
       }
@@ -114,7 +108,12 @@ struct App: ReducerProtocol {
                   .compactMap(self.credentials.loadCredentials)
               }
             )
-          }
+          },
+          .run { send in
+            for try await accounts in self.accounts.availableAccounts() {
+              await send(.availableAccountsChanged(accounts))
+            }
+          }.cancellable(id: EffectToken.observeAvailableAccounts)
 
 //          environment.proseClient.incomingMessages()
 //            .flatMap { message in
@@ -129,33 +128,26 @@ struct App: ReducerProtocol {
 //            .eraseToEffect()
 //            .map { args in AppAction.didReceiveMessage(args.message, args.userInfo) }
         )
-      
-      case let .authenticationResult(.success(credentials)) where credentials.isEmpty:
-        return proceedToLogin()
 
       case let .authenticationResult(.success(credentials)):
-        return .none
-//        return .merge(
-//          proceedToMainFlow(with: credentials),
-//          environment.proseClient.login(credentials.jid, credentials.password)
-//            .receive(on: environment.mainQueue)
-//            .catchToEffect()
-//            .map(AppAction.connectionResult)
-//        )
+        #warning("Save & restore selected account")
+        guard let firstCredentials = credentials.first else {
+          return proceedToLogin()
+        }
+
+        return .merge(
+          proceedToMainFlow(with: firstCredentials.jid),
+          .fireAndForget {
+            self.accounts.connectAccounts(credentials)
+          }
+        )
 
       case let .authenticationResult(.failure(error)):
         logger.error("Error when loading credentials: \(error.localizedDescription)")
         return proceedToLogin()
 
-      case let .auth(.didLogIn(credentials)):
-        return proceedToMainFlow(with: credentials)
-
-      case .connectionResult(.success):
-        logger.info("Connection established.")
-        return .none
-
-      case .connectionResult(.failure):
-        return proceedToLogin()
+      case let .auth(.didLogIn(jid)):
+        return proceedToMainFlow(with: jid)
 
       case let .didReceiveMessage(message, userInfo):
         return self.notifications.scheduleLocalNotification(message, userInfo)
@@ -173,6 +165,14 @@ struct App: ReducerProtocol {
         state.auth = nil
         return .none
 
+      case let .availableAccountsChanged(accounts):
+        print("ACCOUNTS", accounts)
+        if accounts.isEmpty {
+          state.main = .placeholder
+          return proceedToLogin()
+        }
+        return .none
+
       case .onAppear, .auth, .main:
         return .none
       }
@@ -181,8 +181,8 @@ struct App: ReducerProtocol {
 }
 
 struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtocol
-  where State == Child.State, Action == Child.Action {
-
+  where State == Child.State, Action == Child.Action
+{
   let child: Child
   let enableWhen: KeyPath<Child.State, Bool>
 
@@ -190,7 +190,7 @@ struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtoc
     self.enableWhen = when
     self.child = child()
   }
-  
+
   func reduce(into state: inout Child.State, action: Child.Action) -> EffectTask<Child.Action> {
     if state[keyPath: self.enableWhen] {
       return self.child.reduce(into: &state, action: action)

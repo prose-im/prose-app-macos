@@ -5,6 +5,10 @@ import ProseCore
 
 public struct AccountBookmark: Codable {
   public var jid: BareJid
+
+  public init(jid: BareJid) {
+    self.jid = jid
+  }
 }
 
 public struct AccountBookmarksClient {

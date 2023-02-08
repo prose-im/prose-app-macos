@@ -10,17 +10,6 @@ import IdentifiedCollections
 import Toolbox
 import ProseCore
 
-public struct Account: Hashable {
-  public enum Status: Hashable {
-    case connecting
-    case connected
-    case error(EquatableError)
-  }
-
-  public var jid: BareJid
-  public var status: Status
-}
-
 public struct ProseClient {
   public var login: (_ jid: BareJid, _ password: String) -> EffectPublisher<None, EquatableError>
   public var logout: (_ jid: BareJid) -> EffectTask<None>

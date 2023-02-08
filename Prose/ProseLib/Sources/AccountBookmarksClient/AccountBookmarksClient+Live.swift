@@ -1,11 +1,17 @@
+import ComposableArchitecture
 import Foundation
 
 public extension AccountBookmarksClient {
   static func live(bookmarksURL: URL = URL.documentsDirectory
     .appending(component: "accounts.plist")) -> Self
   {
+    print("bookmarksURL", bookmarksURL)
+  
     func loadBookmarks() throws -> [AccountBookmark] {
-      try PropertyListDecoder().decode(
+      guard FileManager.default.fileExists(atPath: bookmarksURL.path) else {
+        return []
+      }
+      return try PropertyListDecoder().decode(
         [AccountBookmark].self,
         from: Data(contentsOf: bookmarksURL)
       )
@@ -30,4 +36,8 @@ public extension AccountBookmarksClient {
       }
     )
   }
+}
+
+extension AccountBookmarksClient: DependencyKey {
+  public static var liveValue: AccountBookmarksClient = .live()
 }

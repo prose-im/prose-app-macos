@@ -5,7 +5,7 @@
 
 import AuthenticationFeature
 import ComposableArchitecture
-import MainWindowFeature
+import MainScreenFeature
 import SettingsFeature
 import SwiftUI
 
@@ -33,7 +33,7 @@ public struct AppScene: Scene {
 
 struct AppView: View {
   struct ViewState: Equatable {
-    var isMainWindowRedacted: Bool
+    var isMainScreenRedacted: Bool
     var isAuthScreenPresented: Bool
   }
 
@@ -46,8 +46,8 @@ struct AppView: View {
   }
 
   public var body: some View {
-    MainScreen(store: self.store.scope(state: \.main, action: App.Action.main))
-      .redacted(reason: self.viewStore.isMainWindowRedacted ? .placeholder : [])
+    MainScreenView(store: self.store.scope(state: \.main, action: App.Action.main))
+      .redacted(reason: self.viewStore.isMainScreenRedacted ? .placeholder : [])
       .frame(minWidth: 1280, minHeight: 720)
       .onAppear { self.viewStore.send(.onAppear) }
       .sheet(
@@ -63,7 +63,7 @@ struct AppView: View {
 
 private extension AppView.ViewState {
   init(_ appState: App.State) {
-    self.isMainWindowRedacted = appState.isMainWindowRedacted
+    self.isMainScreenRedacted = appState.isMainScreenRedacted
     self.isAuthScreenPresented = appState.auth != nil
   }
 }

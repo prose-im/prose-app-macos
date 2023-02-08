@@ -1,8 +1,3 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
 import AppLocalization
 import ComposableArchitecture
 import ProseCoreTCA
@@ -159,14 +154,12 @@ public struct EditProfileState: Equatable {
     }
   }
 
-  public init(
-    sidebarHeader: SidebarHeaderState,
-    route: Route
-  ) {
-    self.route = route
+  public init() {
+    self.route = .identity(IdentityState())
+    let sidebarHeader = SidebarHeaderState()
 
-    switch route {
-    case .identity:
+    switch self.route {
+    case .identity, .none:
       self.sidebar = .init(header: sidebarHeader, selection: .identity)
     case .authentication:
       self.sidebar = .init(header: sidebarHeader, selection: .authentication)
@@ -237,20 +230,3 @@ extension EditProfileEnvironment {
     SidebarEnvironment(proseClient: self.proseClient, mainQueue: self.mainQueue)
   }
 }
-
-// MARK: - Previews
-
-#if DEBUG
-  struct EditProfileScreen_Previews: PreviewProvider {
-    static var previews: some View {
-      EditProfileScreen(store: Store(
-        initialState: .mock(EditProfileState(
-          sidebarHeader: .init(),
-          route: .identity(.init())
-        )),
-        reducer: editProfileReducer,
-        environment: EditProfileEnvironment(proseClient: .noop, mainQueue: .main)
-      ))
-    }
-  }
-#endif

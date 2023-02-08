@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import AppKit
 import Combine
 import ComposableArchitecture
@@ -341,7 +342,7 @@ private extension Publisher where Output == Account {
   func skipUntilConnected() -> AnyPublisher<Account, EquatableError> {
     self.tryDrop { account in
       switch account.status {
-      case .connecting:
+      case .disconnected, .connecting:
         return true
       case .connected:
         return false

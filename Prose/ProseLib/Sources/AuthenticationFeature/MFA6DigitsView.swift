@@ -176,11 +176,11 @@ let mfa6DigitsReducer: AnyReducer<
     let jid = state.jid
     let password = state.password
     return EffectTask.task {
-      if isFormValid, code != "000000" {
-        return .verifyOneTimeCodeResult(.success(.success(jid: jid, password: password)))
-      } else {
+//      if isFormValid, code != "000000" {
+//        return .verifyOneTimeCodeResult(.success(.success(jid: jid, password: password)))
+//      } else {
         return .verifyOneTimeCodeResult(.failure(.badCode))
-      }
+//      }
     }
     .delay(for: .seconds(1), scheduler: environment.mainQueue)
     .eraseToEffect()

@@ -19,7 +19,7 @@ let package = Package(
       "ConversationInfoFeature",
       "EditProfileFeature",
       "JoinChatFeature",
-      "MainWindowFeature",
+      "MainScreenFeature",
       "ProseUI",
       "SettingsFeature",
       "SidebarFeature",
@@ -40,13 +40,14 @@ let package = Package(
       name: "ProseCore",
       path: "/Users/mb/Documents/Prose/prose-wrapper-swift/Build/spm/ProseCore"
     ),
+    .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.1.0")),
     // .proseCore("0.4.3"),
   ],
   targets: [
     .target(
       name: "App",
       dependencies: [
-        "MainWindowFeature",
+        "MainScreenFeature",
         "SettingsFeature",
         "AuthenticationFeature",
         "CredentialsClient",
@@ -60,14 +61,14 @@ let package = Package(
       dependencies: ["App", "Mocks"]
     ),
 
-    .target(name: "MainWindowFeature", dependencies: [
+    .target(name: "MainScreenFeature", dependencies: [
       "SidebarFeature",
       "TcaHelpers",
       "AddressBookFeature",
       "ConversationFeature",
       "UnreadFeature",
       "ProseCoreTCA",
-      .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      .product(name: "TCAUtils", package: "swift-common-utils"),
     ]),
     .target(name: "AddressBookFeature", dependencies: [
       "ProseUI",
@@ -98,6 +99,7 @@ let package = Package(
     .target(
       name: "AuthenticationFeature",
       dependencies: [
+        "AccountBookmarksClient",
         "CredentialsClient",
         .featureBase,
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
@@ -129,7 +131,7 @@ let package = Package(
     ),
     .target(
       name: "Base",
-      dependencies: ["ProseCoreTCA"]
+      dependencies: ["AppDomain"]
     ),
 
     .target(name: "Assets", resources: [.process("Resources")]),
@@ -165,13 +167,14 @@ let package = Package(
     .target(
       name: "ProseBackend",
       dependencies: [
-        .product(name: "ProseCore", package: "ProseCore"),
+        "AppDomain",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(
       name: "ProseCoreTCA",
       dependencies: [
+        "AppDomain",
         "ProseBackend",
         "Toolbox",
         "TcaHelpers",
@@ -187,6 +190,14 @@ let package = Package(
       name: "Mocks",
       dependencies: ["ProseCoreTCA"],
       resources: [.copy("RandomUser/random_user.json")]
+    ),
+
+    .target(
+      name: "AppDomain",
+      dependencies: [
+        .product(name: "ProseCore", package: "ProseCore"),
+        .product(name: "BareMinimum", package: "swift-common-utils"),
+      ]
     ),
   ]
 )

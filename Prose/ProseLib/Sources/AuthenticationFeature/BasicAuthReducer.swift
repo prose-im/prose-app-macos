@@ -1,12 +1,16 @@
+import AccountBookmarksClient
 import AppKit
 import AppLocalization
 import Combine
 import ComposableArchitecture
+import CredentialsClient
 import Foundation
-import ProseCoreTCA
+import ProseBackend
 import Toolbox
 
 private let l10n = L10n.Authentication.BasicAuth.self
+
+struct InvalidJIDError: Error {}
 
 public struct BasicAuth: ReducerProtocol {
   public struct State: Equatable {
@@ -56,16 +60,18 @@ public struct BasicAuth: ReducerProtocol {
     case alertDismissed
     case loginButtonTapped, showPopoverTapped(State.Popover)
     case submitTapped(State.Field), cancelLogInTapped
-    case loginResult(Result<Authentication.Route, EquatableError>)
-    case didPassChallenge(next: Authentication.Route)
+    case loginResult(TaskResult<BareJid>)
     case binding(BindingAction<State>)
   }
-  
+
+  @Dependency(\.accountBookmarksClient) var accountBookmarks
+  @Dependency(\.credentialsClient) var credentials
+  @Dependency(\.accountsClient) var accounts
   @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
-    Reduce { state, action in
+    Reduce<State, Action> { state, action in
       struct CancelId: Hashable {}
 
       func performLogin() -> EffectTask<Action> {
@@ -76,21 +82,21 @@ public struct BasicAuth: ReducerProtocol {
         state.focusedField = nil
         state.isLoading = true
 
-        let jid: JID
-        do {
-          jid = try JID(string: state.jid)
-        } catch {
-          return EffectTask(value: .loginResult(.failure(EquatableError(error))))
-        }
-        let password = state.password
-        
-        return .none
+        return .task { [jidString = state.jid, password = state.password] in
+          await .loginResult(TaskResult {
+            guard let jid = BareJid(rawValue: jidString) else {
+              throw InvalidJIDError()
+            }
 
-//        return environment.proseClient.login(jid, password)
-//          .map { _ in AuthRoute.success(jid: jid, password: password) }
-//          .receive(on: self.mainQueue)
-//          .catchToEffect(Action.loginResult)
-//          .cancellable(id: CancelId())
+            let credentials = Credentials(jid: jid, password: password)
+
+            try await self.accounts.tryConnectAccount(credentials)
+            try? self.accountBookmarks.saveBookmark(AccountBookmark(jid: jid))
+            try? self.credentials.save(credentials)
+
+            return jid
+          })
+        }
       }
 
       switch action {
@@ -114,9 +120,9 @@ public struct BasicAuth: ReducerProtocol {
         state.isLoading = false
         return EffectTask.cancel(id: CancelId())
 
-      case let .loginResult(.success(route)):
+      case .loginResult(.success):
         state.isLoading = false
-        return EffectTask(value: .didPassChallenge(next: route))
+        return .none
 
       case let .loginResult(.failure(reason)):
         logger.debug("Login failure: \(String(reflecting: reason))")
@@ -126,8 +132,9 @@ public struct BasicAuth: ReducerProtocol {
           title: TextState(l10n.Error.title),
           message: TextState(reason.localizedDescription)
         )
+        return .none
 
-      case .didPassChallenge, .binding:
+      case .binding:
         break
       }
 

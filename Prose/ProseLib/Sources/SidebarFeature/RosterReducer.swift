@@ -1,12 +1,7 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
 import ComposableArchitecture
 import Foundation
-import ProseCoreTCA
 import ProseCore
+import ProseCoreTCA
 
 struct RosterState: Equatable {
   var roster: Roster = .init(groups: [])
@@ -59,92 +54,93 @@ extension SidebarRoster.Group {
   }
 }
 
-extension AnyReducer where
-  State == SessionState<SidebarState>,
-  Action == SidebarAction,
-  Environment == SidebarEnvironment
-{
-  func roster() -> Self {
-    .combine(
-      self,
-      AnyReducer { state, action, environment in
-        switch action {
-        case .onAppear:
-          return .merge(
-            environment.proseClient.roster()
-              .receive(on: environment.mainQueue)
-              .catchToEffect(SidebarAction.rosterResult)
-              .cancellable(
-                id: SidebarEffectToken.rosterSubscription,
-                cancelInFlight: true
-              ),
-            environment.proseClient.presence()
-              .receive(on: environment.mainQueue)
-              .catchToEffect(SidebarAction.presencesResult)
-              .cancellable(
-                id: SidebarEffectToken.presenceSubscription,
-                cancelInFlight: true
-              ),
-            environment.proseClient.activeChats()
-              .receive(on: environment.mainQueue)
-              .catchToEffect(SidebarAction.activeChatsResult)
-              .cancellable(
-                id: SidebarEffectToken.activeChatsSubscription,
-                cancelInFlight: true
-              )
-          )
+struct RosterReducer: ReducerProtocol {
+  typealias State = Sidebar.State
+  typealias Action = Sidebar.Action
 
-        case let .rosterResult(.success(roster)):
-          state.roster.roster = roster
+  public init() {}
 
-          return environment.proseClient
-            .userInfos(Set(roster.groups.flatMap { $0.items.map(\.jid) }))
-            .receive(on: environment.mainQueue)
-            .catchToEffect(SidebarAction.userInfosResult)
-            .cancellable(id: SidebarEffectToken.userInfosSubscription, cancelInFlight: true)
+  @Dependency(\.legacyProseClient) var proseClient
+  @Dependency(\.mainQueue) var mainQueue
 
-        case let .rosterResult(.failure(error)):
-          logger.error(
-            "Could not load roster. \(error.localizedDescription, privacy: .public)"
-          )
-          return .none
+  public var body: some ReducerProtocol<State, Action> {
+    Reduce { state, action in
+      switch action {
+      case .onAppear:
+        return .merge(
+          self.proseClient.roster()
+            .receive(on: self.mainQueue)
+            .catchToEffect(Action.rosterResult)
+            .cancellable(
+              id: SidebarEffectToken.rosterSubscription,
+              cancelInFlight: true
+            ),
+          self.proseClient.presence()
+            .receive(on: self.mainQueue)
+            .catchToEffect(Action.presencesResult)
+            .cancellable(
+              id: SidebarEffectToken.presenceSubscription,
+              cancelInFlight: true
+            ),
+          self.proseClient.activeChats()
+            .receive(on: self.mainQueue)
+            .catchToEffect(Action.activeChatsResult)
+            .cancellable(
+              id: SidebarEffectToken.activeChatsSubscription,
+              cancelInFlight: true
+            )
+        )
 
-        case let .activeChatsResult(.success(chats)):
-          state.roster.unreadCounts =
-            chats.mapValues(\.numberOfUnreadMessages)
-          return .none
+      case let .rosterResult(.success(roster)):
+        state.roster.roster = roster
 
-        case let .activeChatsResult(.failure(error)):
-          logger.error(
-            "Could not load active chats. \(error.localizedDescription, privacy: .public)"
-          )
-          return .none
+        return self.proseClient
+          .userInfos(Set(roster.groups.flatMap { $0.items.map(\.jid) }))
+          .receive(on: self.mainQueue)
+          .catchToEffect(Action.userInfosResult)
+          .cancellable(id: SidebarEffectToken.userInfosSubscription, cancelInFlight: true)
 
-        case let .presencesResult(.success(presences)):
-          state.roster.presences = presences
-          return .none
+      case let .rosterResult(.failure(error)):
+        logger.error(
+          "Could not load roster. \(error.localizedDescription, privacy: .public)"
+        )
+        return .none
 
-        case let .presencesResult(.failure(error)):
-          logger.error(
-            "Could not load presences. \(error.localizedDescription, privacy: .public)"
-          )
-          return .none
+      case let .activeChatsResult(.success(chats)):
+        state.roster.unreadCounts =
+          chats.mapValues(\.numberOfUnreadMessages)
+        return .none
 
-        case let .userInfosResult(.success(userInfos)):
-          state.roster.userInfos = userInfos
-          return .none
+      case let .activeChatsResult(.failure(error)):
+        logger.error(
+          "Could not load active chats. \(error.localizedDescription, privacy: .public)"
+        )
+        return .none
 
-        case let .userInfosResult(.failure(error)):
-          logger.error(
-            "Could not load user infos. \(error.localizedDescription, privacy: .public)"
-          )
-          return .none
+      case let .presencesResult(.success(presences)):
+        state.roster.presences = presences
+        return .none
 
-        case .onDisappear, .selection, .addContactButtonTapped, .addGroupButtonTapped,
-             .footer, .toolbar, .addMember, .joinGroup, .showSheet:
-          return .none
-        }
+      case let .presencesResult(.failure(error)):
+        logger.error(
+          "Could not load presences. \(error.localizedDescription, privacy: .public)"
+        )
+        return .none
+
+      case let .userInfosResult(.success(userInfos)):
+        state.roster.userInfos = userInfos
+        return .none
+
+      case let .userInfosResult(.failure(error)):
+        logger.error(
+          "Could not load user infos. \(error.localizedDescription, privacy: .public)"
+        )
+        return .none
+
+      case .onDisappear, .selection, .addContactButtonTapped, .addGroupButtonTapped,
+           .footer, .addMember, .joinGroup, .setRoute:
+        return .none
       }
-    )
+    }
   }
 }
