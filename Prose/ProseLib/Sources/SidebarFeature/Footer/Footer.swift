@@ -2,6 +2,13 @@ import ComposableArchitecture
 import EditProfileFeature
 import ProseCoreTCA
 
+#warning("Fix popover dismiss animation")
+// Currently we're seeing a warning when the "Edit Profile" button in the AccountSettings popover
+// was pressed, since the route immediately switches to .editProfile which pulls the state out
+// from under the AccountSettings popover. The swift-composable-presentation project solves this
+// here: https://github.com/darrarski/swift-composable-presentation/blob/main/Sources/ComposablePresentation/ReplayNonNil.swift
+// Let's wait though for the impending TCA navigation library to see what they have in store.
+
 public struct Footer: ReducerProtocol {
   public typealias State = SessionState<FooterState>
 
@@ -16,7 +23,8 @@ public struct Footer: ReducerProtocol {
   }
 
   public enum Action: Equatable {
-    case setRoute(Route.Tag?)
+    case setRoute(Route.Tag)
+    case dismiss(Route.Tag)
 
     case accountSettingsMenu(AccountSettingsMenu.Action)
     case accountSwitcherMenu(AccountSwitcherMenu.Action)
@@ -35,24 +43,25 @@ public struct Footer: ReducerProtocol {
   @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
-    Scope(state: \.route, action: /.self) {
-      EmptyReducer()
-        .ifCaseLet(/Route.accountSettingsMenu, action: /Action.accountSettingsMenu) {
-          AccountSettingsMenu()
-        }
-        .ifCaseLet(/Route.accountSwitcherMenu, action: /Action.accountSwitcherMenu) {
-          AccountSwitcherMenu()
-        }
-        .ifCaseLet(/Route.editProfile, action: /Action.editProfile) {
-          Reduce(
-            editProfileReducer,
-            environment: EditProfileEnvironment(
-              proseClient: self.legacyProseClient,
-              mainQueue: self.mainQueue
+    EmptyReducer()
+      .ifLet(\.route, action: /.self) {
+        EmptyReducer()
+          .ifCaseLet(/Route.accountSettingsMenu, action: /Action.accountSettingsMenu) {
+            AccountSettingsMenu()
+          }
+          .ifCaseLet(/Route.accountSwitcherMenu, action: /Action.accountSwitcherMenu) {
+            AccountSwitcherMenu()
+          }
+          .ifCaseLet(/Route.editProfile, action: /Action.editProfile) {
+            Reduce(
+              editProfileReducer,
+              environment: EditProfileEnvironment(
+                proseClient: self.legacyProseClient,
+                mainQueue: self.mainQueue
+              )
             )
-          )
-        }
-    }
+          }
+      }
 
     self.core
   }
@@ -61,10 +70,6 @@ public struct Footer: ReducerProtocol {
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       switch action {
-      case .setRoute(.none):
-        state.route = nil
-        return .none
-
       case .setRoute(.accountSettingsMenu):
         state.route = .accountSettingsMenu(.init(
           availability: state.availability,
@@ -79,11 +84,19 @@ public struct Footer: ReducerProtocol {
         state.route = .accountSwitcherMenu(.init())
         return .none
 
-      case .setRoute(.editProfile):
+      case .setRoute(.editProfile), .accountSettingsMenu(.editProfileTapped):
         state.route = .editProfile(state.get { _ in .init() })
         return .none
 
-      case .accountSettingsMenu, .accountSwitcherMenu, .editProfile:
+      case let .dismiss(route) where state.route?.tag == route:
+        state.route = nil
+        return .none
+
+      case .editProfile(.cancelTapped):
+        state.route = nil
+        return .none
+
+      case .accountSettingsMenu, .accountSwitcherMenu, .editProfile, .dismiss:
         return .none
       }
     }

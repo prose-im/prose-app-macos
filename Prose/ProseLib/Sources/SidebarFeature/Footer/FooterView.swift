@@ -37,7 +37,7 @@ struct FooterView: View {
         // User avatar
         self.accountSettingsButton
           .popover(
-            unwrapping: self.viewStore.binding(get: \.route, send: Footer.Action.setRoute),
+            unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.accountSettingsMenu)),
             case: /Footer.Route.Tag.accountSettingsMenu
           ) { _ in
             IfLetStore(self.store.scope(state: \.route)) { store in
@@ -62,7 +62,7 @@ struct FooterView: View {
         // Quick actions button
         self.accountSwitcherButton
           .popover(
-            unwrapping: self.viewStore.binding(get: \.route, send: Footer.Action.setRoute),
+            unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.accountSwitcherMenu)),
             case: /Footer.Route.Tag.accountSwitcherMenu
           ) { _ in
             IfLetStore(self.store.scope(state: \.route)) { store in
@@ -84,7 +84,7 @@ struct FooterView: View {
     .accessibilityElement(children: .contain)
     .accessibilityLabel(L10n.Sidebar.Footer.label)
     .sheet(
-      unwrapping: self.viewStore.binding(get: \.route, send: Footer.Action.setRoute),
+      unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.editProfile)),
       case: /Footer.Route.Tag.editProfile
     ) { _ in
       IfLetStore(self.store.scope(state: \.route)) { store in

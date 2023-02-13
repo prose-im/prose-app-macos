@@ -31,7 +31,6 @@ struct App: ReducerProtocol {
     case onAppear
     case dismissAuthenticationSheet
 
-    case authenticationResult(TaskResult<[Credentials]>)
     case didReceiveMessage(Message, UserInfo)
     case currentUserInfoChanged(UserInfo)
     case availableAccountsChanged([Account])
@@ -95,26 +94,15 @@ struct App: ReducerProtocol {
       case .onAppear where !state.hasAppearedAtLeastOnce:
         state.hasAppearedAtLeastOnce = true
 
-        return .merge(
+        var effects: [EffectTask<Action>] = [
           .fireAndForget {
             self.notifications.promptForPushNotifications()
-          },
-          .task {
-            await .authenticationResult(
-              TaskResult {
-                try self.accountBookmarks.loadBookmarks()
-                  .lazy
-                  .map(\.jid)
-                  .compactMap(self.credentials.loadCredentials)
-              }
-            )
           },
           .run { send in
             for try await accounts in self.accounts.availableAccounts() {
               await send(.availableAccountsChanged(accounts))
             }
-          }.cancellable(id: EffectToken.observeAvailableAccounts)
-
+          }.cancellable(id: EffectToken.observeAvailableAccounts),
 //          environment.proseClient.incomingMessages()
 //            .flatMap { message in
 //              environment.proseClient.userInfos([message.from])
@@ -127,24 +115,29 @@ struct App: ReducerProtocol {
 //            .receive(on: environment.mainQueue)
 //            .eraseToEffect()
 //            .map { args in AppAction.didReceiveMessage(args.message, args.userInfo) }
-        )
+        ]
 
-      case let .authenticationResult(.success(credentials)):
-        #warning("Save & restore selected account")
-        guard let firstCredentials = credentials.first else {
+        do {
+          let credentials = try self.loadSavedCredentials()
+
+          #warning("Save & restore selected account")
+          if let firstCredentials = credentials.first {
+            effects += [
+              proceedToMainFlow(with: firstCredentials.jid),
+              .fireAndForget {
+                self.accounts.connectAccounts(credentials)
+              },
+            ]
+
+          } else {
+            effects.append(proceedToLogin())
+          }
+        } catch {
+          logger.error("Error when loading credentials: \(error.localizedDescription)")
           return proceedToLogin()
         }
 
-        return .merge(
-          proceedToMainFlow(with: firstCredentials.jid),
-          .fireAndForget {
-            self.accounts.connectAccounts(credentials)
-          }
-        )
-
-      case let .authenticationResult(.failure(error)):
-        logger.error("Error when loading credentials: \(error.localizedDescription)")
-        return proceedToLogin()
+        return .merge(effects)
 
       case let .auth(.didLogIn(jid)):
         return proceedToMainFlow(with: jid)
@@ -178,6 +171,13 @@ struct App: ReducerProtocol {
       }
     }
   }
+
+  private func loadSavedCredentials() throws -> [Credentials] {
+    try self.accountBookmarks.loadBookmarks()
+      .lazy
+      .map(\.jid)
+      .compactMap(self.credentials.loadCredentials)
+  }
 }
 
 struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtocol
@@ -198,23 +198,3 @@ struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtoc
     return .none
   }
 }
-
-// public let appReducer: AnyReducer<
-//  AppState,
-//  AppAction,
-//  AppEnvironment
-// > = AnyReducer.combine([
-//  AnyReducer { state, action, environment in
-//
-//  },
-//  authenticationReducer.optional().pullback(
-//    state: \AppState.auth,
-//    action: CasePath(AppAction.auth),
-//    environment: { $0.auth }
-//  ),
-//  mainWindowReducer.pullback(
-//    state: \AppState.main,
-//    action: CasePath(AppAction.main),
-//    environment: { $0.main }
-//  ).disabled(when: \.isMainWindowDisabled),
-// ])

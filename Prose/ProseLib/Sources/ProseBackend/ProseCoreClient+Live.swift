@@ -6,20 +6,17 @@ import ProseCore
 extension ProseCoreClient {
   static func live() -> Self {
     let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.disconnected)
-    var client: XmppClient?
+    let actor = ClientActor()
 
     enableLogging()
 
     return .init(
-      login: { credentials in
-        client = .init(
-          jid: FullJid(
-            node: credentials.jid.node,
-            domain: credentials.jid.domain,
-            resource: "macOS"
-          )
-        )
-        try client?.connect(
+      connect: { credentials in
+        try await actor.setupClient(jid: FullJid(
+          node: credentials.jid.node,
+          domain: credentials.jid.domain,
+          resource: "macOS"
+        )).connect(
           password: credentials.password,
           handler: ConnectionHandler(subject: connectionStatus)
         )
@@ -34,8 +31,23 @@ extension ProseCoreClient {
             continue
           }
         }
+      },
+      disconnect: {
+        try await Task {
+          try await actor.client?.disconnect()
+        }.value
       }
     )
+  }
+}
+
+actor ClientActor {
+  var client: XmppClient?
+
+  func setupClient(jid: FullJid) -> XmppClient {
+    let client = XmppClient(jid: jid)
+    self.client = client
+    return client
   }
 }
 

@@ -36,7 +36,7 @@ public struct AccountSettingsMenu: ReducerProtocol {
         return .fireAndForget { [jid = state.jid] in
           try? self.accountBookmarks.removeBookmark(jid)
           try? self.credentials.deleteCredentials(jid)
-          self.accounts.disconnectAccount(jid)
+          try await self.accounts.disconnectAccount(jid)
         }
 
       case .accountSettingsTapped:

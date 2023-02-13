@@ -21,35 +21,39 @@ public struct EditProfileScreen: View {
   }
 
   public var body: some View {
-    NavigationView {
-      Sidebar(store: self.store.scope(state: \.sidebar, action: ViewAction.sidebar))
-      detailView()
-        .frame(minWidth: Self.minContentWidth, minHeight: 512)
-        .safeAreaInset(edge: .bottom, alignment: .trailing) {
-          HStack {
-            WithViewStore(
-              self.store
-                .scope(state: \.childState.isSaveProfileButtonDisabled)
-            ) { viewStore in
-              Button(l10n.CancelAction.label) { viewStore.send(.cancelTapped) }
-              Button(l10n.SaveProfileAction.label) { viewStore.send(.saveProfileTapped) }
-                .buttonStyle(.borderedProminent)
-                .disabled(viewStore.state)
+    NavigationSplitView(
+      sidebar: {
+        Sidebar(store: self.store.scope(state: \.sidebar, action: ViewAction.sidebar))
+      },
+      detail: {
+        detailView()
+          .frame(minWidth: Self.minContentWidth, minHeight: 512)
+          .safeAreaInset(edge: .bottom, alignment: .trailing) {
+            HStack {
+              WithViewStore(
+                self.store
+                  .scope(state: \.childState.isSaveProfileButtonDisabled)
+              ) { viewStore in
+                Button(l10n.CancelAction.label) { viewStore.send(.cancelTapped) }
+                Button(l10n.SaveProfileAction.label) { viewStore.send(.saveProfileTapped) }
+                  .buttonStyle(.borderedProminent)
+                  .disabled(viewStore.state)
+              }
             }
+            .controlSize(.large)
+            .padding(4)
+            .background {
+              RoundedRectangle(cornerRadius: 8)
+                .fill(Material.regular)
+            }
+            .padding([.horizontal, .bottom])
+            // Make sure accessibility frame isn't inset by the window's rounded corners
+            .contentShape(Rectangle())
+            // Make footer have a higher priority, to be accessible over the scroll view
+            .accessibilitySortPriority(1)
           }
-          .controlSize(.large)
-          .padding(4)
-          .background {
-            RoundedRectangle(cornerRadius: 8)
-              .fill(Material.regular)
-          }
-          .padding([.horizontal, .bottom])
-          // Make sure accessibility frame isn't inset by the window's rounded corners
-          .contentShape(Rectangle())
-          // Make footer have a higher priority, to be accessible over the scroll view
-          .accessibilitySortPriority(1)
-        }
-    }
+      }
+    )
     // NOTE: +1 for the separator width…
     .frame(minWidth: Self.minContentWidth + Sidebar.minWidth + 1)
   }

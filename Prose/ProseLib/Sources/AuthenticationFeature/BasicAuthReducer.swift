@@ -91,7 +91,7 @@ public struct BasicAuth: ReducerProtocol {
             let credentials = Credentials(jid: jid, password: password)
 
             try await self.accounts.tryConnectAccount(credentials)
-            try? self.accountBookmarks.saveBookmark(AccountBookmark(jid: jid))
+            try? self.accountBookmarks.saveBookmark(jid, true)
             try? self.credentials.save(credentials)
 
             return jid

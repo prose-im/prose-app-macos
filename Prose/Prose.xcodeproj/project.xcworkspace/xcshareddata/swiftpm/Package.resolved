@@ -37,15 +37,6 @@
       }
     },
     {
-      "identity" : "swift-common-utils",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nesium/swift-common-utils",
-      "state" : {
-        "revision" : "e7aa43dd6d28eafc11c1baad5c9fabc2ac15c4bf",
-        "version" : "1.1.0"
-      }
-    },
-    {
       "identity" : "swift-composable-architecture",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
