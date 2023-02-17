@@ -34,36 +34,39 @@ struct AccountSwitcherMenuView: View {
 
       GroupBox(L10n.Sidebar.Footer.Actions.Server.SwitchAccount.title) {
         VStack(spacing: 4) {
-          Button { self.viewStore.send(.switchAccountTapped(account: "crisp.chat")) } label: {
-            Label {
-              Text(verbatim: "Crisp – crisp.chat")
-              Spacer()
-              Image(systemName: "checkmark")
-                .padding(.horizontal, 4)
-            } icon: {
-              // TODO: [Rémi Bardon] Change this to Crisp icon
-              Avatar(.placeholder, size: 24)
+          ForEach(Array(self.viewStore.accounts.values)) { account in
+            Button { self.viewStore.send(.switchAccountTapped(account: "crisp.chat")) } label: {
+              Label {
+                Text(verbatim: account.jid.rawValue)
+                Spacer()
+                Image(systemName: "checkmark")
+                  .padding(.horizontal, 4)
+              } icon: {
+                Avatar(.placeholder, size: 24)
+              }
+              // Make hit box full width
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .contentShape([.interaction, .focusEffect], Rectangle())
             }
-            // Make hit box full width
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape([.interaction, .focusEffect], Rectangle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
           }
-          .accessibilityElement(children: .ignore)
-          .accessibilityLabel(L10n.Server.ConnectedTo.label("Crisp (crisp.chat)"))
-          Button { self.viewStore.send(.switchAccountTapped(account: "makair.life")) } label: {
-            Label {
-              Text(verbatim: "MakAir – makair.life")
-            } icon: {
-              // TODO: [Rémi Bardon] Change this to MakAir icon
-              Avatar(.placeholder, size: 24)
-            }
-            // Make hit box full width
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape([.interaction, .focusEffect], Rectangle())
-          }
-          .accessibilityLabel(
-            L10n.Sidebar.Footer.Actions.Server.SwitchAccount.label("MakAir (makair.life)")
-          )
+
+//          Button { self.viewStore.send(.switchAccountTapped(account: "makair.life")) } label: {
+//            Label {
+//              Text(verbatim: "MakAir – makair.life")
+//            } icon: {
+//              // TODO: [Rémi Bardon] Change this to MakAir icon
+//              Avatar(.placeholder, size: 24)
+//            }
+//            // Make hit box full width
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//            .contentShape([.interaction, .focusEffect], Rectangle())
+//          }
+//          .accessibilityLabel(
+//            L10n.Sidebar.Footer.Actions.Server.SwitchAccount.label("MakAir (makair.life)")
+//          )
+
           Button { self.viewStore.send(.connectAccountTapped) } label: {
             Label {
               Text(L10n.Sidebar.Footer.Actions.Server.SwitchAccount.New.label)
@@ -80,8 +83,6 @@ struct AccountSwitcherMenuView: View {
         .buttonStyle(.plain)
       }
       .groupBoxStyle(DefaultGroupBoxStyle())
-      // https://github.com/prose-im/prose-app-macos/issues/45
-      .disabled(true)
 
       GroupBox(L10n.Sidebar.Footer.Actions.Server.ServerSettings.title) {
         Link(destination: URL(string: "https://crisp.chat")!) {

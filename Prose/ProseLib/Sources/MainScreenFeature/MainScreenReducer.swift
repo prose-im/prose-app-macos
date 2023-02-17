@@ -1,6 +1,6 @@
 import ComposableArchitecture
 import ConversationFeature
-import PasteboardClient
+import CredentialsClient
 import ProseCoreTCA
 import SidebarFeature
 import TcaHelpers
@@ -12,7 +12,6 @@ public struct MainScreen: ReducerProtocol {
 
   public struct MainScreenState: Equatable {
     public var sidebar = Sidebar.SidebarState()
-    public fileprivate(set) var isPlaceholder = false
 
     // https://github.com/prose-im/prose-app-macos/issues/45 says we should disabled this,
     // but we don't support any other predictable value, so let's keep it like this for now.
@@ -25,6 +24,8 @@ public struct MainScreen: ReducerProtocol {
     case sidebar(Sidebar.Action)
     case unreadStack(UnreadAction)
     case chat(ConversationAction)
+
+    case reconnectButtonTapped
   }
 
   enum Route: Equatable {
@@ -37,11 +38,15 @@ public struct MainScreen: ReducerProtocol {
 
   public init() {}
 
+  @Dependency(\.accountsClient) var accounts
+  @Dependency(\.credentialsClient) var credentials
   @Dependency(\.legacyProseClient) var legacyProseClient
   @Dependency(\.mainQueue) var mainQueue
   @Dependency(\.pasteboardClient) var pasteboard
 
   public var body: some ReducerProtocol<State, Action> {
+    self.core
+
     Scope(state: \.sidebar, action: /Action.sidebar) {
       Sidebar()
     }
@@ -74,10 +79,7 @@ public struct MainScreen: ReducerProtocol {
         case .peopleAndGroups:
           state.route = .peopleAndGroups
         case let .chat(jid):
-          var conversationState = SessionState(
-            currentUser: state.currentUser,
-            childState: ConversationState(chatId: jid)
-          )
+          var conversationState = state.get { _ in ConversationState(chatId: jid) }
           var effects = EffectTask<MainScreen.Action>.none
 
           // If another chat was selected already, we'll manually send the `.onAppear` and
@@ -88,7 +90,7 @@ public struct MainScreen: ReducerProtocol {
               pasteboard: self.pasteboard,
               mainQueue: self.mainQueue
             )
-          
+
             effects = .concatenate([
               conversationReducer(&priorConversationState, .onDisappear, environment)
                 .map(MainScreen.Action.chat),
@@ -103,17 +105,27 @@ public struct MainScreen: ReducerProtocol {
         return .none
       }
   }
-}
 
-public extension SessionState where ChildState == MainScreen.MainScreenState {
-  static var placeholder: Self = {
-    var state = SessionState(
-      currentUser: .init(jid: .init(rawValue: "hello@world.org").expect("Invalid placeholder JID")),
-      childState: MainScreen.MainScreenState()
-    )
-    state.isPlaceholder = true
-    return state
-  }()
+  @ReducerBuilder<State, Action>
+  private var core: some ReducerProtocol<State, Action> {
+    Reduce { state, action in
+      switch action {
+      case .reconnectButtonTapped:
+        guard let account = state.selectedAccount else {
+          return .none
+        }
+
+        return .fireAndForget {
+          if let credentials = try self.credentials.loadCredentials(account.jid) {
+            self.accounts.reconnectAccount(credentials, false)
+          }
+        }
+
+      case .sidebar, .unreadStack, .chat:
+        return .none
+      }
+    }
+  }
 }
 
 private extension SessionState where ChildState == MainScreen.MainScreenState {

@@ -1,19 +1,17 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
+import AppDomain
 import Foundation
 import TcaHelpers
 
 @dynamicMemberLookup
 public struct SessionState<ChildState: Equatable>: Equatable {
   public let currentUser: UserInfo
+  public let accounts: [BareJid: Account]
 
   public var childState: ChildState
 
-  public init(currentUser: UserInfo, childState: ChildState) {
+  public init(currentUser: UserInfo, accounts: [BareJid: Account], childState: ChildState) {
     self.currentUser = currentUser
+    self.accounts = accounts
     self.childState = childState
   }
 
@@ -27,12 +25,17 @@ public extension SessionState {
   var scoped: Scoped {
     Scoped(childState: self)
   }
+
+  var selectedAccount: Account? {
+    self.accounts[self.currentUser.jid]
+  }
 }
 
 public extension SessionState {
   func get<T>(_ toLocalState: (ChildState) -> T) -> SessionState<T> {
     SessionState<T>(
       currentUser: self.currentUser,
+      accounts: self.accounts,
       childState: toLocalState(self.childState)
     )
   }
@@ -45,6 +48,7 @@ public extension SessionState {
     }
     return SessionState<StatePath.Value>(
       currentUser: self.currentUser,
+      accounts: self.accounts,
       childState: localState
     )
   }
@@ -84,7 +88,7 @@ public extension SessionState {
       _ childState: ChildState,
       currentUser: UserInfo = .init(jid: "hello@prose.org")
     ) -> Self {
-      SessionState(currentUser: currentUser, childState: childState)
+      SessionState(currentUser: currentUser, accounts: [:], childState: childState)
     }
   }
 #endif

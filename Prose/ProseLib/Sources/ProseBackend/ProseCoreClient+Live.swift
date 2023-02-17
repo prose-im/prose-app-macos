@@ -5,31 +5,63 @@ import ProseCore
 
 extension ProseCoreClient {
   static func live() -> Self {
-    let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.disconnected)
+    let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.connecting)
     let actor = ClientActor()
 
     enableLogging()
 
-    return .init(
-      connect: { credentials in
-        try await actor.setupClient(jid: FullJid(
-          node: credentials.jid.node,
-          domain: credentials.jid.domain,
-          resource: "macOS"
-        )).connect(
-          password: credentials.password,
-          handler: ConnectionHandler(subject: connectionStatus)
-        )
+    func connect(credentials: Credentials) async throws {
+      try await actor.setupClient(jid: FullJid(
+        node: credentials.jid.node,
+        domain: credentials.jid.domain,
+        resource: "macOS"
+      )).connect(
+        password: credentials.password,
+        handler: ConnectionHandler(subject: connectionStatus)
+      )
 
-        for await status in connectionStatus.values {
-          switch status {
-          case .connected:
-            return
-          case let .error(error):
-            throw error
-          case .disconnected, .connecting:
-            continue
-          }
+      for await status in connectionStatus.values {
+        switch status {
+        case .connected:
+          return
+        case let .error(error):
+          throw error
+        case .disconnected, .connecting:
+          continue
+        }
+      }
+    }
+
+    func connectWithBackoff(
+      credentials: Credentials,
+      backoff: Duration = .seconds(3),
+      numberOfRetries: Int = 3
+    ) async throws {
+      do {
+        try await connect(credentials: credentials)
+      } catch {
+        if numberOfRetries < 1 {
+          throw error
+        }
+
+        try await Task.sleep(for: backoff)
+        try await connectWithBackoff(
+          credentials: credentials,
+          backoff: backoff * 2,
+          numberOfRetries: numberOfRetries - 1
+        )
+      }
+    }
+
+    return .init(
+      connectionStatus: {
+        connectionStatus.eraseToAnyPublisher()
+      },
+      connect: { credentials, retry in
+        if retry {
+          try await connectWithBackoff(credentials: credentials)
+        } else {
+          try await connect(credentials: credentials)
         }
       },
       disconnect: {

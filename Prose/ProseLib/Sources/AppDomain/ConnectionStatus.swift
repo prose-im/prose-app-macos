@@ -9,6 +9,15 @@ public enum ConnectionStatus: Hashable {
 }
 
 public extension ConnectionStatus {
+  var isError: Bool {
+    if case .error = self {
+      return true
+    }
+    return false
+  }
+}
+
+public extension ConnectionStatus {
   static func == (lhs: Self, rhs: Self) -> Bool {
     switch (lhs, rhs) {
     case (.disconnected, .disconnected):

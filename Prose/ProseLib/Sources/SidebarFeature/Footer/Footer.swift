@@ -81,7 +81,7 @@ public struct Footer: ReducerProtocol {
         return .none
 
       case .setRoute(.accountSwitcherMenu):
-        state.route = .accountSwitcherMenu(.init())
+        state.route = .accountSwitcherMenu(state.get { _ in .init() })
         return .none
 
       case .setRoute(.editProfile), .accountSettingsMenu(.editProfileTapped):

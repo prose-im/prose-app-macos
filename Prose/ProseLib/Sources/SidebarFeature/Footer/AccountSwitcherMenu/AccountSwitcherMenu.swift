@@ -1,7 +1,11 @@
+import AppDomain
 import ComposableArchitecture
+import ProseCoreTCA
 
 public struct AccountSwitcherMenu: ReducerProtocol {
-  public struct State: Equatable {
+  public typealias State = SessionState<AccountSwitcherMenuState>
+
+  public struct AccountSwitcherMenuState: Equatable {
     public init() {}
   }
 

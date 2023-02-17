@@ -50,6 +50,7 @@ let package = Package(
         "MainScreenFeature",
         "SettingsFeature",
         "AuthenticationFeature",
+        "ConnectivityClient",
         "CredentialsClient",
         "AccountBookmarksClient",
         "NotificationsClient",
@@ -116,6 +117,7 @@ let package = Package(
     // MARK: Dependencies
 
     .target(name: "CredentialsClient", dependencies: [.base]),
+    .target(name: "ConnectivityClient", dependencies: [.base]),
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
     .target(
@@ -131,7 +133,10 @@ let package = Package(
     ),
     .target(
       name: "Base",
-      dependencies: ["AppDomain"]
+      dependencies: [
+        "AppDomain",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
     ),
 
     .target(name: "Assets", resources: [.process("Resources")]),
