@@ -1,3 +1,4 @@
+import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
 import ProseCoreTCA
@@ -28,12 +29,14 @@ public struct Footer: ReducerProtocol {
 
     case accountSettingsMenu(AccountSettingsMenu.Action)
     case accountSwitcherMenu(AccountSwitcherMenu.Action)
+    case auth(Authentication.Action)
     case editProfile(EditProfileAction)
   }
 
   public enum Route: Equatable {
     case accountSettingsMenu(AccountSettingsMenu.State)
     case accountSwitcherMenu(AccountSwitcherMenu.State)
+    case auth(Authentication.State)
     case editProfile(SessionState<EditProfileState>)
   }
 
@@ -51,6 +54,9 @@ public struct Footer: ReducerProtocol {
           }
           .ifCaseLet(/Route.accountSwitcherMenu, action: /Action.accountSwitcherMenu) {
             AccountSwitcherMenu()
+          }
+          .ifCaseLet(/Route.auth, action: /Action.auth) {
+            Authentication()
           }
           .ifCaseLet(/Route.editProfile, action: /Action.editProfile) {
             Reduce(
@@ -88,6 +94,9 @@ public struct Footer: ReducerProtocol {
         state.route = .editProfile(state.get { _ in .init() })
         return .none
 
+      case .setRoute(.auth):
+        return .none
+
       case let .dismiss(route) where state.route?.tag == route:
         state.route = nil
         return .none
@@ -96,7 +105,14 @@ public struct Footer: ReducerProtocol {
         state.route = nil
         return .none
 
-      case .accountSettingsMenu, .accountSwitcherMenu, .editProfile, .dismiss:
+      case .accountSwitcherMenu(.connectAccountTapped):
+        state.route = .auth(.init())
+        return .none
+      
+      case let .accountSwitcherMenu(.accountSelected(jid)):
+        return .none
+
+      case .accountSettingsMenu, .accountSwitcherMenu, .editProfile, .dismiss, .auth:
         return .none
       }
     }
@@ -107,6 +123,7 @@ extension Footer.Route {
   public enum Tag: Equatable {
     case accountSettingsMenu
     case accountSwitcherMenu
+    case auth
     case editProfile
   }
 
@@ -116,6 +133,8 @@ extension Footer.Route {
       return .accountSettingsMenu
     case .accountSwitcherMenu:
       return .accountSwitcherMenu
+    case .auth:
+      return .auth
     case .editProfile:
       return .editProfile
     }

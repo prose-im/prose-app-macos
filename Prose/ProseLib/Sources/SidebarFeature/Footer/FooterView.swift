@@ -1,6 +1,7 @@
 import AppDomain
 import AppLocalization
 import Assets
+import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
 import ProseCoreTCA
@@ -93,6 +94,20 @@ struct FooterView: View {
             state: /Footer.Route.editProfile,
             action: Footer.Action.editProfile,
             then: EditProfileScreen.init(store:)
+          )
+        }
+      }
+    }
+    .sheet(
+      unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.auth)),
+      case: /Footer.Route.Tag.auth
+    ) { _ in
+      IfLetStore(self.store.scope(state: \.route)) { store in
+        SwitchStore(store) {
+          CaseLet(
+            state: /Footer.Route.auth,
+            action: Footer.Action.auth,
+            then: AuthenticationScreen.init(store:)
           )
         }
       }

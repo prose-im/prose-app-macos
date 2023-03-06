@@ -11,7 +11,7 @@ public struct AccountSwitcherMenu: ReducerProtocol {
 
   public enum Action: Equatable {
     case showMenuTapped
-    case switchAccountTapped(account: String)
+    case accountSelected(BareJid)
     case connectAccountTapped
     /// Only here for accessibility
     case manageServerTapped

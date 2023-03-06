@@ -79,6 +79,7 @@ let package = Package(
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
     .target(name: "SidebarFeature", dependencies: [
       .featureBase,
+      "AuthenticationFeature",
       "EditProfileFeature",
       "JoinChatFeature",
     ]),
@@ -117,14 +118,29 @@ let package = Package(
     // MARK: Dependencies
 
     .target(name: "CredentialsClient", dependencies: [.base]),
-    .target(name: "ConnectivityClient", dependencies: [.base]),
+    .target(
+      name: "ConnectivityClient",
+      dependencies: [
+        .base,
+        "ProseBackend",
+      ]
+    ),
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
     .target(
       name: "AccountBookmarksClient",
-      dependencies: [.base]
+      dependencies: [
+        .base,
+        "ProseBackend",
+      ]
     ),
-    .target(name: "NotificationsClient", dependencies: [.base]),
+    .target(
+      name: "NotificationsClient",
+      dependencies: [
+        .base,
+        "ProseCoreTCA",
+      ]
+    ),
     .target(name: "PasteboardClient", dependencies: [.base]),
 
     .target(
@@ -160,7 +176,14 @@ let package = Package(
 
     .target(name: "PreviewAssets", resources: [.process("Resources")]),
 
-    .target(name: "ProseCoreViews", dependencies: [.base], resources: [.process("Resources")]),
+    .target(
+      name: "ProseCoreViews",
+      dependencies: [
+        .base,
+        "ProseCoreTCA",
+      ],
+      resources: [.process("Resources")]
+    ),
     .testTarget(
       name: "ProseCoreViewsTests",
       dependencies: [
