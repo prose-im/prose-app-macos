@@ -1,35 +1,18 @@
 import AppDomain
 import Combine
 import ComposableArchitecture
-import ProseCore
+import Foundation
+import ProseCoreFFI
+
+struct NotConnectedError: Error {}
 
 extension ProseCoreClient {
   static func live() -> Self {
-    let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.connecting)
+    let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.disconnected)
     let actor = ClientActor()
 
-    enableLogging()
-
-    func connect(credentials: Credentials) async throws {
-      try await actor.setupClient(jid: FullJid(
-        node: credentials.jid.node,
-        domain: credentials.jid.domain,
-        resource: "macOS"
-      )).connect(
-        password: credentials.password,
-        handler: ConnectionHandler(subject: connectionStatus)
-      )
-
-      for await status in connectionStatus.values {
-        switch status {
-        case .connected:
-          return
-        case let .error(error):
-          throw error
-        case .disconnected, .connecting:
-          continue
-        }
-      }
+    if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
+      enableLogging()
     }
 
     func connectWithBackoff(
@@ -37,10 +20,32 @@ extension ProseCoreClient {
       backoff: Duration = .seconds(3),
       numberOfRetries: Int = 3
     ) async throws {
+      guard
+        connectionStatus.value != .connected,
+        connectionStatus.value != .connecting
+      else {
+        print("Ignoring connection attempt", credentials.jid)
+        return
+      }
+
+      connectionStatus.value = .connecting
+
       do {
-        try await connect(credentials: credentials)
+        let client = await actor.setupClient(
+          jid: FullJid(
+            node: credentials.jid.node,
+            domain: credentials.jid.domain,
+            resource: "macOS"
+          ),
+          delegate: ClientDelegate(subject: connectionStatus)
+        )
+        try await client.connect(password: credentials.password)
+        connectionStatus.value = .connected
+        print("Connected", credentials.jid)
       } catch {
+      print("Connection failed", credentials.jid)
         if numberOfRetries < 1 {
+          connectionStatus.value = .disconnected
           throw error
         }
 
@@ -53,37 +58,72 @@ extension ProseCoreClient {
       }
     }
 
+    func withClient<T>(_ block: (ProseCoreFFI.Client) async throws -> T) async throws -> T {
+      guard let client = await actor.client else {
+        throw NotConnectedError()
+      }
+      return try await block(client)
+    }
+
     return .init(
       connectionStatus: {
-        connectionStatus.eraseToAnyPublisher()
+        AsyncStream(connectionStatus.removeDuplicates().values)
       },
       connect: { credentials, retry in
-        if retry {
-          try await connectWithBackoff(credentials: credentials)
-        } else {
-          try await connect(credentials: credentials)
-        }
+        try await connectWithBackoff(credentials: credentials, numberOfRetries: retry ? 3 : 0)
       },
       disconnect: {
         try await Task {
           try await actor.client?.disconnect()
         }.value
+      },
+      loadProfile: { jid in
+        try await withClient { client in
+          try await client.loadProfile(from: jid)
+        }
+      },
+      loadRoster: {
+        try await withClient { client in
+          try await client.loadRoster()
+        }
+      },
+      loadAvatar: { jid in
+        try await withClient { client in
+          try await client.loadAvatar(from: jid)
+        }
       }
     )
   }
 }
 
-actor ClientActor {
-  var client: XmppClient?
+private actor ClientActor {
+  var client: ProseCoreFFI.Client?
 
-  func setupClient(jid: FullJid) -> XmppClient {
-    let client = XmppClient(jid: jid)
-    self.client = client
-    return client
+  func setupClient(jid: FullJid, delegate: ClientDelegate) -> ProseCoreFFI.Client {
+    if let client = self.client {
+      return client
+    }
+
+    do {
+      let cacheDirectory = try FileManager.default.url(
+        for: .cachesDirectory,
+        in: .userDomainMask,
+        appropriateFor: nil,
+        create: false
+      )
+      .appendingPathComponent("ProseCoreCache")
+
+      let client = try ProseCoreFFI.Client(jid: jid, cacheDir: cacheDirectory.path)
+      client.setDelegate(delegate: delegate)
+      self.client = client
+      return client
+    } catch {
+      fatalError("Failed to initialize core client. \(error.localizedDescription)")
+    }
   }
 }
 
-private final class ConnectionHandler: ProseCore.ConnectionHandler {
+private final class ClientDelegate: ProseCoreFFI.ClientDelegate {
   let subject: CurrentValueSubject<ConnectionStatus, Never>
 
   init(subject: CurrentValueSubject<ConnectionStatus, Never>) {

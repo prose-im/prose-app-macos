@@ -79,9 +79,9 @@ public struct Footer: ReducerProtocol {
       case .setRoute(.accountSettingsMenu):
         state.route = .accountSettingsMenu(.init(
           availability: state.availability,
-          avatar: state.currentUser.avatar,
-          fullName: state.currentUser.name,
-          jid: state.currentUser.jid,
+          avatar: state.selectedAccount.avatar,
+          fullName: state.selectedAccount.username,
+          jid: state.currentUser,
           statusIcon: state.statusIcon
         ))
         return .none
@@ -110,6 +110,8 @@ public struct Footer: ReducerProtocol {
         return .none
       
       case let .accountSwitcherMenu(.accountSelected(jid)):
+        state.route = nil
+        state.currentUser = jid
         return .none
 
       case .accountSettingsMenu, .accountSwitcherMenu, .editProfile, .dismiss, .auth:

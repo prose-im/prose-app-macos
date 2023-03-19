@@ -8,7 +8,7 @@ import CoreGraphics
 import Foundation
 import IdentifiedCollections
 import Toolbox
-import ProseCore
+import ProseCoreFFI
 
 public struct ProseClient {
   public var login: (_ jid: BareJid, _ password: String) -> EffectPublisher<None, EquatableError>

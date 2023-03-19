@@ -30,16 +30,16 @@ struct SidebarHeader: View {
         .accessibilityLabel(l10n.ChangeAvatarAction.axLabel)
         .accessibilityHint(l10n.ChangeAvatarAction.axHint)
         VStack {
-          Text(verbatim: viewStore.currentUser.name)
+          Text(verbatim: viewStore.selectedAccount.username)
             .font(.headline)
-          Text(verbatim: viewStore.currentUser.jid.rawValue)
+          Text(verbatim: viewStore.currentUser.rawValue)
             .font(.subheadline)
             .foregroundColor(.secondary)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
           l10n.ProfileDetails
-            .axLabel(viewStore.currentUser.name, viewStore.currentUser.jid.rawValue)
+            .axLabel(viewStore.selectedAccount.username, viewStore.currentUser.rawValue)
         )
         // Higher priority on the profile label
         .accessibilitySortPriority(1)
@@ -54,7 +54,7 @@ struct SidebarHeader: View {
   @ViewBuilder
   static func avatarView(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
     let avatar = Avatar(
-      viewStore.currentUser.avatar.map(AvatarImage.init) ?? .placeholder,
+      viewStore.selectedAccount.avatar.map(AvatarImage.init) ?? .placeholder,
       size: 80,
       cornerRadius: 12
     )

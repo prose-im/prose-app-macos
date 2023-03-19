@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public struct Presence: Equatable {
   public var kind: Kind?
@@ -41,66 +41,66 @@ public extension Presence {
   }
 }
 
-extension Presence {
-  init(presence: XmppPresence, timestamp: Date) {
-    self.kind = presence.kind.map(Presence.Kind.init)
-    self.show = presence.show.map(Presence.Show.init)
-    self.status = presence.status
-    self.timestamp = timestamp
-  }
-}
-
-extension Presence.Kind {
-  init(kind: XmppPresenceKind) {
-    switch kind {
-    case .unavailable:
-      self = .unavailable
-    case .subscribe:
-      self = .subscribe
-    case .subscribed:
-      self = .subscribed
-    case .unsubscribe:
-      self = .unsubscribe
-    case .unsubscribed:
-      self = .unsubscribed
-    case .probe:
-      self = .probe
-    case .error:
-      self = .error
-    @unknown default:
-      fatalError("Unknown PresenceKind \(kind)")
-    }
-  }
-}
-
-extension Presence.Show {
-  init(show: XmppShowKind) {
-    switch show {
-    case .away:
-      self = .away
-    case .chat:
-      self = .chat
-    case .dnd:
-      self = .dnd
-    case .xa:
-      self = .xa
-    @unknown default:
-      fatalError("Unknown ShowKind \(show)")
-    }
-  }
-}
-
-extension Presence.Show {
-  var ffi: XmppShowKind {
-    switch self {
-    case .away:
-      return .away
-    case .chat:
-      return .chat
-    case .dnd:
-      return .dnd
-    case .xa:
-      return .xa
-    }
-  }
-}
+//extension Presence {
+//  init(presence: XmppPresence, timestamp: Date) {
+//    self.kind = presence.kind.map(Presence.Kind.init)
+//    self.show = presence.show.map(Presence.Show.init)
+//    self.status = presence.status
+//    self.timestamp = timestamp
+//  }
+//}
+//
+//extension Presence.Kind {
+//  init(kind: XmppPresenceKind) {
+//    switch kind {
+//    case .unavailable:
+//      self = .unavailable
+//    case .subscribe:
+//      self = .subscribe
+//    case .subscribed:
+//      self = .subscribed
+//    case .unsubscribe:
+//      self = .unsubscribe
+//    case .unsubscribed:
+//      self = .unsubscribed
+//    case .probe:
+//      self = .probe
+//    case .error:
+//      self = .error
+//    @unknown default:
+//      fatalError("Unknown PresenceKind \(kind)")
+//    }
+//  }
+//}
+//
+//extension Presence.Show {
+//  init(show: XmppShowKind) {
+//    switch show {
+//    case .away:
+//      self = .away
+//    case .chat:
+//      self = .chat
+//    case .dnd:
+//      self = .dnd
+//    case .xa:
+//      self = .xa
+//    @unknown default:
+//      fatalError("Unknown ShowKind \(show)")
+//    }
+//  }
+//}
+//
+//extension Presence.Show {
+//  var ffi: XmppShowKind {
+//    switch self {
+//    case .away:
+//      return .away
+//    case .chat:
+//      return .chat
+//    case .dnd:
+//      return .dnd
+//    case .xa:
+//      return .xa
+//    }
+//  }
+//}

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public struct UserInfo: Equatable {
   public var jid: BareJid

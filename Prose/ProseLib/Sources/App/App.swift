@@ -8,18 +8,23 @@ import CredentialsClient
 import Foundation
 import MainScreenFeature
 import NotificationsClient
-import ProseCore
 import ProseCoreTCA
 import struct ProseCoreTCA.ProseClient
 import Toolbox
+
+private extension BareJid {
+  static let placeholder = BareJid(node: "placeholder", domain: "prose.org")
+}
 
 struct App: ReducerProtocol {
   struct State: Equatable {
     var initialized = false
     var connectivity = Connectivity.online
 
-    var currentUser = UserInfo(jid: BareJid(node: "placeholder", domain: "prose.org"))
-    var availableAccounts = [BareJid: Account]()
+    var currentUser = BareJid.placeholder
+    var availableAccounts = IdentifiedArrayOf<Account>([
+      .init(jid: .placeholder, status: .disconnected),
+    ])
 
     var mainState = MainScreen.MainScreenState()
     var auth: Authentication.State?
@@ -32,15 +37,15 @@ struct App: ReducerProtocol {
     case dismissAuthenticationSheet
 
     case didReceiveMessage(Message, UserInfo)
-    case availableAccountsChanged([BareJid: Account])
+    case availableAccountsChanged(Set<BareJid>)
     case connectivityChanged(Connectivity)
 
     case auth(Authentication.Action)
     case main(MainScreen.Action)
+    case account(BareJid, AccountReducer.Action)
   }
 
   private enum EffectToken: Hashable, CaseIterable {
-    case observeCurrentUserInfo
     case observeAvailableAccounts
     case observeConnectivity
   }
@@ -57,7 +62,7 @@ struct App: ReducerProtocol {
         Authentication()
       }
       .handleNotifications()
-      .reconnectAccountsIfNeeded()
+      .handleAccounts()
 
     ConditionallyEnable(when: \.isMainScreenEnabled) {
       Scope(state: \.main, action: /Action.main) {
@@ -70,14 +75,17 @@ struct App: ReducerProtocol {
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       func proceedToMainFlow(with jid: BareJid) -> EffectTask<Action> {
-        state.currentUser = .init(jid: jid)
+        state.currentUser = jid
+        if state.availableAccounts[id: jid] == nil {
+          state.availableAccounts[id: jid] = .init(jid: jid, status: .connecting)
+        }
         state.auth = nil
         return .none
       }
 
       func proceedToLogin(jid _: JID? = nil) -> EffectTask<Action> {
         state.auth = .init()
-        return .cancel(id: EffectToken.observeCurrentUserInfo)
+        return .none
       }
 
       switch action {
@@ -105,12 +113,11 @@ struct App: ReducerProtocol {
 
           #warning("Save & restore selected account")
           if let firstCredentials = credentials.first {
-            effects += [
-              proceedToMainFlow(with: firstCredentials.jid),
+            effects.append(
               .fireAndForget {
                 self.accounts.connectAccounts(credentials)
-              },
-            ]
+              }
+            )
 
           } else {
             effects.append(proceedToLogin())
@@ -121,9 +128,6 @@ struct App: ReducerProtocol {
         }
 
         return .merge(effects)
-
-      case let .auth(.didLogIn(jid)):
-        return proceedToMainFlow(with: jid)
 
       case let .didReceiveMessage(message, userInfo):
         return self.notifications.scheduleLocalNotification(message, userInfo)
@@ -141,21 +145,7 @@ struct App: ReducerProtocol {
         state.auth = nil
         return .none
 
-      case let .availableAccountsChanged(accounts):
-        #warning("Save & restore selected account")
-        if let account = accounts.first {
-          state.currentUser = .init(jid: account.value.jid)
-        }
-
-        state.availableAccounts = accounts
-
-        if accounts.isEmpty {
-          state.mainState = .init()
-          return proceedToLogin()
-        }
-        return .none
-
-      case .onAppear, .auth, .main:
+      case .onAppear, .auth, .main, .availableAccountsChanged, .account:
         return .none
       }
     }
@@ -190,7 +180,7 @@ struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtoc
 
 extension App.State {
   var isMainScreenEnabled: Bool { self.auth == nil }
-  var isMainScreenRedacted: Bool { self.availableAccounts.isEmpty }
+  var isMainScreenRedacted: Bool { self.currentUser == .placeholder }
 
   var main: SessionState<MainScreen.MainScreenState> {
     get {
@@ -202,6 +192,7 @@ extension App.State {
     }
     set {
       self.mainState = newValue.childState
+      self.currentUser = newValue.currentUser
     }
   }
 }

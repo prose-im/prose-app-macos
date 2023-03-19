@@ -1,6 +1,6 @@
 import ComposableArchitecture
 import CredentialsClient
-import ProseCore
+import ProseCoreFFI
 import ProseCoreTCA
 import SwiftUI
 import TcaHelpers

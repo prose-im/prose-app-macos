@@ -1,15 +1,17 @@
 import AppDomain
+import BareMinimum
+import ComposableArchitecture
 import Foundation
 import TcaHelpers
 
 @dynamicMemberLookup
 public struct SessionState<ChildState: Equatable>: Equatable {
-  public let currentUser: UserInfo
-  public let accounts: [BareJid: Account]
+  public let accounts: IdentifiedArrayOf<Account>
 
+  public var currentUser: BareJid
   public var childState: ChildState
 
-  public init(currentUser: UserInfo, accounts: [BareJid: Account], childState: ChildState) {
+  public init(currentUser: BareJid, accounts: IdentifiedArrayOf<Account>, childState: ChildState) {
     self.currentUser = currentUser
     self.accounts = accounts
     self.childState = childState
@@ -26,8 +28,11 @@ public extension SessionState {
     Scoped(childState: self)
   }
 
-  var selectedAccount: Account? {
-    self.accounts[self.currentUser.jid]
+  var selectedAccount: Account {
+    self.accounts[id: self.currentUser]
+      .expect(
+        "Selected account \(self.currentUser.rawValue) could not be found in available accounts"
+      )
   }
 }
 
@@ -55,6 +60,7 @@ public extension SessionState {
 
   mutating func set<T>(_ keyPath: WritableKeyPath<ChildState, T>, _ newValue: SessionState<T>) {
     self.childState[keyPath: keyPath] = newValue.childState
+    self.currentUser = newValue.currentUser
   }
 
   mutating func set<StatePath: Path, T>(
@@ -63,6 +69,7 @@ public extension SessionState {
   ) where StatePath.Root == ChildState, T == StatePath.Value {
     if let newValue = newValue {
       path.set(into: &self.childState, newValue.childState)
+      self.currentUser = newValue.currentUser
     }
   }
 }
@@ -86,9 +93,9 @@ public extension SessionState {
   public extension SessionState {
     static func mock(
       _ childState: ChildState,
-      currentUser: UserInfo = .init(jid: "hello@prose.org")
+      currentUser: BareJid = "hello@prose.org"
     ) -> Self {
-      SessionState(currentUser: currentUser, accounts: [:], childState: childState)
+      SessionState(currentUser: currentUser, accounts: [], childState: childState)
     }
   }
 #endif

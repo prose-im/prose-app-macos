@@ -4,7 +4,7 @@
 //
 
 import CustomDump
-import ProseCore
+import ProseCoreFFI
 
 /// JIDs, as defined in [XEP-0029](https://xmpp.org/extensions/xep-0029.html).
 public struct JID: Hashable {
@@ -13,7 +13,7 @@ public struct JID: Hashable {
 
 public extension JID {
   init(string: String) throws {
-    self.bareJid = try ProseCore.parseJid(jid: string)
+    self.bareJid = try ProseCoreFFI.parseJid(jid: string)
   }
 
   init(fullJid: FullJid) {
@@ -23,12 +23,12 @@ public extension JID {
 
 extension JID: RawRepresentable {
   public var rawValue: String {
-    ProseCore.formatJid(jid: self.bareJid)
+    ProseCoreFFI.formatJid(jid: self.bareJid)
   }
 
   public init?(rawValue: String) {
     do {
-      self.bareJid = try ProseCore.parseJid(jid: rawValue)
+      self.bareJid = try ProseCoreFFI.parseJid(jid: rawValue)
     } catch {
       return nil
     }

@@ -1,5 +1,5 @@
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 extension BareJid: RawRepresentable {
   public init?(rawValue: String) {

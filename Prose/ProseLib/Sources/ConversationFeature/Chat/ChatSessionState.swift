@@ -4,19 +4,19 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 import ProseCoreTCA
 
 @dynamicMemberLookup
 public struct ChatSessionState<ChildState: Equatable>: Equatable {
-  public let currentUser: UserInfo
+  public let currentUser: BareJid
   public let chatId: BareJid
   public let userInfos: [BareJid: UserInfo]
 
   public var childState: ChildState
 
   public init(
-    currentUser: UserInfo,
+    currentUser: BareJid,
     chatId: BareJid,
     userInfos: [BareJid: UserInfo],
     childState: ChildState
@@ -92,7 +92,7 @@ public extension ChatSessionState {
   public extension ChatSessionState {
     static func mock(_ childState: ChildState) -> Self {
       ChatSessionState(
-        currentUser: .init(jid: "hello@prose.org"),
+        currentUser: "hello@prose.org",
         chatId: "chat@prose.org",
         userInfos: [:],
         childState: childState

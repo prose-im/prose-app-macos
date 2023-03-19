@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import ProseBackend
-import ProseCore
+import ProseCoreFFI
 
 public struct AccountBookmark: Codable {
   public var jid: BareJid

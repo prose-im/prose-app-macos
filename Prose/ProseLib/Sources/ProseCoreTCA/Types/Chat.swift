@@ -5,7 +5,7 @@
 
 import Foundation
 import IdentifiedCollections
-import ProseCore
+import ProseCoreFFI
 
 public struct Chat {
   public var jid: BareJid

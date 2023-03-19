@@ -111,7 +111,7 @@ struct ChatView: NSViewRepresentable {
         WKUserScript(source: jsScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
       )
       completion(nil, nil)
-    }.setAccountJID(self.viewStore.currentUser.jid)
+    }.setAccountJID(self.viewStore.currentUser)
 
     let actions = ViewStore(self.store.stateless)
     // Allow right clicking messages

@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public struct Roster: Equatable {
   public var groups: [Group]
@@ -47,43 +47,43 @@ public extension Roster.Group.Item {
   }
 }
 
-extension Roster {
-  init(roster: XmppRoster) {
-    self.init(groups: roster.groups.map(Group.init))
-  }
-}
-
-extension Roster.Group {
-  init(group: XmppRosterGroup) {
-    self.init(
-      name: group.name,
-      items: group.items.map(Item.init)
-    )
-  }
-}
-
-extension Roster.Group.Item {
-  init(item: XmppRosterItem) {
-    self.init(
-      jid: item.jid,
-      subscription: .init(subscription: item.subscription)
-    )
-  }
-}
-
-extension Roster.Group.Item.Subscription {
-  init(subscription: XmppRosterItemSubscription) {
-    switch subscription {
-    case .none:
-      self = .none
-    case .to:
-      self = .to
-    case .both:
-      self = .both
-    case .from:
-      self = .from
-    @unknown default:
-      fatalError("Unknown RosterItemSubscription \(subscription)")
-    }
-  }
-}
+//extension Roster {
+//  init(roster: XmppRoster) {
+//    self.init(groups: roster.groups.map(Group.init))
+//  }
+//}
+//
+//extension Roster.Group {
+//  init(group: XmppRosterGroup) {
+//    self.init(
+//      name: group.name,
+//      items: group.items.map(Item.init)
+//    )
+//  }
+//}
+//
+//extension Roster.Group.Item {
+//  init(item: XmppRosterItem) {
+//    self.init(
+//      jid: item.jid,
+//      subscription: .init(subscription: item.subscription)
+//    )
+//  }
+//}
+//
+//extension Roster.Group.Item.Subscription {
+//  init(subscription: XmppRosterItemSubscription) {
+//    switch subscription {
+//    case .none:
+//      self = .none
+//    case .to:
+//      self = .to
+//    case .both:
+//      self = .both
+//    case .from:
+//      self = .from
+//    @unknown default:
+//      fatalError("Unknown RosterItemSubscription \(subscription)")
+//    }
+//  }
+//}

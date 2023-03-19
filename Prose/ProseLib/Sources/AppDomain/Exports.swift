@@ -1,1 +1,1 @@
-@_exported import ProseCore
+@_exported import ProseCoreFFI

@@ -149,8 +149,8 @@ struct FooterView: View {
 extension FooterView.ViewState {
   init(_ state: Footer.State) {
     self.availability = state.availability
-    self.avatar = state.currentUser.avatar
-    self.jid = state.currentUser.jid
+    self.avatar = state.selectedAccount.avatar
+    self.jid = state.currentUser
     self.route = state.route?.tag
     self.statusIcon = state.statusIcon
     self.statusMessage = state.statusMessage

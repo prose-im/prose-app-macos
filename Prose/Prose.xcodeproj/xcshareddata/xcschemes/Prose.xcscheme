@@ -91,6 +91,11 @@
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "RUST_BACKTRACE"
+            value = "full"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "OS_ACTIVITY_MODE"
             value = "default"
             isEnabled = "YES">

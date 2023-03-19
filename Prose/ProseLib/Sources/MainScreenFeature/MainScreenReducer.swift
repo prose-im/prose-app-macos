@@ -111,11 +111,7 @@ public struct MainScreen: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .reconnectButtonTapped:
-        guard let account = state.selectedAccount else {
-          return .none
-        }
-
-        return .fireAndForget {
+        return .fireAndForget { [account = state.selectedAccount] in
           if let credentials = try self.credentials.loadCredentials(account.jid) {
             self.accounts.reconnectAccount(credentials, false)
           }

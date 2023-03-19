@@ -11,7 +11,7 @@ import ProseCoreTCA
 import SwiftUI
 import TcaHelpers
 import Toolbox
-import ProseCore
+import ProseCoreFFI
 
 // MARK: - View
 
@@ -109,7 +109,7 @@ public let conversationReducer = AnyReducer<
           .ignoreOutput()
           .fireAndForget()
           .cancellable(id: ConversationEffectToken.fetchPastMessages, cancelInFlight: true),
-        environment.proseClient.userInfos([state.chat.currentUser.jid, state.childState.chatId])
+        environment.proseClient.userInfos([state.chat.currentUser, state.childState.chatId])
           .receive(on: environment.mainQueue)
           .catchToEffect()
           .map(ConversationAction.userInfosResult)

@@ -6,7 +6,7 @@
 import Foundation
 import IdentifiedCollections
 import ProseCoreTCA
-import ProseCore
+import ProseCoreFFI
 
 public struct MessagingStore {
   private let signpostID = signposter.makeSignpostID()

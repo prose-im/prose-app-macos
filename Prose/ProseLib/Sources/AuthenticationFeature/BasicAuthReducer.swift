@@ -125,12 +125,19 @@ public struct BasicAuth: ReducerProtocol {
         return .none
 
       case let .loginResult(.failure(reason)):
+        let errorMessage: String
+        if case ConnectionError.InvalidCredentials = reason {
+          errorMessage = "Invalid credentials"
+        } else {
+          errorMessage = reason.localizedDescription
+        }
+
         logger.debug("Login failure: \(String(reflecting: reason))")
         state.isLoading = false
 
         state.alert = .init(
           title: TextState(l10n.Error.title),
-          message: TextState(reason.localizedDescription)
+          message: TextState(errorMessage)
         )
         return .none
 

@@ -4,7 +4,7 @@
 //
 
 import Assets
-import ProseCore
+import ProseCoreFFI
 import ProseCoreTCA
 import SwiftUI
 

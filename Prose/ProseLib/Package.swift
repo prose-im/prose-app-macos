@@ -37,8 +37,8 @@ let package = Package(
     ),
     .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.9.0")),
     .package(
-      name: "ProseCore",
-      path: "/Users/mb/Documents/Prose/prose-wrapper-swift/Build/spm/ProseCore"
+      name: "ProseCoreFFI",
+      path: "/Users/mb/Documents/Prose/prose-wrapper-swift/Build/spm/ProseCoreFFI"
     ),
     .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.1.0")),
     // .proseCore("0.4.3"),
@@ -223,7 +223,7 @@ let package = Package(
     .target(
       name: "AppDomain",
       dependencies: [
-        .product(name: "ProseCore", package: "ProseCore"),
+        .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
         .product(name: "BareMinimum", package: "swift-common-utils"),
       ]
     ),

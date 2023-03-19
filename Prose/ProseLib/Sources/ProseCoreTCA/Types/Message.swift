@@ -5,7 +5,7 @@
 
 import Foundation
 import OrderedCollections
-import ProseCore
+import ProseCoreFFI
 import Tagged
 
 // MARK: - Message
@@ -43,30 +43,30 @@ public struct Message: Equatable, Identifiable {
   }
 }
 
-extension Message {
-  init?(message: XmppMessage, timestamp: Date) {
-    // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
-    // specified in the XMPP spec but our current server adds them, unless you send a message to
-    // yourself.
-    guard
-      let body = message.body,
-      let id = message.id,
-      message.fastening == nil
-    else {
-      return nil
-    }
-
-    self.init(
-      from: JID(bareJid: message.from),
-      id: .init(rawValue: id),
-      kind: message.kind.map(MessageKind.init),
-      body: body,
-      timestamp: timestamp,
-      isRead: false,
-      isEdited: false
-    )
-  }
-}
+//extension Message {
+//  init?(message: XmppMessage, timestamp: Date) {
+//    // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
+//    // specified in the XMPP spec but our current server adds them, unless you send a message to
+//    // yourself.
+//    guard
+//      let body = message.body,
+//      let id = message.id,
+//      message.fastening == nil
+//    else {
+//      return nil
+//    }
+//
+//    self.init(
+//      from: JID(bareJid: message.from),
+//      id: .init(rawValue: id),
+//      kind: message.kind.map(MessageKind.init),
+//      body: body,
+//      timestamp: timestamp,
+//      isRead: false,
+//      isEdited: false
+//    )
+//  }
+//}
 
 extension Message: Encodable {
   enum CodingKeys: String, CodingKey {
@@ -116,24 +116,24 @@ public enum MessageKind: Equatable {
   case normal
 }
 
-extension MessageKind {
-  init(kind: XmppMessageKind) {
-    switch kind {
-    case .chat:
-      self = .chat
-    case .error:
-      self = .error
-    case .groupchat:
-      self = .groupChat
-    case .headline:
-      self = .headline
-    case .normal:
-      self = .normal
-    @unknown default:
-      fatalError("Unknown MessageKind \(kind)")
-    }
-  }
-}
+//extension MessageKind {
+//  init(kind: XmppMessageKind) {
+//    switch kind {
+//    case .chat:
+//      self = .chat
+//    case .error:
+//      self = .error
+//    case .groupchat:
+//      self = .groupChat
+//    case .headline:
+//      self = .headline
+//    case .normal:
+//      self = .normal
+//    @unknown default:
+//      fatalError("Unknown MessageKind \(kind)")
+//    }
+//  }
+//}
 
 // MARK: - MessageReactions
 

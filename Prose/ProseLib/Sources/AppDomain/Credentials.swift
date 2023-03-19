@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public struct Credentials: Hashable {
   public let jid: BareJid

@@ -3,7 +3,7 @@ import Combine
 import ComposableArchitecture
 
 public struct AccountsClient {
-  public var availableAccounts: () -> AsyncStream<[BareJid: Account]>
+  public var availableAccounts: () -> AsyncStream<Set<BareJid>>
 
   /// Tries to connect to an account and adds it to `availableAccounts` if the connection
   /// was successful.
@@ -19,6 +19,8 @@ public struct AccountsClient {
 
   /// Disconnects the account with the given JID and removes it from `availableAccounts`.
   public var disconnectAccount: (BareJid) async throws -> Void
+
+  public var client: (BareJid) -> ProseCoreClient?
 }
 
 public extension DependencyValues {
@@ -34,6 +36,7 @@ extension AccountsClient: TestDependencyKey {
     tryConnectAccount: unimplemented("\(Self.self).tryConnectAccount"),
     connectAccounts: unimplemented("\(Self.self).connectAccounts"),
     reconnectAccount: unimplemented("\(Self.self).reconnectAccount"),
-    disconnectAccount: unimplemented("\(Self.self).disconnectAccount")
+    disconnectAccount: unimplemented("\(Self.self).disconnectAccount"),
+    client: unimplemented("\(Self.self).client")
   )
 }

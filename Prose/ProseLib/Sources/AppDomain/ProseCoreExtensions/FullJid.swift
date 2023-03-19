@@ -1,5 +1,5 @@
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public extension FullJid {
   var bareJid: BareJid {

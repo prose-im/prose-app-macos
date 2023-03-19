@@ -4,7 +4,7 @@
 //
 
 import Foundation
-import ProseCore
+import ProseCoreFFI
 
 public struct MessagingContext {
   public let setAccountJID: JSFunc1<BareJid, Void>

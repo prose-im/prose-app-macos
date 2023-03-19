@@ -70,7 +70,7 @@ let chatReducer = AnyReducer<
   AnyReducer { state, action, environment in
     func showReactionPicker(for messageId: ProseCoreTCA.Message.ID, origin: CGRect) {
       let message = state.messages[id: messageId]
-      let selected = message?.reactions.reactions(for: state.currentUser.jid)
+      let selected = message?.reactions.reactions(for: state.currentUser)
       let pickerState = ReactionPickerState(selected: Set(selected ?? []))
       state.reactionPicker = MessageReactionPickerState(
         messageId: messageId,
@@ -172,7 +172,7 @@ let chatReducer = AnyReducer<
       }
       var menu = MessageMenuState(origin: payload.origin.anchor.cgPoint, items: items)
 
-      let loggedInUserJID = state.currentUser.jid
+      let loggedInUserJID = state.currentUser
 
       if let messageId = payload.id,
          let message = state.messages[id: messageId],
@@ -233,7 +233,7 @@ let chatReducer = AnyReducer<
       guard let messageId = state.reactionPicker?.messageId else {
         preconditionFailure("We should have stored the message ID")
       }
-      let loggedInUserJID = state.currentUser.jid
+      let loggedInUserJID = state.currentUser
       state.messages[id: messageId]?.reactions.toggleReaction(reaction, for: loggedInUserJID)
       return environment.proseClient
         .toggleReaction(state.chatId, messageId, reaction)

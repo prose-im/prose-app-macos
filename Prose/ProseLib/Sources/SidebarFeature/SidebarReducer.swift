@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import JoinChatFeature
-import ProseCore
+import ProseCoreFFI
 import ProseCoreTCA
 import TcaHelpers
 import Toolbox
@@ -14,7 +14,7 @@ public struct Sidebar: ReducerProtocol {
 
     var route: Route?
 
-    var roster = RosterState()
+    var rosterState = RosterState()
     var footer = Footer.FooterState()
 
     public init() {}
@@ -72,7 +72,7 @@ public struct Sidebar: ReducerProtocol {
           Reduce(joinGroupReducer, environment: .init(mainQueue: self.mainQueue))
         }
     }
-    RosterReducer()
+    //RosterReducer()
 
     self.core
   }
@@ -146,6 +146,11 @@ private extension SessionState where ChildState == Sidebar.SidebarState {
   var footer: SessionState<Footer.FooterState> {
     get { self.get(\.footer) }
     set { self.set(\.footer, newValue) }
+  }
+  
+  var roster: SessionState<RosterState> {
+    get { self.get(\.rosterState) }
+    set { self.set(\.rosterState, newValue) }
   }
 }
 

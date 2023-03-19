@@ -8,7 +8,7 @@ import ComposableArchitecture
 import ProseCoreTCA
 import SwiftUI
 import Toolbox
-import ProseCore
+import ProseCoreFFI
 
 private let l10n = L10n.Content.MessageBar.self
 
@@ -145,7 +145,7 @@ public let messageBarReducer = AnyReducer<
     switch action {
     case .onAppear:
       let chatId = state.chatId
-      let loggedInUserJID = state.currentUser.jid
+      let loggedInUserJID = state.currentUser
       return environment.proseClient.activeChats()
         .compactMap { $0[chatId] }
         .map(\.participantStates)

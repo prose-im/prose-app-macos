@@ -34,11 +34,11 @@ struct AccountSwitcherMenuView: View {
 
       GroupBox(L10n.Sidebar.Footer.Actions.Server.SwitchAccount.title) {
         VStack(spacing: 4) {
-          ForEach(Array(self.viewStore.accounts.values)) { account in
+          ForEach(self.viewStore.accounts) { account in
             Button { self.viewStore.send(.accountSelected(account.jid)) } label: {
               Label {
                 Text(verbatim: account.jid.rawValue)
-                if account.jid == self.viewStore.selectedAccount?.jid {
+                if account.jid == self.viewStore.selectedAccount.jid {
                   Spacer()
                   Image(systemName: "checkmark").padding(.horizontal, 4)
                 }
