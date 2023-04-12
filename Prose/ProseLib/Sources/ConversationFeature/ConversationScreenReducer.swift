@@ -1,8 +1,3 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
 import ComposableArchitecture
 import ConversationInfoFeature
 import ProseBackend
@@ -29,7 +24,9 @@ public struct ConversationScreenReducer: ReducerProtocol {
     case onDisappear
 
     case messagesResult(TaskResult<IdentifiedArrayOf<Message>>)
+    case latestMessagesResult(TaskResult<[Message]>)
     case userInfosResult(TaskResult<[BareJid: UserInfo]>)
+    case event(ClientEvent)
 
     case info(ConversationInfoReducer.Action)
     case toolbar(ToolbarReducer.Action)
@@ -39,6 +36,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
   enum EffectToken: Hashable, CaseIterable {
     case loadMessages
+    case observeEvents
   }
 
   public init() {}
@@ -67,13 +65,36 @@ public struct ConversationScreenReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
-          await .messagesResult(TaskResult {
-            let messages = try await self.accounts.client(currentUser)?
-              .loadLatestMessages(chatId, nil, true) ?? []
-            return IdentifiedArray(uniqueElements: messages)
-          })
-        }.cancellable(id: EffectToken.loadMessages)
+        let currentUser = state.currentUser
+        let chatId = state.childState.chatId
+
+        return .merge(
+          .task {
+            await .messagesResult(TaskResult {
+              let messages = try await self.accounts.client(currentUser)?
+                .loadLatestMessages(chatId, nil, true) ?? []
+              return IdentifiedArray(uniqueElements: messages)
+            })
+          }.cancellable(id: EffectToken.loadMessages),
+          .run { send in
+            let events = self.accounts.client(currentUser)
+              .expect("Missing client for \(currentUser)").events()
+            for try await event in events {
+              switch event {
+              case let .contactChanged(jid) where jid == chatId:
+                await send(.event(event))
+              case let .messagesAppended(conversation) where conversation == chatId:
+                await send(.event(event))
+              case let .messagesUpdated(conversation, _) where conversation == chatId:
+                await send(.event(event))
+              case let .messagesDeleted(conversation, _) where conversation == chatId:
+                await send(.event(event))
+              default:
+                break
+              }
+            }
+          }.cancellable(id: EffectToken.observeEvents)
+        )
 
       case .onDisappear:
         return .cancel(token: EffectToken.self)
@@ -89,6 +110,14 @@ public struct ConversationScreenReducer: ReducerProtocol {
         logger.error(
           "Could not load messages. \(error.localizedDescription, privacy: .public)"
         )
+        return .none
+
+      case let .latestMessagesResult(.success(messages)):
+        state.chat.messages.append(contentsOf: messages)
+        return .none
+
+      case let .latestMessagesResult(.failure(error)):
+        logger.error("Failed to load latest messages. \(error.localizedDescription)")
         return .none
 
       case let .userInfosResult(.success(userInfos)):
@@ -107,7 +136,31 @@ public struct ConversationScreenReducer: ReducerProtocol {
         }
         return .none
 
-      case .info, .toolbar, .messageBar, .chat:
+      case let .event(.contactChanged(jid)):
+        #warning("FIXME")
+        return .none
+
+      case let .event(.messagesAppended(conversation)):
+        #warning("FIXME")
+        let lastMessageStanzaId = state.chat.messages.last(where: { $0.stanzaId != nil })?.stanzaId
+
+        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+          await .latestMessagesResult(TaskResult {
+            try await self.accounts.client(currentUser)
+              .expect("Missing client")
+              .loadLatestMessages(chatId, lastMessageStanzaId, false)
+          })
+        }
+
+      case let .event(.messagesUpdated(conversation, messageIds)):
+        #warning("FIXME")
+        return .none
+
+      case let .event(.messagesDeleted(conversation, messageIds)):
+        #warning("FIXME")
+        return .none
+
+      case .info, .toolbar, .messageBar, .chat, .event:
         return .none
       }
     }

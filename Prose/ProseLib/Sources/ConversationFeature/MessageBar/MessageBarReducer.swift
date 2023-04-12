@@ -37,11 +37,12 @@ public struct MessageBarReducer: ReducerProtocol {
 
   enum EffectToken: Hashable, CaseIterable {
     case observeParticipantStates
+    case sendMessage
   }
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.accountsClient) var accounts
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
@@ -130,10 +131,14 @@ public struct MessageBarReducer: ReducerProtocol {
         return .none
 
       case let .messageField(.send(messageContent)):
-        return .none
-//        return environment.proseClient.sendMessage(state.chatId, messageContent)
-//          .catchToEffect()
-//          .map(Action.messageSendResult)
+        return .task { [currentUser = state.currentUser, to = state.chatId] in
+          await .messageSendResult(TaskResult {
+            try await self.accounts.client(currentUser)
+              .expect("Missing client")
+              .sendMessage(to, messageContent)
+            return .none
+          })
+        }.cancellable(id: EffectToken.sendMessage)
 
       case .messageSendResult(.success):
         state.messageField.message = ""

@@ -1,8 +1,3 @@
-//
-// This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
-//
-
 import AppDomain
 import BareMinimum
 import Combine
@@ -38,6 +33,7 @@ var loggerInitialized = false
 extension ProseCoreClient {
   static func live() -> Self {
     let connectionStatus = CurrentValueSubject<ConnectionStatus, Never>(.disconnected)
+    let events = PassthroughSubject<ClientEvent, Never>()
     let actor = ClientActor()
 
     if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
@@ -71,7 +67,7 @@ extension ProseCoreClient {
             domain: credentials.jid.domain,
             resource: "macOS"
           ),
-          delegate: ClientDelegate(subject: connectionStatus)
+          delegate: ClientDelegate(connectionSubject: connectionStatus, eventsSubject: events)
         )
         try await client.connect(password: credentials.password)
         connectionStatus.value = .connected
@@ -103,6 +99,9 @@ extension ProseCoreClient {
       connectionStatus: {
         AsyncStream(connectionStatus.removeDuplicates().values)
       },
+      events: {
+        AsyncStream(events.values)
+      },
       connect: { credentials, retry in
         try await connectWithBackoff(credentials: credentials, numberOfRetries: retry ? 3 : 0)
       },
@@ -124,6 +123,11 @@ extension ProseCoreClient {
       loadAvatar: { jid in
         try await withClient { client in
           try await client.loadAvatar(from: jid)
+        }
+      },
+      sendMessage: { to, body in
+        try await withClient { client in
+          try await client.sendMessage(to: to, body: body)
         }
       },
       loadLatestMessages: { conversation, since, loadFromServer in
@@ -175,20 +179,26 @@ private actor ClientActor {
 }
 
 private final class ClientDelegate: ProseCoreFFI.ClientDelegate {
-  let subject: CurrentValueSubject<ConnectionStatus, Never>
+  let connectionSubject: CurrentValueSubject<ConnectionStatus, Never>
+  let eventsSubject: PassthroughSubject<ClientEvent, Never>
 
-  init(subject: CurrentValueSubject<ConnectionStatus, Never>) {
-    self.subject = subject
+  init(
+    connectionSubject: CurrentValueSubject<ConnectionStatus, Never>,
+    eventsSubject: PassthroughSubject<ClientEvent, Never>
+  ) {
+    self.connectionSubject = connectionSubject
+    self.eventsSubject = eventsSubject
   }
 
   func handleEvent(event: ClientEvent) {
     switch event {
     case .connectionStatusChanged(.connect):
-      self.subject.send(.connected)
+      self.connectionSubject.send(.connected)
     case let .connectionStatusChanged(.disconnect(error)):
-      self.subject.send(.error(error))
+      self.connectionSubject.send(.error(error))
     default:
       break
     }
+    self.eventsSubject.send(event)
   }
 }
