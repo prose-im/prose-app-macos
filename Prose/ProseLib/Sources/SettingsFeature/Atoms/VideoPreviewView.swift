@@ -11,10 +11,10 @@ struct VideoPreviewView: View {
   @State var sizeHeight: CGFloat = 100
 
   var body: some View {
-    Image(streamPath)
+    Image(self.streamPath)
       .resizable()
       .aspectRatio(contentMode: .fit)
-      .frame(width: sizeWidth, height: sizeHeight)
+      .frame(width: self.sizeWidth, height: self.sizeHeight)
       .background(.black)
       .cornerRadius(4)
       .clipped()

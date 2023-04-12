@@ -41,16 +41,16 @@ public extension Presence {
   }
 }
 
-//extension Presence {
+// extension Presence {
 //  init(presence: XmppPresence, timestamp: Date) {
 //    self.kind = presence.kind.map(Presence.Kind.init)
 //    self.show = presence.show.map(Presence.Show.init)
 //    self.status = presence.status
 //    self.timestamp = timestamp
 //  }
-//}
+// }
 //
-//extension Presence.Kind {
+// extension Presence.Kind {
 //  init(kind: XmppPresenceKind) {
 //    switch kind {
 //    case .unavailable:
@@ -71,9 +71,9 @@ public extension Presence {
 //      fatalError("Unknown PresenceKind \(kind)")
 //    }
 //  }
-//}
+// }
 //
-//extension Presence.Show {
+// extension Presence.Show {
 //  init(show: XmppShowKind) {
 //    switch show {
 //    case .away:
@@ -88,9 +88,9 @@ public extension Presence {
 //      fatalError("Unknown ShowKind \(show)")
 //    }
 //  }
-//}
+// }
 //
-//extension Presence.Show {
+// extension Presence.Show {
 //  var ffi: XmppShowKind {
 //    switch self {
 //    case .away:
@@ -103,4 +103,4 @@ public extension Presence {
 //      return .xa
 //    }
 //  }
-//}
+// }

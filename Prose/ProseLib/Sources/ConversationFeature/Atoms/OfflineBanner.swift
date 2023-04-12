@@ -30,7 +30,7 @@ struct OfflineBanner: View {
           .frame(maxWidth: .infinity, alignment: .leading)
       }
       .foregroundColor(.white)
-      Button(l10n.ReconnectAction.title) { actions.send(.reconnectTapped) }
+      Button(l10n.ReconnectAction.title) { self.actions.send(.reconnectTapped) }
         .controlSize(.large)
     }
     .padding(.vertical, 8)

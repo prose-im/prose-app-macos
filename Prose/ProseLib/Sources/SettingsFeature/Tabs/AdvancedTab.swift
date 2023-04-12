@@ -34,7 +34,7 @@ struct AdvancedTab: View {
     VStack(spacing: 24) {
       // "Update channel"
       GroupBox(l10n.UpdateChannel.label) {
-        Picker("", selection: $updateChannel) {
+        Picker("", selection: self.$updateChannel) {
           ForEach(AdvancedSettingsUpdateChannel.allCases, id: \.self) { value in
             Text(value.localizedDescription)
               .tag(value)
@@ -46,8 +46,8 @@ struct AdvancedTab: View {
 
       // "Reports"
       GroupBox(l10n.Reports.label) {
-        Toggle(l10n.Reports.usageToggle, isOn: $reportsUsage)
-        Toggle(l10n.Reports.crashToggle, isOn: $reportsCrash)
+        Toggle(l10n.Reports.usageToggle, isOn: self.$reportsUsage)
+        Toggle(l10n.Reports.crashToggle, isOn: self.$reportsCrash)
       }
     }
     .groupBoxStyle(FormGroupBoxStyle())

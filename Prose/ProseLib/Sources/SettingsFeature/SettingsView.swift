@@ -15,7 +15,7 @@ public struct SettingsView: View {
 
   public init() {}
   public var body: some View {
-    TabView(selection: $tab) {
+    TabView(selection: self.$tab) {
       GeneralTab()
         .tabItem { Label(L10n.Settings.Tabs.general, systemImage: "gearshape") }
         .tag(Tabs.general)

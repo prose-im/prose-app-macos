@@ -3,20 +3,16 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppLocalization
+import Assets
 import ComposableArchitecture
 import ProseUI
 import SwiftUI
 
-// MARK: - View
-
 public struct ConversationInfoView: View {
-  public typealias State = ConversationInfoState
-  public typealias Action = ConversationInfoAction
+  private let store: StoreOf<ConversationInfoReducer>
 
-  private let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
-
-  public init(store: Store<State, Action>) {
+  public init(store: StoreOf<ConversationInfoReducer>) {
     self.store = store
   }
 
@@ -24,193 +20,189 @@ public struct ConversationInfoView: View {
     ScrollView(.vertical) {
       VStack(spacing: 24) {
         VStack(spacing: 12) {
-          IdentitySection(
-            store: self.store
-              .scope(state: \.identity, action: Action.identity)
-          )
-          QuickActionsSection(
-            store: self.store
-              .scope(state: \.quickActions, action: Action.quickActions)
-          )
+          self.identitySection
+          self.quickActionsSection
         }
         .padding(.horizontal)
 
-        InformationSection(
-          store: self.store
-            .scope(state: \.information, action: Action.information)
-        )
-        SecuritySection(
-          store: self.store
-            .scope(state: \.security, action: Action.security)
-        )
-        ActionsSection(
-          store: self.store
-            .scope(state: \.actions, action: Action.actions)
-        )
+        self.informationSection
+        self.securitySection
+        self.actionsSection
       }
       .padding(.vertical)
     }
     .groupBoxStyle(SectionGroupStyle())
     .background(.background)
   }
-}
 
-public extension ConversationInfoView {
-  static var placeholder: some View {
-    ConversationInfoView(store: Store(
-      initialState: ConversationInfoState(
-        identity: .placeholder,
-        quickActions: .placeholder,
-        information: .placeholder,
-        security: .placeholder,
-        actions: .placeholder
-      ),
-      reducer: AnyReducer.empty,
-      environment: ()
-    ))
-    .redacted(reason: .placeholder)
-  }
-}
+  var identitySection: some View {
+    WithViewStore(self.store.scope(state: \.identity)) { viewStore in
+      VStack(alignment: .center, spacing: 10) {
+        Avatar(viewStore.avatar, size: 100)
+          .cornerRadius(10.0)
+          .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
 
-// MARK: - The Composable Architecture
+        VStack(spacing: 4) {
+          ContentCommonNameStatusComponent(
+            name: viewStore.fullName,
+            status: viewStore.status
+          )
 
-// MARK: Reducer
-
-public let conversationInfoReducer: AnyReducer<
-  ConversationInfoState,
-  ConversationInfoAction,
-  Void
-> = AnyReducer.combine([
-  identitySectionReducer.pullback(
-    state: \ConversationInfoState.identity,
-    action: CasePath(ConversationInfoAction.identity),
-    environment: { $0 }
-  ),
-  quickActionsSectionReducer.pullback(
-    state: \ConversationInfoState.quickActions,
-    action: CasePath(ConversationInfoAction.quickActions),
-    environment: { $0 }
-  ),
-  securitySectionReducer.pullback(
-    state: \ConversationInfoState.security,
-    action: CasePath(ConversationInfoAction.security),
-    environment: { $0 }
-  ),
-  actionsSectionReducer.pullback(
-    state: \ConversationInfoState.actions,
-    action: CasePath(ConversationInfoAction.actions),
-    environment: { $0 }
-  ),
-])
-
-// MARK: State
-
-public struct ConversationInfoState: Equatable {
-  var identity: IdentitySectionState
-  var quickActions: QuickActionsSectionState
-  var information: InformationSectionState
-  var security: SecuritySectionState
-  var actions: ActionsSectionState
-
-  public init(
-    identity: IdentitySectionState,
-    quickActions: QuickActionsSectionState,
-    information: InformationSectionState,
-    security: SecuritySectionState,
-    actions: ActionsSectionState
-  ) {
-    self.identity = identity
-    self.quickActions = quickActions
-    self.information = information
-    self.security = security
-    self.actions = actions
-  }
-}
-
-public extension ConversationInfoState {
-  static let demo = ConversationInfoState(
-    identity: .init(
-      avatar: .placeholder,
-      fullName: "Valerian Saliou",
-      status: .online,
-      jobTitle: "CTO",
-      company: "Crisp"
-    ),
-    quickActions: .init(),
-    information: .init(
-      emailAddress: "valerian@crisp.chat",
-      phoneNumber: "+33 6 12 34 56",
-      lastSeenDate: Date.now - 1000,
-      timeZone: TimeZone.current,
-      location: "Lisbon, Portugal",
-      statusIcon: "👨‍💻",
-      statusMessage: "Focusing on code"
-    ),
-    security: .init(
-      isIdentityVerified: true,
-      encryptionFingerprint: "V5I92"
-    ),
-    actions: .init()
-  )
-}
-
-// MARK: Actions
-
-public enum ConversationInfoAction: Equatable {
-  case identity(IdentitySectionAction)
-  case quickActions(QuickActionsSectionAction)
-  case information(InformationSectionAction)
-  case security(SecuritySectionAction)
-  case actions(ActionsSectionAction)
-}
-
-// MARK: - Previews
-
-#if DEBUG
-  import PreviewAssets
-
-  internal struct ConversationInfoView_Previews: PreviewProvider {
-    private struct Preview: View {
-      var body: some View {
-        ConversationInfoView(store: Store(
-          initialState: ConversationInfoState(
-            identity: .init(
-              avatar: AvatarImage(url: PreviewAsset.Avatars.valerian.customURL),
-              fullName: "Valerian Saliou",
-              status: .online,
-              jobTitle: "CTO",
-              company: "Crisp"
-            ),
-            quickActions: .init(),
-            information: .init(
-              emailAddress: "valerian@crisp.chat",
-              phoneNumber: "+33 6 12 34 56",
-              lastSeenDate: Date.now - 1000,
-              timeZone: TimeZone(identifier: "WEST")!,
-              location: "Lisbon, Portugal",
-              statusIcon: "👨‍💻",
-              statusMessage: "Focusing on code"
-            ),
-            security: .init(
-              isIdentityVerified: true,
-              encryptionFingerprint: "V5I92"
-            ),
-            actions: .init()
-          ),
-          reducer: conversationInfoReducer,
-          environment: ()
-        ))
-        .frame(width: 220, height: 720)
+          Text("\(viewStore.jobTitle) at \(viewStore.company)")
+            .font(.system(size: 11.5))
+            .foregroundColor(Colors.Text.secondary.color)
+        }
       }
     }
+  }
 
-    static var previews: some View {
-      Preview()
-        .previewDisplayName("Normal")
-      Preview()
-        .previewDisplayName("Real placeholder")
-      ConversationInfoView.placeholder
-        .previewDisplayName("Simple placeholder")
+  var quickActionsSection: some View {
+    WithViewStore(self.store.stateless) { viewStore in
+      HStack(spacing: 24) {
+        Button { viewStore.send(.startCallButtonTapped) } label: {
+          Label("phone", systemImage: "phone")
+        }
+        Button { viewStore.send(.sendEmailButtonTapped) } label: {
+          Label("email", systemImage: "envelope")
+        }
+      }
+      .buttonStyle(SubtitledActionButtonStyle())
     }
   }
-#endif
+
+  var informationSection: some View {
+    WithViewStore(self.store.scope(state: \.information)) { viewStore in
+      GroupBox(L10n.Content.MessageDetails.Information.title) {
+        Label(viewStore.emailAddress, systemImage: "envelope.fill")
+        Label(viewStore.phoneNumber, systemImage: "iphone")
+        Label {
+          // TODO: Localize
+          Text(
+            "Active \(viewStore.lastSeenDate, format: .relative(presentation: .numeric, unitsStyle: .wide))"
+          )
+        } icon: {
+          Image(systemName: "hand.wave.fill")
+            .unredacted()
+        }
+        Label(viewStore.localDateString, systemImage: "clock.fill")
+        Label(viewStore.location, systemImage: "location.fill")
+        Label {
+          Text("“\(viewStore.statusMessage)”")
+            .foregroundColor(Colors.Text.secondary.color)
+        } icon: {
+          Text(String(viewStore.statusIcon))
+        }
+      }
+    }
+  }
+
+  var securitySection: some View {
+    WithViewStore(self.store) { viewStore in
+      GroupBox(L10n.Content.MessageDetails.Security.title) {
+        HStack(spacing: 8) {
+          if viewStore.security.isIdentityVerified {
+            Label {
+              Text("Identity verified")
+            } icon: {
+              Image(systemName: "checkmark.seal.fill")
+                .foregroundColor(Colors.State.green.color)
+            }
+          } else {
+            Label {
+              Text("Identity not verified")
+            } icon: {
+              Image(systemName: "xmark.seal.fill")
+                .foregroundColor(.orange)
+            }
+          }
+
+          Button(action: { viewStore.send(.showIdVerificationInfoTapped) }) {
+            Image(systemName: "info.circle")
+              .foregroundColor(Color.primary.opacity(0.50))
+          }
+          .buttonStyle(.plain)
+          .popover(unwrapping: viewStore.binding(\.$identityPopover)) { _ in
+            IfLetStore(
+              self.store.scope(
+                state: \.identityPopover,
+                action: ConversationInfoReducer.Action.identityPopover
+              ),
+              then: IdentityPopover.init(store:)
+            )
+          }
+        }
+
+        HStack(spacing: 8) {
+          if let fingerprint = viewStore.security.encryptionFingerprint {
+            Label {
+              Text("Encrypted (\(fingerprint))")
+            } icon: {
+              Image(systemName: "lock.fill")
+                .foregroundColor(.blue)
+            }
+          } else {
+            Label {
+              Text("Not encrypted")
+            } icon: {
+              Image(systemName: "lock.slash")
+                .foregroundColor(.red)
+            }
+          }
+        }
+        Button(action: { viewStore.send(.showEncryptionInfoTapped) }) {
+          Image(systemName: "info.circle")
+            .foregroundColor(Color.primary.opacity(0.50))
+        }
+        .buttonStyle(.plain)
+      }
+    }
+  }
+
+  var actionsSection: some View {
+    WithViewStore(self.store.stateless) { viewStore in
+      GroupBox(L10n.Content.MessageDetails.Actions.title) {
+        ActionRow(
+          name: L10n.Content.MessageDetails.Actions.sharedFiles,
+          deployTo: true,
+          action: { viewStore.send(.viewSharedFilesTapped) }
+        )
+        ActionRow(
+          name: L10n.Content.MessageDetails.Actions.encryptionSettings,
+          deployTo: true,
+          action: { viewStore.send(.encryptionSettingsTapped) }
+        )
+        ActionRow(
+          name: L10n.Content.MessageDetails.Actions.removeContact,
+          action: { viewStore.send(.removeContactTapped) }
+        )
+        ActionRow(
+          name: L10n.Content.MessageDetails.Actions.block,
+          action: { viewStore.send(.blockContactTapped) }
+        )
+      }
+    }
+  }
+}
+
+private struct SectionGroupStyle: GroupBoxStyle {
+  private static let sidesPadding: CGFloat = 15
+
+  func makeBody(configuration: Configuration) -> some View {
+    VStack(spacing: 8) {
+      VStack(alignment: .leading, spacing: 2) {
+        configuration.label
+          .font(.system(size: 11, weight: .semibold))
+          .foregroundColor(Color.primary.opacity(0.25))
+          .padding(.horizontal, Self.sidesPadding)
+          .unredacted()
+
+        Divider()
+      }
+
+      configuration.content
+        .font(.system(size: 13))
+        .labelStyle(EntryRowLabelStyle())
+        .padding(.horizontal, Self.sidesPadding)
+    }
+  }
+}

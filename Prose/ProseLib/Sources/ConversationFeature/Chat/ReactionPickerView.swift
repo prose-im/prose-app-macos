@@ -18,12 +18,12 @@ final class ReactionPickerView<Action>: NSHostingView<
     }
   }
 
-  let action: CasePath<Action, ReactionPickerAction>
+  let action: CasePath<Action, ReactionPickerReducer.Action>
   let dismiss: Action
 
   init(
     store: Store<MessageReactionPickerState, Action>,
-    action: CasePath<Action, ReactionPickerAction>,
+    action: CasePath<Action, ReactionPickerReducer.Action>,
     dismiss: Action
   ) {
     self.store = store
@@ -44,7 +44,7 @@ final class ReactionPickerView<Action>: NSHostingView<
 
   static func body(
     store: Store<MessageReactionPickerState, Action>,
-    action: CasePath<Action, ReactionPickerAction>,
+    action: CasePath<Action, ReactionPickerReducer.Action>,
     dismiss: Action
   ) -> Content {
     AnyView(Color.clear)
@@ -54,7 +54,7 @@ final class ReactionPickerView<Action>: NSHostingView<
 
 struct ReactionPickerPopup<Action>: ViewModifier {
   let store: Store<MessageReactionPickerState, Action>
-  let action: CasePath<Action, ReactionPickerAction>
+  let action: CasePath<Action, ReactionPickerReducer.Action>
   let dismiss: Action
 
   func body(content: Content) -> some View {

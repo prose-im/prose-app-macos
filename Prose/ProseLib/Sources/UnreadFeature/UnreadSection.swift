@@ -4,6 +4,7 @@
 //
 
 import ConversationFeature
+import ProseBackend
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
@@ -33,7 +34,7 @@ struct UnreadSection: View {
     GroupBox {
       HStack {
         VStack {
-          ForEach(model.messages, content: MessageView.init(model:))
+          ForEach(self.model.messages, content: MessageView.init(model:))
         }
         VStack {
           VStack {
@@ -58,15 +59,15 @@ struct UnreadSection: View {
       }
     } label: {
       HStack {
-        Label(model.chatTitle, systemImage: model.chatId.icon.rawValue)
+        Label(self.model.chatTitle, systemImage: self.model.chatId.icon.rawValue)
           .labelStyle(.coloredIcon)
           .font(.title3.bold())
         Spacer()
-        Text(model.messages.last!.timestamp, format: .relative(presentation: .named))
+        Text(self.model.messages.last!.timestamp, format: .relative(presentation: .named))
           .foregroundColor(.secondary)
       }
     }
-    .disabled(redactionReasons.contains(.placeholder))
+    .disabled(self.redactionReasons.contains(.placeholder))
   }
 }
 

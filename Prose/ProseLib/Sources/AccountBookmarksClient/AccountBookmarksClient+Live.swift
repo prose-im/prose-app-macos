@@ -1,10 +1,16 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import ComposableArchitecture
 import Foundation
 
 public extension AccountBookmarksClient {
-  static func live(bookmarksURL: URL = URL.documentsDirectory
-    .appending(component: "accounts.plist")) -> Self
-  {
+  static func live(
+    bookmarksURL: URL = URL.documentsDirectory
+      .appending(component: "accounts.plist")
+  ) -> Self {
     print("bookmarksURL", bookmarksURL)
 
     func loadBookmarks() throws -> [AccountBookmark] {

@@ -5,6 +5,7 @@
 
 import AppKit
 import ComposableArchitecture
+import ProseBackend
 import ProseCoreTCA
 import WebKit
 
@@ -114,7 +115,7 @@ struct MessageMenuState: Equatable {
 public final class MessageMenu: NSMenu {
   public typealias Action = MessageMenuAction
 
-  weak var viewStore: ViewStore<ChatView.State, ChatView.Action>?
+  weak var viewStore: ViewStoreOf<ChatReducer>?
 
   func createItem(for itemState: MessageMenuItemState) -> NSMenuItem {
     let item = NSMenuItem(

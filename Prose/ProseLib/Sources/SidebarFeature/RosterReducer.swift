@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import ComposableArchitecture
 import Foundation
 import ProseCoreFFI
@@ -13,12 +18,14 @@ struct RosterState: Equatable {
 extension SessionState<RosterState> {
   var sidebar: SidebarRoster {
     var groups = [String: [SidebarRoster.Group.Item]]()
-    for item in self.selectedAccount.roster {
+    for item in self.selectedAccount.contacts {
       for group in item.groups {
         groups[group, default: []].append(.init(
           jid: item.jid,
+          name: item.name,
+          avatarURL: item.avatar,
           numberOfUnreadMessages: 0,
-          status: .offline
+          status: item.availability
         ))
       }
     }
@@ -26,12 +33,6 @@ extension SessionState<RosterState> {
     return SidebarRoster(groups: groups.map { groupName, items in
       SidebarRoster.Group(name: groupName, items: items)
     })
-  }
-}
-
-private extension Presence {
-  var onlineStatus: OnlineStatus {
-    self.kind == .unavailable ? .offline : .online
   }
 }
 
@@ -49,9 +50,10 @@ extension SidebarRoster {
 extension SidebarRoster.Group {
   struct Item: Equatable {
     var jid: BareJid
+    var name: String
     var avatarURL: URL?
     var numberOfUnreadMessages: Int
-    var status: OnlineStatus
+    var status: Availability
   }
 }
 

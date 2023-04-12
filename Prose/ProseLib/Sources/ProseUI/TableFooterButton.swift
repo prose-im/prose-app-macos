@@ -30,21 +30,21 @@ public struct TableFooterButton: View {
   }
 
   public var body: some View {
-    if leadingDivider || trailingDivider {
+    if self.leadingDivider || self.trailingDivider {
       HStack(spacing: 0) {
-        divider(isVisible: leadingDivider)
-        button()
-        divider(isVisible: trailingDivider)
+        self.divider(isVisible: self.leadingDivider)
+        self.button()
+        self.divider(isVisible: self.trailingDivider)
       }
     } else {
-      button()
+      self.button()
     }
   }
 
   func button() -> some View {
     Button(action: self.action) {
       HStack(spacing: 1) {
-        Image(systemName: systemImage)
+        Image(systemName: self.systemImage)
         if self.disclosureIndicator {
           Image(systemName: "chevron.down")
             .font(.system(size: 8, weight: .medium))

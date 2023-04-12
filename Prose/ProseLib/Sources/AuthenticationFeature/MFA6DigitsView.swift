@@ -6,8 +6,8 @@
 import AppLocalization
 import Combine
 import ComposableArchitecture
-import ProseCoreTCA
 import ProseCoreFFI
+import ProseCoreTCA
 import ProseUI
 import SwiftUI
 import SwiftUINavigation
@@ -32,9 +32,9 @@ public struct MFA6DigitsView: View {
     WithViewStore(self.store) { viewStore in
       VStack(spacing: 32) {
         Self.header()
-        fields(viewStore: viewStore)
-        mainButton(viewStore: viewStore)
-        footer(viewStore: viewStore)
+        self.fields(viewStore: viewStore)
+        self.mainButton(viewStore: viewStore)
+        self.footer(viewStore: viewStore)
       }
       .multilineTextAlignment(.center)
       .controlSize(.large)
@@ -44,8 +44,8 @@ public struct MFA6DigitsView: View {
       .padding(.vertical, 24)
       .synchronize(viewStore.binding(\.$focusedField), self.$focusedField)
       .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
-      .onAppear { actions.send(.onAppear) }
-      .onTapGesture { actions.send(.onGlobalTapGesture) }
+      .onAppear { self.actions.send(.onAppear) }
+      .onTapGesture { self.actions.send(.onGlobalTapGesture) }
     }
   }
 
@@ -68,7 +68,7 @@ public struct MFA6DigitsView: View {
   func fields(viewStore: ViewStore<State, Action>) -> some View {
     HStack(spacing: 4) {
       ForEach(0..<6) { n in
-        digit(viewStore.state.digit(n), selected: viewStore.filteredCode.count == n)
+        self.digit(viewStore.state.digit(n), selected: viewStore.filteredCode.count == n)
       }
     }
     // Hide fake fields in accessibility
@@ -76,7 +76,7 @@ public struct MFA6DigitsView: View {
     // Add a real `TextField` backing the interactions and accessibility
     .background {
       TextField(l10n.Form.OneTimeCode.placeholder, text: viewStore.binding(\.$rawCode))
-        .focused($focusedField, equals: .textField)
+        .focused(self.$focusedField, equals: .textField)
         .textContentType(.oneTimeCode)
         .opacity(0)
     }
@@ -86,7 +86,7 @@ public struct MFA6DigitsView: View {
   }
 
   func mainButton(viewStore: ViewStore<State, Action>) -> some View {
-    Button { actions.send(.submitButtonTapped) } label: {
+    Button { self.actions.send(.submitButtonTapped) } label: {
       Text(l10n.ConfirmButton.title)
         .frame(minWidth: 196)
     }
@@ -117,7 +117,7 @@ public struct MFA6DigitsView: View {
   func footer(viewStore: ViewStore<State, Action>) -> some View {
     HStack(spacing: 16) {
       Button(l10n.Footer.CannotGenerateCode.title) {
-        actions.send(.showPopoverTapped(.cannotGenerateCode))
+        self.actions.send(.showPopoverTapped(.cannotGenerateCode))
       }
       .popover(
         unwrapping: viewStore.binding(\.$popover),
@@ -125,7 +125,7 @@ public struct MFA6DigitsView: View {
         content: { _ in Self.cannotGenerateCodePopover() }
       )
       Divider().frame(height: 18)
-      Button(l10n.Footer.NoAccount.title) { actions.send(.showPopoverTapped(.noAccount)) }
+      Button(l10n.Footer.NoAccount.title) { self.actions.send(.showPopoverTapped(.noAccount)) }
         .popover(
           unwrapping: viewStore.binding(\.$popover),
           case: CasePath(State.Popover.noAccount),
@@ -179,7 +179,7 @@ let mfa6DigitsReducer: AnyReducer<
 //      if isFormValid, code != "000000" {
 //        return .verifyOneTimeCodeResult(.success(.success(jid: jid, password: password)))
 //      } else {
-        return .verifyOneTimeCodeResult(.failure(.badCode))
+      return .verifyOneTimeCodeResult(.failure(.badCode))
 //      }
     }
     .delay(for: .seconds(1), scheduler: environment.mainQueue)

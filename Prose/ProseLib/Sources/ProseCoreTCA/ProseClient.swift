@@ -7,8 +7,8 @@ import ComposableArchitecture
 import CoreGraphics
 import Foundation
 import IdentifiedCollections
-import Toolbox
 import ProseCoreFFI
+import Toolbox
 
 public struct ProseClient {
   public var login: (_ jid: BareJid, _ password: String) -> EffectPublisher<None, EquatableError>
@@ -52,7 +52,8 @@ public struct ProseClient {
   ) -> EffectPublisher<None, EquatableError>
 
   /// Retracts the message identified by `id` sent to a conversation identified by `to`.
-  public var retractMessage: (_ to: BareJid, _ id: Message.ID) -> EffectPublisher<None, EquatableError>
+  public var retractMessage: (_ to: BareJid, _ id: Message.ID)
+    -> EffectPublisher<None, EquatableError>
 
   /// Sends the user's current state `state` in a conversation identified by `to`.
   public var sendChatState: (_ to: BareJid, _ state: ChatState.Kind)
@@ -85,4 +86,3 @@ extension DependencyValues {
     static let testValue = ProseClient.noop
   }
 }
-

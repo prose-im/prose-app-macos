@@ -24,11 +24,11 @@ public struct UnreadScreen: View {
   }
 
   public var body: some View {
-    content()
+    self.content()
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(Colors.Background.message.color)
       .toolbar(content: Toolbar.init)
-      .onAppear { actions.send(.onAppear) }
+      .onAppear { self.actions.send(.onAppear) }
       .groupBoxStyle(.spotlight)
   }
 

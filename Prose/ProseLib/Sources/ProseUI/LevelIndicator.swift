@@ -32,13 +32,13 @@ public struct LevelIndicator: View {
     let indicator = NSLevelIndicator()
 
     // Configure bounds
-    indicator.minValue = minimumValue * tickMarkFactor
-    indicator.maxValue = maximumValue * tickMarkFactor
-    indicator.warningValue = warningValue * tickMarkFactor
-    indicator.criticalValue = criticalValue * tickMarkFactor
+    indicator.minValue = self.minimumValue * self.tickMarkFactor
+    indicator.maxValue = self.maximumValue * self.tickMarkFactor
+    indicator.warningValue = self.warningValue * self.tickMarkFactor
+    indicator.criticalValue = self.criticalValue * self.tickMarkFactor
 
     // Apply value
-    indicator.doubleValue = currentValue * tickMarkFactor
+    indicator.doubleValue = self.currentValue * self.tickMarkFactor
 
     return ViewWrap(indicator)
   }

@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import Foundation
+import ProseBackend
 import ProseCoreTCA
 import Toolbox
 

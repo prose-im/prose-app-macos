@@ -1,6 +1,12 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
+import ProseBackend
 import ProseCoreTCA
 
 #warning("Fix popover dismiss animation")
@@ -108,7 +114,7 @@ public struct Footer: ReducerProtocol {
       case .accountSwitcherMenu(.connectAccountTapped):
         state.route = .auth(.init())
         return .none
-      
+
       case let .accountSwitcherMenu(.accountSelected(jid)):
         state.route = nil
         state.currentUser = jid

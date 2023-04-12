@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import ComposableArchitecture
 
 extension ReducerProtocol<App.State, App.Action> {
@@ -30,7 +35,7 @@ private struct Notifications<
 //            .receive(on: environment.mainQueue)
 //            .eraseToEffect()
 //            .map { args in AppAction.didReceiveMessage(args.message, args.userInfo) }
-  
+
     Reduce { _, _ in
       .none
     }

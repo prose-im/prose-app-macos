@@ -9,6 +9,7 @@ import ComposableArchitecture
 import IdentifiedCollections
 import OrderedCollections
 import OSLog
+import ProseBackend
 import ProseCoreTCA
 import ProseCoreViews
 import ProseUI
@@ -16,10 +17,10 @@ import SwiftUI
 import WebKit
 
 struct Chat: View {
-  let store: Store<ChatView.State, ChatView.Action>
-  @ObservedObject var viewStore: ViewStore<ChatView.State, ChatView.Action>
+  let store: StoreOf<ChatReducer>
+  @ObservedObject var viewStore: ViewStoreOf<ChatReducer>
 
-  init(store: Store<ChatView.State, ChatView.Action>) {
+  init(store: StoreOf<ChatReducer>) {
     self.store = store
     self.viewStore = ViewStore(store)
   }
@@ -28,11 +29,11 @@ struct Chat: View {
     ChatView(store: self.store)
       .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
       .sheet(
-        unwrapping: viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)
+        unwrapping: self.viewStore.binding(get: \.messageEditor, send: .messageEditorDismissed)
       ) { $state in
         EditMessageView(store: self.store.scope(
           state: { _ in $state.wrappedValue },
-          action: ChatView.Action.messageEditor
+          action: ChatReducer.Action.messageEditor
         ))
       }
       .onKeyDown { key in
@@ -49,9 +50,6 @@ struct Chat: View {
 }
 
 struct ChatView: NSViewRepresentable {
-  typealias State = ChatSessionState<ChatState>
-  typealias Action = ChatAction
-
   final class Coordinator: NSObject {
     /// This is the state of messages stored in the web view. It's used for diffing purposes.
     var messages = IdentifiedArrayOf<Message>()
@@ -59,22 +57,22 @@ struct ChatView: NSViewRepresentable {
 
     var ffi: ProseCoreViews.FFI!
 
-    let viewStore: ViewStore<Void, Action>
-    var reactionPicker: ReactionPickerView<ChatView.Action>?
+    let viewStore: ViewStore<Void, ChatReducer.Action>
+    var reactionPicker: ReactionPickerView<ChatReducer.Action>?
 
     #if os(macOS)
       var menu: MessageMenu?
     #endif
 
-    init(viewStore: ViewStore<Void, Action>) {
+    init(viewStore: ViewStore<Void, ChatReducer.Action>) {
       self.viewStore = viewStore
     }
 
     func createOrUpdateReactionPicker(
-      store: Store<MessageReactionPickerState, ChatView.Action>,
-      action: CasePath<ChatView.Action, ReactionPickerAction>,
-      dismiss dismissAction: ChatView.Action
-    ) -> ReactionPickerView<ChatView.Action> {
+      store: Store<MessageReactionPickerState, ChatReducer.Action>,
+      action: CasePath<ChatReducer.Action, ReactionPickerReducer.Action>,
+      dismiss dismissAction: ChatReducer.Action
+    ) -> ReactionPickerView<ChatReducer.Action> {
       if let picker = self.reactionPicker {
         picker.store = store
         return picker
@@ -88,12 +86,12 @@ struct ChatView: NSViewRepresentable {
 
   @Environment(\.colorScheme) private var colorScheme
 
-  let store: Store<State, Action>
-  let viewStore: ViewStore<State, Action>
+  let store: StoreOf<ChatReducer>
+  let viewStore: ViewStoreOf<ChatReducer>
 
   let signpostID = signposter.makeSignpostID()
 
-  init(store: Store<State, Action>) {
+  init(store: StoreOf<ChatReducer>) {
     self.store = store
     self.viewStore = ViewStore(store)
   }
@@ -329,7 +327,7 @@ private extension ChatView {
     #if os(macOS)
       let picker: ReactionPickerView = coordinator.createOrUpdateReactionPicker(
         store: self.store.scope(state: { _ in pickerState }),
-        action: CasePath(ChatAction.reactionPicker),
+        action: CasePath(ChatReducer.Action.reactionPicker),
         dismiss: .reactionPickerDismissed
       )
 
@@ -364,7 +362,7 @@ extension ChatView.Coordinator: NSMenuDelegate {
   }
 }
 
-private extension ChatAction {
+private extension ChatReducer.Action {
   static func messageEvent<T>(
     _ action: (T) -> MessageEvent,
     from result: Result<T, JSEventError>

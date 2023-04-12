@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import Foundation
 import ProseCoreFFI
 
@@ -5,7 +10,7 @@ public struct Account: Hashable, Identifiable {
   public var jid: BareJid
   public var status: ConnectionStatus
   public var profile: UserProfile?
-  public var roster: [RosterItem]
+  public var contacts: [Contact]
   public var avatar: URL?
 
   public var id: BareJid {
@@ -16,13 +21,13 @@ public struct Account: Hashable, Identifiable {
     jid: BareJid,
     status: ConnectionStatus,
     profile: UserProfile? = nil,
-    roster: [RosterItem] = [],
+    contacts: [Contact] = [],
     avatar: URL? = nil
   ) {
     self.jid = jid
     self.status = status
     self.profile = profile
-    self.roster = roster
+    self.contacts = contacts
     self.avatar = avatar
   }
 }

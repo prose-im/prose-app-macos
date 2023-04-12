@@ -3,6 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import ProseBackend
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
@@ -11,21 +12,21 @@ struct ContactRow: View {
   var title: String
   var avatar: AvatarImage
   var count = 0
-  var status: OnlineStatus = .offline
+  var status: Availability = .unavailable
 
   var body: some View {
     HStack {
-      Avatar(avatar, size: 18)
+      Avatar(self.avatar, size: 18)
 
       HStack(alignment: .firstTextBaseline, spacing: 4) {
-        Text(title)
+        Text(self.title)
 
         OnlineStatusIndicator(self.status)
       }
 
       Spacer()
 
-      Counter(count: count)
+      Counter(count: self.count)
     }
   }
 }

@@ -117,28 +117,28 @@ struct SidebarRow_Previews: PreviewProvider {
           icon: "person.text.rectangle",
           headline: "Identity",
           subheadline: "Name, Phone, Email",
-          isSelected: selection == .identity
+          isSelected: self.selection == .identity
         ))
         Self.preview(state: .init(
           id: .authentication,
           icon: "lock",
           headline: "Authentication",
           subheadline: "Password, MFA",
-          isSelected: selection == .authentication
+          isSelected: self.selection == .authentication
         ))
         Self.preview(state: .init(
           id: .profile,
           icon: "person",
           headline: "Profile",
           subheadline: "Job, Location",
-          isSelected: selection == .profile
+          isSelected: self.selection == .profile
         ))
         Self.preview(state: .init(
           id: .encryption,
           icon: "key",
           headline: "Encryption",
           subheadline: "Certificates, Keys",
-          isSelected: selection == .encryption
+          isSelected: self.selection == .encryption
         ))
       }
       .listStyle(.sidebar)

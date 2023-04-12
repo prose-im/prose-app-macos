@@ -47,9 +47,9 @@ public struct Avatar: View {
 
   public var body: some View {
     let shape = self.shape
-    image()
+    self.image()
       .scaledToFill()
-      .frame(width: size, height: size)
+      .frame(width: self.size, height: self.size)
       .background(Colors.Border.secondary.color)
       .clipShape(shape)
       .overlay {

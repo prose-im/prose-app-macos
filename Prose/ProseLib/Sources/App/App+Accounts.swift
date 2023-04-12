@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import BareMinimum
 import ComposableArchitecture
 import Foundation
@@ -89,14 +94,14 @@ struct AccountReducer: ReducerProtocol {
     case connectionStatusChanged(ConnectionStatus)
 
     case profileResponse(TaskResult<UserProfile?>)
-    case rosterResponse(TaskResult<[RosterItem]>)
+    case contactsResponse(TaskResult<[Contact]>)
     case avatarResponse(TaskResult<URL?>)
   }
 
   enum EffectToken: Hashable, CaseIterable {
     case observeConnectionStatus
     case loadProfile
-    case loadRoster
+    case loadContacts
     case loadAvatar
   }
 
@@ -109,7 +114,7 @@ struct AccountReducer: ReducerProtocol {
       case .onAccountAdded:
         let client = self.accounts.client(state.jid)
           .expect("Missing client for account \(state.jid)")
-        
+
         print("ACCOUNT ADDED", state.jid)
 
         return .run { [jid = state.jid] send in
@@ -151,10 +156,10 @@ struct AccountReducer: ReducerProtocol {
               })
             }.cancellable(id: EffectToken.loadProfile),
             .task {
-              await .rosterResponse(TaskResult {
-                try await client.loadRoster()
+              await .contactsResponse(TaskResult {
+                try await client.loadContacts()
               })
-            }.cancellable(id: EffectToken.loadRoster),
+            }.cancellable(id: EffectToken.loadContacts),
             .task {
               await .avatarResponse(TaskResult {
                 try await client.loadAvatar(jid)
@@ -162,7 +167,7 @@ struct AccountReducer: ReducerProtocol {
             }.cancellable(id: EffectToken.loadAvatar)
           )
         }
-        
+
         return .none
 
       case let .profileResponse(.success(profile)):
@@ -170,9 +175,9 @@ struct AccountReducer: ReducerProtocol {
         state.profile = profile
         return .none
 
-      case let .rosterResponse(.success(roster)):
-        print("Received roster", roster)
-        state.roster = roster
+      case let .contactsResponse(.success(contacts)):
+        print("Received contacts", contacts)
+        state.contacts = contacts
         return .none
 
       case let .avatarResponse(.success(avatar)):
@@ -184,7 +189,7 @@ struct AccountReducer: ReducerProtocol {
         logger.error("Failed to load user profile: \(error.localizedDescription)")
         return .none
 
-      case let .rosterResponse(.failure(error)):
+      case let .contactsResponse(.failure(error)):
         logger.error("Failed to load roster: \(error.localizedDescription)")
         return .none
 

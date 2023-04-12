@@ -64,7 +64,7 @@ struct GeneralTab: View {
     VStack(spacing: 24) {
       // "Theme"
       GroupBox(l10n.themeLabel) {
-        Picker("", selection: $theme) {
+        Picker("", selection: self.$theme) {
           ForEach(GeneralSettingsTheme.allCases, id: \.self) { value in
             Text(value.localizedDescription)
               .tag(value)
@@ -76,7 +76,7 @@ struct GeneralTab: View {
 
       // "Save downloads to"
       GroupBox(l10n.downloadsLabel) {
-        Picker("", selection: $downloadsPath) {
+        Picker("", selection: self.$downloadsPath) {
           // TODO: Choose from file system
         }
         .labelsHidden()
@@ -85,7 +85,7 @@ struct GeneralTab: View {
 
       // "Phone contacts"
       GroupBox(l10n.phoneLabel) {
-        Toggle(isOn: $phoneFromAddressBook) {
+        Toggle(isOn: self.$phoneFromAddressBook) {
           VStack(alignment: .leading) {
             Text(l10n.PhoneFromAddressBook.toggle)
             Text(l10n.PhoneFromAddressBook.description)
@@ -98,11 +98,11 @@ struct GeneralTab: View {
       GroupBox(l10n.idleLabel) {
         Toggle(
           l10n.IdleAutomaticallyMarkAway.enabledToggle,
-          isOn: $automaticallyMarkAwayEnabled
+          isOn: self.$automaticallyMarkAwayEnabled
         )
         Picker(
           l10n.IdleAutomaticallyMarkAway.afterLabel,
-          selection: $automaticallyMarkAwayAfter
+          selection: self.$automaticallyMarkAwayAfter
         ) {
           ForEach(
             GeneralSettingsAutomaticallyMarkAwayAfter.allCases,

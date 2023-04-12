@@ -13,9 +13,9 @@ struct IconRow: View {
 
   var body: some View {
     HStack {
-      Label(title, systemImage: self.icon.rawValue)
+      Label(self.title, systemImage: self.icon.rawValue)
         .frame(maxWidth: .infinity, alignment: .leading)
-      Counter(count: count)
+      Counter(count: self.count)
     }
   }
 }

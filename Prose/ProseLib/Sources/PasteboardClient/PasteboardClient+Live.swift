@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 #if os(macOS)
   import Cocoa
 #elseif canImport(UIKit)

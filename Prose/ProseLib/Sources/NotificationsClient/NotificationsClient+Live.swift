@@ -49,7 +49,7 @@ public extension NotificationsClient {
         content.title = userInfo.name
         content.body = message.body
         content.sound = .default
-        content.threadIdentifier = message.from.jidString
+        content.threadIdentifier = message.from.rawValue
 
         let request = UNNotificationRequest(
           identifier: UUID().uuidString,

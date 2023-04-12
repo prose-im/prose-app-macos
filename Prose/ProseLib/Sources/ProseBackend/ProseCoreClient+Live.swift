@@ -1,10 +1,39 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AppDomain
+import BareMinimum
 import Combine
 import ComposableArchitecture
 import Foundation
+import OSLog
 import ProseCoreFFI
 
 struct NotConnectedError: Error {}
+
+final class OSLogger: ProseCoreFFI.Logger {
+  private let logger = os.Logger(subsystem: "org.prose.app", category: "ffi")
+
+  func log(level: LogLevel, message: String) {
+    switch level {
+    case .trace:
+      self.logger.trace("\(message)")
+    case .debug:
+      self.logger.debug("\(message)")
+    case .info:
+      self.logger.info("\(message)")
+    case .warn:
+      self.logger.warning("\(message)")
+    case .error:
+      self.logger.error("\(message)")
+    }
+  }
+}
+
+let loggerLock = UnfairLock()
+var loggerInitialized = false
 
 extension ProseCoreClient {
   static func live() -> Self {
@@ -12,7 +41,12 @@ extension ProseCoreClient {
     let actor = ClientActor()
 
     if ProcessInfo.processInfo.environment["PROSE_CORE_LOG_ENABLED"] == "1" {
-      enableLogging()
+      loggerLock.withLock {
+        if !loggerInitialized {
+          loggerInitialized = true
+          setLogger(logger: OSLogger(), maxLevel: .info)
+        }
+      }
     }
 
     func connectWithBackoff(
@@ -43,7 +77,7 @@ extension ProseCoreClient {
         connectionStatus.value = .connected
         print("Connected", credentials.jid)
       } catch {
-      print("Connection failed", credentials.jid)
+        print("Connection failed", credentials.jid)
         if numberOfRetries < 1 {
           connectionStatus.value = .disconnected
           throw error
@@ -82,14 +116,28 @@ extension ProseCoreClient {
           try await client.loadProfile(from: jid)
         }
       },
-      loadRoster: {
+      loadContacts: {
         try await withClient { client in
-          try await client.loadRoster()
+          try await client.loadContacts()
         }
       },
       loadAvatar: { jid in
         try await withClient { client in
           try await client.loadAvatar(from: jid)
+        }
+      },
+      loadLatestMessages: { conversation, since, loadFromServer in
+        try await withClient { client in
+          try await client.loadLatestMessages(
+            from: conversation,
+            since: since,
+            loadFromServer: loadFromServer
+          )
+        }
+      },
+      loadMessagesBefore: { conversation, before in
+        try await withClient { client in
+          try await client.loadMessagesBefore(from: conversation, before: before)
         }
       }
     )
@@ -113,8 +161,11 @@ private actor ClientActor {
       )
       .appendingPathComponent("ProseCoreCache")
 
-      let client = try ProseCoreFFI.Client(jid: jid, cacheDir: cacheDirectory.path)
-      client.setDelegate(delegate: delegate)
+      let client = try ProseCoreFFI.Client(
+        jid: jid,
+        cacheDir: cacheDirectory.path,
+        delegate: delegate
+      )
       self.client = client
       return client
     } catch {
@@ -130,12 +181,14 @@ private final class ClientDelegate: ProseCoreFFI.ClientDelegate {
     self.subject = subject
   }
 
-  func connectionStatusDidChange(event: ConnectionEvent) {
+  func handleEvent(event: ClientEvent) {
     switch event {
-    case .connect:
+    case .connectionStatusChanged(.connect):
       self.subject.send(.connected)
-    case let .disconnect(error):
+    case let .connectionStatusChanged(.disconnect(error)):
       self.subject.send(.error(error))
+    default:
+      break
     }
   }
 }

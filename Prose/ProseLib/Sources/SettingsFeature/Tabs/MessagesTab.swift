@@ -36,19 +36,19 @@ struct MessagesTab: View {
     VStack(spacing: 24) {
       // "Composing"
       GroupBox(l10n.Composing.label) {
-        Toggle(l10n.Composing.showWhenTypingToggle, isOn: $composingShowWhenTyping)
-        Toggle(l10n.Composing.spellCheckToggle, isOn: $composingSpellCheck)
+        Toggle(l10n.Composing.showWhenTypingToggle, isOn: self.$composingShowWhenTyping)
+        Toggle(l10n.Composing.spellCheckToggle, isOn: self.$composingSpellCheck)
       }
 
       // "Messages"
       GroupBox(l10n.Messages.label) {
-        Toggle(l10n.Messages._24HourClockToggle, isOn: $messages24HourClock)
-        Toggle(l10n.Messages.imagePreviewsToggle, isOn: $messagesImagePreviews)
+        Toggle(l10n.Messages._24HourClockToggle, isOn: self.$messages24HourClock)
+        Toggle(l10n.Messages.imagePreviewsToggle, isOn: self.$messagesImagePreviews)
       }
 
       // "Image thumbnails"
       GroupBox(l10n.Thumbnails.label) {
-        Picker("", selection: $thumbnailsSize) {
+        Picker("", selection: self.$thumbnailsSize) {
           ForEach(MessagesSettingsThumbnailsSize.allCases, id: \.self) { value in
             Text(value.localizedDescription)
               .tag(value)

@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import ComposableArchitecture
 import ConversationFeature
 import CredentialsClient
@@ -23,7 +28,7 @@ public struct MainScreen: ReducerProtocol {
   public enum Action: Equatable {
     case sidebar(Sidebar.Action)
     case unreadStack(UnreadAction)
-    case chat(ConversationAction)
+    case chat(ConversationScreenReducer.Action)
 
     case reconnectButtonTapped
   }
@@ -33,7 +38,7 @@ public struct MainScreen: ReducerProtocol {
     case replies
     case directMessages
     case peopleAndGroups
-    case chat(ConversationState)
+    case chat(ConversationScreenReducer.ConversationState)
   }
 
   public init() {}
@@ -49,6 +54,36 @@ public struct MainScreen: ReducerProtocol {
 
     Scope(state: \.sidebar, action: /Action.sidebar) {
       Sidebar()
+    }.onChange(of: \.sidebar.selection) { selection, state, _ in
+      switch selection {
+      case .unreadStack, .none:
+        state.route = .unreadStack(.init())
+      case .replies:
+        state.route = .replies
+      case .directMessages:
+        state.route = .directMessages
+      case .peopleAndGroups:
+        state.route = .peopleAndGroups
+      case let .chat(jid):
+        var conversationState = state
+          .get { _ in ConversationScreenReducer.ConversationState(chatId: jid) }
+        var effects = EffectTask<MainScreen.Action>.none
+
+        // If another chat was selected already, we'll manually send the `.onAppear` and
+        // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
+        if var priorConversationState = state.get(MainScreen.Route.Paths.chat) {
+          effects = .concatenate([
+            ConversationScreenReducer().reduce(into: &priorConversationState, action: .onDisappear)
+              .map(MainScreen.Action.chat),
+            ConversationScreenReducer().reduce(into: &conversationState, action: .onAppear)
+              .map(MainScreen.Action.chat),
+          ])
+        }
+
+        state.route = .chat(conversationState.childState)
+        return effects
+      }
+      return .none
     }
     Scope(state: \.route, action: /.self) {
       EmptyReducer()
@@ -58,51 +93,7 @@ public struct MainScreen: ReducerProtocol {
     }
     EmptyReducer()
       .ifLet(\.chat, action: /Action.chat) {
-        Reduce(
-          conversationReducer,
-          environment: .init(
-            proseClient: self.legacyProseClient,
-            pasteboard: self.pasteboard,
-            mainQueue: self.mainQueue
-          )
-        )
-      }
-    EmptyReducer()
-      .onChange(of: \.sidebar.selection) { selection, state, _ in
-        switch selection {
-        case .unreadStack, .none:
-          state.route = .unreadStack(.init())
-        case .replies:
-          state.route = .replies
-        case .directMessages:
-          state.route = .directMessages
-        case .peopleAndGroups:
-          state.route = .peopleAndGroups
-        case let .chat(jid):
-          var conversationState = state.get { _ in ConversationState(chatId: jid) }
-          var effects = EffectTask<MainScreen.Action>.none
-
-          // If another chat was selected already, we'll manually send the `.onAppear` and
-          // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
-          if var priorConversationState = state.get(MainScreen.Route.Paths.chat) {
-            let environment = ConversationEnvironment(
-              proseClient: self.legacyProseClient,
-              pasteboard: self.pasteboard,
-              mainQueue: self.mainQueue
-            )
-
-            effects = .concatenate([
-              conversationReducer(&priorConversationState, .onDisappear, environment)
-                .map(MainScreen.Action.chat),
-              conversationReducer(&conversationState, .onAppear, environment)
-                .map(MainScreen.Action.chat),
-            ])
-          }
-
-          state.route = .chat(conversationState.childState)
-          return effects
-        }
-        return .none
+        ConversationScreenReducer()
       }
   }
 
@@ -130,7 +121,7 @@ private extension SessionState where ChildState == MainScreen.MainScreenState {
     set { self.set(\.sidebar, newValue) }
   }
 
-  var chat: SessionState<ConversationState>? {
+  var chat: ConversationScreenReducer.State? {
     get { self.get(MainScreen.Route.Paths.chat) }
     set { self.set(MainScreen.Route.Paths.chat, newValue) }
   }

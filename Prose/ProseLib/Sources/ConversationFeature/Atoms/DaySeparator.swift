@@ -20,7 +20,7 @@ struct DaySeparator: View {
     HStack {
       Colors.Border.tertiary.color
         .frame(height: 1)
-      Text(date, formatter: Self.formatter)
+      Text(self.date, formatter: Self.formatter)
         .layoutPriority(1)
         .foregroundColor(.secondary)
       Colors.Border.tertiary.color

@@ -4,6 +4,7 @@
 //
 
 import Assets
+import ProseBackend
 import ProseCoreTCA
 import SwiftUI
 
@@ -32,15 +33,15 @@ public struct AvailabilityIndicator: View {
       Circle()
         .fill(Color.white)
       Circle()
-        .fill(redactionReasons.contains(.placeholder) ? .gray : availability.fillColor)
+        .fill(self.redactionReasons.contains(.placeholder) ? .gray : self.availability.fillColor)
         .padding(2)
       Circle()
         .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5)
     }
-    .frame(width: size, height: size)
+    .frame(width: self.size, height: self.size)
     .drawingGroup()
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel(String(describing: availability))
+    .accessibilityLabel(String(describing: self.availability))
   }
 }
 
@@ -49,32 +50,32 @@ private extension Availability {
     switch self {
     case .available:
       return .green
-    case .doNotDisturb:
+    case .doNotDisturb, .away, .unavailable:
       return .orange
     }
   }
 }
 
-struct AvailabilityIndicator_Previews: PreviewProvider {
-  private struct Preview: View {
-    var body: some View {
-      HStack {
-        ForEach(Availability.allCases, id: \.self, content: AvailabilityIndicator.init(_:))
-      }
-      .padding()
-      .previewLayout(.sizeThatFits)
-    }
-  }
-
-  static var previews: some View {
-    Preview()
-      .preferredColorScheme(.light)
-      .previewDisplayName("Light")
-    Preview()
-      .preferredColorScheme(.dark)
-      .previewDisplayName("Dark")
-    Preview()
-      .redacted(reason: .placeholder)
-      .previewDisplayName("Placeholder")
-  }
-}
+// struct AvailabilityIndicator_Previews: PreviewProvider {
+//  private struct Preview: View {
+//    var body: some View {
+//      HStack {
+//        ForEach(Availability.allCases, id: \.self, content: AvailabilityIndicator.init(_:))
+//      }
+//      .padding()
+//      .previewLayout(.sizeThatFits)
+//    }
+//  }
+//
+//  static var previews: some View {
+//    Preview()
+//      .preferredColorScheme(.light)
+//      .previewDisplayName("Light")
+//    Preview()
+//      .preferredColorScheme(.dark)
+//      .previewDisplayName("Dark")
+//    Preview()
+//      .redacted(reason: .placeholder)
+//      .previewDisplayName("Placeholder")
+//  }
+// }

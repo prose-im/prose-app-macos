@@ -10,8 +10,8 @@ struct ActionButton: View {
   let action: () -> Void
 
   var body: some View {
-    Button(action: action) {
-      Label(title, systemImage: "plus.square.fill")
+    Button(action: self.action) {
+      Label(self.title, systemImage: "plus.square.fill")
         .symbolVariant(.fill)
         // Make hit box full width
         .frame(maxWidth: .infinity, alignment: .leading)

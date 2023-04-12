@@ -43,9 +43,9 @@ struct AccountsTab: View {
   var body: some View {
     NavigationView {
       Table(
-        sortedAccounts,
-        selection: $selectedAccount,
-        sortOrder: $sortOrder
+        self.sortedAccounts,
+        selection: self.$selectedAccount,
+        sortOrder: self.$sortOrder
       ) {
         TableColumn("Accounts", value: \.teamDomain) {
           AccountPickerRow(viewModel: $0)
@@ -71,7 +71,7 @@ struct AccountsTab: View {
         .background(.thickMaterial)
       }
 
-      TabView(selection: $selectedTab) {
+      TabView(selection: self.$selectedTab) {
         AccountSettingsAccountView()
           .tabItem { Text(l10n.Tabs.account) }
           .tag(Tab.account)

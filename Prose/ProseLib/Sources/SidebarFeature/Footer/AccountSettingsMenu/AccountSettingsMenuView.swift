@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AppDomain
 import AppLocalization
 import ComposableArchitecture
@@ -18,11 +23,11 @@ struct AccountSettingsMenuView: View {
     VStack(alignment: .leading, spacing: 16) {
       // TODO: [Rémi Bardon] Refactor this view out
       HStack {
-        Avatar(viewStore.avatar.map(AvatarImage.init) ?? .placeholder, size: 32)
+        Avatar(self.viewStore.avatar.map(AvatarImage.init) ?? .placeholder, size: 32)
         VStack(alignment: .leading) {
-          Text(verbatim: viewStore.fullName)
+          Text(verbatim: self.viewStore.fullName)
             .font(.headline)
-          Text(verbatim: viewStore.jid.rawValue)
+          Text(verbatim: self.viewStore.jid.rawValue)
             .font(.subheadline)
             .foregroundColor(.secondary)
         }
@@ -33,49 +38,52 @@ struct AccountSettingsMenuView: View {
       .contentShape(Rectangle())
       .accessibilityElement(children: .ignore)
       .accessibilityLabel(
-        L10n.Sidebar.Footer.Actions.Account.Header.label(viewStore.fullName, viewStore.jid.rawValue)
+        L10n.Sidebar.Footer.Actions.Account.Header.label(
+          self.viewStore.fullName,
+          self.viewStore.jid.rawValue
+        )
       )
 
       GroupBox {
-        Button { viewStore.send(.updateMoodTapped) } label: {
+        Button { self.viewStore.send(.updateMoodTapped) } label: {
           HStack(spacing: 4) {
-            Text(String(viewStore.statusIcon))
+            Text(String(self.viewStore.statusIcon))
               .accessibilityHidden(true)
             Text(verbatim: L10n.Sidebar.Footer.Actions.Account.UpdateMood.title)
           }
           .disclosureIndicator()
         }
-        Menu(L10n.Sidebar.Footer.Actions.Account.ChangeAvailability.title) {
-          self.availabilityMenu
-        }
+//        Menu(L10n.Sidebar.Footer.Actions.Account.ChangeAvailability.title) {
+//          self.availabilityMenu
+//        }
         // NOTE: [Rémi Bardon] This inverted padding fixes the padding SwiftUI adds for `Menu`s.
         .padding(.leading, -3)
         // NOTE: [Rémi Bardon] Having the disclosure indicator outside the menu label
         //       reduces the hit box, but we can't have it inside, otherwise SwiftUI
         //       places the `Image` on the leading edge.
         .disclosureIndicator()
-        Button { viewStore.send(.pauseNotificationsTapped) } label: {
+        Button { self.viewStore.send(.pauseNotificationsTapped) } label: {
           Text(verbatim: L10n.Sidebar.Footer.Actions.Account.PauseNotifications.title)
             .disclosureIndicator()
         }
       }
       GroupBox {
         Button(L10n.Sidebar.Footer.Actions.Account.EditProfile.title) {
-          viewStore.send(.editProfileTapped)
+          self.viewStore.send(.editProfileTapped)
         }
         Button(L10n.Sidebar.Footer.Actions.Account.AccountSettings.title) {
-          viewStore.send(.accountSettingsTapped)
+          self.viewStore.send(.accountSettingsTapped)
         }
       }
       GroupBox {
-        Button { viewStore.send(.offlineModeTapped) } label: {
+        Button { self.viewStore.send(.offlineModeTapped) } label: {
           Text(verbatim: L10n.Sidebar.Footer.Actions.Account.OfflineMode.title)
             .disclosureIndicator()
         }
       }
       GroupBox {
         Button(L10n.Sidebar.Footer.Actions.Account.SignOut.title, role: .destructive) {
-          viewStore.send(.signOutTapped)
+          self.viewStore.send(.signOutTapped)
         }
       }
     }
@@ -88,23 +96,24 @@ struct AccountSettingsMenuView: View {
     .frame(width: 196)
   }
 
-  var availabilityMenu: some View {
-    ForEach(Availability.allCases, id: \.self) { availability in
-      Button { self.viewStore.send(.changeAvailabilityTapped(availability)) } label: {
-        HStack {
-          // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
-          //       to add the colored dot, but `Menu`s don't display it.
-          Text(availability.localizedDescription)
-          if viewStore.availability == availability {
-            Spacer()
-            Image(systemName: "checkmark")
-          }
-        }
-      }
-      .tag(availability)
-      .disabled(viewStore.availability == availability)
-    }
-  }
+  #warning("FIXME")
+//  var availabilityMenu: some View {
+//    ForEach(Availability.allCases, id: \.self) { availability in
+//      Button { self.viewStore.send(.changeAvailabilityTapped(availability)) } label: {
+//        HStack {
+//          // NOTE: [Rémi Bardon] We could use a `Label` or `HStack` here,
+//          //       to add the colored dot, but `Menu`s don't display it.
+//          Text(availability.localizedDescription)
+//          if viewStore.availability == availability {
+//            Spacer()
+//            Image(systemName: "checkmark")
+//          }
+//        }
+//      }
+//      .tag(availability)
+//      .disabled(viewStore.availability == availability)
+//    }
+//  }
 }
 
 private extension View {

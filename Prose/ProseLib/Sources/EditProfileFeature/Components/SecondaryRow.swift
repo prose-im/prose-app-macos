@@ -20,7 +20,7 @@ struct SecondaryRow<Content: View>: View {
         .font(.headline.weight(.medium))
         // Ignore as it's already the container label
         .accessibilityHidden(true)
-      content()
+      self.content()
     }
     .accessibilityElement(children: .contain)
     .accessibilityLabel(self.label)

@@ -1,23 +1,29 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 ////
 //// This file is part of prose-app-macos.
 //// Copyright (c) 2022 Prose Foundation
 ////
 //
-//import AppDomain
-//import AppKit
-//import Combine
-//import ComposableArchitecture
-//import Foundation
-//import ProseCoreFFI
-//import Toolbox
-//import UniformTypeIdentifiers
-//import ProseBackend
+// import AppDomain
+// import AppKit
+// import Combine
+// import ComposableArchitecture
+// import Foundation
+// import ProseCoreFFI
+// import Toolbox
+// import UniformTypeIdentifiers
+// import ProseBackend
 //
-//private extension Account {
-//  static let placeholder = Account(jid: BareJid(node: "void", domain: "prose.org"), status: .connected)
-//}
+// private extension Account {
+//  static let placeholder = Account(jid: BareJid(node: "void", domain: "prose.org"), status:
+//  .connected)
+// }
 //
-//public extension ProseClient {
+// public extension ProseClient {
 //  static func live<Client: ProseClientProtocol>(
 //    provider: @escaping ProseClientProvider<Client>,
 //    imageCache: AvatarImageCache,
@@ -336,9 +342,9 @@
 //      }
 //    )
 //  }
-//}
+// }
 //
-//private extension Publisher where Output == Account {
+// private extension Publisher where Output == Account {
 //  func skipUntilConnected() -> AnyPublisher<Account, EquatableError> {
 //    self.tryDrop { account in
 //      switch account.status {
@@ -353,9 +359,9 @@
 //    .mapError(EquatableError.init)
 //    .eraseToAnyPublisher()
 //  }
-//}
+// }
 //
-//private extension Roster {
+// private extension Roster {
 //  func appendingItemToFirstGroup(_ item: Roster.Group.Item) -> Roster {
 //    let res = Roster(groups: self.groups.first.map { firstGroup in
 //      var mutGroup = firstGroup
@@ -364,16 +370,16 @@
 //    } ?? [])
 //    return res
 //  }
-//}
+// }
 //
-//enum ProseClientError: Error {
+// enum ProseClientError: Error {
 //  case connectionDidFail
 //  case notAuthenticated
 //  case unknownMessageID
 //  case invalidImage
-//}
+// }
 //
-//private final class Delegate: ProseClientDelegate, ObservableObject {
+// private final class Delegate: ProseClientDelegate, ObservableObject {
 //  let date: () -> Date
 //  let imageCache: AvatarImageCache
 //
@@ -478,9 +484,9 @@
 //    _: ProseClientProtocol,
 //    didReceiveArchivingPreferences _: XmppmamPreferences
 //  ) {}
-//}
+// }
 //
-//private extension Delegate {
+// private extension Delegate {
 //  enum CarbonKind {
 //    case sent
 //    case received
@@ -562,11 +568,12 @@
 //        return client.loadAvatarImage(jid: jid, imageId: metadata.id)
 //          .receive(on: DispatchQueue.global())
 //          .tryMap { (avatarData: XmppAvatarData?) in
-//            try avatarData.flatMap { try imageCache.cacheAvatarImage(jid, Data($0.data), $0.sha1) }
+//            try avatarData.flatMap { try imageCache.cacheAvatarImage(jid, Data($0.data), $0.sha1)
+//            }
 //          }
 //          .eraseToAnyPublisher()
 //      }
 //      .map { avatarURL in UserInfo(jid: jid, avatar: avatarURL) }
 //      .eraseToAnyPublisher()
 //  }
-//}
+// }

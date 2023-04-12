@@ -37,7 +37,7 @@ struct IdentityPopover: View {
         }
         .accessibilityHidden(true)
         VStack(alignment: .leading) {
-          Text(verbatim: l10n.Header.title(viewStore.fullName))
+          Text(verbatim: l10n.Header.title(self.viewStore.fullName))
             .font(.headline)
           Text(verbatim: l10n.Header.subtitle)
             .font(.subheadline)
@@ -49,7 +49,7 @@ struct IdentityPopover: View {
       Divider()
       VStack(alignment: .labelIconCenter, spacing: 8) {
         HStack {
-          Self.label(viewStore.signatureFingerprint, icon: "key") {
+          Self.label(self.viewStore.signatureFingerprint, icon: "key") {
             $0.text(
               notVerified: l10n.Fingerprint.StateNotVerified.label,
               verified: l10n.Fingerprint.StateVerified.label
@@ -59,7 +59,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(viewStore.email, icon: "envelope") {
+          Self.label(self.viewStore.email, icon: "envelope") {
             $0.text(
               notVerified: l10n.Email.StateNotVerified.label,
               verified: l10n.Email.StateVerified.label
@@ -69,7 +69,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(viewStore.phone, icon: "phone") {
+          Self.label(self.viewStore.phone, icon: "phone") {
             $0.text(
               notVerified: l10n.Phone.StateNotVerified.label,
               verified: l10n.Phone.StateVerified.label
@@ -79,7 +79,7 @@ struct IdentityPopover: View {
             .disabled(true)
         }
         HStack {
-          Self.label(viewStore.governmentId, icon: "signature") {
+          Self.label(self.viewStore.governmentId, icon: "signature") {
             $0.text(
               notVerified: l10n.GovernmentId.StateNotProvided.label,
               verified: l10n.GovernmentId.StateVerified.label
@@ -96,7 +96,7 @@ struct IdentityPopover: View {
       .padding(.vertical, 12)
       .background(Color(nsColor: .windowBackgroundColor))
       Divider()
-      Text(l10n.Footer.label(viewStore.identityServer).asMarkdown)
+      Text(l10n.Footer.label(self.viewStore.identityServer).asMarkdown)
         .padding(.horizontal, 24)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)

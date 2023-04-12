@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AppLocalization
 import ComposableArchitecture
 import JoinChatFeature
@@ -84,12 +89,12 @@ public struct SidebarView: View {
   }
 
   private var contactsSection: some View {
-    WithViewStore(store.scope(state: \.scoped.rosterState.sidebar.groups)) { viewStore in
+    WithViewStore(self.store.scope(state: \.scoped.rosterState.sidebar.groups)) { viewStore in
       ForEach(viewStore.state, id: \.name) { group in
         Section(group.name) {
           ForEach(group.items, id: \.jid) { item in
             ContactRow(
-              title: item.jid.rawValue,
+              title: item.name,
               avatar: .init(url: item.avatarURL),
               count: item.numberOfUnreadMessages,
               status: item.status

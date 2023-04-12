@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AppLocalization
 import ComposableArchitecture
 import ProseCoreTCA
@@ -26,7 +31,7 @@ public struct EditProfileScreen: View {
         Sidebar(store: self.store.scope(state: \.sidebar, action: ViewAction.sidebar))
       },
       detail: {
-        detailView()
+        self.detailView()
           .frame(minWidth: Self.minContentWidth, minHeight: 512)
           .safeAreaInset(edge: .bottom, alignment: .trailing) {
             HStack {

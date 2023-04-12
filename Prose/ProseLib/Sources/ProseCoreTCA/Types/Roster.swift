@@ -47,31 +47,31 @@ public extension Roster.Group.Item {
   }
 }
 
-//extension Roster {
+// extension Roster {
 //  init(roster: XmppRoster) {
 //    self.init(groups: roster.groups.map(Group.init))
 //  }
-//}
+// }
 //
-//extension Roster.Group {
+// extension Roster.Group {
 //  init(group: XmppRosterGroup) {
 //    self.init(
 //      name: group.name,
 //      items: group.items.map(Item.init)
 //    )
 //  }
-//}
+// }
 //
-//extension Roster.Group.Item {
+// extension Roster.Group.Item {
 //  init(item: XmppRosterItem) {
 //    self.init(
 //      jid: item.jid,
 //      subscription: .init(subscription: item.subscription)
 //    )
 //  }
-//}
+// }
 //
-//extension Roster.Group.Item.Subscription {
+// extension Roster.Group.Item.Subscription {
 //  init(subscription: XmppRosterItemSubscription) {
 //    switch subscription {
 //    case .none:
@@ -86,4 +86,4 @@ public extension Roster.Group.Item {
 //      fatalError("Unknown RosterItemSubscription \(subscription)")
 //    }
 //  }
-//}
+// }

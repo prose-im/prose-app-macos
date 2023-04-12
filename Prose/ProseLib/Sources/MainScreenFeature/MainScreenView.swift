@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AddressBookFeature
 import AppDomain
 import Assets
@@ -25,10 +30,12 @@ public struct MainScreenView: View {
 
   public var body: some View {
     NavigationView {
-      SidebarView(store: self.store
-        .scope(state: \.scoped.sidebar, action: MainScreen.Action.sidebar))
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("Sidebar")
+      SidebarView(
+        store: self.store
+          .scope(state: \.scoped.sidebar, action: MainScreen.Action.sidebar)
+      )
+      .accessibilityElement(children: .contain)
+      .accessibilityIdentifier("Sidebar")
 
       ZStack(alignment: .top) {
         SwitchStore(self.store.scope(state: \.route)) {
@@ -52,8 +59,8 @@ public struct MainScreenView: View {
           }
         }
 
-        if let account = viewStore.selectedAccount, account.status != .connected {
-          OfflineBanner(account: account)
+        if self.viewStore.selectedAccount.status != .connected {
+          OfflineBanner(account: self.viewStore.selectedAccount)
         }
       }
       .accessibilityElement(children: .contain)
@@ -76,10 +83,10 @@ struct OfflineBanner: View {
       Spacer()
       Button(action: {}) {
         Text("Reconnect")
-        if account.status == .connecting {
+        if self.account.status == .connecting {
           ProgressView().controlSize(.mini)
         }
-      }.disabled(account.status == .connecting)
+      }.disabled(self.account.status == .connecting)
     }
     .frame(maxWidth: .infinity)
     .padding()

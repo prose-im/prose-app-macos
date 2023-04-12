@@ -107,7 +107,7 @@ struct NotificationsTab: View {
     VStack {
       // "Notify me about"
       GroupBox(l10n.NotifyGovernor.label) {
-        Picker("", selection: $notifyGovernor) {
+        Picker("", selection: self.$notifyGovernor) {
           ForEach(NotificationsSettingsNotify.allCases, id: \.self) { value in
             Text(value.localizedDescription)
               .tag(value)
@@ -116,13 +116,13 @@ struct NotificationsTab: View {
         .labelsHidden()
         .frame(width: SettingsConstants.selectNormalWidth)
 
-        Toggle(l10n.NotifyOnReply.toggle, isOn: $notifyOnReply)
+        Toggle(l10n.NotifyOnReply.toggle, isOn: self.$notifyOnReply)
           .frame(maxWidth: .infinity, alignment: .leading)
       }
 
       // "Get notified"
       GroupBox(l10n.Schedule.label) {
-        Picker("", selection: $scheduleDays) {
+        Picker("", selection: self.$scheduleDays) {
           ForEach(NotificationsSettingsScheduleDays.allCases, id: \.self) { value in
             Text(value.localizedDescription)
               .tag(value)
@@ -132,7 +132,7 @@ struct NotificationsTab: View {
         .frame(width: SettingsConstants.selectNormalWidth)
 
         HStack {
-          Picker("", selection: $scheduleTimeFrom) {
+          Picker("", selection: self.$scheduleTimeFrom) {
             ForEach(NotificationsSettingsScheduleTime.allCases, id: \.self) { value in
               Text(value.localizedDescription)
                 .tag(value)
@@ -143,7 +143,7 @@ struct NotificationsTab: View {
 
           Text(l10n.Schedule.timeSeparator)
 
-          Picker("", selection: $scheduleTimeTo) {
+          Picker("", selection: self.$scheduleTimeTo) {
             ForEach(NotificationsSettingsScheduleTime.allCases, id: \.self) { value in
               Text(value.localizedDescription)
                 .tag(value)
@@ -156,16 +156,16 @@ struct NotificationsTab: View {
 
       // "When notified"
       GroupBox(l10n.Action.label) {
-        Toggle(l10n.Action.badgeToggle, isOn: $actionBadge)
-        Toggle(l10n.Action.soundToggle, isOn: $actionSound)
-        Toggle(l10n.Action.bannerToggle, isOn: $actionBanner)
+        Toggle(l10n.Action.badgeToggle, isOn: self.$actionBadge)
+        Toggle(l10n.Action.soundToggle, isOn: self.$actionSound)
+        Toggle(l10n.Action.bannerToggle, isOn: self.$actionBanner)
       }
 
       // "Mobile alerts"
       GroupBox(l10n.Handover.label) {
-        Toggle(l10n.Handover.ForwardMobile.toggle, isOn: $handoverForwardMobileEnabled)
+        Toggle(l10n.Handover.ForwardMobile.toggle, isOn: self.$handoverForwardMobileEnabled)
 
-        Picker("", selection: $handoverForwardMobileAfter) {
+        Picker("", selection: self.$handoverForwardMobileAfter) {
           ForEach(
             NotificationsSettingsHandoverForwardMobileAfter.allCases,
             id: \.self

@@ -4,6 +4,7 @@
 //
 
 import Assets
+import ProseBackend
 import ProseCoreTCA
 import ProseUI
 import SwiftUI
@@ -21,16 +22,16 @@ public struct MessageView: View {
 
       VStack(alignment: .leading, spacing: 3) {
         HStack(alignment: .firstTextBaseline) {
-          Text(model.from.jidString)
+          Text(self.model.from.rawValue)
             .font(.system(size: 13).bold())
             .foregroundColor(Colors.Text.primary.color)
 
-          Text(model.timestamp, format: .relative(presentation: .numeric))
+          Text(self.model.timestamp, format: .relative(presentation: .numeric))
             .font(.system(size: 11.5))
             .foregroundColor(Colors.Text.secondary.color)
         }
 
-        Text(model.body)
+        Text(self.model.body)
           .font(.system(size: 12.5))
           .fontWeight(.regular)
           .foregroundColor(Colors.Text.primary.color)

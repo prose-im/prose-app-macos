@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AccountBookmarksClient
 import AppDomain
 import AuthenticationFeature
@@ -165,7 +170,7 @@ struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtoc
   let child: Child
   let enableWhen: KeyPath<Child.State, Bool>
 
-  init(when: KeyPath<Child.State, Bool>, @ReducerBuilder<State, Action> _ child: () -> Child) {
+  init(when: KeyPath<State, Bool>, @ReducerBuilder<State, Action> _ child: () -> Child) {
     self.enableWhen = when
     self.child = child()
   }

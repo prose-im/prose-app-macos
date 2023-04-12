@@ -1,17 +1,22 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 ////
 //// This file is part of prose-app-macos.
 //// Copyright (c) 2022 Prose Foundation
 ////
 //
-//import Combine
-//import Foundation
-//import ProseCoreFFI
+// import Combine
+// import Foundation
+// import ProseCoreFFI
 //
-//enum ProseClientError: Error {
+// enum ProseClientError: Error {
 //  case unsupportedCredentials
-//}
+// }
 //
-//extension ProseClient: ClientDelegate {
+// extension ProseClient: ClientDelegate {
 //  public func connectionStatusDidChange(event: ConnectionEvent) {
 //    switch event {
 //    case .connect:
@@ -20,9 +25,9 @@
 //      print("Disconnected. Error?", error.localizedDescription)
 //    }
 //  }
-//}
+// }
 //
-//public final class ProseClient: ProseClientProtocol {
+// public final class ProseClient: ProseClientProtocol {
 //  public private(set) weak var delegate: ProseClientDelegate?
 //
 //  private let client: ProseCoreFFI.Client
@@ -216,9 +221,9 @@
 //    .subscribe(on: self.delegateQueue)
 //    .eraseToAnyPublisher()
 //  }
-//}
+// }
 //
-//extension ProseClient: XmppAccountObserver {
+// extension ProseClient: XmppAccountObserver {
 //  public func didConnect() {
 //    self.callDelegateOnQueue { delegate in
 //      delegate.proseClientDidConnect(self)
@@ -327,9 +332,9 @@
 //    jid _: BareJid,
 //    metadata _: [XmppAvatarMetadataInfo]
 //  ) {}
-//}
+// }
 //
-//private extension ProseClient {
+// private extension ProseClient {
 //  func callDelegateOnQueue(_ handler: @escaping (ProseClientDelegate) -> Void) {
 //    weak var delegate = self.delegate
 //    self.delegateQueue.async {
@@ -338,4 +343,4 @@
 //      }
 //    }
 //  }
-//}
+// }

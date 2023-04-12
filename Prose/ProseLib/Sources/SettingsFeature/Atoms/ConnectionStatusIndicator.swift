@@ -37,8 +37,8 @@ struct ConnectionStatusIndicator: View {
 
   var body: some View {
     Circle()
-      .fill(status.fillColor)
-      .frame(width: size, height: size)
+      .fill(self.status.fillColor)
+      .frame(width: self.size, height: self.size)
   }
 }
 

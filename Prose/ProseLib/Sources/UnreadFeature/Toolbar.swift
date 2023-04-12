@@ -55,7 +55,7 @@ internal struct Toolbar_Previews: PreviewProvider {
 
     var body: some View {
       HStack {
-        Toolbar.actions(redactionReasons: redactionReasons)
+        Toolbar.actions(redactionReasons: self.redactionReasons)
       }
       .padding()
       .previewLayout(.sizeThatFits)

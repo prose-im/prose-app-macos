@@ -18,15 +18,15 @@ struct SidebarPartContextComponent: View {
       HStack(spacing: 12) {
         // User avatar
         SidebarContextAvatarComponent(
-          avatar: avatar,
+          avatar: self.avatar,
           status: .online
         )
 
         // Team name + user status
         SidebarContextCurrentComponent(
-          teamName: teamName,
-          statusIcon: statusIcon,
-          statusMessage: statusMessage
+          teamName: self.teamName,
+          statusIcon: self.statusIcon,
+          statusMessage: self.statusMessage
         )
         .layoutPriority(1)
 

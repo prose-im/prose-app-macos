@@ -10,40 +10,40 @@ import Tagged
 
 // MARK: - Message
 
-public struct Message: Equatable, Identifiable {
-  public typealias ID = Tagged<Message, String>
+// public struct Message: Equatable, Identifiable {
+//  public typealias ID = Tagged<Message, String>
+//
+//  public var from: JID
+//  public var id: ID
+//  public var kind: MessageKind?
+//  public var body: String
+//  public var timestamp: Date
+//  public var isRead: Bool
+//  public var isEdited: Bool
+//  public var reactions: MessageReactions
+//
+//  public init(
+//    from: JID,
+//    id: ID,
+//    kind: MessageKind?,
+//    body: String,
+//    timestamp: Date,
+//    isRead: Bool,
+//    isEdited: Bool,
+//    reactions: MessageReactions = .init()
+//  ) {
+//    self.from = from
+//    self.id = id
+//    self.kind = kind
+//    self.body = body
+//    self.timestamp = timestamp
+//    self.isRead = isRead
+//    self.isEdited = isEdited
+//    self.reactions = reactions
+//  }
+// }
 
-  public var from: JID
-  public var id: ID
-  public var kind: MessageKind?
-  public var body: String
-  public var timestamp: Date
-  public var isRead: Bool
-  public var isEdited: Bool
-  public var reactions: MessageReactions
-
-  public init(
-    from: JID,
-    id: ID,
-    kind: MessageKind?,
-    body: String,
-    timestamp: Date,
-    isRead: Bool,
-    isEdited: Bool,
-    reactions: MessageReactions = .init()
-  ) {
-    self.from = from
-    self.id = id
-    self.kind = kind
-    self.body = body
-    self.timestamp = timestamp
-    self.isRead = isRead
-    self.isEdited = isEdited
-    self.reactions = reactions
-  }
-}
-
-//extension Message {
+// extension Message {
 //  init?(message: XmppMessage, timestamp: Date) {
 //    // We'll discard messages with empty bodies and messages without ids. Ids don't seem to be
 //    // specified in the XMPP spec but our current server adds them, unless you send a message to
@@ -66,7 +66,7 @@ public struct Message: Equatable, Identifiable {
 //      isEdited: false
 //    )
 //  }
-//}
+// }
 
 extension Message: Encodable {
   enum CodingKeys: String, CodingKey {
@@ -102,7 +102,8 @@ extension Message: Encodable {
       try container.encode(false, forKey: .encrypted)
     }
 
-    try container.encode(self.reactions, forKey: .reactions)
+    #warning("FIXME!")
+    // try container.encode(self.reactions, forKey: .reactions)
   }
 }
 
@@ -116,7 +117,7 @@ public enum MessageKind: Equatable {
   case normal
 }
 
-//extension MessageKind {
+// extension MessageKind {
 //  init(kind: XmppMessageKind) {
 //    switch kind {
 //    case .chat:
@@ -133,7 +134,7 @@ public enum MessageKind: Equatable {
 //      fatalError("Unknown MessageKind \(kind)")
 //    }
 //  }
-//}
+// }
 
 // MARK: - MessageReactions
 

@@ -88,7 +88,7 @@
          <EnvironmentVariable
             key = "PROSE_CORE_LOG_ENABLED"
             value = "1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "RUST_BACKTRACE"

@@ -20,11 +20,11 @@ struct AccountPickerRow: View {
     HStack {
       Avatar(.placeholder, size: 32)
       VStack(alignment: .leading, spacing: 2) {
-        Text(verbatim: viewModel.userName)
+        Text(verbatim: self.viewModel.userName)
           .font(.headline)
           .foregroundColor(.primary)
 
-        Text(verbatim: viewModel.teamDomain)
+        Text(verbatim: self.viewModel.teamDomain)
           .font(.subheadline)
           .foregroundColor(.secondary)
       }

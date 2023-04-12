@@ -27,7 +27,7 @@ public extension ChatState {
   }
 }
 
-//extension ChatState {
+// extension ChatState {
 //  init(state: XmppChatState, timestamp: Date) {
 //    switch state {
 //    case .active:
@@ -45,9 +45,9 @@ public extension ChatState {
 //    }
 //    self.timestamp = timestamp
 //  }
-//}
+// }
 //
-//extension ChatState.Kind {
+// extension ChatState.Kind {
 //  var ffi: XmppChatState {
 //    switch self {
 //    case .active:
@@ -62,4 +62,4 @@ public extension ChatState {
 //      return .paused
 //    }
 //  }
-//}
+// }

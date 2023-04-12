@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import Foundation
 import ComposableArchitecture
+import Foundation
 
 public struct PasteboardClient {
   public var copyString: (String) -> Void

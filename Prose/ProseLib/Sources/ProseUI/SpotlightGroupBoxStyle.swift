@@ -32,7 +32,7 @@ private struct SpotlightItemBackground: ViewModifier {
       .padding(.vertical, 8)
       .padding(.horizontal, 16)
       .background {
-        shape
+        self.shape
           .fill(.background)
           .shadow(color: .gray.opacity(0.5), radius: 1)
       }

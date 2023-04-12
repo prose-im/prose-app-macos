@@ -13,16 +13,16 @@ struct ContentSection<Content: View>: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text(verbatim: header)
+      Text(verbatim: self.header)
         .font(.title3.bold())
         .foregroundColor(.secondary)
         .multilineTextAlignment(.leading)
         .padding(.horizontal)
         // Ignore as it's already the container label
         .accessibilityHidden(true)
-      content()
+      self.content()
         .layoutPriority(1)
-      Text(footer.asMarkdown)
+      Text(self.footer.asMarkdown)
         .font(.footnote)
         .foregroundColor(.secondary)
         .multilineTextAlignment(.leading)
@@ -30,7 +30,7 @@ struct ContentSection<Content: View>: View {
         .fixedSize(horizontal: false, vertical: true)
     }
     .accessibilityElement(children: .contain)
-    .accessibilityLabel(header)
+    .accessibilityLabel(self.header)
   }
 }
 

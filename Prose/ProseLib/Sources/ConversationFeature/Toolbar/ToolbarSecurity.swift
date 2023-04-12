@@ -21,7 +21,7 @@ struct ToolbarSecurity: View {
         .accessibilityLabel(self.isVerified ? "Verified" : "Not verified")
         .accessibilitySortPriority(1)
 
-      Text(verbatim: String(describing: jid))
+      Text(verbatim: String(describing: self.jid))
         .foregroundColor(Colors.Text.secondary.color)
         .accessibilitySortPriority(2)
     }

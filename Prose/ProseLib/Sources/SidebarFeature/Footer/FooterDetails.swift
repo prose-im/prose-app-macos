@@ -14,11 +14,11 @@ struct FooterDetails: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
-      Text(teamName)
+      Text(self.teamName)
         .font(.system(size: 12, weight: .bold))
         .foregroundColor(Colors.Text.primary.color)
 
-      Text("\(String(statusIcon)) “\(statusMessage)”")
+      Text("\(String(self.statusIcon)) “\(self.statusMessage)”")
         .font(.system(size: 11))
         .foregroundColor(Colors.Text.secondary.color)
         .layoutPriority(1)
@@ -27,7 +27,7 @@ struct FooterDetails: View {
     .frame(maxWidth: .infinity, alignment: .leading)
     .contentShape([.interaction, .focusEffect], Rectangle())
     .accessibilityElement(children: .ignore)
-    .accessibilityLabel("\(L10n.Server.ConnectedTo.label(teamName)), \(statusMessage)")
+    .accessibilityLabel("\(L10n.Server.ConnectedTo.label(self.teamName)), \(self.statusMessage)")
   }
 }
 

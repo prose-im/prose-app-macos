@@ -66,7 +66,7 @@ struct CallsTab: View {
         // "Camera tester"
         GroupBox(l10n.VideoInput.testerLabel) {
           VideoPreviewView(
-            streamPath: videoInputStreamPath,
+            streamPath: self.videoInputStreamPath,
             sizeWidth: 260.0,
             sizeHeight: 180.0
           )
@@ -74,7 +74,7 @@ struct CallsTab: View {
 
         // "Default video input"
         GroupBox(l10n.VideoInput.defaultLabel) {
-          Picker("", selection: $videoInputDefault) {
+          Picker("", selection: self.$videoInputDefault) {
             ForEach(CallsSettingsVideoInputDefault.allCases, id: \.self) { value in
               Text(value.localizedDescription)
                 .tag(value)
@@ -91,7 +91,7 @@ struct CallsTab: View {
         // "Microphone tester"
         GroupBox(l10n.AudioInput.testerLabel) {
           LevelIndicator(
-            currentValue: audioInputLevel,
+            currentValue: self.audioInputLevel,
             tickMarkFactor: 8.0
           )
           .frame(width: SettingsConstants.selectLargeWidth)
@@ -99,7 +99,7 @@ struct CallsTab: View {
 
         // "Default audio input"
         GroupBox(l10n.AudioInput.defaultLabel) {
-          Picker("", selection: $audioInputDefault) {
+          Picker("", selection: self.$audioInputDefault) {
             ForEach(CallsSettingsAudioInputDefault.allCases, id: \.self) { value in
               Text(value.localizedDescription)
                 .tag(value)
@@ -122,7 +122,7 @@ struct CallsTab: View {
 
         // "Default audio output"
         GroupBox(l10n.AudioOutput.defaultLabel) {
-          Picker("", selection: $audioOutputDefault) {
+          Picker("", selection: self.$audioOutputDefault) {
             ForEach(CallsSettingsAudioOutputDefault.allCases, id: \.self) { value in
               Text(value.localizedDescription)
                 .tag(value)

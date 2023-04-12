@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "4ad606ba5d7673ea60679a61ff867cc1ff8c8e86",
-        "version" : "1.2.1"
+        "revision" : "fee6933f37fde9a5e12a1e4aeaa93fe60116ff2a",
+        "version" : "1.2.2"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "ae4d0b672cd7094ae513097c617951a5ac714418",
-        "version" : "0.50.8"
+        "revision" : "c7e1c4e6b566bf5c50ddc64122df5c43cdab7a5b",
+        "version" : "0.51.6"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/thii/xcbeautify",
       "state" : {
-        "revision" : "b578117619ffed44fb879b29e4e9a481143b0b1b",
-        "version" : "0.16.0"
+        "revision" : "e3bc4e04618efa7aaf8fac4727f7fe7ffd951e08",
+        "version" : "0.19.0"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "4889c132978bc6ad3e80f680011ec3dd4fead90c",
-        "version" : "5.0.4"
+        "revision" : "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
+        "version" : "5.0.5"
       }
     }
   ],

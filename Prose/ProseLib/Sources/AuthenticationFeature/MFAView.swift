@@ -4,9 +4,9 @@
 //
 
 import ComposableArchitecture
-import SwiftUI
-import ProseCoreTCA
 import CredentialsClient
+import ProseCoreTCA
+import SwiftUI
 
 // MARK: - View
 

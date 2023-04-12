@@ -50,14 +50,14 @@ struct ThreeColumns<Column1: View, Column2: View, Column3: View>: View {
 
   var body: some View {
     HStack {
-      column1
+      self.column1
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
         // Ignore as it's already the container label
         .accessibilityHidden(true)
-      column2
+      self.column2
         .frame(maxWidth: .infinity, alignment: .leading)
-      column3
+      self.column3
         .font(.headline.weight(.medium))
         .frame(width: 96, alignment: .leading)
     }

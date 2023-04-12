@@ -16,7 +16,7 @@ struct AccountSettingsAccountView: View {
   var body: some View {
     VStack(spacing: 24) {
       GroupBox(l10n.enabledLabel) {
-        Toggle("", isOn: $enabled)
+        Toggle("", isOn: self.$enabled)
           .toggleStyle(.switch)
           .labelsHidden()
           .disabled(true)
@@ -33,13 +33,13 @@ struct AccountSettingsAccountView: View {
 
       VStack {
         GroupBox(l10n.addressLabel) {
-          TextField("", text: $username, prompt: Text(l10n.addressPlaceholder))
+          TextField("", text: self.$username, prompt: Text(l10n.addressPlaceholder))
             .textContentType(.username)
             .disableAutocorrection(true)
         }
 
         GroupBox(l10n.passwordLabel) {
-          SecureField("", text: $password, prompt: Text(l10n.passwordPlaceholder))
+          SecureField("", text: self.$password, prompt: Text(l10n.passwordPlaceholder))
             .textContentType(.password)
         }
       }

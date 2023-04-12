@@ -5,9 +5,9 @@
 
 import AppLocalization
 import Assets
+import ProseBackend
 import ProseCoreTCA
 import SwiftUI
-import ProseBackend
 
 private let l10n = L10n.Content.MessageBar.self
 
