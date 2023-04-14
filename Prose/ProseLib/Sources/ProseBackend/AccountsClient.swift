@@ -25,7 +25,7 @@ public struct AccountsClient {
   /// Disconnects the account with the given JID and removes it from `availableAccounts`.
   public var disconnectAccount: (BareJid) async throws -> Void
 
-  public var client: (BareJid) -> ProseCoreClient?
+  public var client: (BareJid) throws -> ProseCoreClient
 }
 
 public extension DependencyValues {

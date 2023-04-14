@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import AppDomain
 import BareMinimum
 import Combine
@@ -40,7 +45,7 @@ extension ProseCoreClient {
       loggerLock.withLock {
         if !loggerInitialized {
           loggerInitialized = true
-          setLogger(logger: OSLogger(), maxLevel: .info)
+          setLogger(logger: OSLogger(), maxLevel: .trace)
         }
       }
     }
@@ -130,6 +135,30 @@ extension ProseCoreClient {
           try await client.sendMessage(to: to, body: body)
         }
       },
+      updateMessage: { conversation, messageId, body in
+        try await withClient { client in
+          try await client.updateMessage(conversation: conversation, id: messageId, body: body)
+        }
+      },
+      toggleReactionToMessage: { conversation, messageId, emoji in
+        try await withClient { client in
+          try await client.toggleReactionToMessage(
+            conversation: conversation,
+            id: messageId,
+            emoji: emoji
+          )
+        }
+      },
+      retractMessage: { conversation, messageId in
+        try await withClient { client in
+          try await client.retractMessage(conversation: conversation, id: messageId)
+        }
+      },
+      sendChatState: { conversation, state in
+        try await withClient { client in
+          try await client.sendChatState(conversation: conversation, chatState: state)
+        }
+      },
       loadLatestMessages: { conversation, since, loadFromServer in
         try await withClient { client in
           try await client.loadLatestMessages(
@@ -142,6 +171,11 @@ extension ProseCoreClient {
       loadMessagesBefore: { conversation, before in
         try await withClient { client in
           try await client.loadMessagesBefore(from: conversation, before: before)
+        }
+      },
+      loadMessagesWithIds: { conversation, ids in
+        try await withClient { client in
+          try await client.loadMessagesWithIds(conversation: conversation, ids: ids)
         }
       }
     )

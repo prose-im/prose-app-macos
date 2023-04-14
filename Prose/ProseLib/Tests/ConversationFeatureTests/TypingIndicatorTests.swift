@@ -91,7 +91,7 @@ final class TypingIndicatorTests: XCTestCase {
     ])
 
     // Send the message
-    store.send(.messageField(.field(.sendTapped)))
+    store.send(.messageField(.field(.sendButtonTapped)))
     store.receive(.messageField(.field(.send(message: "I write and I continue"))))
     store.receive(.messageSendResult(.success(.none))) {
       $0.messageField.message = ""

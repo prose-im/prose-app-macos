@@ -107,7 +107,3 @@ private struct MessageBarAlignment: AlignmentID {
 private extension VerticalAlignment {
   static let messageBar: Self = .init(MessageBarAlignment.self)
 }
-
-// extension Alignment {
-//  static let messageBar: Self = .init(horizontal: .center, vertical: .messageBar)
-// }

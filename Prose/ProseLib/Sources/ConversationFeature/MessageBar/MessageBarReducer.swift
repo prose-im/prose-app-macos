@@ -7,6 +7,7 @@ import ComposableArchitecture
 import ProseBackend
 import ProseCoreTCA
 import ProseUI
+import TCAUtils
 import Toolbox
 
 public struct MessageBarReducer: ReducerProtocol {
@@ -14,7 +15,7 @@ public struct MessageBarReducer: ReducerProtocol {
 
   public struct MessageBarState: Equatable {
     var typingUsers = [UserInfo]()
-    var messageField = MessageFieldReducer.State()
+    var messageField = MessageFieldReducer.MessageFieldState()
     var emojiPicker: ReactionPickerReducer.State?
 
     public init() {}
@@ -38,6 +39,7 @@ public struct MessageBarReducer: ReducerProtocol {
   enum EffectToken: Hashable, CaseIterable {
     case observeParticipantStates
     case sendMessage
+    case debounceChatState
   }
 
   public init() {}
@@ -48,48 +50,26 @@ public struct MessageBarReducer: ReducerProtocol {
     BindingReducer()
     Scope(state: \.messageField, action: /Action.messageField) {
       MessageFieldReducer()
+        .onChange(of: \.childState) { _, state, _ in
+          // If the text field is not focused or empty we don't consider the user typing.
+          if !state.isFocused || state.message.isEmpty {
+            return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+              try await self.accounts.client(currentUser).sendChatState(chatId, .active)
+            }.cancellable(id: EffectToken.debounceChatState, cancelInFlight: true)
+          } else {
+            return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+              try await Task.sleep(for: .composeDebounceDuration)
+              try await self.accounts.client(currentUser).sendChatState(chatId, .composing)
+              try await Task.sleep(for: .pauseTypingDebounceDuration - .composeDebounceDuration)
+              try await self.accounts.client(currentUser).sendChatState(chatId, .paused)
+            }.cancellable(id: EffectToken.debounceChatState, cancelInFlight: true)
+          }
+        }
     }
     self.core
       .ifLet(\.emojiPicker, action: /Action.emojiPicker) {
         ReactionPickerReducer()
       }
-
-    #warning("TODO: Send chat state")
-//    .onChange(of: { TextFieldState($0.childState) }) { current, state, _, environment in
-//      if !current.isFocused || current.message.isEmpty {
-//        // If the text field is not focused or empty we don't consider the user typing.
-//        return .merge(
-//          environment.proseClient
-//            .sendChatState(state.chatId, .active)
-//            .fireAndForget(),
-//          .cancel(id: MessageComposingFieldEffectToken.pauseTyping)
-//        )
-//      } else {
-//        return .merge(
-//          environment.proseClient
-//            .sendChatState(state.chatId, .composing)
-//            .fireAndForget(),
-//          EffectTask(value: .setChatState(.paused))
-//            .delay(for: .pauseTypingDebounceDuration, scheduler: environment.mainQueue)
-//            .eraseToEffect()
-//            .cancellable(id: MessageComposingFieldEffectToken.pauseTyping, cancelInFlight: true)
-//        )
-//      }
-//    },
-//    AnyReducer { state, action, environment in
-//      switch action {
-//      case let .setChatState(chatState):
-//        return environment.proseClient
-//          .sendChatState(state.chatId, chatState)
-//          .fireAndForget()
-//
-//      case .onDisappear:
-//        return .cancel(token: MessageComposingFieldEffectToken.self)
-//
-//      case .field:
-//        return .none
-//      }
-//    }
   }
 
   @ReducerBuilder<State, Action>
@@ -98,6 +78,7 @@ public struct MessageBarReducer: ReducerProtocol {
       switch action {
       case .onAppear:
         return .none
+        #warning("FIXME")
 //        let chatId = state.chatId
 //        let loggedInUserJID = state.currentUser
 //        return environment.proseClient.activeChats()
@@ -121,21 +102,24 @@ public struct MessageBarReducer: ReducerProtocol {
         state.typingUsers = jids.map { state.userInfos[$0, default: .init(jid: $0)] }
         return .none
 
-      case let .emojiPicker(.select(reaction)):
+      case let .emojiPicker(.select(emoji)):
         state.emojiPicker = nil
-        state.messageField.message.append(contentsOf: reaction.rawValue)
+        state.messageField.message.append(contentsOf: emoji)
         return .none
 
       case .emojiPickerDismissed:
         state.emojiPicker = nil
         return .none
 
-      case let .messageField(.send(messageContent)):
+      case .messageField(.sendButtonTapped):
+        let message = state.messageField.trimmedMessage
+        guard !message.isEmpty else {
+          return .none
+        }
+
         return .task { [currentUser = state.currentUser, to = state.chatId] in
           await .messageSendResult(TaskResult {
-            try await self.accounts.client(currentUser)
-              .expect("Missing client")
-              .sendMessage(to, messageContent)
+            try await self.accounts.client(currentUser).sendMessage(to, message)
             return .none
           })
         }.cancellable(id: EffectToken.sendMessage)
@@ -161,14 +145,14 @@ public struct MessageBarReducer: ReducerProtocol {
   }
 }
 
-// private extension MessageBarReducer.State {
-//  var messageField: ChatSessionState<MessageBarReducer.MessageBarState> {
-//    get {
-//      var messageField = self.get(\.messageField)
-//      messageField.placeholder = l10n
-//        .fieldPlaceholder(self.userInfos[self.chatId]?.name ?? self.chatId.rawValue)
-//      return messageField
-//    }
-//    set { self.set(\.messageField, newValue) }
-//  }
-// }
+extension MessageBarReducer.State {
+  var messageField: MessageFieldReducer.State {
+    get { self.get(\.messageField) }
+    set { self.set(\.messageField, newValue) }
+  }
+}
+
+extension Duration {
+  static let composeDebounceDuration: Self = .milliseconds(500)
+  static let pauseTypingDebounceDuration: Self = .seconds(30)
+}

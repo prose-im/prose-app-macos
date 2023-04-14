@@ -4,36 +4,34 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 public struct MessageFieldReducer: ReducerProtocol {
-  public struct State: Equatable {
+  public typealias State = ChatSessionState<MessageFieldState>
+
+  public struct MessageFieldState: Equatable {
     @BindingState var isFocused = false
     @BindingState var message = ""
+
+    var isSendButtonEnabled: Bool {
+      !self.trimmedMessage.isEmpty
+    }
+
+    var trimmedMessage: String {
+      self.message.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     public init() {}
   }
 
   public enum Action: Equatable, BindableAction {
-    case sendTapped
-    case send(message: String)
+    case sendButtonTapped
     case binding(BindingAction<State>)
   }
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
-
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
-    Reduce { state, action in
-      switch action {
-      case .sendTapped where !state.message.isEmpty:
-        let content = state.message
-        return EffectTask(value: .send(message: state.message))
-
-      case .sendTapped, .send, .binding:
-        return .none
-      }
-    }
   }
 }

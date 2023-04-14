@@ -5,13 +5,13 @@
 
 import ComposableArchitecture
 import Foundation
-import ProseCoreTCA
+import ProseBackend
 
 public struct ReactionPickerReducer: ReducerProtocol {
   public struct State: Equatable {
-    let reactions: [Reaction] = "👋👉👍😂😢😭😍😘😊🤯❤️🙏😛🚀⚠️😀😌😇🙃🙂🤩🥳🤨🙁😳🤔😐👀✅❌"
-      .map { Reaction(rawValue: String($0)) }
-    var selected: Set<Reaction>
+    let reactions: [Emoji] = "👋👉👍😂😢😭😍😘😊🤯❤️🙏😛🚀⚠️😀😌😇🙃🙂🤩🥳🤨🙁😳🤔😐👀✅❌"
+      .map(Emoji.init)
+    var selected: Set<Emoji>
 
     let columnCount = 5
     let fontSize: CGFloat = 24
@@ -20,14 +20,14 @@ public struct ReactionPickerReducer: ReducerProtocol {
     var width: CGFloat { self.fontSize * 1.5 }
     var height: CGFloat { self.width }
 
-    public init(selected: Set<Reaction> = []) {
+    public init(selected: Set<Emoji> = []) {
       self.selected = selected
     }
   }
 
   public enum Action: Equatable {
-    case select(Reaction)
-    case deselect(Reaction)
+    case select(Emoji)
+    case deselect(Emoji)
   }
 
   public init() {}

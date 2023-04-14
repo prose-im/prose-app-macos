@@ -18,15 +18,15 @@ public struct ReactionPicker: View {
   public var body: some View {
     WithViewStore(self.store) { viewStore in
       LazyVGrid(columns: Self.columns(state: viewStore.state), spacing: viewStore.spacing) {
-        ForEach(viewStore.reactions, id: \.self) { reaction in
-          let isSelected: Bool = viewStore.selected.contains(reaction)
+        ForEach(viewStore.reactions, id: \.self) { emoji in
+          let isSelected: Bool = viewStore.selected.contains(emoji)
           Button {
-            viewStore.send(isSelected ? .deselect(reaction) : .select(reaction))
+            viewStore.send(isSelected ? .deselect(emoji) : .select(emoji))
           } label: {
-            Text(reaction.rawValue)
+            Text(emoji)
               .font(.system(size: viewStore.fontSize))
               .frame(width: viewStore.width, height: viewStore.height)
-              .modifier(Selected(viewStore.selected.contains(reaction)))
+              .modifier(Selected(viewStore.selected.contains(emoji)))
               .fixedSize()
           }
           .buttonStyle(.plain)

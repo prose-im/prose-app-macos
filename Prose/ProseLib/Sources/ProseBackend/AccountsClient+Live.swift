@@ -10,6 +10,8 @@ import ComposableArchitecture
 import Foundation
 import ProseCoreFFI
 
+struct NoSuchAccountError: Error {}
+
 extension AccountsClient {
   static func live(clientProvider: @escaping () -> ProseCoreClient = ProseCoreClient.live) -> Self {
     let accounts = CurrentValueSubject<[BareJid: ProseCoreClient], Never>([:])
@@ -62,8 +64,11 @@ extension AccountsClient {
         try await client.disconnect()
       },
       client: { jid in
-        lock.synchronized {
-          accounts.value[jid]
+        try lock.synchronized {
+          guard let client = accounts.value[jid] else {
+            throw NoSuchAccountError()
+          }
+          return client
         }
       }
     )

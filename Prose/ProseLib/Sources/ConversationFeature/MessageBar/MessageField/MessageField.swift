@@ -45,16 +45,17 @@ struct MessageField: View {
         .font(.body)
         .foregroundColor(.primary)
         .textFieldStyle(.plain)
-        .onSubmit(of: .text) { self.viewStore.send(.sendTapped) }
+        .onSubmit(of: .text) { self.viewStore.send(.sendButtonTapped) }
       // .accessibility(hint: Text(viewStore.placeholder))
 
-      Button { self.viewStore.send(.sendTapped) } label: {
+      Button { self.viewStore.send(.sendButtonTapped) } label: {
         Image(systemName: "paperplane.circle.fill")
           .font(.system(size: 24))
           .foregroundColor(.accentColor)
           .frame(width: 32, height: 32)
       }
       .buttonStyle(.plain)
+      .disabled(!self.viewStore.childState.isSendButtonEnabled)
     }
     .background(
       ZStack {

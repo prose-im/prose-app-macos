@@ -112,13 +112,10 @@ struct AccountReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .onAccountAdded:
-        let client = self.accounts.client(state.jid)
-          .expect("Missing client for account \(state.jid)")
-
         print("ACCOUNT ADDED", state.jid)
 
         return .run { [jid = state.jid] send in
-          for try await status in client.connectionStatus() {
+          for try await status in try self.accounts.client(jid).connectionStatus() {
             await send(.connectionStatusChanged(status))
           }
         }.cancellable(id: EffectToken.observeConnectionStatus)
@@ -147,22 +144,21 @@ struct AccountReducer: ReducerProtocol {
 
         if status == .connected, state.status != .connected {
           let jid = state.jid
-          let client = self.accounts.client(state.jid).expect("Missing client for account \(jid)")
 
           return .merge(
             .task {
               await .profileResponse(TaskResult {
-                try await client.loadProfile(jid)
+                try await self.accounts.client(jid).loadProfile(jid)
               })
             }.cancellable(id: EffectToken.loadProfile),
             .task {
               await .contactsResponse(TaskResult {
-                try await client.loadContacts()
+                try await self.accounts.client(jid).loadContacts()
               })
             }.cancellable(id: EffectToken.loadContacts),
             .task {
               await .avatarResponse(TaskResult {
-                try await client.loadAvatar(jid)
+                try await self.accounts.client(jid).loadAvatar(jid)
               })
             }.cancellable(id: EffectToken.loadAvatar)
           )

@@ -41,7 +41,8 @@ public struct ChatReducer: ReducerProtocol {
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.accountsClient) var accounts
+  @Dependency(\.pasteboardClient) var pasteboard
 
   public var body: some ReducerProtocol<State, Action> {
     #warning("Enable Reducers")
@@ -122,8 +123,7 @@ public struct ChatReducer: ReducerProtocol {
       case let .messageMenuItemTapped(.copyText(messageId)):
         logger.trace("Copying text of \(messageId)…")
         if let message = state.messages[id: messageId] {
-          #warning("FIXME")
-          // environment.pasteboard.copyString(message.body)
+          self.pasteboard.copyString(message.body)
         } else {
           logger.notice("Could not copy text: Message \(messageId) not found")
         }
@@ -148,9 +148,9 @@ public struct ChatReducer: ReducerProtocol {
 
       case let .messageMenuItemTapped(.remove(messageId)):
         logger.trace("Retracting \(messageId)…")
-        #warning("FIXME")
-        return .none
-        // return environment.proseClient.retractMessage(state.chatId, messageId).fireAndForget()
+        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+          try await self.accounts.client(currentUser).retractMessage(chatId, messageId)
+        }
 
       case let .message(.showMenu(payload)):
         logger.trace(
@@ -222,27 +222,14 @@ public struct ChatReducer: ReducerProtocol {
         )
         return .none
 
-      case let .reactionPicker(.select(reaction)):
+      case let .reactionPicker(.select(emoji)), let .reactionPicker(.deselect(emoji)):
         guard let messageId = state.reactionPicker?.messageId else {
           preconditionFailure("We should have stored the message ID")
         }
-        #warning("FIXME")
-        return .none
-//        return environment.proseClient
-//          .addReaction(state.chatId, messageId, reaction)
-//          .fireAndForget()
-
-      case let .reactionPicker(.deselect(reaction)):
-        guard let messageId = state.reactionPicker?.messageId else {
-          preconditionFailure("We should have stored the message ID")
+        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+          try await self.accounts.client(currentUser)
+            .toggleReactionToMessage(chatId, messageId, emoji)
         }
-        let loggedInUserJID = state.currentUser
-        #warning("FIXME")
-        return .none
-        // state.messages[id: messageId]?.reactions.toggleReaction(reaction, for: loggedInUserJID)
-//        return environment.proseClient
-//          .toggleReaction(state.chatId, messageId, reaction)
-//          .fireAndForget()
 
       case .reactionPickerDismissed:
         hideReactionPicker()

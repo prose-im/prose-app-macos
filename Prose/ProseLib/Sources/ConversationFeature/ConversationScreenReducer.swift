@@ -1,3 +1,8 @@
+//
+// This file is part of prose-app-macos.
+// Copyright (c) 2022 Prose Foundation
+//
+
 import ComposableArchitecture
 import ConversationInfoFeature
 import ProseBackend
@@ -25,6 +30,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
     case messagesResult(TaskResult<IdentifiedArrayOf<Message>>)
     case latestMessagesResult(TaskResult<[Message]>)
+    case updateMessageResult(TaskResult<[Message]>)
     case userInfosResult(TaskResult<[BareJid: UserInfo]>)
     case event(ClientEvent)
 
@@ -71,14 +77,13 @@ public struct ConversationScreenReducer: ReducerProtocol {
         return .merge(
           .task {
             await .messagesResult(TaskResult {
-              let messages = try await self.accounts.client(currentUser)?
-                .loadLatestMessages(chatId, nil, true) ?? []
+              let messages = try await self.accounts.client(currentUser)
+                .loadLatestMessages(chatId, nil, true)
               return IdentifiedArray(uniqueElements: messages)
             })
           }.cancellable(id: EffectToken.loadMessages),
           .run { send in
-            let events = self.accounts.client(currentUser)
-              .expect("Missing client for \(currentUser)").events()
+            let events = try self.accounts.client(currentUser).events()
             for try await event in events {
               switch event {
               case let .contactChanged(jid) where jid == chatId:
@@ -120,6 +125,16 @@ public struct ConversationScreenReducer: ReducerProtocol {
         logger.error("Failed to load latest messages. \(error.localizedDescription)")
         return .none
 
+      case let .updateMessageResult(.success(messages)):
+        for message in messages {
+          state.chat.messages[id: message.id] = message
+        }
+        return .none
+
+      case let .updateMessageResult(.failure(error)):
+        logger.error("Failed to load updated messages. \(error.localizedDescription)")
+        return .none
+
       case let .userInfosResult(.success(userInfos)):
         state.userInfos = userInfos
         return .none
@@ -144,20 +159,24 @@ public struct ConversationScreenReducer: ReducerProtocol {
         #warning("FIXME")
         let lastMessageStanzaId = state.chat.messages.last(where: { $0.stanzaId != nil })?.stanzaId
 
+        #warning("Somehow new messages aren't displayed")
         return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
           await .latestMessagesResult(TaskResult {
             try await self.accounts.client(currentUser)
-              .expect("Missing client")
               .loadLatestMessages(chatId, lastMessageStanzaId, false)
           })
         }
 
-      case let .event(.messagesUpdated(conversation, messageIds)):
-        #warning("FIXME")
-        return .none
+      case let .event(.messagesUpdated(_, messageIds)):
+        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+          await .updateMessageResult(TaskResult {
+            try await self.accounts.client(currentUser).loadMessagesWithIds(chatId, messageIds)
+          })
+        }
 
-      case let .event(.messagesDeleted(conversation, messageIds)):
-        #warning("FIXME")
+      case let .event(.messagesDeleted(_, messageIds)):
+        let messageIds = Set(messageIds)
+        state.chat.messages.removeAll(where: { messageIds.contains($0.id) })
         return .none
 
       case .info, .toolbar, .messageBar, .chat, .event:

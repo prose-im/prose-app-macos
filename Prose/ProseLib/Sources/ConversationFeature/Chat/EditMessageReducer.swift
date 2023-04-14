@@ -11,7 +11,7 @@ public struct EditMessageReducer: ReducerProtocol {
 
   public struct EditMessageState: Equatable {
     let messageId: Message.ID
-    var messageField = MessageFieldReducer.State()
+    var messageField = MessageFieldReducer.MessageFieldState()
     // var formatting: MessageFormattingState = .init()
     // var emojis: MessageEmojisState = .init()
 
@@ -87,5 +87,12 @@ public struct EditMessageReducer: ReducerProtocol {
         return .none
       }
     }
+  }
+}
+
+extension EditMessageReducer.State {
+  var messageField: MessageFieldReducer.State {
+    get { self.get(\.messageField) }
+    set { self.set(\.messageField, newValue) }
   }
 }

@@ -68,45 +68,6 @@ import Tagged
 //  }
 // }
 
-extension Message: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case id, type, date, content, from, reactions, metas
-  }
-
-  enum UserCodingKeys: String, CodingKey {
-    case jid, name
-  }
-
-  enum MetaCodingKeys: String, CodingKey {
-    case encrypted, edited
-  }
-
-  fileprivate static var dateFormatter: ISO8601DateFormatter = {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions.insert(.withFractionalSeconds)
-    return formatter
-  }()
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    try container.encode(self.id, forKey: .id)
-    try container.encode("text", forKey: .type)
-    try container.encode(Self.dateFormatter.string(from: self.timestamp), forKey: .date)
-    try container.encode(self.body, forKey: .content)
-    try container.encode(self.from, forKey: .from)
-
-    do {
-      var container = container.nestedContainer(keyedBy: MetaCodingKeys.self, forKey: .metas)
-      try container.encode(self.isEdited, forKey: .edited)
-      try container.encode(false, forKey: .encrypted)
-    }
-
-    #warning("FIXME!")
-    // try container.encode(self.reactions, forKey: .reactions)
-  }
-}
-
 // MARK: - MessageKind
 
 public enum MessageKind: Equatable {
