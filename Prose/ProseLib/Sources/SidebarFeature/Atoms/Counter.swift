@@ -9,8 +9,8 @@ struct Counter: View {
   var count = 0
 
   var body: some View {
-    if !self.isEmpty {
-      Text(self.count, format: .number)
+    if count > 0 {
+      Text(count, format: .number)
         .font(.system(size: 11, weight: .semibold))
         .padding(.vertical, 2)
         .padding(.horizontal, 5)

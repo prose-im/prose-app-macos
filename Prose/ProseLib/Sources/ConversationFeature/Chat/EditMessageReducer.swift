@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import ProseBackend
+import ProseUI
 
 public struct EditMessageReducer: ReducerProtocol {
   public typealias State = ChatSessionState<EditMessageState>
@@ -12,78 +13,65 @@ public struct EditMessageReducer: ReducerProtocol {
   public struct EditMessageState: Equatable {
     let messageId: Message.ID
     var messageField = MessageFieldReducer.MessageFieldState()
-    // var formatting: MessageFormattingState = .init()
-    // var emojis: MessageEmojisState = .init()
+    var emojiPicker: ReactionPickerReducer.State?
 
-    let originalMessageHash: Int
-    var isConfirmButtonDisabled: Bool {
-      self.messageField.message.isEmpty
-        || self.messageField.message.hashValue == self.originalMessageHash
+    var isMessageEdited = false
+
+    var isConfirmButtonEnabled: Bool {
+      self.messageField.isSendButtonEnabled && self.isMessageEdited
     }
 
-    public init(
-      messageId: Message.ID,
-      message: String
-    ) {
+    public init(messageId: Message.ID, message: String) {
       self.messageId = messageId
-      self.originalMessageHash = message.hashValue
+      self.messageField.message = message
     }
   }
 
   public enum Action: Equatable {
     case cancelTapped
     case confirmTapped
+
+    case emojiButtonTapped
+    case emojiPickerDismissed
+
     case saveEdit(Message.ID, String)
     case messageField(MessageFieldReducer.Action)
-    // case formatting(MessageFormattingAction)
-    // case emojis(MessageEmojisAction)
+    case emojiPicker(ReactionPickerReducer.Action)
   }
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
-
   public var body: some ReducerProtocol<State, Action> {
-    #warning("FIXME")
-//  messageFieldReducer.pullback(
-//    state: \.messageField,
-//    action: CasePath(EditMessageAction.messageField),
-//    environment: { $0 }
-//  ),
-//  messageFormattingReducer.pullback(
-//    state: \.formatting,
-//    action: CasePath(EditMessageAction.formatting),
-//    environment: { _ in () }
-//  ),
-//  messageEmojisReducer.pullback(
-//    state: \.emojis,
-//    action: CasePath(EditMessageAction.emojis),
-//    environment: { _ in () }
-//  ),
-
+    Scope(state: \.messageField, action: /Action.messageField) {
+      MessageFieldReducer()
+    }.onChange(of: \.messageField.childState.message) { _, state, _ in
+      state.isMessageEdited = true
+      return .none
+    }
     self.core
+      .ifLet(\.emojiPicker, action: /Action.emojiPicker) {
+        ReactionPickerReducer()
+      }
   }
 
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       switch action {
-      case .confirmTapped:
-        if !state.childState.isConfirmButtonDisabled {
-          return EffectTask(value: .saveEdit(
-            state.childState.messageId,
-            state.messageField.message
-          ))
-        } else {
-          return .none
-        }
+      case let .emojiPicker(.select(emoji)):
+        state.emojiPicker = nil
+        state.messageField.message.append(contentsOf: emoji)
+        return .none
 
-        #warning("FIXME")
-//      case let .emojis(.insert(reaction)):
-//        state.messageField.message.append(contentsOf: reaction.rawValue)
-//        return .none
+      case .emojiButtonTapped:
+        state.emojiPicker = .init()
+        return .none
 
-      case .cancelTapped, .saveEdit, .messageField:
+      case .emojiPickerDismissed:
+        state.emojiPicker = nil
+        return .none
+
+      case .confirmTapped, .cancelTapped, .saveEdit, .messageField, .emojiPicker:
         return .none
       }
     }

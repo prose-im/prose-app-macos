@@ -45,16 +45,16 @@ public struct ChatReducer: ReducerProtocol {
   @Dependency(\.pasteboardClient) var pasteboard
 
   public var body: some ReducerProtocol<State, Action> {
+    EmptyReducer()
+      .ifLet(\.messageEditor, action: /Action.messageEditor) {
+        EditMessageReducer()
+      }
+
     #warning("Enable Reducers")
 //    reactionPickerTogglingReducer._pullback(
 //    state: OptionalPath(\ChatSessionState<ChatState>.reactionPicker).appending(path: \.pickerState),
 //    action: CasePath(ChatAction.reactionPicker),
 //    environment: { _ in () }
-//  ),
-//  editMessageReducer.optional().pullback(
-//    state: \.messageEditor,
-//    action: CasePath(ChatAction.messageEditor),
-//    environment: { $0 }
 //  ),
 
     self.core
@@ -201,16 +201,10 @@ public struct ChatReducer: ReducerProtocol {
 
       case let .message(.toggleReaction(payload)):
         logger.trace("Toggling reaction \(payload.reaction) on \(String(describing: payload.id))…")
-
-        if let messageId = payload.id {
-          #warning("FIXME")
-          return .none
-//          return environment.proseClient
-//            .toggleReaction(state.chatId, messageId, Reaction(payload.reaction))
-//            .fireAndForget()
-        } else {
-          logger.notice("Could not toggle reaction: No message selected")
-          return .none
+        let messageId = payload.id.expect("Missing message id in payload")
+        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+          try await self.accounts.client(currentUser)
+            .toggleReactionToMessage(chatId, messageId, payload.reaction)
         }
 
       case let .jsEventError(error):
@@ -235,13 +229,16 @@ public struct ChatReducer: ReducerProtocol {
         hideReactionPicker()
         return .none
 
-      case let .messageEditor(.saveEdit(messageId, newMessage)):
+      case .messageEditor(.confirmTapped):
+        let messageEditor = state.messageEditor.expect("Missing messageEditor state")
         state.messageEditor = nil
-        #warning("FIXME")
-        return .none
-//        return environment.proseClient
-//          .updateMessage(state.chatId, messageId, newMessage)
-//          .fireAndForget()
+        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+          try await self.accounts.client(currentUser).updateMessage(
+            chatId,
+            messageEditor.childState.messageId,
+            messageEditor.messageField.message
+          )
+        }
 
       case .messageEditor(.cancelTapped), .messageEditorDismissed, .editMessageResult(.success):
         state.messageEditor = nil

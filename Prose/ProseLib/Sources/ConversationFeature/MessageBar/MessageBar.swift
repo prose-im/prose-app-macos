@@ -56,9 +56,6 @@ struct MessageBar: View {
     .padding(.horizontal, 20)
     .background {
       Rectangle()
-        // TODO: [Rémi Bardon] Maybe add a material background here,
-        //       to make it more beautiful with content going under
-//        .fill(.ultraThinMaterial)
         .fill(.background)
         .overlay(alignment: .top, content: Divider.init)
     }
