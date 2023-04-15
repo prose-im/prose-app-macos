@@ -155,15 +155,13 @@ public struct ConversationScreenReducer: ReducerProtocol {
         #warning("FIXME")
         return .none
 
-      case let .event(.messagesAppended(conversation)):
-        #warning("FIXME")
-        let lastMessageStanzaId = state.chat.messages.last(where: { $0.stanzaId != nil })?.stanzaId
+      case .event(.messagesAppended):
+        let lastMessageId = state.chat.messages.last?.id
 
-        #warning("Somehow new messages aren't displayed")
         return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
           await .latestMessagesResult(TaskResult {
             try await self.accounts.client(currentUser)
-              .loadLatestMessages(chatId, lastMessageStanzaId, false)
+              .loadLatestMessages(chatId, lastMessageId, false)
           })
         }
 
