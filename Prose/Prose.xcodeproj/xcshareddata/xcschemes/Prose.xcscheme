@@ -91,6 +91,21 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "PROSE_CORE_LOG_LEVEL"
+            value = "TRACE"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PROSE_CORE_LOG_LEVEL"
+            value = "DEBUG"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PROSE_CORE_LOG_LEVEL"
+            value = "INFO"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "RUST_BACKTRACE"
             value = "full"
             isEnabled = "YES">
@@ -99,6 +114,11 @@
             key = "OS_ACTIVITY_MODE"
             value = "default"
             isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "OS_ACTIVITY_MODE"
+            value = "NO"
+            isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

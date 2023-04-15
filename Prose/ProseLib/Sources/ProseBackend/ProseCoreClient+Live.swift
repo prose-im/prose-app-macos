@@ -45,7 +45,19 @@ extension ProseCoreClient {
       loggerLock.withLock {
         if !loggerInitialized {
           loggerInitialized = true
-          setLogger(logger: OSLogger(), maxLevel: .trace)
+
+          let logLevel = {
+            switch ProcessInfo.processInfo.environment["PROSE_CORE_LOG_LEVEL"]?.lowercased() {
+            case "trace": return LogLevel.trace
+            case "debug": return LogLevel.debug
+            case "info": return LogLevel.info
+            case "warn": return LogLevel.warn
+            case "error": return LogLevel.error
+            default: return LogLevel.warn
+            }
+          }()
+
+          setLogger(logger: OSLogger(), maxLevel: logLevel)
         }
       }
     }
