@@ -16,7 +16,7 @@ public struct ChatReducer: ReducerProtocol {
   public struct ChatState: Equatable {
     var isWebViewReady = false
     var messages = IdentifiedArrayOf<ProseBackend.Message>()
-    var selectedMessageId: ProseBackend.Message.ID?
+    var selectedMessageId: MessageId?
     var menu: MessageMenuState?
     var reactionPicker: MessageReactionPickerState?
     var messageEditor: EditMessageReducer.EditMessageState?
@@ -49,13 +49,11 @@ public struct ChatReducer: ReducerProtocol {
       .ifLet(\.messageEditor, action: /Action.messageEditor) {
         EditMessageReducer()
       }
-
-    #warning("Enable Reducers")
-//    reactionPickerTogglingReducer._pullback(
-//    state: OptionalPath(\ChatSessionState<ChatState>.reactionPicker).appending(path: \.pickerState),
-//    action: CasePath(ChatAction.reactionPicker),
-//    environment: { _ in () }
-//  ),
+      .ifLet(\.reactionPicker, action: /Action.reactionPicker) {
+        Scope(state: \.pickerState, action: /.self) {
+          ReactionPickerReducer()
+        }
+      }
 
     self.core
   }
@@ -63,12 +61,12 @@ public struct ChatReducer: ReducerProtocol {
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
-      func showReactionPicker(for messageId: ProseBackend.Message.ID, origin: CGRect) {
+      func showReactionPicker(for messageId: MessageId, origin: CGRect) {
         let message = state.messages[id: messageId]
-        #warning("FIXME")
-        // let selected = message?.reactions.reactions(for: state.currentUser)
-        // let pickerState = ReactionPickerState(selected: Set(selected ?? []))
-        let pickerState = ReactionPickerReducer.State()
+        let selectedReactions = message?.reactions.compactMap { reaction in
+          reaction.from.contains(where: { $0 == state.currentUser }) ? reaction.emoji : nil
+        }
+        let pickerState = ReactionPickerReducer.State(selected: Set(selectedReactions ?? []))
         state.reactionPicker = MessageReactionPickerState(
           messageId: messageId,
           pickerState: pickerState,
@@ -264,7 +262,7 @@ extension ChatReducer.State {
 }
 
 struct MessageReactionPickerState: Equatable {
-  let messageId: ProseBackend.Message.ID
+  let messageId: MessageId
   var pickerState: ReactionPickerReducer.State
   let origin: CGRect
 }
