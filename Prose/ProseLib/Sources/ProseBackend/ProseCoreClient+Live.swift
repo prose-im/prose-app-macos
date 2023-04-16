@@ -203,6 +203,9 @@ private actor ClientActor {
     }
 
     do {
+      #warning("Review me")
+      // Unfortunately WKWebView cannot load images from this path. What's the appropriate
+      // directory to use?
 //      let cacheDirectory = try FileManager.default.url(
 //        for: .cachesDirectory,
 //        in: .userDomainMask,
@@ -211,7 +214,7 @@ private actor ClientActor {
 //      )
 //      .appendingPathComponent("ProseCoreCache")
       let cacheDirectory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(
-        "avatar-cache",
+        "ProseCoreCache",
         conformingTo: .directory
       )
 
