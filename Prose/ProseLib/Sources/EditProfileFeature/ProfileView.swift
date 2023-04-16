@@ -11,13 +11,8 @@ import SwiftUI
 
 private let l10n = L10n.EditProfile.Profile.self
 
-// MARK: - View
-
 struct ProfileView: View {
-  typealias ViewState = ProfileState
-  typealias ViewAction = ProfileAction
-
-  let store: Store<ViewState, ViewAction>
+  let store: StoreOf<ProfileReducer>
 
   var body: some View {
     WithViewStore(self.store) { viewStore in
@@ -33,7 +28,7 @@ struct ProfileView: View {
     }
   }
 
-  static func jobSection(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
+  static func jobSection(viewStore: ViewStoreOf<ProfileReducer>) -> some View {
     ContentSection(
       header: l10n.JobSection.Header.label,
       footer: l10n.JobSection.Footer.label
@@ -54,7 +49,7 @@ struct ProfileView: View {
     }
   }
 
-  static func locationSection(viewStore: ViewStore<ViewState, ViewAction>) -> some View {
+  static func locationSection(viewStore: ViewStoreOf<ProfileReducer>) -> some View {
     ContentSection(
       header: l10n.LocationSection.Header.label,
       footer: l10n.LocationSection.Footer.label
@@ -93,74 +88,5 @@ struct ProfileView: View {
       }
       .padding(.horizontal)
     }
-  }
-}
-
-// MARK: - The Composable Architecture
-
-// MARK: Reducer
-
-public let profileReducer = AnyReducer<
-  ProfileState,
-  ProfileAction,
-  Void
-> { state, action, _ in
-  switch action {
-  case .manageLocationPermissionTapped:
-    state.isLocationPermissionAllowed.toggle()
-    return .none
-
-  case .binding:
-    return .none
-  }
-}.binding()
-
-// MARK: State
-
-public struct ProfileState: Equatable {
-  @BindingState var organization: String
-  @BindingState var jobTitle: String
-  @BindingState var autoDetectLocation: Bool
-  @BindingState var location: String
-  @BindingState var isLocationPermissionAllowed: Bool
-
-  var locationPermissionLabel: String {
-    self.isLocationPermissionAllowed
-      ? l10n.LocationPermission.StateAllowed.label
-      : l10n.LocationPermission.StateDenied.label
-  }
-
-  public init(
-    organization: String = "Crisp",
-    jobTitle: String = "CEO",
-    autoDetectLocation: Bool = true,
-    location: String = "Nantes, France",
-    isLocationPermissionAllowed: Bool = true
-  ) {
-    self.organization = organization
-    self.jobTitle = jobTitle
-    self.autoDetectLocation = autoDetectLocation
-    self.location = location
-    self.isLocationPermissionAllowed = isLocationPermissionAllowed
-  }
-}
-
-// MARK: Actions
-
-public enum ProfileAction: Equatable, BindableAction {
-  case manageLocationPermissionTapped
-  case binding(BindingAction<ProfileState>)
-}
-
-// MARK: - Previews
-
-struct ProfileView_Previews: PreviewProvider {
-  static var previews: some View {
-    ProfileView(store: Store(
-      initialState: ProfileState(),
-      reducer: profileReducer,
-      environment: ()
-    ))
-    .frame(width: 480, height: 512)
   }
 }

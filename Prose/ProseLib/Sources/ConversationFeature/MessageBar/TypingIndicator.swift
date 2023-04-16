@@ -147,8 +147,8 @@ extension Alignment {
       "marc.other@prose.org", "remi.other@prose.org",
       "preview@prose.org", "bot1@prose.org", "bot2@prose.org", "bot3@prose.org",
     ]
-    static let allUsers: [UserInfo] = Self.jids.map { UserInfo(jid: $0) }
-    static let displayNames: [UserInfo] = ["Rémi"].map { UserInfo(jid: $0) }
+    static let allUsers: [UserInfo] = Self.jids.map { UserInfo(jid: $0, name: $0.rawValue) }
+    static let displayNames: [UserInfo] = ["Rémi"].map { UserInfo(jid: $0, name: $0.rawValue) }
     static func users(_ count: Int) -> [UserInfo] {
       Array(Self.allUsers.prefix(count))
     }

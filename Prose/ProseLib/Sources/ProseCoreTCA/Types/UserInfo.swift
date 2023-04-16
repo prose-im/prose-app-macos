@@ -11,12 +11,9 @@ public struct UserInfo: Equatable {
   public var name: String
   public var avatar: URL?
 
-  public init(jid: BareJid, avatar: URL? = nil) {
+  public init(jid: BareJid, name: String, avatar: URL? = nil) {
     self.jid = jid
-    self.name = (jid.node ?? jid.domain)
-      .split(separator: ".", omittingEmptySubsequences: true)
-      .joined(separator: " ")
-      .localizedCapitalized
+    self.name = name
     self.avatar = avatar
   }
 }

@@ -14,7 +14,6 @@ import Foundation
 import MainScreenFeature
 import NotificationsClient
 import ProseCoreTCA
-import struct ProseCoreTCA.ProseClient
 import Toolbox
 
 private extension BareJid {
@@ -27,7 +26,7 @@ struct App: ReducerProtocol {
     var connectivity = Connectivity.online
 
     var currentUser = BareJid.placeholder
-    var availableAccounts = IdentifiedArrayOf<Account>([
+    var availableAccounts = IdentifiedArrayOf<Account>(uniqueElements: [
       .init(jid: .placeholder, status: .disconnected),
     ])
 

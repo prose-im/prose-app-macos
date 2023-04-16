@@ -28,11 +28,12 @@ public struct AuthenticationScreen: View {
         action: Action.basicAuth,
         then: BasicAuthView.init(store:)
       )
-      CaseLet(
-        state: /Authentication.Route.mfa,
-        action: Action.mfa,
-        then: MFAView.init(store:)
-      )
+      #warning("FIXME")
+//      CaseLet(
+//        state: /Authentication.Route.mfa,
+//        action: Action.mfa,
+//        then: MFAView.init(store:)
+//      )
     }
     .frame(minWidth: 400)
   }
@@ -48,18 +49,17 @@ public struct Authentication: ReducerProtocol {
   public enum Action: Equatable {
     case didLogIn(BareJid)
     case basicAuth(BasicAuth.Action)
-    case mfa(MFAAction)
+    // case mfa(MFAAction)
   }
 
   public enum Route: Equatable {
     case basicAuth(BasicAuth.State)
-    case mfa(MFAState)
+    // case mfa(MFAState)
   }
 
   public init() {}
 
   @Dependency(\.credentialsClient) var credentials
-  @Dependency(\.legacyProseClient) var legacyProseClient
   @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
@@ -70,16 +70,17 @@ public struct Authentication: ReducerProtocol {
         .ifCaseLet(/Route.basicAuth, action: /Action.basicAuth) {
           BasicAuth()
         }
-        .ifCaseLet(/Route.mfa, action: /Action.mfa) {
-          Reduce(
-            mfaReducer,
-            environment: AuthenticationEnvironment(
-              proseClient: self.legacyProseClient,
-              credentials: self.credentials,
-              mainQueue: self.mainQueue
-            )
-          )
-        }
+      #warning("FIXME")
+//        .ifCaseLet(/Route.mfa, action: /Action.mfa) {
+//          Reduce(
+//            mfaReducer,
+//            environment: AuthenticationEnvironment(
+//              proseClient: self.legacyProseClient,
+//              credentials: self.credentials,
+//              mainQueue: self.mainQueue
+//            )
+//          )
+//        }
     }
   }
 
@@ -93,25 +94,3 @@ public struct Authentication: ReducerProtocol {
     }
   }
 }
-
-#if DEBUG
-  internal struct AuthenticationScreen_Previews: PreviewProvider {
-    private struct Preview: View {
-      var body: some View {
-        AuthenticationScreen(store: Store(
-          initialState: .init(),
-          reducer: Authentication()
-            .dependency(\.legacyProseClient, .noop)
-            .dependency(\.credentialsClient, .live(service: "org.prose.app.preview.\(Self.self)"))
-        ))
-      }
-    }
-
-    static var previews: some View {
-      Preview()
-      Preview()
-        .redacted(reason: .placeholder)
-        .previewDisplayName("Placeholder")
-    }
-  }
-#endif

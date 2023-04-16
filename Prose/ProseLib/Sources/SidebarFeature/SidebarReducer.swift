@@ -37,7 +37,6 @@ public struct Sidebar: ReducerProtocol {
     case rosterResult(Result<Roster, EquatableError>)
     case activeChatsResult(Result<[BareJid: Chat], EquatableError>)
     case presencesResult(Result<[BareJid: Presence], EquatableError>)
-    case userInfosResult(Result<[BareJid: UserInfo], EquatableError>)
 
     case footer(Footer.Action)
 
@@ -123,7 +122,7 @@ public struct Sidebar: ReducerProtocol {
       case .addMember(.submitTapped), .joinGroup(.submitTapped):
         fatalError("\(action) not implemented yet.")
 
-      case .footer, .rosterResult, .activeChatsResult, .presencesResult, .userInfosResult,
+      case .footer, .rosterResult, .activeChatsResult, .presencesResult,
            .addMember, .joinGroup:
         return .none
       }

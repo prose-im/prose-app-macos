@@ -13,10 +13,7 @@ private let l10n = L10n.EditProfile.Identity.self
 // MARK: - View
 
 struct IdentityView: View {
-  typealias ViewState = IdentityState
-  typealias ViewAction = IdentityAction
-
-  let store: Store<ViewState, ViewAction>
+  let store: StoreOf<IdentityReducer>
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
@@ -91,83 +88,5 @@ struct IdentityView: View {
     }
     .foregroundColor(Colors.State.green.color)
     .accessibilityElement(children: .combine)
-  }
-}
-
-// MARK: - The Composable Architecture
-
-// MARK: Reducer
-
-public let identityReducer = AnyReducer<
-  IdentityState,
-  IdentityAction,
-  Void
-> { state, action, _ in
-  switch action {
-  case .verifyNameTapped:
-    state.isNameVerified = true
-    return .none
-
-  case .verifyEmailTapped:
-    state.isEmailVerified = true
-    return .none
-
-  case .verifyPhoneTapped:
-    state.isPhoneVerified = true
-    return .none
-
-  case .binding:
-    return .none
-  }
-}.binding()
-
-// MARK: State
-
-public struct IdentityState: Equatable {
-  @BindingState var firstName: String
-  @BindingState var lastName: String
-  @BindingState var email: String
-  @BindingState var phone: String
-
-  @BindingState var isNameVerified: Bool
-  @BindingState var isEmailVerified: Bool
-  @BindingState var isPhoneVerified: Bool
-
-  public init(
-    firstName: String = "Baptiste",
-    lastName: String = "Jamin",
-    email: String = "baptiste@crisp.chat",
-    phone: String = "+33631893345",
-    isNameVerified: Bool = false,
-    isEmailVerified: Bool = true,
-    isPhoneVerified: Bool = false
-  ) {
-    self.firstName = firstName
-    self.lastName = lastName
-    self.email = email
-    self.phone = phone
-    self.isNameVerified = isNameVerified
-    self.isEmailVerified = isEmailVerified
-    self.isPhoneVerified = isPhoneVerified
-  }
-}
-
-// MARK: Actions
-
-public enum IdentityAction: Equatable, BindableAction {
-  case verifyNameTapped, verifyEmailTapped, verifyPhoneTapped
-  case binding(BindingAction<IdentityState>)
-}
-
-// MARK: - Previews
-
-struct IdentityView_Previews: PreviewProvider {
-  static var previews: some View {
-    IdentityView(store: Store(
-      initialState: IdentityState(),
-      reducer: identityReducer,
-      environment: ()
-    ))
-    .frame(width: 480, height: 512)
   }
 }

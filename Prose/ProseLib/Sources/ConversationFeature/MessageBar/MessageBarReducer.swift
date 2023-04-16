@@ -99,7 +99,8 @@ public struct MessageBarReducer: ReducerProtocol {
         return .cancel(token: EffectToken.self)
 
       case let .typingUsersChanged(jids):
-        state.typingUsers = jids.map { state.userInfos[$0, default: .init(jid: $0)] }
+        #warning("FIXME")
+        // state.typingUsers = jids.map { state.userInfos[$0, default: .init(jid: $0)] }
         return .none
 
       case let .emojiPicker(.select(emoji)):

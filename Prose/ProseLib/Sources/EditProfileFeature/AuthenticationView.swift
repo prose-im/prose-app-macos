@@ -11,13 +11,8 @@ import SwiftUI
 
 private let l10n = L10n.EditProfile.Authentication.self
 
-// MARK: - View
-
 struct AuthenticationView: View {
-  typealias ViewState = AuthenticationState
-  typealias ViewAction = AuthenticationAction
-
-  let store: Store<ViewState, ViewAction>
+  let store: StoreOf<AuthenticationReducer>
 
   var body: some View {
     ScrollView(.vertical, showsIndicators: false) {
@@ -81,80 +76,5 @@ struct AuthenticationView: View {
         .padding(.vertical, 24)
       }
     }
-  }
-}
-
-// MARK: - The Composable Architecture
-
-// MARK: Reducer
-
-public let authenticationReducer = AnyReducer<
-  AuthenticationState,
-  AuthenticationAction,
-  Void
-> { state, action, _ in
-  switch action {
-  case .changePasswordTapped:
-    logger.trace("Change password tapped")
-    return .none
-
-  case .editRecoveryEmailTapped:
-    logger.trace("Edit recovery email tapped")
-    return .none
-
-  case .disableMFATapped:
-    state.isMfaEnabled.toggle()
-    return .none
-
-  case .editRecoveryPhoneTapped:
-    logger.trace("Edit recovery phone tapped")
-    return .none
-
-  case .binding:
-    return .none
-  }
-}.binding()
-
-// MARK: State
-
-public struct AuthenticationState: Equatable {
-  var recoveryEmail: String
-  var recoveryPhone: String
-  var isMfaEnabled: Bool
-
-  var mfaStateLabel: String {
-    self.isMfaEnabled
-      ? l10n.MfaStatus.StateEnabled.label
-      : l10n.MfaStatus.StateDisabled.label
-  }
-
-  public init(
-    recoveryEmail: String = "baptiste@jamin.me",
-    recoveryPhone: String = "+33631893345",
-    isMfaEnabled: Bool = true
-  ) {
-    self.recoveryEmail = recoveryEmail
-    self.recoveryPhone = recoveryPhone
-    self.isMfaEnabled = isMfaEnabled
-  }
-}
-
-// MARK: Actions
-
-public enum AuthenticationAction: Equatable, BindableAction {
-  case changePasswordTapped, editRecoveryEmailTapped, disableMFATapped, editRecoveryPhoneTapped
-  case binding(BindingAction<AuthenticationState>)
-}
-
-// MARK: - Previews
-
-struct AuthenticationView_Previews: PreviewProvider {
-  static var previews: some View {
-    AuthenticationView(store: Store(
-      initialState: AuthenticationState(),
-      reducer: authenticationReducer,
-      environment: ()
-    ))
-    .frame(width: 480, height: 512)
   }
 }

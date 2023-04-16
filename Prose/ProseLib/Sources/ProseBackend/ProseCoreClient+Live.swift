@@ -203,13 +203,17 @@ private actor ClientActor {
     }
 
     do {
-      let cacheDirectory = try FileManager.default.url(
-        for: .cachesDirectory,
-        in: .userDomainMask,
-        appropriateFor: nil,
-        create: false
+//      let cacheDirectory = try FileManager.default.url(
+//        for: .cachesDirectory,
+//        in: .userDomainMask,
+//        appropriateFor: nil,
+//        create: false
+//      )
+//      .appendingPathComponent("ProseCoreCache")
+      let cacheDirectory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(
+        "avatar-cache",
+        conformingTo: .directory
       )
-      .appendingPathComponent("ProseCoreCache")
 
       let client = try ProseCoreFFI.Client(
         jid: jid,

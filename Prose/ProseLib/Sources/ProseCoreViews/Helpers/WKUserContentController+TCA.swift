@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import Foundation
+import Toolbox
 import WebKit
 
 public extension WKUserContentController {
@@ -41,7 +42,7 @@ private final class ScriptMessageHandler<T>: NSObject, WKScriptMessageHandler {
   }
 }
 
-private struct MessagingEventScript {
+private enum MessagingEventScript {
   static func on(_ event: MessageEvent.Kind) -> (script: String, handlerName: String) {
     let handlerName = "handler_" + event.rawValue.replacingOccurrences(of: ":", with: "_")
 

@@ -45,7 +45,6 @@ public struct MainScreen: ReducerProtocol {
 
   @Dependency(\.accountsClient) var accounts
   @Dependency(\.credentialsClient) var credentials
-  @Dependency(\.legacyProseClient) var legacyProseClient
   @Dependency(\.mainQueue) var mainQueue
   @Dependency(\.pasteboardClient) var pasteboard
 

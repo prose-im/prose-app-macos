@@ -42,6 +42,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
   enum EffectToken: Hashable, CaseIterable {
     case loadMessages
+    case loadContacts
     case observeEvents
   }
 
@@ -82,6 +83,20 @@ public struct ConversationScreenReducer: ReducerProtocol {
               return IdentifiedArray(uniqueElements: messages)
             })
           }.cancellable(id: EffectToken.loadMessages),
+          .task { [currentAccount = state.selectedAccount] in
+            await .userInfosResult(TaskResult {
+              var contacts = try await self.accounts.client(currentUser).loadContacts().map {
+                UserInfo(jid: $0.jid, name: $0.name, avatar: $0.avatar)
+              }
+              contacts.append(.init(
+                jid: currentUser, name: currentAccount.username, avatar: currentAccount.avatar
+              ))
+              return Dictionary(
+                zip(contacts.map(\.jid), contacts),
+                uniquingKeysWith: { _, last in last }
+              )
+            })
+          }.cancellable(id: EffectToken.loadContacts),
           .run { send in
             let events = try self.accounts.client(currentUser).events()
             for try await event in events {

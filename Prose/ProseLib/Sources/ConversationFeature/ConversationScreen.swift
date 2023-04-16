@@ -63,22 +63,3 @@ public struct ConversationScreen: View {
       }
   }
 }
-
-public struct ConversationEnvironment {
-  var accounts: AccountsClient
-  var proseClient: ProseClient
-  var pasteboard: PasteboardClient
-  var mainQueue: AnySchedulerOf<DispatchQueue>
-
-  public init(
-    accounts: AccountsClient,
-    proseClient: ProseClient,
-    pasteboard: PasteboardClient,
-    mainQueue: AnySchedulerOf<DispatchQueue>
-  ) {
-    self.accounts = accounts
-    self.proseClient = proseClient
-    self.pasteboard = pasteboard
-    self.mainQueue = mainQueue
-  }
-}

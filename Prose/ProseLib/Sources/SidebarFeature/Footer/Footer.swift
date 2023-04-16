@@ -36,19 +36,18 @@ public struct Footer: ReducerProtocol {
     case accountSettingsMenu(AccountSettingsMenu.Action)
     case accountSwitcherMenu(AccountSwitcherMenu.Action)
     case auth(Authentication.Action)
-    case editProfile(EditProfileAction)
+    case editProfile(EditProfileReducer.Action)
   }
 
   public enum Route: Equatable {
     case accountSettingsMenu(AccountSettingsMenu.State)
     case accountSwitcherMenu(AccountSwitcherMenu.State)
     case auth(Authentication.State)
-    case editProfile(SessionState<EditProfileState>)
+    case editProfile(EditProfileReducer.State)
   }
 
   public init() {}
 
-  @Dependency(\.legacyProseClient) var legacyProseClient
   @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
@@ -65,13 +64,7 @@ public struct Footer: ReducerProtocol {
             Authentication()
           }
           .ifCaseLet(/Route.editProfile, action: /Action.editProfile) {
-            Reduce(
-              editProfileReducer,
-              environment: EditProfileEnvironment(
-                proseClient: self.legacyProseClient,
-                mainQueue: self.mainQueue
-              )
-            )
+            EditProfileReducer()
           }
       }
 
