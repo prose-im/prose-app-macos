@@ -92,6 +92,7 @@ struct AccountReducer: ReducerProtocol {
     case onAccountRemoved
 
     case connectionStatusChanged(ConnectionStatus)
+    case contactDidChange(BareJid)
 
     case profileResponse(TaskResult<UserProfile?>)
     case contactsResponse(TaskResult<[Contact]>)
@@ -100,6 +101,7 @@ struct AccountReducer: ReducerProtocol {
 
   enum EffectToken: Hashable, CaseIterable {
     case observeConnectionStatus
+    case observeEvents
     case loadProfile
     case loadContacts
     case loadAvatar
@@ -160,11 +162,29 @@ struct AccountReducer: ReducerProtocol {
               await .avatarResponse(TaskResult {
                 try await self.accounts.client(jid).loadAvatar(jid)
               })
-            }.cancellable(id: EffectToken.loadAvatar)
+            }.cancellable(id: EffectToken.loadAvatar),
+            .run { send in
+              let events = try self.accounts.client(jid).events()
+              for try await event in events {
+                switch event {
+                case let .contactChanged(jid):
+                  await send(.contactDidChange(jid))
+                default:
+                  break
+                }
+              }
+            }.cancellable(id: EffectToken.observeEvents, cancelInFlight: true)
           )
         }
 
         return .none
+
+      case .contactDidChange:
+        return .task { [jid = state.jid] in
+          await .contactsResponse(TaskResult {
+            try await self.accounts.client(jid).loadContacts()
+          })
+        }.cancellable(id: EffectToken.loadContacts, cancelInFlight: true)
 
       case let .profileResponse(.success(profile)):
         print("Received profile", profile)
