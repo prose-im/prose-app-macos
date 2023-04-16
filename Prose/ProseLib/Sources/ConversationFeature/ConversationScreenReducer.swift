@@ -103,7 +103,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
               switch event {
               case let .contactChanged(jid) where jid == chatId:
                 await send(.event(event))
-              case let .messagesAppended(conversation) where conversation == chatId:
+              case let .messagesAppended(conversation, _) where conversation == chatId:
                 await send(.event(event))
               case let .messagesUpdated(conversation, _) where conversation == chatId:
                 await send(.event(event))

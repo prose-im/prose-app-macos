@@ -13,9 +13,7 @@ import Toolbox
     static var noop = NotificationsClient(
       promptForPushNotifications: {},
       notificationPermission: { Empty(completeImmediately: false).eraseToEffect() },
-      scheduleLocalNotification: { _, _ in
-        Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
-      }
+      scheduleLocalNotification: { _, _ in }
     )
   }
 #endif

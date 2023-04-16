@@ -20,7 +20,7 @@ public enum NotificationPermission: Equatable {
 public struct NotificationsClient {
   public var promptForPushNotifications: () -> Void
   public var notificationPermission: () -> EffectTask<NotificationPermission>
-  public var scheduleLocalNotification: (Message, UserInfo) -> EffectPublisher<None, EquatableError>
+  public var scheduleLocalNotification: (Message, UserInfo) async throws -> Void
 }
 
 public extension DependencyValues {

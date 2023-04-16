@@ -40,7 +40,6 @@ struct App: ReducerProtocol {
     case onAppear
     case dismissAuthenticationSheet
 
-    case didReceiveMessage(Message, UserInfo)
     case availableAccountsChanged(Set<BareJid>)
     case connectivityChanged(Connectivity)
 
@@ -65,7 +64,6 @@ struct App: ReducerProtocol {
       .ifLet(\.auth, action: /Action.auth) {
         Authentication()
       }
-      .handleNotifications()
       .handleAccounts()
 
     ConditionallyEnable(when: \.isMainScreenEnabled) {
@@ -132,10 +130,6 @@ struct App: ReducerProtocol {
         }
 
         return .merge(effects)
-
-      case let .didReceiveMessage(message, userInfo):
-        return self.notifications.scheduleLocalNotification(message, userInfo)
-          .fireAndForget()
 
       case let .connectivityChanged(connectivity):
         state.connectivity = connectivity

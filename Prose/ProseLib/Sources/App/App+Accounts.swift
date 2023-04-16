@@ -6,7 +6,9 @@
 import BareMinimum
 import ComposableArchitecture
 import Foundation
+import NotificationsClient
 import ProseBackend
+import ProseCoreTCA
 
 extension ReducerProtocol<App.State, App.Action> {
   func handleAccounts() -> some ReducerProtocol<App.State, App.Action> {
@@ -93,10 +95,12 @@ struct AccountReducer: ReducerProtocol {
 
     case connectionStatusChanged(ConnectionStatus)
     case contactDidChange(BareJid)
+    case messagesAppended(conversation: BareJid, messageIds: [MessageId])
 
     case profileResponse(TaskResult<UserProfile?>)
     case contactsResponse(TaskResult<[Contact]>)
     case avatarResponse(TaskResult<URL?>)
+    case loadMessagesResponse(TaskResult<[Message]>)
   }
 
   enum EffectToken: Hashable, CaseIterable {
@@ -105,10 +109,12 @@ struct AccountReducer: ReducerProtocol {
     case loadProfile
     case loadContacts
     case loadAvatar
+    case loadMessages
   }
 
   @Dependency(\.accountsClient) var accounts
   @Dependency(\.credentialsClient) var credentials
+  @Dependency(\.notificationsClient) var notifications
 
   public var body: some ReducerProtocol<State, Action> {
     Reduce { state, action in
@@ -169,6 +175,8 @@ struct AccountReducer: ReducerProtocol {
                 switch event {
                 case let .contactChanged(jid):
                   await send(.contactDidChange(jid))
+                case let .messagesAppended(conversation, messageIds):
+                  await send(.messagesAppended(conversation: conversation, messageIds: messageIds))
                 default:
                   break
                 }
@@ -185,6 +193,13 @@ struct AccountReducer: ReducerProtocol {
             try await self.accounts.client(jid).loadContacts()
           })
         }.cancellable(id: EffectToken.loadContacts, cancelInFlight: true)
+
+      case let .messagesAppended(conversation, messageIds):
+        return .task { [jid = state.jid] in
+          await .loadMessagesResponse(TaskResult {
+            try await self.accounts.client(jid).loadMessagesWithIds(conversation, messageIds)
+          })
+        }
 
       case let .profileResponse(.success(profile)):
         print("Received profile", profile)
@@ -212,7 +227,30 @@ struct AccountReducer: ReducerProtocol {
       case let .avatarResponse(.failure(error)):
         logger.error("Failed to load user avatar: \(error.localizedDescription)")
         return .none
+
+      case let .loadMessagesResponse(.success(messages)):
+        return .fireAndForget { [account = state] in
+          for message in messages where message.from != account.jid {
+            try await self.notifications.scheduleLocalNotification(
+              message,
+              account.userInfo(for: message.from)
+            )
+          }
+        }
+
+      case let .loadMessagesResponse(.failure(error)):
+        logger.error("Failed to load messages. \(error.localizedDescription)")
+        return .none
       }
     }
+  }
+}
+
+private extension Account {
+  func userInfo(for jid: BareJid) -> UserInfo {
+    guard let profile = self.contacts.first(where: { $0.jid == jid }) else {
+      return UserInfo(jid: jid, name: jid.rawValue)
+    }
+    return UserInfo(jid: profile.jid, name: profile.name, avatar: profile.avatar)
   }
 }

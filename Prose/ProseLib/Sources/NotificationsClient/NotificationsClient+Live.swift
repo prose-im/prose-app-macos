@@ -57,9 +57,7 @@ public extension NotificationsClient {
           trigger: UNTimeIntervalNotificationTrigger(timeInterval: 0.01, repeats: false)
         )
 
-        UNUserNotificationCenter.current().add(request)
-
-        return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+        try await UNUserNotificationCenter.current().add(request)
       }
     )
   }()
