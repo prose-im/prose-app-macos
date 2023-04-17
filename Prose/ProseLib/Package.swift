@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.8
 
 import Foundation
 import PackageDescription
@@ -29,18 +29,17 @@ let package = Package(
   dependencies: [
     .package(
       url: "https://github.com/pointfreeco/swift-composable-architecture",
-      .upToNextMajor(from: "0.50.1")
+      .upToNextMajor(from: "0.52.0")
     ),
     .package(
       url: "https://github.com/pointfreeco/swiftui-navigation",
-      .upToNextMajor(from: "0.6.1")
+      .upToNextMajor(from: "0.7.1")
     ),
-    .package(url: "https://github.com/pointfreeco/swift-tagged", .upToNextMajor(from: "0.9.0")),
     .package(
       name: "ProseCoreFFI",
       path: "/Users/mb/Documents/Prose/prose-wrapper-swift/Build/spm/ProseCoreFFI"
     ),
-    .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.1.0")),
+    .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.2.0")),
     // .proseCore("0.4.3"),
   ],
   targets: [

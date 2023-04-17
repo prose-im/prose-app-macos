@@ -48,7 +48,6 @@
 		2C4F3D0D27F713E5004B79F3 /* ProseLib */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ProseLib; sourceTree = "<group>"; };
 		2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C4F3D1A27F73002004B79F3 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
-		2C66E4F2299AED6300CB6A4C /* swift-common-utils */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-common-utils"; path = "../../../../Nsm/swift-common-utils"; sourceTree = "<group>"; };
 		2CBFFE4E287D6DFE00A53992 /* UITestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UITestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CBFFE54287D6DFF00A53992 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2CBFFE57287D6DFF00A53992 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -210,7 +209,6 @@
 		52EA1165274C23C2007DA1C5 = {
 			isa = PBXGroup;
 			children = (
-				2C66E4F2299AED6300CB6A4C /* swift-common-utils */,
 				2C4F3D0D27F713E5004B79F3 /* ProseLib */,
 				52EA1170274C23C2007DA1C5 /* Prose */,
 				46A46C7228635B8E00F27E40 /* ConversationFeaturePreview */,
