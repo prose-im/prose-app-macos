@@ -120,7 +120,6 @@ public struct MessageBarReducer: ReducerProtocol {
         return .task { [currentUser = state.currentUser, to = state.chatId] in
           await .messageSendResult(TaskResult {
             try await self.accounts.client(currentUser).sendMessage(to, message)
-            return .none
           })
         }.cancellable(id: EffectToken.sendMessage)
 

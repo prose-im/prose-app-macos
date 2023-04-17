@@ -36,7 +36,6 @@ public struct ChatReducer: ReducerProtocol {
     case reactionPickerDismissed
     case messageEditor(EditMessageReducer.Action)
     case messageEditorDismissed
-    case editMessageResult(Result<None, EquatableError>)
   }
 
   public init() {}
@@ -238,13 +237,8 @@ public struct ChatReducer: ReducerProtocol {
           )
         }
 
-      case .messageEditor(.cancelTapped), .messageEditorDismissed, .editMessageResult(.success):
+      case .messageEditor(.cancelTapped), .messageEditorDismissed:
         state.messageEditor = nil
-        return .none
-
-      case .editMessageResult(.failure):
-        // Ignore the error for now. There is no error handling in the library so far.
-        // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
         return .none
 
       case .messageEditor:

@@ -18,6 +18,7 @@ public struct ProseCoreClient {
   public var loadProfile: (BareJid) async throws -> UserProfile
   public var loadContacts: () async throws -> [Contact]
   public var loadAvatar: (BareJid) async throws -> URL?
+  public var saveAvatar: (URL) async throws -> Void
 
   public var sendMessage: (_ to: BareJid, _ body: String) async throws -> Void
   public var updateMessage: (

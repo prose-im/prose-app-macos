@@ -7,8 +7,11 @@ import AppDomain
 import ComposableArchitecture
 import CoreGraphics
 import Foundation
+import ProseBackend
 import ProseUI
+import TCAUtils
 import Toolbox
+import UniformTypeIdentifiers
 
 public struct SidebarHeaderReducer: ReducerProtocol {
   public typealias State = SessionState<SidebarHeaderState>
@@ -23,7 +26,7 @@ public struct SidebarHeaderReducer: ReducerProtocol {
     case editAvatarTapped
     case onHoverAvatar(Bool)
     case onDropAvatarImage(NSItemProvider)
-    case loadDroppedImageResult(TaskResult<CGImage>)
+    case loadDroppedImageResult(TaskResult<URL?>)
     case uploadAvatarImageResult(TaskResult<None>)
     case binding(BindingAction<SessionState<SidebarHeaderState>>)
     case onDisappear
@@ -36,7 +39,7 @@ public struct SidebarHeaderReducer: ReducerProtocol {
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.accountsClient) var accounts
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
@@ -57,21 +60,28 @@ public struct SidebarHeaderReducer: ReducerProtocol {
       case let .onDropAvatarImage(provider):
         return .task {
           await .loadDroppedImageResult(TaskResult {
-            var iter = provider.prose_systemImagePublisher().values.makeAsyncIterator()
-            guard let image = try await iter.next()?.cgImage else {
-              throw ItemProviderError.invalidItemData
+            guard
+              let image = try await provider.prose_loadImage(),
+              let jpegData = image.jpegData(compressionQuality: 0.8)
+            else {
+              return nil
             }
-            return image
+            let url = URL.temporaryDirectory.appending(component: "\(UUID().uuidString).jpg")
+            try jpegData.write(to: url)
+            return url
           })
         }.cancellable(id: EffectToken.loadDroppedImage)
 
-      case let .loadDroppedImageResult(.success(image)):
-        #warning("FIXME")
-//        return environment.proseClient.setAvatarImage(image)
-//          .receive(on: self.mainQueue)
-//          .catchToEffect(Action.uploadAvatarImageResult)
-//          .cancellable(id: EffectToken.uploadAvatarImage)
-        return .none
+      case let .loadDroppedImageResult(.success(url)):
+        guard let url else {
+          logger.info("The dropped file wasn't an image.")
+          return .none
+        }
+        return .task { [currentUser = state.currentUser] in
+          await .uploadAvatarImageResult(TaskResult {
+            try await self.accounts.client(currentUser).saveAvatar(url)
+          })
+        }
 
       case let .loadDroppedImageResult(.failure(error)):
         logger

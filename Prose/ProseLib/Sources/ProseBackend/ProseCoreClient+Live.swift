@@ -141,6 +141,11 @@ extension ProseCoreClient {
           try await client.loadAvatar(from: jid)
         }
       },
+      saveAvatar: { url in
+        try await withClient { client in
+          try await client.saveAvatar(imagePath: url)
+        }
+      },
       sendMessage: { to, body in
         try await withClient { client in
           try await client.sendMessage(to: to, body: body)

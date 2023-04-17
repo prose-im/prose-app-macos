@@ -5,94 +5,27 @@
 
 import Combine
 import Foundation
-import UniformTypeIdentifiers
-
-#if canImport(AppKit)
-  import AppKit
-#endif
-
-public enum ItemProviderError: Error {
-  case couldNotRetrieveItem
-  case invalidItemData
-}
 
 public extension NSItemProvider {
-  func prose_systemImagePublisher() -> AnyPublisher<PlatformImage, Error> {
-    #if os(macOS)
-      // TODO: Enable this on Xcode 14.
-//      if #available(macOS 13.0, *) {
-//        return self.prose_publisher(ofClass: PlatformImage.self)
-//      } else {
-      return Deferred {
-        Future { promise in
-          let identifier = [UTType]([.png, .jpeg, .image, .fileURL])
-            .lazy
-            .map(\.identifier)
-            .filter(self.hasItemConformingToTypeIdentifier)
-            .first
-
-          guard let identifier = identifier else {
-            return promise(.failure(ItemProviderError.couldNotRetrieveItem))
-          }
-
-          self.loadItem(forTypeIdentifier: identifier) { data, error in
-            if let error = error {
-              return promise(.failure(error))
-            }
-            guard let data = data else {
-              return promise(.failure(ItemProviderError.couldNotRetrieveItem))
-            }
-
-            // TODO: Instead of creating an image if a URL was dropped, we should use
-            // CGImageSourceCreateThumbnailAtIndex to downsample the image first.
-
-            if identifier == UTType.fileURL.identifier {
-              guard
-                let data = data as? Data,
-                let url = URL(dataRepresentation: data, relativeTo: nil),
-                let image = NSImage(contentsOf: url)
-              else {
-                return promise(.failure(ItemProviderError.invalidItemData))
-              }
-              return promise(.success(image))
-            }
-
-            guard
-              let data = data as? Data,
-              let image = NSImage(data: data)
-            else {
-              return promise(.failure(ItemProviderError.invalidItemData))
-            }
-
-            promise(.success(image))
-          }
+  func prose_loadObject<T>(ofClass: T.Type) async throws -> T? where T: NSItemProviderReading {
+    try await withCheckedThrowingContinuation { continuation in
+      _ = loadObject(ofClass: ofClass) { data, error in
+        if let error {
+          continuation.resume(throwing: error)
+          return
         }
-      }.eraseToAnyPublisher()
-//      }
-    #else
-      return self.prose_publisher(ofClass: PlatformImage.self)
-    #endif
+
+        guard let image = data as? T else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        continuation.resume(returning: image)
+      }
+    }
   }
 
-  func prose_publisher<T>(ofClass cls: T.Type) -> AnyPublisher<T, Error>
-    where T: NSItemProviderReading
-  {
-    guard self.canLoadObject(ofClass: cls) else {
-      return Fail(error: ItemProviderError.couldNotRetrieveItem).eraseToAnyPublisher()
-    }
-
-    return Deferred {
-      Future { promise in
-        _ = self.loadObject(ofClass: cls) { result, error in
-          if let error = error {
-            return promise(.failure(error))
-          }
-          guard let item = result as? T else {
-            return promise(.failure(ItemProviderError.invalidItemData))
-          }
-          promise(.success(item))
-        }
-      }
-    }.eraseToAnyPublisher()
+  func prose_loadImage() async throws -> PlatformImage? {
+    try await self.prose_loadObject(ofClass: PlatformImage.self)
   }
 }

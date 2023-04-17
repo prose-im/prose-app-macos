@@ -16,14 +16,10 @@ import UnreadFeature
 
 public struct MainScreenView: View {
   private let store: StoreOf<MainScreen>
-  @ObservedObject private var viewStore: ViewStore<SessionState<None>, Never>
 
   // swiftlint:disable:next type_contents_order
   public init(store: StoreOf<MainScreen>) {
     self.store = store
-    self.viewStore = ViewStore(
-      store.scope(state: { $0.get { _ in .none } }).actionless
-    )
   }
 
   public var body: some View {
@@ -48,8 +44,10 @@ public struct MainScreenView: View {
         )) { store in
           ConversationScreen(store: store)
         }
-        if self.viewStore.selectedAccount.status != .connected {
-          OfflineBanner(account: self.viewStore.selectedAccount)
+        WithViewStore(self.store.scope(state: \.selectedAccount)) { viewStore in
+          if viewStore.state.status != .connected {
+            OfflineBanner(account: viewStore.state)
+          }
         }
       }
       .accessibilityElement(children: .contain)
