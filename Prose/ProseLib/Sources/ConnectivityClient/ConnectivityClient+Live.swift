@@ -3,10 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Combine
 import ComposableArchitecture
 import Network
-import ProseBackend
 
 extension ConnectivityClient {
   static let live: ConnectivityClient = {

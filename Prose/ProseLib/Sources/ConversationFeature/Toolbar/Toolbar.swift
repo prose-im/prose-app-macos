@@ -8,7 +8,6 @@
 // import ComposableArchitecture
 // import ProseUI
 // import SwiftUI
-// import ProseBackend
 //
 // struct Toolbar: ToolbarContent {
 //  @Environment(\.redactionReasons) private var redactionReasons

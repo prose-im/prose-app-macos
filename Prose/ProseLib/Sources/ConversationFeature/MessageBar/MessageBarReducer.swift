@@ -4,7 +4,7 @@
 //
 
 import ComposableArchitecture
-import ProseBackend
+import ProseCore
 import ProseUI
 import TCAUtils
 import Toolbox

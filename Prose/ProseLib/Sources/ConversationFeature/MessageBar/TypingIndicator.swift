@@ -3,9 +3,9 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import AppLocalization
 import Assets
-import ProseBackend
 import SwiftUI
 
 private let l10n = L10n.Content.MessageBar.self

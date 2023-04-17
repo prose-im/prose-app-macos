@@ -21,8 +21,6 @@ public struct ToolbarReducer: ReducerProtocol {
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
-
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
     Reduce { _, action in

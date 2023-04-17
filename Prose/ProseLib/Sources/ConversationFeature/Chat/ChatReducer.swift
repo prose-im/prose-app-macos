@@ -3,9 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseBackend
+import ProseCore
 import ProseCoreViews
 import ProseUI
 import Toolbox
@@ -15,7 +16,7 @@ public struct ChatReducer: ReducerProtocol {
 
   public struct ChatState: Equatable {
     var isWebViewReady = false
-    var messages = IdentifiedArrayOf<ProseBackend.Message>()
+    var messages = IdentifiedArrayOf<Message>()
     var selectedMessageId: MessageId?
     var menu: MessageMenuState?
     var reactionPicker: MessageReactionPickerState?

@@ -3,10 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import AppDomain
 import ComposableArchitecture
 import ConversationFeature
 import CredentialsClient
+import ProseCore
 import SidebarFeature
 import TCAUtils
 import UnreadFeature
@@ -44,7 +44,6 @@ public struct MainScreen: ReducerProtocol {
 
   @Dependency(\.accountsClient) var accounts
   @Dependency(\.credentialsClient) var credentials
-  @Dependency(\.mainQueue) var mainQueue
   @Dependency(\.pasteboardClient) var pasteboard
 
   public var body: some ReducerProtocol<State, Action> {

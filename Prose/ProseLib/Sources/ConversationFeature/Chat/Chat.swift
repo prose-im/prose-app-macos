@@ -3,13 +3,13 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Assets
 import Combine
 import ComposableArchitecture
 import IdentifiedCollections
 import OrderedCollections
 import OSLog
-import ProseBackend
 import ProseCoreViews
 import ProseUI
 import SwiftUI

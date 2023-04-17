@@ -3,10 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
-import ProseBackend
 
 #warning("Fix popover dismiss animation")
 // Currently we're seeing a warning when the "Edit Profile" button in the AccountSettings popover
@@ -46,8 +46,6 @@ public struct Footer: ReducerProtocol {
   }
 
   public init() {}
-
-  @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
     EmptyReducer()

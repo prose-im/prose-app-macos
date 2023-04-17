@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
-import ProseBackend
 import ProseUI
 
 public struct EditMessageReducer: ReducerProtocol {

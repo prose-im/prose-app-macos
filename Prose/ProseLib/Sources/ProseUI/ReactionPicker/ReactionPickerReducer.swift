@@ -32,8 +32,6 @@ public struct ReactionPickerReducer: ReducerProtocol {
 
   public init() {}
 
-  @Dependency(\.mainQueue) var mainQueue
-
   public var body: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       switch action {

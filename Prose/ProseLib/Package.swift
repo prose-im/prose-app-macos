@@ -54,6 +54,7 @@ let package = Package(
         "CredentialsClient",
         "AccountBookmarksClient",
         "NotificationsClient",
+        "ProseCore",
       ]
     ),
 
@@ -67,6 +68,7 @@ let package = Package(
       "AddressBookFeature",
       "ConversationFeature",
       "UnreadFeature",
+      "ProseCore",
       .product(name: "TCAUtils", package: "swift-common-utils"),
     ]),
     .target(name: "AddressBookFeature", dependencies: [
@@ -79,6 +81,7 @@ let package = Package(
       "AuthenticationFeature",
       "EditProfileFeature",
       "JoinChatFeature",
+      "ProseCore",
     ]),
     .target(
       name: "ConversationFeature",
@@ -100,6 +103,7 @@ let package = Package(
       dependencies: [
         "AccountBookmarksClient",
         "CredentialsClient",
+        "ProseCore",
         .featureBase,
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
@@ -119,7 +123,7 @@ let package = Package(
       name: "ConnectivityClient",
       dependencies: [
         .base,
-        "ProseBackend",
+        "Toolbox",
       ]
     ),
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
@@ -128,7 +132,6 @@ let package = Package(
       name: "AccountBookmarksClient",
       dependencies: [
         .base,
-        "ProseBackend",
       ]
     ),
     .target(
@@ -188,9 +191,10 @@ let package = Package(
     ),
 
     .target(
-      name: "ProseBackend",
+      name: "ProseCore",
       dependencies: [
         "AppDomain",
+        "Toolbox",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),

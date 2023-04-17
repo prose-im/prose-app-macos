@@ -6,7 +6,6 @@
 import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseBackend
 
 public struct AccountBookmark: Codable {
   public var jid: BareJid

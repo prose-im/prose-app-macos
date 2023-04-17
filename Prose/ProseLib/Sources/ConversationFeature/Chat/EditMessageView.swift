@@ -5,7 +5,6 @@
 
 import AppLocalization
 import ComposableArchitecture
-import ProseBackend
 import ProseUI
 import SwiftUI
 

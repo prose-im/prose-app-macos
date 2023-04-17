@@ -58,7 +58,6 @@ public struct Authentication: ReducerProtocol {
   public init() {}
 
   @Dependency(\.credentialsClient) var credentials
-  @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
     self.core

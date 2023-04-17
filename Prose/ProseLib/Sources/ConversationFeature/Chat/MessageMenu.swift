@@ -3,9 +3,9 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import AppKit
 import ComposableArchitecture
-import ProseBackend
 import WebKit
 
 public enum MessageMenuAction: Equatable {

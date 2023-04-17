@@ -10,7 +10,7 @@ import Combine
 import ComposableArchitecture
 import CredentialsClient
 import Foundation
-import ProseBackend
+import ProseCore
 import Toolbox
 
 private let l10n = L10n.Authentication.BasicAuth.self
@@ -72,7 +72,6 @@ public struct BasicAuth: ReducerProtocol {
   @Dependency(\.accountBookmarksClient) var accountBookmarks
   @Dependency(\.credentialsClient) var credentials
   @Dependency(\.accountsClient) var accounts
-  @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()

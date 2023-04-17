@@ -7,7 +7,7 @@ import BareMinimum
 import ComposableArchitecture
 import Foundation
 import NotificationsClient
-import ProseBackend
+import ProseCore
 
 extension ReducerProtocol<App.State, App.Action> {
   func handleAccounts() -> some ReducerProtocol<App.State, App.Action> {

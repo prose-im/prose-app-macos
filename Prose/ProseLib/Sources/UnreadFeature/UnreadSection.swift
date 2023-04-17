@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ConversationFeature
-import ProseBackend
 import ProseUI
 import SwiftUI
 

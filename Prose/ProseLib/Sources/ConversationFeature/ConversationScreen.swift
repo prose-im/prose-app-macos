@@ -7,7 +7,6 @@ import ComposableArchitecture
 import ConversationInfoFeature
 import IdentifiedCollections
 import PasteboardClient
-import ProseBackend
 import SwiftUI
 import Toolbox
 

@@ -3,9 +3,9 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseBackend
 import ProseUI
 
 public struct ConversationInfoReducer: ReducerProtocol {
@@ -49,8 +49,6 @@ public struct ConversationInfoReducer: ReducerProtocol {
   }
 
   public init() {}
-
-  @Dependency(\.mainQueue) var mainQueue
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()

@@ -3,7 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import ProseBackend
+import AppDomain
 import ProseUI
 import SwiftUI
 

@@ -3,11 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import AppDomain
 import ComposableArchitecture
 import CoreGraphics
 import Foundation
-import ProseBackend
+import ProseCore
 import ProseUI
 import TCAUtils
 import Toolbox
