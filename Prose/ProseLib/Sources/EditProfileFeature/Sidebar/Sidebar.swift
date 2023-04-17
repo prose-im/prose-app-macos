@@ -6,7 +6,6 @@
 import AppLocalization
 import ComposableArchitecture
 import IdentifiedCollections
-import ProseCoreTCA
 import SwiftUI
 
 struct Sidebar: View {

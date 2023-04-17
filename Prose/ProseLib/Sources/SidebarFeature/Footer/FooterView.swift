@@ -9,7 +9,6 @@ import Assets
 import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
-import ProseCoreTCA
 import ProseUI
 import SwiftUI
 import SwiftUINavigation

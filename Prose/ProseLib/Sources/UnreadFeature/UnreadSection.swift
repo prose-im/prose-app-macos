@@ -5,17 +5,16 @@
 
 import ConversationFeature
 import ProseBackend
-import ProseCoreTCA
 import ProseUI
 import SwiftUI
 
 public struct UnreadSectionModel: Equatable {
-  let chatId: ChatID
+  let chatId: BareJid
   let chatTitle: String
   var messages: [Message]
 
   public init(
-    chatId: ChatID,
+    chatId: BareJid,
     chatTitle: String,
     messages: [Message]
   ) {
@@ -59,7 +58,7 @@ struct UnreadSection: View {
       }
     } label: {
       HStack {
-        Label(self.model.chatTitle, systemImage: self.model.chatId.icon.rawValue)
+        Label(self.model.chatTitle, systemImage: Icon.directMessage.rawValue)
           .labelStyle(.coloredIcon)
           .font(.title3.bold())
         Spacer()
@@ -71,13 +70,14 @@ struct UnreadSection: View {
   }
 }
 
-private extension ChatID {
-  var icon: Icon {
-    switch self {
-    case .person:
-      return Icon.directMessage
-    case .group:
-      return Icon.group
-    }
-  }
-}
+#warning("FIXME")
+// private extension ChatID {
+//  var icon: Icon {
+//    switch self {
+//    case .person:
+//      return Icon.directMessage
+//    case .group:
+//      return Icon.group
+//    }
+//  }
+// }

@@ -6,7 +6,6 @@
 import Combine
 import ComposableArchitecture
 import Foundation
-import Toolbox
 import UserNotifications
 
 extension NotificationsClient: DependencyKey {

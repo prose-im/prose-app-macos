@@ -5,7 +5,6 @@
 
 import AppDomain
 import ComposableArchitecture
-import ProseCoreTCA
 
 public struct AccountSwitcherMenu: ReducerProtocol {
   public typealias State = SessionState<AccountSwitcherMenuState>

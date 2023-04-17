@@ -6,7 +6,6 @@
 import AppKit
 import ComposableArchitecture
 import ProseBackend
-import ProseCoreTCA
 import WebKit
 
 public enum MessageMenuAction: Equatable {

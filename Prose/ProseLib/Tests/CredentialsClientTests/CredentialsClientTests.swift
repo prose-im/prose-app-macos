@@ -4,7 +4,6 @@
 //
 
 @testable import CredentialsClient
-import ProseCoreTCA
 import XCTest
 
 final class CredentialsStoreTests: XCTestCase {

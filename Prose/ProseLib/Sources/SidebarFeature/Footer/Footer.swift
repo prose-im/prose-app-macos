@@ -7,7 +7,6 @@ import AuthenticationFeature
 import ComposableArchitecture
 import EditProfileFeature
 import ProseBackend
-import ProseCoreTCA
 
 #warning("Fix popover dismiss animation")
 // Currently we're seeing a warning when the "Edit Profile" button in the AccountSettings popover

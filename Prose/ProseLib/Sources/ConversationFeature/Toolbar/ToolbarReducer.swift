@@ -4,13 +4,13 @@
 //
 
 import ComposableArchitecture
-import ProseCoreTCA
 
 public struct ToolbarReducer: ReducerProtocol {
   public typealias State = ChatSessionState<ToolbarState>
 
   public struct ToolbarState: Equatable {
-    let user: User? = .placeholder
+    #warning("FIXME")
+    // let user: User? = .placeholder
     @BindingState var isShowingInfo = false
   }
 

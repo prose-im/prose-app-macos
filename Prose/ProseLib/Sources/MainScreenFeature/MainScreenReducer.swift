@@ -3,10 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
 import ConversationFeature
 import CredentialsClient
-import ProseCoreTCA
 import SidebarFeature
 import TcaHelpers
 import TCAUtils
@@ -27,14 +27,14 @@ public struct MainScreen: ReducerProtocol {
 
   public enum Action: Equatable {
     case sidebar(Sidebar.Action)
-    case unreadStack(UnreadAction)
+    case unreadStack(UnreadScreenReducer.Action)
     case chat(ConversationScreenReducer.Action)
 
     case reconnectButtonTapped
   }
 
   enum Route: Equatable {
-    case unreadStack(UnreadState)
+    case unreadStack(UnreadScreenReducer.UnreadScreenState)
     case replies
     case directMessages
     case peopleAndGroups
@@ -70,7 +70,7 @@ public struct MainScreen: ReducerProtocol {
 
         // If another chat was selected already, we'll manually send the `.onAppear` and
         // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
-        if var priorConversationState = state.get(MainScreen.Route.Paths.chat) {
+        if var priorConversationState = state.sessionRoute.chat {
           effects = .concatenate([
             ConversationScreenReducer().reduce(into: &priorConversationState, action: .onDisappear)
               .map(MainScreen.Action.chat),
@@ -84,16 +84,15 @@ public struct MainScreen: ReducerProtocol {
       }
       return .none
     }
-    Scope(state: \.route, action: /.self) {
+    Scope(state: \.sessionRoute, action: /.self) {
       EmptyReducer()
-        .ifCaseLet(/Route.unreadStack, action: /Action.unreadStack) {
-          Reduce(unreadReducer, environment: .init())
+        .ifLet(\.unreadStack, action: /Action.unreadStack) {
+          UnreadScreenReducer()
+        }
+        .ifLet(\.chat, action: /Action.chat) {
+          ConversationScreenReducer()
         }
     }
-    EmptyReducer()
-      .ifLet(\.chat, action: /Action.chat) {
-        ConversationScreenReducer()
-      }
   }
 
   @ReducerBuilder<State, Action>
@@ -114,21 +113,26 @@ public struct MainScreen: ReducerProtocol {
   }
 }
 
-private extension SessionState where ChildState == MainScreen.MainScreenState {
+extension MainScreen.State {
   var sidebar: Sidebar.State {
     get { self.get(\.sidebar) }
     set { self.set(\.sidebar, newValue) }
   }
 
-  var chat: ConversationScreenReducer.State? {
-    get { self.get(MainScreen.Route.Paths.chat) }
-    set { self.set(MainScreen.Route.Paths.chat, newValue) }
+  var sessionRoute: SessionState<MainScreen.Route> {
+    get { self.get(\.route) }
+    set { self.set(\.route, newValue) }
   }
 }
 
-private extension MainScreen.Route {
-  enum Paths {
-    static let chat: OptionalPath = (\MainScreen.MainScreenState.route)
-      .case(CasePath(MainScreen.Route.chat))
+extension SessionState<MainScreen.Route> {
+  var unreadStack: UnreadScreenReducer.State? {
+    get { self.get(/MainScreen.Route.unreadStack) }
+    set { self.set(/MainScreen.Route.unreadStack, newValue) }
+  }
+
+  var chat: ConversationScreenReducer.State? {
+    get { self.get(/MainScreen.Route.chat) }
+    set { self.set(/MainScreen.Route.chat, newValue) }
   }
 }

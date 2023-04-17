@@ -9,7 +9,6 @@ import Assets
 import ComposableArchitecture
 import ConversationFeature
 import PasteboardClient
-import ProseCoreTCA
 import SidebarFeature
 import SwiftUI
 import TcaHelpers
@@ -38,27 +37,18 @@ public struct MainScreenView: View {
       .accessibilityIdentifier("Sidebar")
 
       ZStack(alignment: .top) {
-        SwitchStore(self.store.scope(state: \.route)) {
-          CaseLet(
-            state: /MainScreen.Route.unreadStack,
-            action: MainScreen.Action.unreadStack,
-            then: UnreadScreen.init(store:)
-          )
-          CaseLet(
-            state: { route in
-              CasePath(MainScreen.Route.chat).extract(from: route)
-                .map { state in
-                  self.viewStore.state.get { _ in state }
-                }
-            },
-            action: MainScreen.Action.chat,
-            then: ConversationScreen.init(store:)
-          )
-          Default {
-            Text("Not implemented.")
-          }
+        IfLetStore(self.store.scope(
+          state: \.sessionRoute.unreadStack,
+          action: MainScreen.Action.unreadStack
+        )) { store in
+          UnreadScreen(store: store)
         }
-
+        IfLetStore(self.store.scope(
+          state: \.sessionRoute.chat,
+          action: MainScreen.Action.chat
+        )) { store in
+          ConversationScreen(store: store)
+        }
         if self.viewStore.selectedAccount.status != .connected {
           OfflineBanner(account: self.viewStore.selectedAccount)
         }

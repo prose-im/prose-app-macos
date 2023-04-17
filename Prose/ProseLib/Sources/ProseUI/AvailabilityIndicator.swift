@@ -3,9 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Assets
-import ProseBackend
-import ProseCoreTCA
 import SwiftUI
 
 public struct AvailabilityIndicator: View {

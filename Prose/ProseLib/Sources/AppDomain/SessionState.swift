@@ -3,11 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import AppDomain
 import BareMinimum
-import ComposableArchitecture
+import CasePaths
 import Foundation
-import TcaHelpers
+import IdentifiedCollections
 
 @dynamicMemberLookup
 public struct SessionState<ChildState: Equatable>: Equatable {
@@ -50,13 +49,11 @@ public extension SessionState {
     )
   }
 
-  func get<StatePath: Path>(
-    _ toLocalState: StatePath
-  ) -> SessionState<StatePath.Value>? where StatePath.Root == ChildState {
+  func get<T>(_ toLocalState: CasePath<ChildState, T>) -> SessionState<T>? {
     guard let localState = toLocalState.extract(from: self.childState) else {
       return nil
     }
-    return SessionState<StatePath.Value>(
+    return SessionState<T>(
       currentUser: self.currentUser,
       accounts: self.accounts,
       childState: localState
@@ -68,14 +65,10 @@ public extension SessionState {
     self.currentUser = newValue.currentUser
   }
 
-  mutating func set<StatePath: Path, T>(
-    _ path: StatePath,
-    _ newValue: SessionState<T>?
-  ) where StatePath.Root == ChildState, T == StatePath.Value {
-    if let newValue = newValue {
-      path.set(into: &self.childState, newValue.childState)
-      self.currentUser = newValue.currentUser
-    }
+  mutating func set<T>(_ casePath: CasePath<ChildState, T>, _ newValue: SessionState<T>?) {
+    guard let newValue else { return }
+    self.childState = casePath.embed(newValue.childState)
+    self.currentUser = newValue.currentUser
   }
 }
 

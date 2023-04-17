@@ -3,11 +3,11 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
 import Foundation
 import JoinChatFeature
 import ProseCoreFFI
-import ProseCoreTCA
 import TcaHelpers
 import Toolbox
 
@@ -33,10 +33,6 @@ public struct Sidebar: ReducerProtocol {
 
     case addContactButtonTapped
     case addGroupButtonTapped
-
-    case rosterResult(Result<Roster, EquatableError>)
-    case activeChatsResult(Result<[BareJid: Chat], EquatableError>)
-    case presencesResult(Result<[BareJid: Presence], EquatableError>)
 
     case footer(Footer.Action)
 
@@ -122,8 +118,7 @@ public struct Sidebar: ReducerProtocol {
       case .addMember(.submitTapped), .joinGroup(.submitTapped):
         fatalError("\(action) not implemented yet.")
 
-      case .footer, .rosterResult, .activeChatsResult, .presencesResult,
-           .addMember, .joinGroup:
+      case .footer, .addMember, .joinGroup:
         return .none
       }
     }
@@ -146,8 +141,8 @@ public extension Sidebar.Route {
   }
 }
 
-private extension SessionState where ChildState == Sidebar.SidebarState {
-  var footer: SessionState<Footer.FooterState> {
+private extension Sidebar.State {
+  var footer: Footer.State {
     get { self.get(\.footer) }
     set { self.set(\.footer, newValue) }
   }

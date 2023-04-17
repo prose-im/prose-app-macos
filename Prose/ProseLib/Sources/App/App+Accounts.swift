@@ -8,7 +8,6 @@ import ComposableArchitecture
 import Foundation
 import NotificationsClient
 import ProseBackend
-import ProseCoreTCA
 
 extension ReducerProtocol<App.State, App.Action> {
   func handleAccounts() -> some ReducerProtocol<App.State, App.Action> {

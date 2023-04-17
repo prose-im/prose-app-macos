@@ -7,7 +7,6 @@ import AppLocalization
 import Combine
 import ComposableArchitecture
 import ProseCoreFFI
-import ProseCoreTCA
 import ProseUI
 import SwiftUI
 import SwiftUINavigation

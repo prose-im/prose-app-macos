@@ -68,12 +68,10 @@ let package = Package(
       "AddressBookFeature",
       "ConversationFeature",
       "UnreadFeature",
-      "ProseCoreTCA",
       .product(name: "TCAUtils", package: "swift-common-utils"),
     ]),
     .target(name: "AddressBookFeature", dependencies: [
       "ProseUI",
-      "ProseCoreTCA",
     ]),
     .target(name: "JoinChatFeature", dependencies: [.featureBase]),
     .target(name: "SettingsFeature", dependencies: [.featureBase]),
@@ -138,7 +136,6 @@ let package = Package(
       name: "NotificationsClient",
       dependencies: [
         .base,
-        "ProseCoreTCA",
       ]
     ),
     .target(name: "PasteboardClient", dependencies: [.base]),
@@ -161,7 +158,6 @@ let package = Package(
       name: "ProseUI",
       dependencies: [
         "Assets",
-        "ProseCoreTCA",
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
       .appendingDebugDependencies(["PreviewAssets"])
@@ -180,7 +176,7 @@ let package = Package(
       name: "ProseCoreViews",
       dependencies: [
         .base,
-        "ProseCoreTCA",
+        "Toolbox",
       ],
       resources: [.process("Resources")]
     ),
@@ -199,24 +195,12 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
-    .target(
-      name: "ProseCoreTCA",
-      dependencies: [
-        "AppDomain",
-        "ProseBackend",
-        "Toolbox",
-        "TcaHelpers",
-        .product(name: "Tagged", package: "swift-tagged"),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .testTarget(name: "ProseCoreTCATests", dependencies: ["ProseCoreTCA", "TestHelpers"]),
 
     .target(name: "TestHelpers"),
 
     .target(
       name: "Mocks",
-      dependencies: ["ProseCoreTCA"],
+      dependencies: ["AppDomain"],
       resources: [.copy("RandomUser/random_user.json")]
     ),
 

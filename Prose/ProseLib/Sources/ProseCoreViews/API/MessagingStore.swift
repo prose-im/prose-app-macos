@@ -3,10 +3,9 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Foundation
 import IdentifiedCollections
-import ProseCoreFFI
-import ProseCoreTCA
 
 public struct MessagingStore {
   private let signpostID = signposter.makeSignpostID()

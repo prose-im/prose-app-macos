@@ -6,7 +6,6 @@
 import ComposableArchitecture
 import ConversationInfoFeature
 import ProseBackend
-import ProseCoreTCA
 
 public struct ConversationScreenReducer: ReducerProtocol {
   public typealias State = SessionState<ConversationState>

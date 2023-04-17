@@ -3,8 +3,7 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import ProseBackend
-import ProseCoreTCA
+import AppDomain
 import SwiftUI
 
 public struct ContentCommonNameStatusComponent: View {

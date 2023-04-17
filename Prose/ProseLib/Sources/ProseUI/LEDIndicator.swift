@@ -4,7 +4,6 @@
 //
 
 import Assets
-import ProseCoreTCA
 import SwiftUI
 
 public struct LEDIndicator: View {

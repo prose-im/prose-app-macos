@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import ProseCoreTCA
 
 public extension Message {
   static func mock(

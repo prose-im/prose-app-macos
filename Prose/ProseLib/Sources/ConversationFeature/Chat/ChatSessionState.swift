@@ -3,9 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Foundation
-import ProseCoreFFI
-import ProseCoreTCA
 
 @dynamicMemberLookup
 public struct ChatSessionState<ChildState: Equatable>: Equatable {

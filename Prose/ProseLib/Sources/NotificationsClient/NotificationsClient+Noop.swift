@@ -6,7 +6,6 @@
 import Combine
 import ComposableArchitecture
 import Foundation
-import Toolbox
 
 #if DEBUG
   public extension NotificationsClient {

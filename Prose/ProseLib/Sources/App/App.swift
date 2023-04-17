@@ -13,7 +13,6 @@ import CredentialsClient
 import Foundation
 import MainScreenFeature
 import NotificationsClient
-import ProseCoreTCA
 import Toolbox
 
 private extension BareJid {
@@ -85,7 +84,7 @@ struct App: ReducerProtocol {
         return .none
       }
 
-      func proceedToLogin(jid _: JID? = nil) -> EffectTask<Action> {
+      func proceedToLogin() -> EffectTask<Action> {
         state.auth = .init()
         return .none
       }

@@ -9,7 +9,6 @@ import ComposableArchitecture
 import CredentialsClient
 import Foundation
 import ProseBackend
-import ProseCoreTCA
 
 public struct AccountSettingsMenu: ReducerProtocol {
   public struct State: Equatable {

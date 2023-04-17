@@ -6,21 +6,16 @@
 import Assets
 import ComposableArchitecture
 import ConversationFeature
-import ProseCoreTCA
 import ProseUI
 import SwiftUI
 
-// MARK: - View
-
 public struct UnreadScreen: View {
-  public typealias State = UnreadState
-  public typealias Action = UnreadAction
+  private let store: StoreOf<UnreadScreenReducer>
+  private var actions: ViewStore<Void, UnreadScreenReducer.Action>
 
-  private let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
-
-  public init(store: Store<State, Action>) {
+  public init(store: StoreOf<UnreadScreenReducer>) {
     self.store = store
+    self.actions = ViewStore(store.stateless)
   }
 
   public var body: some View {
@@ -33,7 +28,7 @@ public struct UnreadScreen: View {
   }
 
   private func content() -> some View {
-    WithViewStore(self.store.scope(state: \State.messages.isEmpty)) { noMessage in
+    WithViewStore(self.store.scope(state: \.messages.isEmpty)) { noMessage in
       if noMessage.state {
         self.nothing()
       } else {
@@ -53,50 +48,11 @@ public struct UnreadScreen: View {
   private func list() -> some View {
     ScrollView {
       VStack(spacing: 24) {
-        WithViewStore(self.store.scope(state: \State.messages)) { messages in
+        WithViewStore(self.store.scope(state: \.messages)) { messages in
           ForEach(messages.state, id: \.chatId, content: UnreadSection.init(model:))
         }
       }
       .padding(24)
     }
   }
-}
-
-// MARK: - The Composable Architecture
-
-// MARK: Reducer
-
-public let unreadReducer: AnyReducer<
-  UnreadState,
-  UnreadAction,
-  UnreadEnvironment
-> = AnyReducer { _, action, _ in
-  switch action {
-  case .onAppear:
-    return .none
-  }
-}
-
-// MARK: State
-
-public struct UnreadState: Equatable {
-  var messages: [UnreadSectionModel]
-
-  public init(
-    messages: [UnreadSectionModel] = []
-  ) {
-    self.messages = messages
-  }
-}
-
-// MARK: Actions
-
-public enum UnreadAction: Equatable {
-  case onAppear
-}
-
-// MARK: Environment
-
-public struct UnreadEnvironment {
-  public init() {}
 }
