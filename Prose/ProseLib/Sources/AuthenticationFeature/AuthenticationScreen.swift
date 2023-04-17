@@ -7,7 +7,6 @@ import AppDomain
 import ComposableArchitecture
 import CredentialsClient
 import SwiftUI
-import TcaHelpers
 
 public struct AuthenticationScreen: View {
   public typealias State = Authentication.State

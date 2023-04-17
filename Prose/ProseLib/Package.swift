@@ -64,7 +64,6 @@ let package = Package(
 
     .target(name: "MainScreenFeature", dependencies: [
       "SidebarFeature",
-      "TcaHelpers",
       "AddressBookFeature",
       "ConversationFeature",
       "UnreadFeature",
@@ -142,7 +141,7 @@ let package = Package(
 
     .target(
       name: "FeatureBase",
-      dependencies: [.base, "ProseUI", "TcaHelpers", "AppLocalization", "Assets"]
+      dependencies: [.base, "ProseUI", "AppLocalization", "Assets"]
     ),
     .target(
       name: "Base",
@@ -158,13 +157,13 @@ let package = Package(
       name: "ProseUI",
       dependencies: [
         "Assets",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
       .appendingDebugDependencies(["PreviewAssets"])
     ),
-    .target(name: "Toolbox"),
     .target(
-      name: "TcaHelpers",
+      name: "Toolbox",
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]

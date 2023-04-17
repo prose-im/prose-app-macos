@@ -6,6 +6,7 @@
 import Assets
 import ComposableArchitecture
 import SwiftUI
+import Toolbox
 
 struct MessageField: View {
   static let verticalSpacing: CGFloat = 8

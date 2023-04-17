@@ -7,7 +7,6 @@ import AppDomain
 import ComposableArchitecture
 import Foundation
 import JoinChatFeature
-import TcaHelpers
 import Toolbox
 
 public struct Sidebar: ReducerProtocol {

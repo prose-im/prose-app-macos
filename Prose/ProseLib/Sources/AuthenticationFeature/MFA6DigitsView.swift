@@ -10,7 +10,6 @@ import ComposableArchitecture
 import ProseUI
 import SwiftUI
 import SwiftUINavigation
-import TcaHelpers
 
 private let l10n = L10n.Authentication.Mfa.self
 

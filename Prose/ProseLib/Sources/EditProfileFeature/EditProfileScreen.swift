@@ -6,7 +6,6 @@
 import AppLocalization
 import ComposableArchitecture
 import SwiftUI
-import TcaHelpers
 
 public struct EditProfileScreen: View {
   static let minContentWidth: CGFloat = 480
