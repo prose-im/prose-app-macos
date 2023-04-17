@@ -9,7 +9,6 @@ import Combine
 import ComposableArchitecture
 import Foundation
 import OSLog
-import ProseCoreFFI
 
 struct NotConnectedError: Error {}
 

@@ -8,7 +8,6 @@ import BareMinimum
 import Combine
 import ComposableArchitecture
 import Foundation
-import ProseCoreFFI
 
 struct NoSuchAccountError: Error {}
 

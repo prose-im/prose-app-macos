@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Assets
-import ProseBackend
 import SwiftUI
 
 public typealias OnlineStatusIndicator = LEDIndicator

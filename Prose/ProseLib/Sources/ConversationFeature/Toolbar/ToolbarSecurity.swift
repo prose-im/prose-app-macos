@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Assets
-import ProseCoreFFI
 import SwiftUI
 
 /// Separated as its own view as we might need to reuse it someday.

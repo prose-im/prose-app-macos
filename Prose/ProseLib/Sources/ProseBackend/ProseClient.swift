@@ -8,9 +8,9 @@
 //// Copyright (c) 2022 Prose Foundation
 ////
 //
+// import AppDomain
 // import Combine
 // import Foundation
-// import ProseCoreFFI
 //
 // enum ProseClientError: Error {
 //  case unsupportedCredentials

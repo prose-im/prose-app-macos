@@ -3,8 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import Foundation
-import ProseCoreFFI
 
 public struct MessagingContext {
   public let setAccountJID: JSFunc1<BareJid, Void>

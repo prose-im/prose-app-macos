@@ -6,7 +6,6 @@
 import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseCoreFFI
 
 #warning("Remove me?")
 

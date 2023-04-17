@@ -3,10 +3,10 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import AppLocalization
 import Combine
 import ComposableArchitecture
-import ProseCoreFFI
 import ProseUI
 import SwiftUI
 import SwiftUINavigation

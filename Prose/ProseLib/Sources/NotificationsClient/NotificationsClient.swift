@@ -3,9 +3,9 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
+import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseBackend
 
 public enum NotificationPermission: Equatable {
   case notDetermined
