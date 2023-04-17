@@ -3,9 +3,8 @@
 // Copyright (c) 2022 Prose Foundation
 //
 
-import ComposableArchitecture
+import BareMinimum
 import Foundation
-import Toolbox
 import WebKit
 
 public extension WKUserContentController {

@@ -74,19 +74,17 @@ let package = Package(
     .target(name: "AddressBookFeature", dependencies: [
       "ProseUI",
     ]),
-    .target(name: "JoinChatFeature", dependencies: [.featureBase]),
-    .target(name: "SettingsFeature", dependencies: [.featureBase]),
-    .target(name: "SidebarFeature", dependencies: [
-      .featureBase,
+    .featureTarget(name: "JoinChatFeature"),
+    .featureTarget(name: "SettingsFeature"),
+    .featureTarget(name: "SidebarFeature", dependencies: [
       "AuthenticationFeature",
       "EditProfileFeature",
       "JoinChatFeature",
       "ProseCore",
     ]),
-    .target(
+    .featureTarget(
       name: "ConversationFeature",
       dependencies: [
-        .featureBase,
         "ConversationInfoFeature",
         "PasteboardClient",
         "ProseCoreViews",
@@ -96,63 +94,29 @@ let package = Package(
       name: "ConversationFeatureTests",
       dependencies: ["ConversationFeature", "TestHelpers"]
     ),
-    .target(name: "ConversationInfoFeature", dependencies: [.featureBase]),
-    .target(name: "EditProfileFeature", dependencies: [.featureBase]),
-    .target(
+    .featureTarget(name: "ConversationInfoFeature"),
+    .featureTarget(name: "EditProfileFeature", dependencies: ["ProseCore"]),
+    .featureTarget(
       name: "AuthenticationFeature",
       dependencies: [
         "AccountBookmarksClient",
         "CredentialsClient",
         "ProseCore",
-        .featureBase,
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
     ),
-    .target(
-      name: "UnreadFeature",
-      dependencies: [
-        "ConversationFeature",
-        .featureBase,
-      ]
-    ),
+    .featureTarget(name: "UnreadFeature", dependencies: ["ConversationFeature"]),
 
     // MARK: Dependencies
 
-    .target(name: "CredentialsClient", dependencies: [.base]),
-    .target(
-      name: "ConnectivityClient",
-      dependencies: [
-        .base,
-        "Toolbox",
-      ]
-    ),
+    .dependencyTarget(name: "CredentialsClient"),
+    .dependencyTarget(name: "ConnectivityClient", dependencies: ["Toolbox"]),
+
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
-    .target(
-      name: "AccountBookmarksClient",
-      dependencies: [
-        .base,
-      ]
-    ),
-    .target(
-      name: "NotificationsClient",
-      dependencies: [
-        .base,
-      ]
-    ),
-    .target(name: "PasteboardClient", dependencies: [.base]),
-
-    .target(
-      name: "FeatureBase",
-      dependencies: [.base, "ProseUI", "AppLocalization", "Assets"]
-    ),
-    .target(
-      name: "Base",
-      dependencies: [
-        "AppDomain",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
+    .dependencyTarget(name: "AccountBookmarksClient"),
+    .dependencyTarget(name: "NotificationsClient"),
+    .dependencyTarget(name: "PasteboardClient"),
 
     .target(name: "Assets", resources: [.process("Resources")]),
     .target(name: "AppLocalization", resources: [.process("Resources")]),
@@ -165,20 +129,15 @@ let package = Package(
       ]
       .appendingDebugDependencies(["PreviewAssets"])
     ),
-    .target(
-      name: "Toolbox",
-      dependencies: [
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
+    .target(name: "Toolbox"),
 
     .target(name: "PreviewAssets", resources: [.process("Resources")]),
 
     .target(
       name: "ProseCoreViews",
       dependencies: [
-        .base,
-        "Toolbox",
+        "AppDomain",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ],
       resources: [.process("Resources")]
     ),
@@ -187,15 +146,6 @@ let package = Package(
       dependencies: [
         "ProseCoreViews",
         "TestHelpers",
-      ]
-    ),
-
-    .target(
-      name: "ProseCore",
-      dependencies: [
-        "AppDomain",
-        "Toolbox",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
 
@@ -212,6 +162,14 @@ let package = Package(
       dependencies: [
         .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
         .product(name: "BareMinimum", package: "swift-common-utils"),
+      ]
+    ),
+    .target(
+      name: "ProseCore",
+      dependencies: [
+        "AppDomain",
+        "Toolbox",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
   ]
@@ -282,15 +240,49 @@ extension Package.Dependency {
   }
 }
 
+extension PackageDescription.Target {
+  /// A target that describes a fully-fledged app feature
+  static func featureTarget(
+    name: String,
+    dependencies: [Dependency] = [],
+    exclude: [String] = []
+  ) -> PackageDescription.Target {
+    self.target(
+      name: name,
+      dependencies: dependencies + [
+        "AppDomain",
+        "AppLocalization",
+        "Assets",
+        "ProseUI",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ],
+      exclude: exclude
+    )
+  }
+
+  /// A target that describes a TCA dependency
+  static func dependencyTarget(
+    name: String,
+    dependencies: [Dependency] = [],
+    exclude: [String] = []
+  ) -> PackageDescription.Target {
+    self.target(
+      name: name,
+      dependencies: dependencies + [
+        "AppDomain",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ],
+      exclude: exclude
+    )
+  }
+}
+
 extension Target.Dependency {
   static var proseCore: Target.Dependency {
 //    Environment.settings.useLocalProseLib
     "ProseCoreClientFFI"
 //      : .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift")
   }
-
-  static let base = Target.Dependency.target(name: "Base")
-  static var featureBase = Target.Dependency.target(name: "FeatureBase")
 }
 
 extension Array where Element == Target.Dependency {
