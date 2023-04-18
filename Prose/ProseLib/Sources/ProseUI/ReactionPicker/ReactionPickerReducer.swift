@@ -10,7 +10,7 @@ import Foundation
 public struct ReactionPickerReducer: ReducerProtocol {
   public struct State: Equatable {
     let reactions: [Emoji] = "👋👉👍😂😢😭😍😘😊🤯❤️🙏😛🚀⚠️😀😌😇🙃🙂🤩🥳🤨🙁😳🤔😐👀✅❌"
-      .map(Emoji.init)
+      .map { Emoji(String($0)) }
     var selected: Set<Emoji>
 
     let columnCount = 5

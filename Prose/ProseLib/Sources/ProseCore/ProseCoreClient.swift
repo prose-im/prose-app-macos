@@ -37,13 +37,13 @@ public struct ProseCoreClient {
 
   public var loadLatestMessages: (
     _ conversation: BareJid,
-    _ since: StanzaId?,
+    _ since: MessageId?,
     _ loadFromServer: Bool
   ) async throws -> [Message]
 
   public var loadMessagesBefore: (
     _ conversation: BareJid,
-    _ before: StanzaId
+    _ before: MessageId
   ) async throws -> MessagesPage
 
   public var loadMessagesWithIds: (

@@ -22,7 +22,7 @@ public struct ReactionPicker: View {
           Button {
             viewStore.send(isSelected ? .deselect(emoji) : .select(emoji))
           } label: {
-            Text(emoji)
+            Text(emoji.rawValue)
               .font(.system(size: viewStore.fontSize))
               .frame(width: viewStore.width, height: viewStore.height)
               .modifier(Selected(viewStore.selected.contains(emoji)))

@@ -60,7 +60,7 @@ public struct EditMessageReducer: ReducerProtocol {
       switch action {
       case let .emojiPicker(.select(emoji)):
         state.emojiPicker = nil
-        state.messageField.message.append(contentsOf: emoji)
+        state.messageField.message.append(contentsOf: emoji.rawValue)
         return .none
 
       case .emojiButtonTapped:

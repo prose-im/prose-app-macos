@@ -23,7 +23,7 @@ public struct ShowReactionsHandlerPayload: Equatable, Decodable {
 
 public struct ToggleReactionHandlerPayload: Equatable, Decodable {
   public let id: Message.ID?
-  public let reaction: String
+  public let reaction: Emoji
 }
 
 public extension MessageEvent {
