@@ -123,6 +123,10 @@ struct ChatView: NSViewRepresentable {
     contentController.addMessageEventHandler(for: .showReactions) { result in
       actions.send(.messageEvent(MessageEvent.showReactions, from: result))
     }
+    // Our user either scroll to the beginning or the end of the message list
+    contentController.addMessageEventHandler(for: .reachedEndOfList) { result in
+      actions.send(.messageEvent(MessageEvent.reachedEndOfList, from: result))
+    }
 
     let configuration = WKWebViewConfiguration()
     configuration.userContentController = contentController

@@ -204,6 +204,10 @@ public struct ChatReducer: ReducerProtocol {
           try await self.accounts.client(currentUser)
             .toggleReactionToMessage(chatId, messageId, payload.reaction)
         }
+      
+      case let .message(.reachedEndOfList(payload)):
+        print("REACHED END OF LIST. DIRECTION: \(payload.direction)")
+        return .none
 
       case let .jsEventError(error):
         state.alert = AlertState(
