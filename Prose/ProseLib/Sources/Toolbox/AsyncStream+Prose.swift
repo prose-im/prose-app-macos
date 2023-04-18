@@ -1,6 +1,6 @@
 //
 // This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
+// Copyright (c) 2023 Prose Foundation
 //
 
 // Source: https://github.com/tgrapperon/swift-dependencies-additions/blob/bcb5e934a1b9a7d661ab5a9dce026015d5b03db4/Sources/DependenciesAdditionsBasics/ConcurrencySupport/AsyncStream%2BAdditions.swift

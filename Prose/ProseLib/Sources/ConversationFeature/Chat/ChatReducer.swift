@@ -1,6 +1,6 @@
 //
 // This file is part of prose-app-macos.
-// Copyright (c) 2022 Prose Foundation
+// Copyright (c) 2023 Prose Foundation
 //
 
 import AppDomain
@@ -204,7 +204,7 @@ public struct ChatReducer: ReducerProtocol {
           try await self.accounts.client(currentUser)
             .toggleReactionToMessage(chatId, messageId, payload.reaction)
         }
-      
+
       case let .message(.reachedEndOfList(payload)):
         print("REACHED END OF LIST. DIRECTION: \(payload.direction)")
         return .none
