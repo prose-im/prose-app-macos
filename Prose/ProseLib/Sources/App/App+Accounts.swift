@@ -62,8 +62,14 @@ private struct Accounts<
         }
 
         if accounts.isEmpty {
-          state.mainState = .init()
-          state.auth = .init()
+          // Set the state conditionally so that controls don't lose focus in case the auth form
+          // is visible already.
+          if state.auth == nil {
+            state.mainState = .init()
+            state.auth = .init()
+          }
+          state.availableAccounts = [.placeholder]
+          state.currentUser = .placeholder
         }
 
         return .merge(effects)

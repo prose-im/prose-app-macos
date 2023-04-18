@@ -15,8 +15,12 @@ import MainScreenFeature
 import NotificationsClient
 import Toolbox
 
-private extension BareJid {
+extension BareJid {
   static let placeholder = BareJid(node: "placeholder", domain: "prose.org")
+}
+
+extension Account {
+  static let placeholder = Account(jid: .placeholder, status: .disconnected)
 }
 
 struct App: ReducerProtocol {
@@ -25,9 +29,7 @@ struct App: ReducerProtocol {
     var connectivity = Connectivity.online
 
     var currentUser = BareJid.placeholder
-    var availableAccounts = IdentifiedArrayOf<Account>(uniqueElements: [
-      .init(jid: .placeholder, status: .disconnected),
-    ])
+    var availableAccounts = IdentifiedArrayOf<Account>(uniqueElements: [.placeholder])
 
     var mainState = MainScreen.MainScreenState()
     var auth: Authentication.State?
@@ -135,7 +137,7 @@ struct App: ReducerProtocol {
         return .none
 
       case .dismissAuthenticationSheet:
-        if state.availableAccounts.isEmpty {
+        if state.availableAccounts == [.placeholder] {
           // We don't have a valid account and the user wants to dismiss the authentication sheet.
           exit(0)
         }
