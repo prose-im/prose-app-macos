@@ -37,8 +37,8 @@ let package = Package(
     ),
     .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.2.0")),
 
-    .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
-    // .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: "0.4.3")
+    // .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
+    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.5.0"),
   ],
   targets: [
     .target(
@@ -157,7 +157,8 @@ let package = Package(
     .target(
       name: "AppDomain",
       dependencies: [
-        .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
+        // .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
+        .product(name: "ProseCoreFFI", package: "prose-wrapper-swift"),
         .product(name: "BareMinimum", package: "swift-common-utils"),
       ]
     ),
@@ -173,18 +174,12 @@ let package = Package(
 )
 
 enum Environment {
-  struct Settings: Decodable {
-    enum Configuration: String, Decodable {
-      case debug
-      case release
-    }
-
-    var configuration: Configuration
-    var useLocalProseLib: Bool
-    var proseLibPath: String
+  enum Configuration: String, Decodable {
+    case debug
+    case release
   }
 
-  static let settings: Settings = {
+  static let configuration: Configuration = {
     // If the `IS_RELEASE_BUILD` env var is set we're switching to the release settings.
     // The env var can only be set when running xcodebuild outside of Xcode.
     // No better way yet?
@@ -193,48 +188,8 @@ enum Environment {
       return .release
     }
 
-    // Let's see if we have a .env.json file next to our Package.swift. If not, we're
-    // assuming debug settings.
-    let envFilePath = URL(fileURLWithPath: #file)
-      .deletingLastPathComponent()
-      .appendingPathComponent(".env.json")
-
-    guard FileManager.default.fileExists(atPath: envFilePath.path) else {
-      return .debug
-    }
-
-    // Finally load the .env.json. If you're fiddling with this file, you'll probably need to
-    // close & reopen the project file.
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    let env: Data
-    do {
-      env = try Data(contentsOf: envFilePath)
-      return try decoder.decode(Settings.self, from: env)
-    } catch { fatalError(String(describing: error)) }
+    return .debug
   }()
-}
-
-extension Environment.Settings {
-  static let release = Self(
-    configuration: .release,
-    useLocalProseLib: false,
-    proseLibPath: ""
-  )
-
-  static let debug = Self(
-    configuration: .debug,
-    useLocalProseLib: false,
-    proseLibPath: ""
-  )
-}
-
-extension Package.Dependency {
-  static func proseCore(_ version: String) -> Package.Dependency {
-    Environment.settings.useLocalProseLib
-      ? .package(path: Environment.settings.proseLibPath)
-      : .package(url: "https://github.com/prose-im/prose-wrapper-swift", branch: version)
-  }
 }
 
 extension PackageDescription.Target {
@@ -274,17 +229,9 @@ extension PackageDescription.Target {
   }
 }
 
-extension Target.Dependency {
-  static var proseCore: Target.Dependency {
-//    Environment.settings.useLocalProseLib
-    "ProseCoreClientFFI"
-//      : .product(name: "ProseCoreClientFFI", package: "prose-wrapper-swift")
-  }
-}
-
 extension Array where Element == Target.Dependency {
   func appendingDebugDependencies(_ dependencies: [Target.Dependency]) -> Self {
-    if Environment.settings.configuration == .debug {
+    if Environment.configuration == .debug {
       return self + dependencies
     }
     return self
