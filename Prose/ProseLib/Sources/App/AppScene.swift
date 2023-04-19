@@ -33,7 +33,6 @@ public struct AppScene: Scene {
 
 struct AppView: View {
   struct ViewState: Equatable {
-    var isMainScreenRedacted: Bool
     var isAuthScreenPresented: Bool
   }
 
@@ -46,24 +45,35 @@ struct AppView: View {
   }
 
   public var body: some View {
-    MainScreenView(store: self.store.scope(state: \.main, action: App.Action.main))
-      .redacted(reason: self.viewStore.isMainScreenRedacted ? .placeholder : [])
-      .frame(minWidth: 1280, minHeight: 720)
-      .onAppear { self.viewStore.send(.onAppear) }
-      .sheet(
-        isPresented:
-        self.viewStore.binding(get: \.isAuthScreenPresented, send: .dismissAuthenticationSheet)
-      ) {
-        IfLetStore(self.store.scope(state: \.auth, action: App.Action.auth)) { store in
-          AuthenticationScreen(store: store)
-        }
+    IfLetStore(self.store.scope(state: \.main, action: App.Action.main)) { store in
+      MainScreenView(store: store)
+    } else: {
+      Color.systemBackground
+    }
+    .frame(minWidth: 1280, minHeight: 720)
+    .onAppear { self.viewStore.send(.onAppear) }
+    .sheet(isPresented: self.viewStore.binding(
+      get: \.isAuthScreenPresented,
+      send: .dismissAuthenticationSheet
+    )) {
+      IfLetStore(self.store.scope(state: \.auth, action: App.Action.auth)) { store in
+        AuthenticationScreen(store: store)
       }
+    }
   }
 }
 
 private extension AppView.ViewState {
   init(_ appState: App.State) {
-    self.isMainScreenRedacted = appState.isMainScreenRedacted
     self.isAuthScreenPresented = appState.auth != nil
   }
+}
+
+private extension Color {
+  #if canImport(UIKit)
+    static let systemBackground = Color(uiColor: .systemBackground)
+  #endif
+  #if canImport(AppKit)
+    static let systemBackground = Color(nsColor: .windowBackgroundColor)
+  #endif
 }

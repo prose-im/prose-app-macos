@@ -3,7 +3,6 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
-import AccountBookmarksClient
 import AppDomain
 import AuthenticationFeature
 import Combine
@@ -15,23 +14,15 @@ import MainScreenFeature
 import NotificationsClient
 import Toolbox
 
-extension BareJid {
-  static let placeholder = BareJid(node: "placeholder", domain: "prose.org")
-}
-
-extension Account {
-  static let placeholder = Account(jid: .placeholder, status: .disconnected)
-}
-
 struct App: ReducerProtocol {
   struct State: Equatable {
     var initialized = false
     var connectivity = Connectivity.online
 
-    var currentUser = BareJid.placeholder
-    var availableAccounts = IdentifiedArrayOf<Account>(uniqueElements: [.placeholder])
+    var currentUser: BareJid?
+    var availableAccounts = IdentifiedArrayOf<Account>()
 
-    var mainState = MainScreen.MainScreenState()
+    var mainState: MainScreen.MainScreenState?
     var auth: Authentication.State?
 
     public init() {}
@@ -62,35 +53,18 @@ struct App: ReducerProtocol {
 
   public var body: some ReducerProtocol<State, Action> {
     self.core
+      .ifLet(\.main, action: /Action.main) {
+        MainScreen()
+      }
       .ifLet(\.auth, action: /Action.auth) {
         Authentication()
       }
       .handleAccounts()
-
-    ConditionallyEnable(when: \.isMainScreenEnabled) {
-      Scope(state: \.main, action: /Action.main) {
-        MainScreen()
-      }
-    }
   }
 
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
-      func proceedToMainFlow(with jid: BareJid) -> EffectTask<Action> {
-        state.currentUser = jid
-        if state.availableAccounts[id: jid] == nil {
-          state.availableAccounts[id: jid] = .init(jid: jid, status: .connecting)
-        }
-        state.auth = nil
-        return .none
-      }
-
-      func proceedToLogin() -> EffectTask<Action> {
-        state.auth = .init()
-        return .none
-      }
-
       switch action {
       case .onAppear where !state.initialized:
         state.initialized = true
@@ -112,22 +86,24 @@ struct App: ReducerProtocol {
         ]
 
         do {
-          let credentials = try self.loadSavedCredentials()
+          let bookmarks = try self.accountBookmarks.loadBookmarks()
+          let credentials = try bookmarks.lazy.map(\.jid)
+            .compactMap(self.credentials.loadCredentials)
 
-          #warning("Save & restore selected account")
-          if let firstCredentials = credentials.first {
+          state.currentUser = bookmarks.first(where: \.isSelected)?.jid
+
+          if credentials.isEmpty {
+            state.auth = .init()
+          } else {
             effects.append(
               .fireAndForget {
                 self.accounts.connectAccounts(credentials)
               }
             )
-
-          } else {
-            effects.append(proceedToLogin())
           }
         } catch {
           logger.error("Error when loading credentials: \(error.localizedDescription)")
-          return proceedToLogin()
+          state.auth = .init()
         }
 
         return .merge(effects)
@@ -137,11 +113,16 @@ struct App: ReducerProtocol {
         return .none
 
       case .dismissAuthenticationSheet:
-        if state.availableAccounts == [.placeholder] {
+        if state.availableAccounts.isEmpty {
           // We don't have a valid account and the user wants to dismiss the authentication sheet.
           exit(0)
         }
         state.auth = nil
+        return .none
+
+      case let .auth(.didLogIn(jid)):
+        state.auth = nil
+        state.currentUser = jid
         return .none
 
       case .onAppear, .auth, .main, .availableAccountsChanged, .account:
@@ -149,49 +130,35 @@ struct App: ReducerProtocol {
       }
     }
   }
-
-  private func loadSavedCredentials() throws -> [Credentials] {
-    try self.accountBookmarks.loadBookmarks()
-      .lazy
-      .map(\.jid)
-      .compactMap(self.credentials.loadCredentials)
-  }
-}
-
-struct ConditionallyEnable<State, Action, Child: ReducerProtocol>: ReducerProtocol
-  where State == Child.State, Action == Child.Action
-{
-  let child: Child
-  let enableWhen: KeyPath<Child.State, Bool>
-
-  init(when: KeyPath<State, Bool>, @ReducerBuilder<State, Action> _ child: () -> Child) {
-    self.enableWhen = when
-    self.child = child()
-  }
-
-  func reduce(into state: inout Child.State, action: Child.Action) -> EffectTask<Child.Action> {
-    if state[keyPath: self.enableWhen] {
-      return self.child.reduce(into: &state, action: action)
-    }
-    return .none
-  }
 }
 
 extension App.State {
-  var isMainScreenEnabled: Bool { self.auth == nil }
-  var isMainScreenRedacted: Bool { self.currentUser == .placeholder }
-
-  var main: SessionState<MainScreen.MainScreenState> {
+  var main: MainScreen.State? {
     get {
-      .init(
-        currentUser: self.currentUser,
+      guard let mainState = self.mainState else {
+        return .none
+      }
+
+      guard
+        let currentUser = self.currentUser,
+        self.availableAccounts[id: currentUser] != nil
+      else {
+        fatalError("""
+          We do have MainState set however there's either no currentUser or a mismatch between
+          currentUser and availableAccounts.
+        """)
+      }
+
+      return .init(
+        currentUser: currentUser,
         accounts: self.availableAccounts,
-        childState: self.mainState
+        childState: mainState
       )
     }
+
     set {
-      self.mainState = newValue.childState
-      self.currentUser = newValue.currentUser
+      self.mainState = newValue?.childState
+      self.currentUser = newValue?.currentUser
     }
   }
 }

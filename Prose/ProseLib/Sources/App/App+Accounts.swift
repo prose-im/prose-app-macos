@@ -5,6 +5,7 @@
 
 import BareMinimum
 import ComposableArchitecture
+import CredentialsClient
 import Foundation
 import NotificationsClient
 import ProseCore
@@ -20,6 +21,7 @@ private struct Accounts<
 >: ReducerProtocol {
   let base: Base
 
+  @Dependency(\.accountBookmarksClient) var accountBookmarks
   @Dependency(\.accountsClient) var accounts
   @Dependency(\.credentialsClient) var credentials
 
@@ -27,6 +29,15 @@ private struct Accounts<
     self.base
       .forEach(\.availableAccounts, action: /Action.account) {
         AccountReducer()
+      }
+      // Save the selected account when it changes…
+      .onChange(of: \.currentUser) { currentUser, _, _ in
+        guard let currentUser else {
+          return .none
+        }
+        return .fireAndForget {
+          try await self.accountBookmarks.selectBookmark(currentUser)
+        }
       }
 
     self.core
@@ -37,8 +48,12 @@ private struct Accounts<
     Reduce { state, action in
       switch action {
       case let .availableAccountsChanged(accounts):
-        #warning("Save & restore selected account")
-        if let account = accounts.first {
+        // If we haven't set currentUser or it isn't available in accounts anymore, let's select
+        // the first available account.
+        if
+          state.currentUser.map({ jid in accounts.contains(jid) }) != true,
+          let account = accounts.first
+        {
           state.currentUser = account
         }
 
@@ -65,11 +80,14 @@ private struct Accounts<
           // Set the state conditionally so that controls don't lose focus in case the auth form
           // is visible already.
           if state.auth == nil {
-            state.mainState = .init()
+            state.mainState = nil
             state.auth = .init()
           }
-          state.availableAccounts = [.placeholder]
-          state.currentUser = .placeholder
+        } else {
+          if state.mainState == nil {
+            state.mainState = .init()
+            state.auth = nil
+          }
         }
 
         return .merge(effects)
@@ -108,13 +126,13 @@ struct AccountReducer: ReducerProtocol {
     case loadMessagesResponse(TaskResult<[Message]>)
   }
 
-  enum EffectToken: Hashable, CaseIterable {
-    case observeConnectionStatus
-    case observeEvents
-    case loadProfile
-    case loadContacts
-    case loadAvatar
-    case loadMessages
+  enum EffectToken: Hashable {
+    case observeConnectionStatus(BareJid)
+    case observeEvents(BareJid)
+    case loadProfile(BareJid)
+    case loadContacts(BareJid)
+    case loadAvatar(BareJid)
+    case loadMessages(BareJid)
   }
 
   @Dependency(\.accountsClient) var accounts
@@ -125,19 +143,23 @@ struct AccountReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .onAccountAdded:
-        print("ACCOUNT ADDED", state.jid)
-
         return .run { [jid = state.jid] send in
           for try await status in try self.accounts.client(jid).connectionStatus() {
             await send(.connectionStatusChanged(status))
           }
-        }.cancellable(id: EffectToken.observeConnectionStatus)
+        }.cancellable(id: EffectToken.observeConnectionStatus(state.jid))
 
       case .onAccountRemoved:
-        return .cancel(token: EffectToken.self)
+        return .cancel(ids: [
+          EffectToken.observeConnectionStatus(state.jid),
+          EffectToken.observeEvents(state.jid),
+          EffectToken.loadProfile(state.jid),
+          EffectToken.loadContacts(state.jid),
+          EffectToken.loadAvatar(state.jid),
+          EffectToken.loadMessages(state.jid),
+        ])
 
       case let .connectionStatusChanged(status):
-        print("Connection status changed", status)
         defer {
           state.status = status
         }
@@ -163,17 +185,17 @@ struct AccountReducer: ReducerProtocol {
               await .profileResponse(TaskResult {
                 try await self.accounts.client(jid).loadProfile(jid)
               })
-            }.cancellable(id: EffectToken.loadProfile),
+            }.cancellable(id: EffectToken.loadProfile(state.jid)),
             .task {
               await .contactsResponse(TaskResult {
                 try await self.accounts.client(jid).loadContacts()
               })
-            }.cancellable(id: EffectToken.loadContacts),
+            }.cancellable(id: EffectToken.loadContacts(state.jid)),
             .task {
               await .avatarResponse(TaskResult {
                 try await self.accounts.client(jid).loadAvatar(jid)
               })
-            }.cancellable(id: EffectToken.loadAvatar),
+            }.cancellable(id: EffectToken.loadAvatar(state.jid)),
             .run { send in
               let events = try self.accounts.client(jid).events()
               for try await event in events {
@@ -186,7 +208,7 @@ struct AccountReducer: ReducerProtocol {
                   break
                 }
               }
-            }.cancellable(id: EffectToken.observeEvents, cancelInFlight: true)
+            }.cancellable(id: EffectToken.observeEvents(state.jid), cancelInFlight: true)
           )
         }
 
@@ -197,7 +219,7 @@ struct AccountReducer: ReducerProtocol {
           await .contactsResponse(TaskResult {
             try await self.accounts.client(jid).loadContacts()
           })
-        }.cancellable(id: EffectToken.loadContacts, cancelInFlight: true)
+        }.cancellable(id: EffectToken.loadContacts(state.jid), cancelInFlight: true)
 
       case let .messagesAppended(conversation, messageIds):
         return .task { [jid = state.jid] in
@@ -207,17 +229,14 @@ struct AccountReducer: ReducerProtocol {
         }
 
       case let .profileResponse(.success(profile)):
-        print("Received profile", profile)
         state.profile = profile
         return .none
 
       case let .contactsResponse(.success(contacts)):
-        print("Received contacts", contacts)
         state.contacts = contacts
         return .none
 
       case let .avatarResponse(.success(avatar)):
-        print("Received avatar", avatar)
         state.avatar = avatar
         return .none
 

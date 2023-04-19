@@ -3,7 +3,6 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
-import AccountBookmarksClient
 import AppDomain
 import ComposableArchitecture
 import CredentialsClient
@@ -38,7 +37,7 @@ public struct AccountSettingsMenu: ReducerProtocol {
       switch action {
       case .signOutTapped:
         return .fireAndForget { [jid = state.jid] in
-          try? self.accountBookmarks.removeBookmark(jid)
+          try? await self.accountBookmarks.removeBookmark(jid)
           try? self.credentials.deleteCredentials(jid)
           try await self.accounts.disconnectAccount(jid)
         }

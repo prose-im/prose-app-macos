@@ -37,8 +37,8 @@ let package = Package(
     ),
     .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.2.0")),
 
-    // .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
-    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.5.0"),
+//     .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
+    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.6.0"),
   ],
   targets: [
     .target(
@@ -49,7 +49,6 @@ let package = Package(
         "AuthenticationFeature",
         "ConnectivityClient",
         "CredentialsClient",
-        "AccountBookmarksClient",
         "NotificationsClient",
         "ProseCore",
       ]
@@ -96,7 +95,6 @@ let package = Package(
     .featureTarget(
       name: "AuthenticationFeature",
       dependencies: [
-        "AccountBookmarksClient",
         "CredentialsClient",
         "ProseCore",
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
@@ -111,7 +109,6 @@ let package = Package(
 
     .testTarget(name: "CredentialsClientTests", dependencies: ["CredentialsClient"]),
 
-    .dependencyTarget(name: "AccountBookmarksClient"),
     .dependencyTarget(name: "NotificationsClient"),
     .dependencyTarget(name: "PasteboardClient"),
 
@@ -157,7 +154,7 @@ let package = Package(
     .target(
       name: "AppDomain",
       dependencies: [
-        // .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
+        //         .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
         .product(name: "ProseCoreFFI", package: "prose-wrapper-swift"),
         .product(name: "BareMinimum", package: "swift-common-utils"),
       ]

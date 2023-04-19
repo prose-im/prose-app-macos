@@ -37,13 +37,19 @@ extension AccountsClient {
         }
       },
       connectAccounts: { credentials in
-        for item in credentials {
-          let client = clientProvider()
-          lock.synchronized {
-            accounts.value[item.jid] = client
-          }
+        let clients = Dictionary(
+          zip(credentials, credentials.map { _ in clientProvider() }),
+          uniquingKeysWith: { _, last in last }
+        )
+        lock.synchronized {
+          accounts.value.merge(
+            clients.map { ($0.key.jid, $0.value) },
+            uniquingKeysWith: { _, new in new }
+          )
+        }
+        for (credential, client) in clients {
           Task {
-            try await client.connect(item, true)
+            try await client.connect(credential, true)
           }
         }
       },

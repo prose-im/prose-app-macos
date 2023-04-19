@@ -110,6 +110,11 @@ public struct Footer: ReducerProtocol {
         state.currentUser = jid
         return .none
 
+      case let .auth(.didLogIn(jid)):
+        state.route = nil
+        state.currentUser = jid
+        return .none
+
       case .accountSettingsMenu, .accountSwitcherMenu, .editProfile, .dismiss, .auth:
         return .none
       }
