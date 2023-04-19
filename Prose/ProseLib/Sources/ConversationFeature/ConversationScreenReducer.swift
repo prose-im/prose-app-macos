@@ -168,11 +168,11 @@ public struct ConversationScreenReducer: ReducerProtocol {
           "Could not load user infos. \(error.localizedDescription)"
         )
         return .none
-      
+
       case let .composingUsersResult(.success(composingUsers)):
         state.composingUsers = composingUsers
         return .none
-      
+
       case let .composingUsersResult(.failure(error)):
         logger.error(
           "Could not load composing users. \(error.localizedDescription)"
@@ -184,7 +184,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
           state.info = .init()
         }
         return .none
-      
+
       case .event(.composingUsersChanged):
         return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
           await .composingUsersResult(TaskResult {

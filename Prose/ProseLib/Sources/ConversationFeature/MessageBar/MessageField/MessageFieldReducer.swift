@@ -17,7 +17,7 @@ public struct MessageFieldReducer: ReducerProtocol {
   public struct MessageFieldState: Equatable {
     @BindingState var isFocused = false
     @BindingState var message = ""
-    
+
     var isComposing = false
 
     var isSendButtonEnabled: Bool {
@@ -34,13 +34,13 @@ public struct MessageFieldReducer: ReducerProtocol {
   public enum Action: Equatable, BindableAction {
     case onAppear
     case onDisappear
-  
+
     case binding(BindingAction<State>)
     case composeDelayExpired
-    
+
     case sendButtonTapped
   }
-  
+
   private enum EffectToken: Hashable, CaseIterable {
     case composeDelay
   }
@@ -52,34 +52,34 @@ public struct MessageFieldReducer: ReducerProtocol {
     Reduce { state, action in
       func updateComposingState() -> EffectTask<Action> {
         state.isComposing = state.isFocused && !state.message.isEmpty
-        
+
         if !state.isComposing {
           return .cancel(id: EffectToken.composeDelay)
         }
-        
+
         return .task {
           try await Task.sleep(for: .composeDelay)
           return .composeDelayExpired
         }.cancellable(id: EffectToken.composeDelay, cancelInFlight: true)
       }
-    
+
       switch action {
-        case .onDisappear:
-          return .cancel(token: EffectToken.self)
-          
-        case .binding:
-          return updateComposingState()
-        
-        case .sendButtonTapped:
-          state.isComposing = false
-          return .cancel(id: EffectToken.composeDelay)
-        
-        case .composeDelayExpired:
-          state.isComposing = false
-          return .none
-          
-        case .onAppear:
-          return .none
+      case .onDisappear:
+        return .cancel(token: EffectToken.self)
+
+      case .binding:
+        return updateComposingState()
+
+      case .sendButtonTapped:
+        state.isComposing = false
+        return .cancel(id: EffectToken.composeDelay)
+
+      case .composeDelayExpired:
+        state.isComposing = false
+        return .none
+
+      case .onAppear:
+        return .none
       }
     }
   }
