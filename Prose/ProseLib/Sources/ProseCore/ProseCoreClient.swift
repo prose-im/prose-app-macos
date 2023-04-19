@@ -33,7 +33,8 @@ public struct ProseCoreClient {
   ) async throws -> Void
   public var retractMessage: (_ conversation: BareJid, _ id: MessageId) async throws -> Void
 
-  public var sendChatState: (_ conversation: BareJid, _ state: ChatState) async throws -> Void
+  public var setUserIsComposing: (_ conversation: BareJid, _ isTyping: Bool) async throws -> Void
+  public var loadComposingUsersInConversation: (_ conversation: BareJid) async throws -> [BareJid]
 
   public var loadLatestMessages: (
     _ conversation: BareJid,

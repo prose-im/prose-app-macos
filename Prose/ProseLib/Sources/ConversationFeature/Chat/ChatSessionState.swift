@@ -11,6 +11,7 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
   public let currentUser: BareJid
   public let chatId: BareJid
   public let userInfos: [BareJid: UserInfo]
+  public let composingUsers: [BareJid]
 
   public var childState: ChildState
 
@@ -18,11 +19,13 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
     currentUser: BareJid,
     chatId: BareJid,
     userInfos: [BareJid: UserInfo],
+    composingUsers: [BareJid],
     childState: ChildState
   ) {
     self.currentUser = currentUser
     self.chatId = chatId
     self.userInfos = userInfos
+    self.composingUsers = composingUsers
     self.childState = childState
   }
 
@@ -44,6 +47,7 @@ public extension ChatSessionState {
       currentUser: self.currentUser,
       chatId: self.chatId,
       userInfos: self.userInfos,
+      composingUsers: self.composingUsers,
       childState: toLocalState(self.childState)
     )
   }
@@ -56,6 +60,7 @@ public extension ChatSessionState {
       currentUser: self.currentUser,
       chatId: self.chatId,
       userInfos: self.userInfos,
+      composingUsers: self.composingUsers,
       childState: localState
     )
   }
@@ -94,6 +99,7 @@ public extension ChatSessionState {
         currentUser: "hello@prose.org",
         chatId: "chat@prose.org",
         userInfos: [:],
+        composingUsers: [],
         childState: childState
       )
     }

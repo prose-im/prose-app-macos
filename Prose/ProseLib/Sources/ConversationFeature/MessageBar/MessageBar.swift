@@ -39,8 +39,8 @@ struct MessageBar: View {
         $0[VerticalAlignment.top] - Self.verticalPadding
       }
       .overlay(alignment: .typingIndicator) {
-        WithViewStore(self.store.scope(state: \.typingUsers)) { typingUsers in
-          TypingIndicator(typingUsers: typingUsers.state)
+        WithViewStore(self.store.scope(state: \.composingUserInfos)) { composingUserInfos in
+          TypingIndicator(typingUsers: composingUserInfos.state)
         }
       }
 

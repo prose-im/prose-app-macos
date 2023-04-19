@@ -170,9 +170,14 @@ extension ProseCoreClient {
           try await client.retractMessage(conversation: conversation, id: messageId)
         }
       },
-      sendChatState: { conversation, state in
+      setUserIsComposing: { conversation, isComposing in
         try await withClient { client in
-          try await client.sendChatState(conversation: conversation, chatState: state)
+          try await client.setUserIsComposing(conversation: conversation, isComposing: isComposing)
+        }
+      },
+      loadComposingUsersInConversation: { conversation in
+        try await withClient { client in
+          try await client.loadComposingUsers(conversation: conversation)
         }
       },
       loadLatestMessages: { conversation, since, loadFromServer in

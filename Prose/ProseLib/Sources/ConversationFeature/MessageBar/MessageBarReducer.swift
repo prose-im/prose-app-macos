@@ -13,7 +13,6 @@ public struct MessageBarReducer: ReducerProtocol {
   public typealias State = ChatSessionState<MessageBarState>
 
   public struct MessageBarState: Equatable {
-    var typingUsers = [UserInfo]()
     var messageField = MessageFieldReducer.MessageFieldState()
     var emojiPicker: ReactionPickerReducer.State?
 
@@ -27,7 +26,6 @@ public struct MessageBarReducer: ReducerProtocol {
     case emojiButtonTapped
     case emojiPickerDismissed
 
-    case typingUsersChanged([BareJid])
     case messageSendResult(TaskResult<None>)
     case binding(BindingAction<ChatSessionState<MessageBarState>>)
 
@@ -38,7 +36,7 @@ public struct MessageBarReducer: ReducerProtocol {
   enum EffectToken: Hashable, CaseIterable {
     case observeParticipantStates
     case sendMessage
-    case debounceChatState
+    case debounceComposeState
   }
 
   public init() {}
@@ -49,19 +47,9 @@ public struct MessageBarReducer: ReducerProtocol {
     BindingReducer()
     Scope(state: \.messageField, action: /Action.messageField) {
       MessageFieldReducer()
-        .onChange(of: \.childState) { _, state, _ in
-          // If the text field is not focused or empty we don't consider the user typing.
-          if !state.isFocused || state.message.isEmpty {
-            return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-              try await self.accounts.client(currentUser).sendChatState(chatId, .active)
-            }.cancellable(id: EffectToken.debounceChatState, cancelInFlight: true)
-          } else {
-            return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-              try await Task.sleep(for: .composeDebounceDuration)
-              try await self.accounts.client(currentUser).sendChatState(chatId, .composing)
-              try await Task.sleep(for: .pauseTypingDebounceDuration - .composeDebounceDuration)
-              try await self.accounts.client(currentUser).sendChatState(chatId, .paused)
-            }.cancellable(id: EffectToken.debounceChatState, cancelInFlight: true)
+        .onChange(of: \.isComposing) { isComposing, state, _ in
+          .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+            try await self.accounts.client(currentUser).setUserIsComposing(chatId, isComposing)
           }
         }
     }
@@ -77,30 +65,9 @@ public struct MessageBarReducer: ReducerProtocol {
       switch action {
       case .onAppear:
         return .none
-        #warning("FIXME")
-//        let chatId = state.chatId
-//        let loggedInUserJID = state.currentUser
-//        return environment.proseClient.activeChats()
-//          .compactMap { $0[chatId] }
-//          .map(\.participantStates)
-//          .map { (participantStates: [BareJid: ProseCoreTCA.ChatState]) in
-//            participantStates
-//              .filter { $0.value.kind == .composing }
-//              .filter { $0.key != loggedInUserJID }
-//              .map(\.key)
-//          }
-//          .replaceError(with: [])
-//          .removeDuplicates()
-//          .eraseToEffect(Action.typingUsersChanged)
-//          .cancellable(id: EffectToken.observeParticipantStates)
 
       case .onDisappear:
         return .cancel(token: EffectToken.self)
-
-      case let .typingUsersChanged(jids):
-        #warning("FIXME")
-        // state.typingUsers = jids.map { state.userInfos[$0, default: .init(jid: $0)] }
-        return .none
 
       case let .emojiPicker(.select(emoji)):
         state.emojiPicker = nil
@@ -145,13 +112,14 @@ public struct MessageBarReducer: ReducerProtocol {
 }
 
 extension MessageBarReducer.State {
+  var composingUserInfos: [UserInfo] {
+    self.composingUsers.compactMap { user in
+      self.userInfos[user]
+    }
+  }
+
   var messageField: MessageFieldReducer.State {
     get { self.get(\.messageField) }
     set { self.set(\.messageField, newValue) }
   }
-}
-
-extension Duration {
-  static let composeDebounceDuration: Self = .milliseconds(500)
-  static let pauseTypingDebounceDuration: Self = .seconds(30)
 }

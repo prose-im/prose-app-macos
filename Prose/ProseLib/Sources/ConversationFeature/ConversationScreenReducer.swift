@@ -13,6 +13,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
   public struct ConversationState: Equatable {
     let chatId: BareJid
     var userInfos = [BareJid: UserInfo]()
+    var composingUsers = [BareJid]()
     var info: ConversationInfoReducer.State?
     var toolbar = ToolbarReducer.ToolbarState()
     var messageBar = MessageBarReducer.MessageBarState()
@@ -31,6 +32,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
     case latestMessagesResult(TaskResult<[Message]>)
     case updateMessageResult(TaskResult<[Message]>)
     case userInfosResult(TaskResult<[BareJid: UserInfo]>)
+    case composingUsersResult(TaskResult<[BareJid]>)
     case event(ClientEvent)
 
     case info(ConversationInfoReducer.Action)
@@ -42,6 +44,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
   enum EffectToken: Hashable, CaseIterable {
     case loadMessages
     case loadContacts
+    case loadComposingUsers
     case observeEvents
   }
 
@@ -96,10 +99,17 @@ public struct ConversationScreenReducer: ReducerProtocol {
               )
             })
           }.cancellable(id: EffectToken.loadContacts),
+          .task {
+            await .composingUsersResult(TaskResult {
+              try await self.accounts.client(currentUser).loadComposingUsersInConversation(chatId)
+            })
+          }.cancellable(id: EffectToken.loadComposingUsers),
           .run { send in
             let events = try self.accounts.client(currentUser).events()
             for try await event in events {
               switch event {
+              case let .composingUsersChanged(jid) where jid == chatId:
+                await send(.event(event))
               case let .contactChanged(jid) where jid == chatId:
                 await send(.event(event))
               case let .messagesAppended(conversation, _) where conversation == chatId:
@@ -127,7 +137,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
       case let .messagesResult(.failure(error)):
         logger.error(
-          "Could not load messages. \(error.localizedDescription, privacy: .public)"
+          "Could not load messages. \(error.localizedDescription)"
         )
         return .none
 
@@ -155,7 +165,17 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
       case let .userInfosResult(.failure(error)):
         logger.error(
-          "Could not load user infos. \(error.localizedDescription, privacy: .public)"
+          "Could not load user infos. \(error.localizedDescription)"
+        )
+        return .none
+      
+      case let .composingUsersResult(.success(composingUsers)):
+        state.composingUsers = composingUsers
+        return .none
+      
+      case let .composingUsersResult(.failure(error)):
+        logger.error(
+          "Could not load composing users. \(error.localizedDescription)"
         )
         return .none
 
@@ -164,6 +184,13 @@ public struct ConversationScreenReducer: ReducerProtocol {
           state.info = .init()
         }
         return .none
+      
+      case .event(.composingUsersChanged):
+        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+          await .composingUsersResult(TaskResult {
+            try await self.accounts.client(currentUser).loadComposingUsersInConversation(chatId)
+          })
+        }.cancellable(id: EffectToken.loadComposingUsers, cancelInFlight: true)
 
       case let .event(.contactChanged(jid)):
         #warning("FIXME")
@@ -219,6 +246,7 @@ extension ConversationScreenReducer.State {
       currentUser: self.currentUser,
       chatId: self.childState.chatId,
       userInfos: self.childState.userInfos,
+      composingUsers: self.childState.composingUsers,
       childState: toLocalState(self.childState)
     )
   }
