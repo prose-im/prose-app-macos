@@ -9,8 +9,8 @@ import CredentialsClient
 import SwiftUI
 
 public struct AuthenticationScreen: View {
-  public typealias State = Authentication.State
-  public typealias Action = Authentication.Action
+  public typealias State = AuthenticationReducer.State
+  public typealias Action = AuthenticationReducer.Action
 
   private let store: Store<State, Action>
   private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
@@ -22,7 +22,7 @@ public struct AuthenticationScreen: View {
   public var body: some View {
     SwitchStore(self.store.scope(state: \State.route)) {
       CaseLet(
-        state: /Authentication.Route.basicAuth,
+        state: /AuthenticationReducer.Route.basicAuth,
         action: Action.basicAuth,
         then: BasicAuthView.init(store:)
       )
@@ -37,7 +37,7 @@ public struct AuthenticationScreen: View {
   }
 }
 
-public struct Authentication: ReducerProtocol {
+public struct AuthenticationReducer: ReducerProtocol {
   public struct State: Equatable {
     var route = Route.basicAuth(.init())
 
@@ -46,12 +46,12 @@ public struct Authentication: ReducerProtocol {
 
   public enum Action: Equatable {
     case didLogIn(BareJid)
-    case basicAuth(BasicAuth.Action)
+    case basicAuth(BasicAuthReducer.Action)
     // case mfa(MFAAction)
   }
 
   public enum Route: Equatable {
-    case basicAuth(BasicAuth.State)
+    case basicAuth(BasicAuthReducer.State)
     // case mfa(MFAState)
   }
 
@@ -65,7 +65,7 @@ public struct Authentication: ReducerProtocol {
     Scope(state: \.route, action: /.self) {
       EmptyReducer()
         .ifCaseLet(/Route.basicAuth, action: /Action.basicAuth) {
-          BasicAuth()
+          BasicAuthReducer()
         }
       #warning("FIXME")
 //        .ifCaseLet(/Route.mfa, action: /Action.mfa) {

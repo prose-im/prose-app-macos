@@ -15,10 +15,10 @@ import Toolbox
 import UnreadFeature
 
 public struct MainScreenView: View {
-  private let store: StoreOf<MainScreen>
+  private let store: StoreOf<MainScreenReducer>
 
   // swiftlint:disable:next type_contents_order
-  public init(store: StoreOf<MainScreen>) {
+  public init(store: StoreOf<MainScreenReducer>) {
     self.store = store
   }
 
@@ -26,7 +26,7 @@ public struct MainScreenView: View {
     NavigationView {
       SidebarView(
         store: self.store
-          .scope(state: \.scoped.sidebar, action: MainScreen.Action.sidebar)
+          .scope(state: \.scoped.sidebar, action: MainScreenReducer.Action.sidebar)
       )
       .accessibilityElement(children: .contain)
       .accessibilityIdentifier("Sidebar")
@@ -34,13 +34,13 @@ public struct MainScreenView: View {
       ZStack(alignment: .top) {
         IfLetStore(self.store.scope(
           state: \.sessionRoute.unreadStack,
-          action: MainScreen.Action.unreadStack
+          action: MainScreenReducer.Action.unreadStack
         )) { store in
           UnreadScreen(store: store)
         }
         IfLetStore(self.store.scope(
           state: \.sessionRoute.chat,
-          action: MainScreen.Action.chat
+          action: MainScreenReducer.Action.chat
         )) { store in
           ConversationScreen(store: store)
         }

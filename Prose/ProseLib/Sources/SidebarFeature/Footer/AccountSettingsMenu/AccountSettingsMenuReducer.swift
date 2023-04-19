@@ -9,7 +9,7 @@ import CredentialsClient
 import Foundation
 import ProseCore
 
-public struct AccountSettingsMenu: ReducerProtocol {
+public struct AccountSettingsMenuReducer: ReducerProtocol {
   public struct State: Equatable {
     var availability: Availability
     var avatar: URL?

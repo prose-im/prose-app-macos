@@ -14,7 +14,7 @@ import MainScreenFeature
 import NotificationsClient
 import Toolbox
 
-struct App: ReducerProtocol {
+struct AppReducer: ReducerProtocol {
   struct State: Equatable {
     var initialized = false
     var connectivity = Connectivity.online
@@ -22,8 +22,8 @@ struct App: ReducerProtocol {
     var currentUser: BareJid?
     var availableAccounts = IdentifiedArrayOf<Account>()
 
-    var mainState: MainScreen.MainScreenState?
-    var auth: Authentication.State?
+    var mainState: MainScreenReducer.MainScreenState?
+    var auth: AuthenticationReducer.State?
 
     public init() {}
   }
@@ -35,8 +35,8 @@ struct App: ReducerProtocol {
     case availableAccountsChanged(Set<BareJid>)
     case connectivityChanged(Connectivity)
 
-    case auth(Authentication.Action)
-    case main(MainScreen.Action)
+    case auth(AuthenticationReducer.Action)
+    case main(MainScreenReducer.Action)
     case account(BareJid, AccountReducer.Action)
   }
 
@@ -54,10 +54,10 @@ struct App: ReducerProtocol {
   public var body: some ReducerProtocol<State, Action> {
     self.core
       .ifLet(\.main, action: /Action.main) {
-        MainScreen()
+        MainScreenReducer()
       }
       .ifLet(\.auth, action: /Action.auth) {
-        Authentication()
+        AuthenticationReducer()
       }
       .handleAccounts()
   }
@@ -132,8 +132,8 @@ struct App: ReducerProtocol {
   }
 }
 
-extension App.State {
-  var main: MainScreen.State? {
+extension AppReducer.State {
+  var main: MainScreenReducer.State? {
     get {
       guard let mainState = self.mainState else {
         return .none

@@ -4,7 +4,7 @@
 //
 
 import AppDomain
-import AuthenticationFeature
+import struct AuthenticationFeature.AuthenticationReducer
 import ComposableArchitecture
 import EditProfileFeature
 
@@ -15,7 +15,7 @@ import EditProfileFeature
 // here: https://github.com/darrarski/swift-composable-presentation/blob/main/Sources/ComposablePresentation/ReplayNonNil.swift
 // Let's wait though for the impending TCA navigation library to see what they have in store.
 
-public struct Footer: ReducerProtocol {
+public struct FooterReducer: ReducerProtocol {
   public typealias State = SessionState<FooterState>
 
   public struct FooterState: Equatable {
@@ -32,16 +32,16 @@ public struct Footer: ReducerProtocol {
     case setRoute(Route.Tag)
     case dismiss(Route.Tag)
 
-    case accountSettingsMenu(AccountSettingsMenu.Action)
-    case accountSwitcherMenu(AccountSwitcherMenu.Action)
-    case auth(Authentication.Action)
+    case accountSettingsMenu(AccountSettingsMenuReducer.Action)
+    case accountSwitcherMenu(AccountSwitcherMenuReducer.Action)
+    case auth(AuthenticationReducer.Action)
     case editProfile(EditProfileReducer.Action)
   }
 
   public enum Route: Equatable {
-    case accountSettingsMenu(AccountSettingsMenu.State)
-    case accountSwitcherMenu(AccountSwitcherMenu.State)
-    case auth(Authentication.State)
+    case accountSettingsMenu(AccountSettingsMenuReducer.State)
+    case accountSwitcherMenu(AccountSwitcherMenuReducer.State)
+    case auth(AuthenticationReducer.State)
     case editProfile(EditProfileReducer.State)
   }
 
@@ -52,13 +52,13 @@ public struct Footer: ReducerProtocol {
       .ifLet(\.route, action: /.self) {
         EmptyReducer()
           .ifCaseLet(/Route.accountSettingsMenu, action: /Action.accountSettingsMenu) {
-            AccountSettingsMenu()
+            AccountSettingsMenuReducer()
           }
           .ifCaseLet(/Route.accountSwitcherMenu, action: /Action.accountSwitcherMenu) {
-            AccountSwitcherMenu()
+            AccountSwitcherMenuReducer()
           }
           .ifCaseLet(/Route.auth, action: /Action.auth) {
-            Authentication()
+            AuthenticationReducer()
           }
           .ifCaseLet(/Route.editProfile, action: /Action.editProfile) {
             EditProfileReducer()
@@ -122,7 +122,7 @@ public struct Footer: ReducerProtocol {
   }
 }
 
-extension Footer.Route {
+extension FooterReducer.Route {
   public enum Tag: Equatable {
     case accountSettingsMenu
     case accountSwitcherMenu

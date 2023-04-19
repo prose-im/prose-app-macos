@@ -12,8 +12,8 @@ import SwiftUINavigation
 private let l10n = L10n.Authentication.BasicAuth.self
 
 struct BasicAuthView: View {
-  typealias State = BasicAuth.State
-  typealias Action = BasicAuth.Action
+  typealias State = BasicAuthReducer.State
+  typealias Action = BasicAuthReducer.Action
 
   @Environment(\.redactionReasons) private var redactionReasons
 

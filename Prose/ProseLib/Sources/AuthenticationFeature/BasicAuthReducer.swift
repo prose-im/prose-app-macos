@@ -16,7 +16,7 @@ private let l10n = L10n.Authentication.BasicAuth.self
 
 struct InvalidJIDError: Error {}
 
-public struct BasicAuth: ReducerProtocol {
+public struct BasicAuthReducer: ReducerProtocol {
   public struct State: Equatable {
     public enum Field: String, Hashable {
       case address, password

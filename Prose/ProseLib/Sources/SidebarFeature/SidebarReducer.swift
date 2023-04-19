@@ -9,7 +9,7 @@ import Foundation
 import JoinChatFeature
 import Toolbox
 
-public struct Sidebar: ReducerProtocol {
+public struct SidebarReducer: ReducerProtocol {
   public typealias State = SessionState<SidebarState>
 
   public struct SidebarState: Equatable {
@@ -18,7 +18,7 @@ public struct Sidebar: ReducerProtocol {
     var route: Route?
 
     var rosterState = RosterState()
-    var footer = Footer.FooterState()
+    var footer = FooterReducer.FooterState()
 
     public init() {}
   }
@@ -32,7 +32,7 @@ public struct Sidebar: ReducerProtocol {
     case addContactButtonTapped
     case addGroupButtonTapped
 
-    case footer(Footer.Action)
+    case footer(FooterReducer.Action)
 
     case addMember(AddMemberSheetAction)
     case joinGroup(JoinGroupSheetAction)
@@ -59,7 +59,7 @@ public struct Sidebar: ReducerProtocol {
 
   public var body: some ReducerProtocol<State, Action> {
     Scope(state: \.footer, action: /Action.footer) {
-      Footer()
+      FooterReducer()
     }
     Scope(state: \.route, action: /.self) {
       EmptyReducer()
@@ -123,7 +123,7 @@ public struct Sidebar: ReducerProtocol {
   }
 }
 
-public extension Sidebar.Route {
+public extension SidebarReducer.Route {
   enum Tag {
     case addMember
     case joinGroup
@@ -139,8 +139,8 @@ public extension Sidebar.Route {
   }
 }
 
-private extension Sidebar.State {
-  var footer: Footer.State {
+private extension SidebarReducer.State {
+  var footer: FooterReducer.State {
     get { self.get(\.footer) }
     set { self.set(\.footer, newValue) }
   }

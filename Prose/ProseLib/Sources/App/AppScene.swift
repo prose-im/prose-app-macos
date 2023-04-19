@@ -10,10 +10,10 @@ import SettingsFeature
 import SwiftUI
 
 public struct AppScene: Scene {
-  private let store: StoreOf<App>
+  private let store: StoreOf<AppReducer>
 
   public init() {
-    self.store = Store(initialState: .init(), reducer: App())
+    self.store = Store(initialState: .init(), reducer: AppReducer())
   }
 
   public var body: some Scene {
@@ -36,16 +36,16 @@ struct AppView: View {
     var isAuthScreenPresented: Bool
   }
 
-  private let store: StoreOf<App>
-  @ObservedObject private var viewStore: ViewStore<ViewState, App.Action>
+  private let store: StoreOf<AppReducer>
+  @ObservedObject private var viewStore: ViewStore<ViewState, AppReducer.Action>
 
-  init(store: StoreOf<App>) {
+  init(store: StoreOf<AppReducer>) {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init))
   }
 
   public var body: some View {
-    IfLetStore(self.store.scope(state: \.main, action: App.Action.main)) { store in
+    IfLetStore(self.store.scope(state: \.main, action: AppReducer.Action.main)) { store in
       MainScreenView(store: store)
     } else: {
       Color.systemBackground
@@ -56,7 +56,7 @@ struct AppView: View {
       get: \.isAuthScreenPresented,
       send: .dismissAuthenticationSheet
     )) {
-      IfLetStore(self.store.scope(state: \.auth, action: App.Action.auth)) { store in
+      IfLetStore(self.store.scope(state: \.auth, action: AppReducer.Action.auth)) { store in
         AuthenticationScreen(store: store)
       }
     }
@@ -64,7 +64,7 @@ struct AppView: View {
 }
 
 private extension AppView.ViewState {
-  init(_ appState: App.State) {
+  init(_ appState: AppReducer.State) {
     self.isAuthScreenPresented = appState.auth != nil
   }
 }

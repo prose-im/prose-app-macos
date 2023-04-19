@@ -10,19 +10,19 @@ import SwiftUI
 import SwiftUINavigation
 
 public struct SidebarView: View {
-  typealias Tag = Sidebar.Selection
+  typealias Tag = SidebarReducer.Selection
 
   struct ViewState: Equatable {
-    let selection: Sidebar.Selection?
-    let route: Sidebar.Route.Tag?
+    let selection: SidebarReducer.Selection?
+    let route: SidebarReducer.Route.Tag?
   }
 
   @Environment(\.redactionReasons) private var redactionReasons
 
-  private let store: StoreOf<Sidebar>
-  @ObservedObject private var viewStore: ViewStore<ViewState, Sidebar.Action>
+  private let store: StoreOf<SidebarReducer>
+  @ObservedObject private var viewStore: ViewStore<ViewState, SidebarReducer.Action>
 
-  public init(store: StoreOf<Sidebar>) {
+  public init(store: StoreOf<SidebarReducer>) {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init))
   }
@@ -30,7 +30,7 @@ public struct SidebarView: View {
   public var body: some View {
     List(selection: self.viewStore.binding(
       get: \.selection,
-      send: Sidebar.Action.selection
+      send: SidebarReducer.Action.selection
     )) {
       self.spotlightSection
       self.contactsSection
@@ -39,26 +39,32 @@ public struct SidebarView: View {
     .listStyle(.sidebar)
     .frame(minWidth: 280)
     .safeAreaInset(edge: .bottom, spacing: 0) {
-      FooterView(store: self.store.scope(state: \.scoped.footer, action: Sidebar.Action.footer))
-        // Make sure accessibility frame isn't inset by the window's rounded corners
-        .contentShape(Rectangle())
-        // Make footer have a higher priority, to be accessible over the scroll view
-        .accessibilitySortPriority(1)
+      FooterView(
+        store: self.store
+          .scope(state: \.scoped.footer, action: SidebarReducer.Action.footer)
+      )
+      // Make sure accessibility frame isn't inset by the window's rounded corners
+      .contentShape(Rectangle())
+      // Make footer have a higher priority, to be accessible over the scroll view
+      .accessibilitySortPriority(1)
     }
     .toolbar {
       self.toolbar
     }
-    .sheet(unwrapping: self.viewStore.binding(get: \.route, send: Sidebar.Action.setRoute)) { _ in
+    .sheet(
+      unwrapping: self.viewStore
+        .binding(get: \.route, send: SidebarReducer.Action.setRoute)
+    ) { _ in
       IfLetStore(self.store.scope(state: \.route)) { store in
         SwitchStore(store) {
           CaseLet(
-            state: /Sidebar.Route.addMember,
-            action: Sidebar.Action.addMember,
+            state: /SidebarReducer.Route.addMember,
+            action: SidebarReducer.Action.addMember,
             then: AddMemberSheet.init(store:)
           )
           CaseLet(
-            state: /Sidebar.Route.joinGroup,
-            action: Sidebar.Action.joinGroup,
+            state: /SidebarReducer.Route.joinGroup,
+            action: SidebarReducer.Action.joinGroup,
             then: JoinGroupSheet.init(store:)
           )
         }
@@ -137,7 +143,7 @@ public struct SidebarView: View {
 }
 
 private extension SidebarView.ViewState {
-  init(_ state: Sidebar.State) {
+  init(_ state: SidebarReducer.State) {
     self.selection = state.selection
     self.route = state.route?.tag
   }

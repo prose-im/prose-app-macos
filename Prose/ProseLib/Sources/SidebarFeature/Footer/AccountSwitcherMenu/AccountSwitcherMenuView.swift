@@ -9,10 +9,10 @@ import ProseUI
 import SwiftUI
 
 struct AccountSwitcherMenuView: View {
-  private let store: StoreOf<AccountSwitcherMenu>
-  @ObservedObject private var viewStore: ViewStoreOf<AccountSwitcherMenu>
+  private let store: StoreOf<AccountSwitcherMenuReducer>
+  @ObservedObject private var viewStore: ViewStoreOf<AccountSwitcherMenuReducer>
 
-  init(store: StoreOf<AccountSwitcherMenu>) {
+  init(store: StoreOf<AccountSwitcherMenuReducer>) {
     self.store = store
     self.viewStore = ViewStore(store)
   }

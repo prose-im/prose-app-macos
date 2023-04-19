@@ -10,14 +10,14 @@ import Foundation
 import NotificationsClient
 import ProseCore
 
-extension ReducerProtocol<App.State, App.Action> {
-  func handleAccounts() -> some ReducerProtocol<App.State, App.Action> {
-    Accounts(base: self)
+extension ReducerProtocol<AppReducer.State, AppReducer.Action> {
+  func handleAccounts() -> some ReducerProtocol<AppReducer.State, AppReducer.Action> {
+    AccountsReducer(base: self)
   }
 }
 
-private struct Accounts<
-  Base: ReducerProtocol<App.State, App.Action>
+private struct AccountsReducer<
+  Base: ReducerProtocol<AppReducer.State, AppReducer.Action>
 >: ReducerProtocol {
   let base: Base
 
@@ -25,7 +25,7 @@ private struct Accounts<
   @Dependency(\.accountsClient) var accounts
   @Dependency(\.credentialsClient) var credentials
 
-  public var body: some ReducerProtocol<App.State, App.Action> {
+  public var body: some ReducerProtocol<AppReducer.State, AppReducer.Action> {
     self.base
       .forEach(\.availableAccounts, action: /Action.account) {
         AccountReducer()

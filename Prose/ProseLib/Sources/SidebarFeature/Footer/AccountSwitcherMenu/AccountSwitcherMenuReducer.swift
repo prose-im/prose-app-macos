@@ -6,7 +6,7 @@
 import AppDomain
 import ComposableArchitecture
 
-public struct AccountSwitcherMenu: ReducerProtocol {
+public struct AccountSwitcherMenuReducer: ReducerProtocol {
   public typealias State = SessionState<AccountSwitcherMenuState>
 
   public struct AccountSwitcherMenuState: Equatable {

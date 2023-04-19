@@ -11,11 +11,11 @@ import SidebarFeature
 import TCAUtils
 import UnreadFeature
 
-public struct MainScreen: ReducerProtocol {
+public struct MainScreenReducer: ReducerProtocol {
   public typealias State = SessionState<MainScreenState>
 
   public struct MainScreenState: Equatable {
-    public var sidebar = Sidebar.SidebarState()
+    public var sidebar = SidebarReducer.SidebarState()
 
     // https://github.com/prose-im/prose-app-macos/issues/45 says we should disabled this,
     // but we don't support any other predictable value, so let's keep it like this for now.
@@ -25,7 +25,7 @@ public struct MainScreen: ReducerProtocol {
   }
 
   public enum Action: Equatable {
-    case sidebar(Sidebar.Action)
+    case sidebar(SidebarReducer.Action)
     case unreadStack(UnreadScreenReducer.Action)
     case chat(ConversationScreenReducer.Action)
 
@@ -50,7 +50,7 @@ public struct MainScreen: ReducerProtocol {
     self.core
 
     Scope(state: \.sidebar, action: /Action.sidebar) {
-      Sidebar()
+      SidebarReducer()
     }.onChange(of: \.sidebar.selection) { selection, state, _ in
       switch selection {
       case .unreadStack, .none:
@@ -64,16 +64,16 @@ public struct MainScreen: ReducerProtocol {
       case let .chat(jid):
         var conversationState = state
           .get { _ in ConversationScreenReducer.ConversationState(chatId: jid) }
-        var effects = EffectTask<MainScreen.Action>.none
+        var effects = EffectTask<MainScreenReducer.Action>.none
 
         // If another chat was selected already, we'll manually send the `.onAppear` and
         // `.onDisappear` actions, because SwiftUI doesn't and simply sees it as a content change.
         if var priorConversationState = state.sessionRoute.chat {
           effects = .concatenate([
             ConversationScreenReducer().reduce(into: &priorConversationState, action: .onDisappear)
-              .map(MainScreen.Action.chat),
+              .map(MainScreenReducer.Action.chat),
             ConversationScreenReducer().reduce(into: &conversationState, action: .onAppear)
-              .map(MainScreen.Action.chat),
+              .map(MainScreenReducer.Action.chat),
           ])
         }
 
@@ -111,26 +111,26 @@ public struct MainScreen: ReducerProtocol {
   }
 }
 
-extension MainScreen.State {
-  var sidebar: Sidebar.State {
+extension MainScreenReducer.State {
+  var sidebar: SidebarReducer.State {
     get { self.get(\.sidebar) }
     set { self.set(\.sidebar, newValue) }
   }
 
-  var sessionRoute: SessionState<MainScreen.Route> {
+  var sessionRoute: SessionState<MainScreenReducer.Route> {
     get { self.get(\.route) }
     set { self.set(\.route, newValue) }
   }
 }
 
-extension SessionState<MainScreen.Route> {
+extension SessionState<MainScreenReducer.Route> {
   var unreadStack: UnreadScreenReducer.State? {
-    get { self.get(/MainScreen.Route.unreadStack) }
-    set { self.set(/MainScreen.Route.unreadStack, newValue) }
+    get { self.get(/MainScreenReducer.Route.unreadStack) }
+    set { self.set(/MainScreenReducer.Route.unreadStack, newValue) }
   }
 
   var chat: ConversationScreenReducer.State? {
-    get { self.get(/MainScreen.Route.chat) }
-    set { self.set(/MainScreen.Route.chat, newValue) }
+    get { self.get(/MainScreenReducer.Route.chat) }
+    set { self.set(/MainScreenReducer.Route.chat, newValue) }
   }
 }

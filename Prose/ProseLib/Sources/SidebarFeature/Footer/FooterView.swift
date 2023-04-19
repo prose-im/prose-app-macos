@@ -19,17 +19,17 @@ struct FooterView: View {
     var availability: Availability
     var avatar: URL?
     var jid: BareJid
-    var route: Footer.Route.Tag?
+    var route: FooterReducer.Route.Tag?
     var statusIcon: Character
     var statusMessage: String
   }
 
   static let height: CGFloat = 64
 
-  private let store: StoreOf<Footer>
-  @ObservedObject private var viewStore: ViewStore<ViewState, Footer.Action>
+  private let store: StoreOf<FooterReducer>
+  @ObservedObject private var viewStore: ViewStore<ViewState, FooterReducer.Action>
 
-  public init(store: StoreOf<Footer>) {
+  public init(store: StoreOf<FooterReducer>) {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init))
   }
@@ -43,13 +43,13 @@ struct FooterView: View {
         self.accountSettingsButton
           .popover(
             unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.accountSettingsMenu)),
-            case: /Footer.Route.Tag.accountSettingsMenu
+            case: /FooterReducer.Route.Tag.accountSettingsMenu
           ) { _ in
             IfLetStore(self.store.scope(state: \.route)) { store in
               SwitchStore(store) {
                 CaseLet(
-                  state: /Footer.Route.accountSettingsMenu,
-                  action: Footer.Action.accountSettingsMenu,
+                  state: /FooterReducer.Route.accountSettingsMenu,
+                  action: FooterReducer.Action.accountSettingsMenu,
                   then: AccountSettingsMenuView.init(store:)
                 )
               }
@@ -68,13 +68,13 @@ struct FooterView: View {
         self.accountSwitcherButton
           .popover(
             unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.accountSwitcherMenu)),
-            case: /Footer.Route.Tag.accountSwitcherMenu
+            case: /FooterReducer.Route.Tag.accountSwitcherMenu
           ) { _ in
             IfLetStore(self.store.scope(state: \.route)) { store in
               SwitchStore(store) {
                 CaseLet(
-                  state: /Footer.Route.accountSwitcherMenu,
-                  action: Footer.Action.accountSwitcherMenu,
+                  state: /FooterReducer.Route.accountSwitcherMenu,
+                  action: FooterReducer.Action.accountSwitcherMenu,
                   then: AccountSwitcherMenuView.init(store:)
                 )
               }
@@ -90,13 +90,13 @@ struct FooterView: View {
     .accessibilityLabel(L10n.Sidebar.Footer.label)
     .sheet(
       unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.editProfile)),
-      case: /Footer.Route.Tag.editProfile
+      case: /FooterReducer.Route.Tag.editProfile
     ) { _ in
       IfLetStore(self.store.scope(state: \.route)) { store in
         SwitchStore(store) {
           CaseLet(
-            state: /Footer.Route.editProfile,
-            action: Footer.Action.editProfile,
+            state: /FooterReducer.Route.editProfile,
+            action: FooterReducer.Action.editProfile,
             then: EditProfileScreen.init(store:)
           )
         }
@@ -104,13 +104,13 @@ struct FooterView: View {
     }
     .sheet(
       unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.auth)),
-      case: /Footer.Route.Tag.auth
+      case: /FooterReducer.Route.Tag.auth
     ) { _ in
       IfLetStore(self.store.scope(state: \.route)) { store in
         SwitchStore(store) {
           CaseLet(
-            state: /Footer.Route.auth,
-            action: Footer.Action.auth,
+            state: /FooterReducer.Route.auth,
+            action: FooterReducer.Action.auth,
             then: AuthenticationScreen.init(store:)
           )
         }
@@ -151,7 +151,7 @@ struct FooterView: View {
 }
 
 extension FooterView.ViewState {
-  init(_ state: Footer.State) {
+  init(_ state: FooterReducer.State) {
     self.availability = state.availability
     self.avatar = state.selectedAccount.avatar
     self.jid = state.currentUser
