@@ -7,7 +7,7 @@ import ComposableArchitecture
 import CredentialsClient
 import SwiftUI
 
-#warning("FIXME")
+// Let's leave this here as-is until we have MFA server-side support
 
 // struct MFAView: View {
 //  typealias State = MFAState

@@ -11,11 +11,11 @@ import ProseUI
 import SwiftUI
 import SwiftUINavigation
 
-private let l10n = L10n.Authentication.Mfa.self
+// Let's leave this here as-is until we have MFA server-side support
 
-#warning("FIXME")
-
-// public struct MFA6DigitsView: View {
+//  private let l10n = L10n.Authentication.Mfa.self
+//
+//  public struct MFA6DigitsView: View {
 //  public typealias State = MFA6DigitsState
 //  public typealias Action = MFA6DigitsAction
 //

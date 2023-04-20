@@ -26,12 +26,6 @@ public struct AuthenticationScreen: View {
         action: Action.basicAuth,
         then: BasicAuthView.init(store:)
       )
-      #warning("FIXME")
-//      CaseLet(
-//        state: /Authentication.Route.mfa,
-//        action: Action.mfa,
-//        then: MFAView.init(store:)
-//      )
     }
     .frame(minWidth: 400)
   }
@@ -67,17 +61,6 @@ public struct AuthenticationReducer: ReducerProtocol {
         .ifCaseLet(/Route.basicAuth, action: /Action.basicAuth) {
           BasicAuthReducer()
         }
-      #warning("FIXME")
-//        .ifCaseLet(/Route.mfa, action: /Action.mfa) {
-//          Reduce(
-//            mfaReducer,
-//            environment: AuthenticationEnvironment(
-//              proseClient: self.legacyProseClient,
-//              credentials: self.credentials,
-//              mainQueue: self.mainQueue
-//            )
-//          )
-//        }
     }
   }
 
