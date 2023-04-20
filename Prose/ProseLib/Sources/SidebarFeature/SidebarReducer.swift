@@ -137,7 +137,7 @@ public extension SidebarReducer.Route {
   }
 }
 
-private extension SidebarReducer.State {
+extension SidebarReducer.State {
   var footer: FooterReducer.State {
     get { self.get(\.footer) }
     set { self.set(\.footer, newValue) }

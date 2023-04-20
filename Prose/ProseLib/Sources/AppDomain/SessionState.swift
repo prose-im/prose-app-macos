@@ -28,10 +28,6 @@ public struct SessionState<ChildState: Equatable>: Equatable {
 }
 
 public extension SessionState {
-  var scoped: Scoped {
-    Scoped(childState: self)
-  }
-
   var selectedAccount: Account {
     self.accounts[id: self.currentUser]
       .expect(
@@ -69,21 +65,6 @@ public extension SessionState {
     guard let newValue else { return }
     self.childState = casePath.embed(newValue.childState)
     self.currentUser = newValue.currentUser
-  }
-}
-
-public extension SessionState {
-  @dynamicMemberLookup
-  struct Scoped {
-    let childState: SessionState<ChildState>
-
-    init(childState: SessionState<ChildState>) {
-      self.childState = childState
-    }
-
-    public subscript<T>(dynamicMember keyPath: KeyPath<ChildState, T>) -> SessionState<T> {
-      self.childState.get { $0[keyPath: keyPath] }
-    }
   }
 }
 

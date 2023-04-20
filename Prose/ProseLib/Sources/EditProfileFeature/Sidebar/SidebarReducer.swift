@@ -77,7 +77,7 @@ public struct SidebarReducer: ReducerProtocol {
   }
 }
 
-private extension SidebarReducer.State {
+extension SidebarReducer.State {
   var header: SidebarHeaderReducer.State {
     get { self.get(\.header) }
     set { self.set(\.header, newValue) }

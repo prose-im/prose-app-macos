@@ -41,7 +41,7 @@ public struct SidebarView: View {
     .safeAreaInset(edge: .bottom, spacing: 0) {
       FooterView(
         store: self.store
-          .scope(state: \.scoped.footer, action: SidebarReducer.Action.footer)
+          .scope(state: \.footer, action: SidebarReducer.Action.footer)
       )
       // Make sure accessibility frame isn't inset by the window's rounded corners
       .contentShape(Rectangle())

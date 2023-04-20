@@ -26,8 +26,7 @@ struct Sidebar: View {
     }
     .safeAreaInset(edge: .top, spacing: 0) {
       SidebarHeader(
-        store: self.store
-          .scope(state: \.scoped.header, action: SidebarReducer.Action.header)
+        store: self.store.scope(state: \.header, action: SidebarReducer.Action.header)
       )
       .padding([.horizontal, .top], 24)
       .padding(.bottom, 8)

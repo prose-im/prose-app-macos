@@ -36,12 +36,6 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
 }
 
 public extension ChatSessionState {
-  var scoped: Scoped {
-    Scoped(childState: self)
-  }
-}
-
-public extension ChatSessionState {
   func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {
     ChatSessionState<T>(
       currentUser: self.currentUser,
@@ -74,21 +68,6 @@ public extension ChatSessionState {
     _ newValue: ChatSessionState<T>?
   ) {
     self.childState[keyPath: keyPath] = newValue?.childState
-  }
-}
-
-public extension ChatSessionState {
-  @dynamicMemberLookup
-  struct Scoped {
-    let childState: ChatSessionState<ChildState>
-
-    init(childState: ChatSessionState<ChildState>) {
-      self.childState = childState
-    }
-
-    public subscript<T>(dynamicMember keyPath: KeyPath<ChildState, T>) -> ChatSessionState<T> {
-      self.childState.get { $0[keyPath: keyPath] }
-    }
   }
 }
 

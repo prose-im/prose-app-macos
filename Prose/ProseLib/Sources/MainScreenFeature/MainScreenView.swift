@@ -26,7 +26,7 @@ public struct MainScreenView: View {
     NavigationView {
       SidebarView(
         store: self.store
-          .scope(state: \.scoped.sidebar, action: MainScreenReducer.Action.sidebar)
+          .scope(state: \.sidebar, action: MainScreenReducer.Action.sidebar)
       )
       .accessibilityElement(children: .contain)
       .accessibilityIdentifier("Sidebar")
