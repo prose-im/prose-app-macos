@@ -150,6 +150,8 @@ struct AccountReducer: ReducerProtocol {
         }.cancellable(id: EffectToken.observeConnectionStatus(state.jid))
 
       case .onAccountRemoved:
+        // Since this is a forEach reducer (for each account) but effects can only be cancelled
+        // globally, we need to distinguish our effects per account.
         return .cancel(ids: [
           EffectToken.observeConnectionStatus(state.jid),
           EffectToken.observeEvents(state.jid),
