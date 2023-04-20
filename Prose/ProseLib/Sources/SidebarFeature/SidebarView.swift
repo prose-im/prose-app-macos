@@ -94,7 +94,7 @@ public struct SidebarView: View {
   }
 
   private var contactsSection: some View {
-    WithViewStore(self.store.scope(state: \.scoped.rosterState.sidebar.groups)) { viewStore in
+    WithViewStore(self.store.scope(state: \.roster.groups)) { viewStore in
       ForEach(viewStore.state, id: \.name) { group in
         Section(group.name) {
           ForEach(group.items, id: \.jid) { item in

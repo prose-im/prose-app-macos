@@ -16,8 +16,6 @@ public struct SidebarReducer: ReducerProtocol {
     public internal(set) var selection: Selection?
 
     var route: Route?
-
-    var rosterState = RosterState()
     var footer = FooterReducer.FooterState()
 
     public init() {}
@@ -83,7 +81,7 @@ public struct SidebarReducer: ReducerProtocol {
         return .none
 
       case .onDisappear:
-        return .cancel(token: SidebarEffectToken.self)
+        return .none
 
       case let .selection(selection):
         state.selection = selection
@@ -144,16 +142,48 @@ private extension SidebarReducer.State {
     get { self.get(\.footer) }
     set { self.set(\.footer, newValue) }
   }
+}
 
-  var roster: SessionState<RosterState> {
-    get { self.get(\.rosterState) }
-    set { self.set(\.rosterState, newValue) }
+extension SidebarReducer.State {
+  var roster: SidebarReducer.Roster {
+    var groups = [String: [SidebarReducer.Roster.Group.Item]]()
+    for item in self.selectedAccount.contacts {
+      for group in item.groups {
+        groups[group, default: []].append(.init(
+          jid: item.jid,
+          name: item.name,
+          avatarURL: item.avatar,
+          numberOfUnreadMessages: 0,
+          status: item.availability
+        ))
+      }
+    }
+
+    return SidebarReducer.Roster(groups: groups.map { groupName, items in
+      SidebarReducer.Roster.Group(name: groupName, items: items)
+    })
   }
 }
 
-enum SidebarEffectToken: CaseIterable, Hashable {
-  case rosterSubscription
-  case presenceSubscription
-  case activeChatsSubscription
-  case userInfosSubscription
+extension SidebarReducer {
+  struct Roster: Equatable {
+    var groups = [Group]()
+  }
+}
+
+extension SidebarReducer.Roster {
+  struct Group: Equatable {
+    var name: String
+    var items = [Item]()
+  }
+}
+
+extension SidebarReducer.Roster.Group {
+  struct Item: Equatable {
+    var jid: BareJid
+    var name: String
+    var avatarURL: URL?
+    var numberOfUnreadMessages: Int
+    var status: Availability
+  }
 }
