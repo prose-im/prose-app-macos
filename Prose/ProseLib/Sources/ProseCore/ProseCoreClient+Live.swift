@@ -126,19 +126,19 @@ extension ProseCoreClient {
           try await actor.client?.disconnect()
         }.value
       },
-      loadProfile: { jid in
+      loadProfile: { jid, cachePolicy in
         try await withClient { client in
-          try await client.loadProfile(from: jid)
+          try await client.loadProfile(from: jid, cachePolicy: cachePolicy)
         }
       },
-      loadContacts: {
+      loadContacts: { cachePolicy in
         try await withClient { client in
-          try await client.loadContacts()
+          try await client.loadContacts(cachePolicy: cachePolicy)
         }
       },
-      loadAvatar: { jid in
+      loadAvatar: { jid, cachePolicy in
         try await withClient { client in
-          try await client.loadAvatar(from: jid)
+          try await client.loadAvatar(from: jid, cachePolicy: cachePolicy)
         }
       },
       saveAvatar: { url in

@@ -143,11 +143,14 @@ struct AccountReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .onAccountAdded:
-        return .run { [jid = state.jid] send in
-          for try await status in try self.accounts.client(jid).connectionStatus() {
-            await send(.connectionStatusChanged(status))
-          }
-        }.cancellable(id: EffectToken.observeConnectionStatus(state.jid))
+        return .merge(
+          self.loadAccountData(account: state.jid, cachePolicy: .returnCacheDataDontLoad),
+          .run { [jid = state.jid] send in
+            for try await status in try self.accounts.client(jid).connectionStatus() {
+              await send(.connectionStatusChanged(status))
+            }
+          }.cancellable(id: EffectToken.observeConnectionStatus(state.jid))
+        )
 
       case .onAccountRemoved:
         // Since this is a forEach reducer (for each account) but effects can only be cancelled
@@ -183,21 +186,7 @@ struct AccountReducer: ReducerProtocol {
           let jid = state.jid
 
           return .merge(
-            .task {
-              await .profileResponse(TaskResult {
-                try await self.accounts.client(jid).loadProfile(jid)
-              })
-            }.cancellable(id: EffectToken.loadProfile(state.jid)),
-            .task {
-              await .contactsResponse(TaskResult {
-                try await self.accounts.client(jid).loadContacts()
-              })
-            }.cancellable(id: EffectToken.loadContacts(state.jid)),
-            .task {
-              await .avatarResponse(TaskResult {
-                try await self.accounts.client(jid).loadAvatar(jid)
-              })
-            }.cancellable(id: EffectToken.loadAvatar(state.jid)),
+            self.loadAccountData(account: jid, cachePolicy: .default),
             .run { send in
               let events = try self.accounts.client(jid).events()
               for try await event in events {
@@ -219,7 +208,7 @@ struct AccountReducer: ReducerProtocol {
       case .contactDidChange:
         return .task { [jid = state.jid] in
           await .contactsResponse(TaskResult {
-            try await self.accounts.client(jid).loadContacts()
+            try await self.accounts.client(jid).loadContacts(.default)
           })
         }.cancellable(id: EffectToken.loadContacts(state.jid), cancelInFlight: true)
 
@@ -269,6 +258,28 @@ struct AccountReducer: ReducerProtocol {
         return .none
       }
     }
+  }
+}
+
+private extension AccountReducer {
+  func loadAccountData(account: BareJid, cachePolicy: CachePolicy) -> EffectTask<Action> {
+    .merge(
+      .task {
+        await .profileResponse(TaskResult {
+          try await self.accounts.client(account).loadProfile(account, cachePolicy)
+        })
+      }.cancellable(id: EffectToken.loadProfile(account)),
+      .task {
+        await .contactsResponse(TaskResult {
+          try await self.accounts.client(account).loadContacts(cachePolicy)
+        })
+      }.cancellable(id: EffectToken.loadContacts(account)),
+      .task {
+        await .avatarResponse(TaskResult {
+          try await self.accounts.client(account).loadAvatar(account, cachePolicy)
+        })
+      }.cancellable(id: EffectToken.loadAvatar(account))
+    )
   }
 }
 

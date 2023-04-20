@@ -7,6 +7,10 @@ import AppDomain
 import Combine
 import Foundation
 
+public extension CachePolicy {
+  static let `default` = CachePolicy.returnCacheDataElseLoad
+}
+
 public struct ProseCoreClient {
   public var connectionStatus: () -> AsyncStream<ConnectionStatus>
 
@@ -15,9 +19,9 @@ public struct ProseCoreClient {
   public var connect: (Credentials, _ retry: Bool) async throws -> Void
   public var disconnect: () async throws -> Void
 
-  public var loadProfile: (BareJid) async throws -> UserProfile
-  public var loadContacts: () async throws -> [Contact]
-  public var loadAvatar: (BareJid) async throws -> URL?
+  public var loadProfile: (BareJid, CachePolicy) async throws -> UserProfile
+  public var loadContacts: (CachePolicy) async throws -> [Contact]
+  public var loadAvatar: (BareJid, CachePolicy) async throws -> URL?
   public var saveAvatar: (URL) async throws -> Void
 
   public var sendMessage: (_ to: BareJid, _ body: String) async throws -> Void
