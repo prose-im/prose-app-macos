@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/prose-im/prose-wrapper-swift",
       "state" : {
-        "revision" : "3eac5146a5237632e8743ea1e1b8403bf9e449e2",
-        "version" : "0.7.0"
+        "revision" : "88672d81ffaa281a36b17bc55b8954be482960f0",
+        "version" : "0.8.0"
       }
     },
     {

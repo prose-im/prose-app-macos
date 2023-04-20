@@ -18,6 +18,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
     var toolbar = ToolbarReducer.ToolbarState()
     var messageBar = MessageBarReducer.MessageBarState()
     var chat = ChatReducer.ChatState()
+    var isVisible = false
 
     public init(chatId: BareJid) {
       self.chatId = chatId
@@ -73,7 +74,8 @@ public struct ConversationScreenReducer: ReducerProtocol {
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       switch action {
-      case .onAppear:
+      case .onAppear where !state.isVisible:
+        state.isVisible = true
         let currentUser = state.currentUser
         let chatId = state.childState.chatId
 
@@ -122,11 +124,18 @@ public struct ConversationScreenReducer: ReducerProtocol {
                 break
               }
             }
-          }.cancellable(id: EffectToken.observeEvents)
+          }.cancellable(id: EffectToken.observeEvents),
+          MessageBarReducer().reduce(into: &state.messageBar, action: .onAppear)
+            .map(Action.messageBar)
         )
 
       case .onDisappear:
-        return .cancel(token: EffectToken.self)
+        state.isVisible = false
+        return .merge(
+          MessageBarReducer().reduce(into: &state.messageBar, action: .onDisappear)
+            .map(Action.messageBar),
+          .cancel(token: EffectToken.self)
+        )
 
       case let .messagesResult(.success(messages)):
         state.chat.messages = messages
@@ -218,7 +227,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
         state.chat.messages.removeAll(where: { messageIds.contains($0.id) })
         return .none
 
-      case .info, .toolbar, .messageBar, .chat, .event:
+      case .info, .toolbar, .messageBar, .chat, .event, .onAppear:
         return .none
       }
     }

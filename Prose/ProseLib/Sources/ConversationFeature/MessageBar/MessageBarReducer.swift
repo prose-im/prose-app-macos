@@ -9,6 +9,10 @@ import ProseUI
 import TCAUtils
 import Toolbox
 
+extension Duration {
+  static let saveDraftDelay: Self = .milliseconds(750)
+}
+
 public struct MessageBarReducer: ReducerProtocol {
   public typealias State = ChatSessionState<MessageBarState>
 
@@ -27,6 +31,7 @@ public struct MessageBarReducer: ReducerProtocol {
     case emojiPickerDismissed
 
     case messageSendResult(TaskResult<None>)
+    case loadDraftResult(TaskResult<String?>)
     case binding(BindingAction<ChatSessionState<MessageBarState>>)
 
     case messageField(MessageFieldReducer.Action)
@@ -36,7 +41,8 @@ public struct MessageBarReducer: ReducerProtocol {
   enum EffectToken: Hashable, CaseIterable {
     case observeParticipantStates
     case sendMessage
-    case debounceComposeState
+    case saveDraft
+    case loadDraft
   }
 
   public init() {}
@@ -52,6 +58,12 @@ public struct MessageBarReducer: ReducerProtocol {
             try await self.accounts.client(currentUser).setUserIsComposing(chatId, isComposing)
           }
         }
+        .onChange(of: \.message) { message, state, _ in
+          .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+            try await Task.sleep(for: .saveDraftDelay)
+            try await self.accounts.client(currentUser).saveDraft(chatId, message)
+          }.cancellable(id: EffectToken.saveDraft, cancelInFlight: true)
+        }
     }
     self.core
       .ifLet(\.emojiPicker, action: /Action.emojiPicker) {
@@ -64,10 +76,22 @@ public struct MessageBarReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        return .none
+        return .merge(
+          .task { [currentUser = state.currentUser, chatId = state.chatId] in
+            await .loadDraftResult(TaskResult {
+              try await self.accounts.client(currentUser).loadDraft(chatId)
+            })
+          }.cancellable(id: EffectToken.loadDraft),
+          MessageFieldReducer().reduce(into: &state.messageField, action: .onAppear)
+            .map(Action.messageField)
+        )
 
       case .onDisappear:
-        return .cancel(token: EffectToken.self)
+        return .merge(
+          MessageFieldReducer().reduce(into: &state.messageField, action: .onDisappear)
+            .map(Action.messageField),
+          .cancel(token: EffectToken.self)
+        )
 
       case let .emojiPicker(.select(emoji)):
         state.emojiPicker = nil
@@ -98,6 +122,14 @@ public struct MessageBarReducer: ReducerProtocol {
         logger.notice("Error when sending message: \(error)")
         // Ignore the error for now. There is no error handling in the library so far.
         // FIXME: https://github.com/prose-im/prose-app-macos/issues/114
+        return .none
+
+      case let .loadDraftResult(.success(message)):
+        state.messageField.message = message ?? ""
+        return .none
+
+      case let .loadDraftResult(.failure(error)):
+        logger.error("Failed to load draft. \(error)")
         return .none
 
       case .emojiButtonTapped:

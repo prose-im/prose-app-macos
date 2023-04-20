@@ -71,9 +71,9 @@ public struct MainScreenReducer: ReducerProtocol {
         if var priorConversationState = state.sessionRoute.chat {
           effects = .concatenate([
             ConversationScreenReducer().reduce(into: &priorConversationState, action: .onDisappear)
-              .map(MainScreenReducer.Action.chat),
+              .map(Action.chat),
             ConversationScreenReducer().reduce(into: &conversationState, action: .onAppear)
-              .map(MainScreenReducer.Action.chat),
+              .map(Action.chat),
           ])
         }
 

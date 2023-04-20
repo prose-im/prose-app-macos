@@ -38,7 +38,7 @@ let package = Package(
     .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.2.0")),
 
 //     .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
-    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.7.0"),
+    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.8.0"),
   ],
   targets: [
     .target(
@@ -84,7 +84,8 @@ let package = Package(
         "ConversationInfoFeature",
         "PasteboardClient",
         "ProseCoreViews",
-      ]
+      ],
+      exclude: ["README.md"]
     ),
     .testTarget(
       name: "ConversationFeatureTests",

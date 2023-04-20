@@ -51,4 +51,7 @@ public struct ProseCoreClient {
     _ conversation: BareJid,
     _ ids: [MessageId]
   ) async throws -> [Message]
+
+  public var saveDraft: (_ conversation: BareJid, _ text: String) async throws -> Void
+  public var loadDraft: (_ conversation: BareJid) async throws -> String?
 }

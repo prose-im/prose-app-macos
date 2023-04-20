@@ -59,8 +59,6 @@ struct MessageBar: View {
         .overlay(alignment: .top, content: Divider.init)
     }
     .fixedSize(horizontal: false, vertical: true)
-    .onAppear { self.actions.send(.onAppear) }
-    .onDisappear { self.actions.send(.onDisappear) }
     // Make sure accessibility frame is correct
     .contentShape(Rectangle())
     .accessibilityElement(children: .contain)

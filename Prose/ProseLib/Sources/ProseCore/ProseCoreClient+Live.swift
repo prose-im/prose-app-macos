@@ -198,6 +198,16 @@ extension ProseCoreClient {
         try await withClient { client in
           try await client.loadMessagesWithIds(conversation: conversation, ids: ids)
         }
+      },
+      saveDraft: { conversation, text in
+        try await withClient { client in
+          try await client.saveDraft(conversation: conversation, text: text)
+        }
+      },
+      loadDraft: { conversation in
+        try await withClient { client in
+          try await client.loadDraft(conversation: conversation)
+        }
       }
     )
   }
