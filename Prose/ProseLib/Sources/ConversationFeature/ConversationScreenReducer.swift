@@ -218,10 +218,19 @@ extension ConversationScreenReducer.State {
   }
 
   func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {
-    ChatSessionState<T>(
+    var userInfos = self.selectedAccount.contacts
+    userInfos[self.currentUser] = Contact(
+      jid: self.currentUser,
+      name: self.selectedAccount.username,
+      avatar: self.selectedAccount.avatar,
+      availability: self.selectedAccount.availability,
+      status: nil,
+      groups: []
+    )
+    return ChatSessionState<T>(
       currentUser: self.currentUser,
       chatId: self.childState.chatId,
-      userInfos: self.selectedAccount.contacts,
+      userInfos: userInfos,
       composingUsers: self.childState.composingUsers,
       childState: toLocalState(self.childState)
     )
