@@ -337,3 +337,8 @@
 "settings.advanced.reports.label" = "Reports:";
 "settings.advanced.reports.usage_toggle" = "Send anonymous usage analytics";
 "settings.advanced.reports.crash_toggle" = "Automatically send crash reports";
+
+"availability.available" = "Available";
+"availability.unavailable" = "Unavailable";
+"availability.doNotDisturb" = "Do not disturb";
+"availability.away" = "Away";

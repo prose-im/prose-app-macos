@@ -9,12 +9,14 @@ import SwiftUI
 public struct LEDIndicator: View {
   @Environment(\.redactionReasons) private var redactionReasons
 
-  public enum State {
+  public enum State: Equatable {
     case off, on
   }
 
   let state: State
   let size: CGFloat
+
+  private var fillColor = Colors.State.green.color
 
   public init(
     state: State = .off,
@@ -39,12 +41,20 @@ public struct LEDIndicator: View {
         .fill(
           self.redactionReasons.contains(.placeholder)
             ? .gray
-            : (self.state.fillColor ?? Color.clear)
+            : (self.state == .on ? self.fillColor : Color.clear)
         )
     }
     .frame(width: self.size, height: self.size)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(String(describing: self.state))
+  }
+}
+
+public extension LEDIndicator {
+  func fillColor(_ color: Color) -> some View {
+    var indicator = self
+    indicator.fillColor = color
+    return indicator
   }
 }
 
@@ -55,12 +65,6 @@ public extension LEDIndicator {
 
   init(isOn: Bool) {
     self.init(state: isOn ? .on : .off)
-  }
-}
-
-private extension LEDIndicator.State {
-  var fillColor: Color? {
-    self == .on ? .some(Colors.State.green.color) : .none
   }
 }
 

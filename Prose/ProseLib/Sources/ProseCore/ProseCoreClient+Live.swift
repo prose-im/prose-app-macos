@@ -146,6 +146,11 @@ extension ProseCoreClient {
           try await client.saveAvatar(imagePath: url)
         }
       },
+      setAvailability: { availability, status in
+        try await withClient { client in
+          try await client.setAvailability(availability: availability, status: status)
+        }
+      },
       sendMessage: { to, body in
         try await withClient { client in
           try await client.sendMessage(to: to, body: body)
@@ -207,6 +212,16 @@ extension ProseCoreClient {
       loadDraft: { conversation in
         try await withClient { client in
           try await client.loadDraft(conversation: conversation)
+        }
+      },
+      loadAccountSettings: {
+        try await withClient { client in
+          try await client.loadAccountSettings()
+        }
+      },
+      saveAccountSettings: { settings in
+        try await withClient { client in
+          try await client.saveAccountSettings(settings: settings)
         }
       }
     )

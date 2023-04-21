@@ -33,6 +33,7 @@ struct AppReducer: ReducerProtocol {
     case dismissAuthenticationSheet
 
     case availableAccountsChanged(Set<BareJid>)
+    case accountAdded(TaskResult<Account>)
     case connectivityChanged(Connectivity)
 
     case auth(AuthenticationReducer.Action)
@@ -125,7 +126,7 @@ struct AppReducer: ReducerProtocol {
         state.currentUser = jid
         return .none
 
-      case .onAppear, .auth, .main, .availableAccountsChanged, .account:
+      case .onAppear, .auth, .main, .availableAccountsChanged, .account, .accountAdded:
         return .none
       }
     }
@@ -157,8 +158,12 @@ extension AppReducer.State {
     }
 
     set {
-      self.mainState = newValue?.childState
-      self.currentUser = newValue?.currentUser
+      guard let newValue else {
+        return
+      }
+      self.mainState = newValue.childState
+      self.currentUser = newValue.currentUser
+      self.availableAccounts[id: newValue.currentUser] = newValue.selectedAccount
     }
   }
 }

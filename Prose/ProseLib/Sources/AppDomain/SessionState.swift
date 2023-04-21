@@ -10,7 +10,7 @@ import IdentifiedCollections
 
 @dynamicMemberLookup
 public struct SessionState<ChildState: Equatable>: Equatable {
-  public let accounts: IdentifiedArrayOf<Account>
+  public private(set) var accounts: IdentifiedArrayOf<Account>
 
   public var currentUser: BareJid
   public var childState: ChildState
@@ -29,10 +29,16 @@ public struct SessionState<ChildState: Equatable>: Equatable {
 
 public extension SessionState {
   var selectedAccount: Account {
-    self.accounts[id: self.currentUser]
-      .expect(
-        "Selected account \(self.currentUser.rawValue) could not be found in available accounts"
-      )
+    get {
+      self.accounts[id: self.currentUser]
+        .expect(
+          "Selected account \(self.currentUser.rawValue) could not be found in available accounts"
+        )
+    }
+    set {
+      // This is the limited set of properties that can be changed by child reducers…
+      self.accounts[id: self.currentUser]?.availability = newValue.availability
+    }
   }
 }
 
@@ -43,6 +49,28 @@ public extension SessionState {
       accounts: self.accounts,
       childState: toLocalState(self.childState)
     )
+  }
+
+  mutating func set<T>(_ keyPath: WritableKeyPath<ChildState, T>, _ newValue: SessionState<T>) {
+    self.childState[keyPath: keyPath] = newValue.childState
+    self.merge(newValue: newValue)
+  }
+
+  func get<T>(_ toLocalState: (ChildState) -> T?) -> SessionState<T>? {
+    guard let localState = toLocalState(self.childState) else {
+      return nil
+    }
+    return SessionState<T>(
+      currentUser: self.currentUser,
+      accounts: self.accounts,
+      childState: localState
+    )
+  }
+
+  mutating func set<T>(_ keyPath: WritableKeyPath<ChildState, T?>, _ newValue: SessionState<T>?) {
+    guard let newValue else { return }
+    self.childState[keyPath: keyPath] = newValue.childState
+    self.merge(newValue: newValue)
   }
 
   func get<T>(_ toLocalState: CasePath<ChildState, T>) -> SessionState<T>? {
@@ -56,15 +84,17 @@ public extension SessionState {
     )
   }
 
-  mutating func set<T>(_ keyPath: WritableKeyPath<ChildState, T>, _ newValue: SessionState<T>) {
-    self.childState[keyPath: keyPath] = newValue.childState
-    self.currentUser = newValue.currentUser
-  }
-
   mutating func set<T>(_ casePath: CasePath<ChildState, T>, _ newValue: SessionState<T>?) {
     guard let newValue else { return }
     self.childState = casePath.embed(newValue.childState)
+    self.merge(newValue: newValue)
+  }
+}
+
+private extension SessionState {
+  mutating func merge<T>(newValue: SessionState<T>) {
     self.currentUser = newValue.currentUser
+    self.selectedAccount = newValue.selectedAccount
   }
 }
 

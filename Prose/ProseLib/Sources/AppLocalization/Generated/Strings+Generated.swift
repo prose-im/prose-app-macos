@@ -389,6 +389,29 @@ public enum L10n {
     }
   }
 
+  public enum Availability {
+    /// Available
+    public static let available = L10n.tr(
+      "Localizable",
+      "availability.available",
+      fallback: "Available"
+    )
+    /// Away
+    public static let away = L10n.tr("Localizable", "availability.away", fallback: "Away")
+    /// Do not disturb
+    public static let doNotDisturb = L10n.tr(
+      "Localizable",
+      "availability.doNotDisturb",
+      fallback: "Do not disturb"
+    )
+    /// Unavailable
+    public static let unavailable = L10n.tr(
+      "Localizable",
+      "availability.unavailable",
+      fallback: "Unavailable"
+    )
+  }
+
   public enum Chat {
     public enum OfflineBanner {
       /// New messages will not appear, drafts will be saved for later.

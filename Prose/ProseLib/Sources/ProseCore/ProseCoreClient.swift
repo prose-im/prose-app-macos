@@ -23,6 +23,7 @@ public struct ProseCoreClient {
   public var loadContacts: (CachePolicy) async throws -> [Contact]
   public var loadAvatar: (BareJid, CachePolicy) async throws -> URL?
   public var saveAvatar: (URL) async throws -> Void
+  public var setAvailability: (Availability, _ status: String?) async throws -> Void
 
   public var sendMessage: (_ to: BareJid, _ body: String) async throws -> Void
   public var updateMessage: (
@@ -58,4 +59,7 @@ public struct ProseCoreClient {
 
   public var saveDraft: (_ conversation: BareJid, _ text: String) async throws -> Void
   public var loadDraft: (_ conversation: BareJid) async throws -> String?
+
+  public var loadAccountSettings: () async throws -> AccountSettings
+  public var saveAccountSettings: (AccountSettings) async throws -> Void
 }

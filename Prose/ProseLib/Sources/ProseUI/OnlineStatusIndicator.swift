@@ -7,41 +7,15 @@ import AppDomain
 import Assets
 import SwiftUI
 
-public typealias OnlineStatusIndicator = LEDIndicator
+public struct OnlineStatusIndicator: View {
+  let availability: Availability
 
-public extension OnlineStatusIndicator {
-  init(
-    status: Availability,
-    size: CGFloat
-  ) {
-    self.init(isOn: status != .unavailable, size: size)
+  public init(_ availability: Availability) {
+    self.availability = availability
   }
 
-  init(_ status: Availability) {
-    self.init(isOn: status != .unavailable)
+  public var body: some View {
+    LEDIndicator(isOn: self.availability != .unavailable)
+      .fillColor(self.availability == .available ? Colors.State.green.color : Color.orange)
   }
 }
-
-// struct OnlineStatusIndicator_Previews: PreviewProvider {
-//  private struct Preview: View {
-//    var body: some View {
-//      HStack {
-//        ForEach(OnlineStatus.allCases, id: \.self, content: OnlineStatusIndicator.init(_:))
-//      }
-//      .padding()
-//      .previewLayout(.sizeThatFits)
-//    }
-//  }
-//
-//  static var previews: some View {
-//    Preview()
-//      .preferredColorScheme(.light)
-//      .previewDisplayName("Light")
-//    Preview()
-//      .preferredColorScheme(.dark)
-//      .previewDisplayName("Dark")
-//    Preview()
-//      .redacted(reason: .placeholder)
-//      .previewDisplayName("Placeholder")
-//  }
-// }

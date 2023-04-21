@@ -45,14 +45,13 @@ struct FooterView: View {
             unwrapping: self.viewStore.binding(get: \.route, send: .dismiss(.accountSettingsMenu)),
             case: /FooterReducer.Route.Tag.accountSettingsMenu
           ) { _ in
-            IfLetStore(self.store.scope(state: \.route)) { store in
-              SwitchStore(store) {
-                CaseLet(
-                  state: /FooterReducer.Route.accountSettingsMenu,
-                  action: FooterReducer.Action.accountSettingsMenu,
-                  then: AccountSettingsMenuView.init(store:)
-                )
-              }
+            IfLetStore(
+              self.store.scope(
+                state: \.sessionRoute?.accountSettingsMenu,
+                action: FooterReducer.Action.accountSettingsMenu
+              )
+            ) { store in
+              AccountSettingsMenuView(store: store)
             }
           }
 
@@ -152,7 +151,7 @@ struct FooterView: View {
 
 extension FooterView.ViewState {
   init(_ state: FooterReducer.State) {
-    self.availability = state.availability
+    self.availability = state.selectedAccount.availability
     self.avatar = state.selectedAccount.avatar
     self.jid = state.currentUser
     self.route = state.route?.tag

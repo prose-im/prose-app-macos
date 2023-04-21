@@ -46,7 +46,7 @@ public struct MainScreenView: View {
         }
         WithViewStore(self.store.scope(state: \.selectedAccount)) { viewStore in
           if viewStore.state.status != .connected {
-            OfflineBanner(account: viewStore.state)
+            OfflineBanner(status: viewStore.state.status)
           }
         }
       }
@@ -58,7 +58,7 @@ public struct MainScreenView: View {
 
 #warning("Localize me")
 struct OfflineBanner: View {
-  var account: Account
+  var status: ConnectionStatus
 
   var body: some View {
     HStack {
@@ -70,10 +70,10 @@ struct OfflineBanner: View {
       Spacer()
       Button(action: {}) {
         Text("Reconnect")
-        if self.account.status == .connecting {
+        if self.status == .connecting {
           ProgressView().controlSize(.mini)
         }
-      }.disabled(self.account.status == .connecting)
+      }.disabled(self.status == .connecting)
     }
     .frame(maxWidth: .infinity)
     .padding()
@@ -84,7 +84,7 @@ struct OfflineBanner: View {
 #if DEBUG
   struct OfflineBanner_Previews: PreviewProvider {
     static var previews: some View {
-      OfflineBanner(account: .init(jid: "hello@prose.org", status: .connected))
+      OfflineBanner(status: .connected)
     }
   }
 #endif

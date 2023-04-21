@@ -54,27 +54,3 @@ private extension Availability {
     }
   }
 }
-
-// struct AvailabilityIndicator_Previews: PreviewProvider {
-//  private struct Preview: View {
-//    var body: some View {
-//      HStack {
-//        ForEach(Availability.allCases, id: \.self, content: AvailabilityIndicator.init(_:))
-//      }
-//      .padding()
-//      .previewLayout(.sizeThatFits)
-//    }
-//  }
-//
-//  static var previews: some View {
-//    Preview()
-//      .preferredColorScheme(.light)
-//      .previewDisplayName("Light")
-//    Preview()
-//      .preferredColorScheme(.dark)
-//      .previewDisplayName("Dark")
-//    Preview()
-//      .redacted(reason: .placeholder)
-//      .previewDisplayName("Placeholder")
-//  }
-// }

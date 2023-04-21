@@ -10,11 +10,9 @@ import Foundation
 import ProseCore
 
 public struct AccountSettingsMenuReducer: ReducerProtocol {
-  public struct State: Equatable {
-    var availability: Availability
-    var avatar: URL?
-    var fullName: String
-    var jid: BareJid
+  public typealias State = SessionState<AccountSettingsMenuState>
+
+  public struct AccountSettingsMenuState: Equatable {
     var statusIcon: Character
   }
 
@@ -36,7 +34,7 @@ public struct AccountSettingsMenuReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .signOutTapped:
-        return .fireAndForget { [jid = state.jid] in
+        return .fireAndForget { [jid = state.currentUser] in
           try? await self.accountBookmarks.removeBookmark(jid)
           try? self.credentials.deleteCredentials(jid)
           try await self.accounts.disconnectAccount(jid)
@@ -45,7 +43,8 @@ public struct AccountSettingsMenuReducer: ReducerProtocol {
       case .accountSettingsTapped:
         return .none
 
-      case .changeAvailabilityTapped:
+      case let .changeAvailabilityTapped(availability):
+        state.selectedAccount.availability = availability
         return .none
 
       case .editProfileTapped:

@@ -6,9 +6,11 @@
 import Foundation
 import ProseCoreFFI
 
+@dynamicMemberLookup
 public struct Account: Hashable, Identifiable {
   public var jid: BareJid
   public var status: ConnectionStatus
+  public var settings: AccountSettings
   public var profile: UserProfile?
   public var contacts: [BareJid: Contact]
   public var avatar: URL?
@@ -20,15 +22,24 @@ public struct Account: Hashable, Identifiable {
   public init(
     jid: BareJid,
     status: ConnectionStatus,
+    settings: AccountSettings,
     profile: UserProfile? = nil,
     contacts: [BareJid: Contact] = [:],
     avatar: URL? = nil
   ) {
     self.jid = jid
     self.status = status
+    self.settings = settings
     self.profile = profile
     self.contacts = contacts
     self.avatar = avatar
+  }
+}
+
+public extension Account {
+  subscript<T>(dynamicMember keyPath: WritableKeyPath<AccountSettings, T>) -> T {
+    get { self.settings[keyPath: keyPath] }
+    set { self.settings[keyPath: keyPath] = newValue }
   }
 }
 
@@ -44,14 +55,5 @@ public extension Account {
       .split(separator: ".", omittingEmptySubsequences: true)
       .joined(separator: " ")
       .localizedCapitalized
-  }
-}
-
-public extension [Contact] {
-  func contactsGroupedByJid() -> [BareJid: Contact] {
-    .init(
-      zip(self.map(\.jid), self),
-      uniquingKeysWith: { _, last in last }
-    )
   }
 }

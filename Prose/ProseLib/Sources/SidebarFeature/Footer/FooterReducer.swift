@@ -21,7 +21,6 @@ public struct FooterReducer: ReducerProtocol {
   public struct FooterState: Equatable {
     var route: Route?
     var teamName = "<Unknown>"
-    var availability = Availability.available
     var statusIcon = Character("🚀")
     var statusMessage = "<Unimplemented>"
 
@@ -39,7 +38,7 @@ public struct FooterReducer: ReducerProtocol {
   }
 
   public enum Route: Equatable {
-    case accountSettingsMenu(AccountSettingsMenuReducer.State)
+    case accountSettingsMenu(AccountSettingsMenuReducer.AccountSettingsMenuState)
     case accountSwitcherMenu(AccountSwitcherMenuReducer.State)
     case auth(AuthenticationReducer.State)
     case editProfile(EditProfileReducer.State)
@@ -49,11 +48,15 @@ public struct FooterReducer: ReducerProtocol {
 
   public var body: some ReducerProtocol<State, Action> {
     EmptyReducer()
-      .ifLet(\.route, action: /.self) {
+      .ifLet(\.sessionRoute, action: /.self) {
         EmptyReducer()
-          .ifCaseLet(/Route.accountSettingsMenu, action: /Action.accountSettingsMenu) {
+          .ifLet(\.accountSettingsMenu, action: /Action.accountSettingsMenu) {
             AccountSettingsMenuReducer()
           }
+      }
+    EmptyReducer()
+      .ifLet(\.route, action: /.self) {
+        EmptyReducer()
           .ifCaseLet(/Route.accountSwitcherMenu, action: /Action.accountSwitcherMenu) {
             AccountSwitcherMenuReducer()
           }
@@ -73,13 +76,7 @@ public struct FooterReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .setRoute(.accountSettingsMenu):
-        state.route = .accountSettingsMenu(.init(
-          availability: state.availability,
-          avatar: state.selectedAccount.avatar,
-          fullName: state.selectedAccount.username,
-          jid: state.currentUser,
-          statusIcon: state.statusIcon
-        ))
+        state.route = .accountSettingsMenu(.init(statusIcon: state.statusIcon))
         return .none
 
       case .setRoute(.accountSwitcherMenu):
@@ -141,5 +138,19 @@ extension FooterReducer.Route {
     case .editProfile:
       return .editProfile
     }
+  }
+}
+
+extension FooterReducer.State {
+  var sessionRoute: SessionState<FooterReducer.Route>? {
+    get { self.get(\.route) }
+    set { self.set(\.route, newValue) }
+  }
+}
+
+extension SessionState<FooterReducer.Route> {
+  var accountSettingsMenu: AccountSettingsMenuReducer.State? {
+    get { self.get(/FooterReducer.Route.accountSettingsMenu) }
+    set { self.set(/FooterReducer.Route.accountSettingsMenu, newValue) }
   }
 }
