@@ -144,7 +144,7 @@ public struct MessageBarReducer: ReducerProtocol {
 }
 
 extension MessageBarReducer.State {
-  var composingUserInfos: [UserInfo] {
+  var composingUserInfos: [Contact] {
     self.composingUsers.compactMap { user in
       self.userInfos[user]
     }

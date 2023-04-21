@@ -10,7 +10,7 @@ public struct Account: Hashable, Identifiable {
   public var jid: BareJid
   public var status: ConnectionStatus
   public var profile: UserProfile?
-  public var contacts: [Contact]
+  public var contacts: [BareJid: Contact]
   public var avatar: URL?
 
   public var id: BareJid {
@@ -21,7 +21,7 @@ public struct Account: Hashable, Identifiable {
     jid: BareJid,
     status: ConnectionStatus,
     profile: UserProfile? = nil,
-    contacts: [Contact] = [],
+    contacts: [BareJid: Contact] = [:],
     avatar: URL? = nil
   ) {
     self.jid = jid
@@ -44,5 +44,14 @@ public extension Account {
       .split(separator: ".", omittingEmptySubsequences: true)
       .joined(separator: " ")
       .localizedCapitalized
+  }
+}
+
+public extension [Contact] {
+  func contactsGroupedByJid() -> [BareJid: Contact] {
+    .init(
+      zip(self.map(\.jid), self),
+      uniquingKeysWith: { _, last in last }
+    )
   }
 }

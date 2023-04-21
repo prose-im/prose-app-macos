@@ -18,4 +18,12 @@ public struct UserInfo: Equatable {
   }
 }
 
+public extension UserInfo {
+  init(contact: Contact) {
+    self.jid = contact.jid
+    self.name = contact.name
+    self.avatar = contact.avatar
+  }
+}
+
 extension UserInfo: Encodable {}

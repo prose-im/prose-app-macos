@@ -269,8 +269,8 @@ private extension ChatView {
 
     self.viewStore.publisher.userInfos
       .sink(receiveValue: { userInfos in
-        userInfos.forEach { jid, info in
-          ffi.messagingStore.identify(jid, info)
+        userInfos.forEach { jid, contact in
+          ffi.messagingStore.identify(jid, UserInfo(contact: contact))
         }
       })
       .store(in: &coordinator.cancellables)

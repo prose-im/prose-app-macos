@@ -147,7 +147,7 @@ extension SidebarReducer.State {
 extension SidebarReducer.State {
   var roster: SidebarReducer.Roster {
     var groups = [String: [SidebarReducer.Roster.Group.Item]]()
-    for item in self.selectedAccount.contacts {
+    for item in self.selectedAccount.contacts.values.sorted() {
       for group in item.groups {
         groups[group, default: []].append(.init(
           jid: item.jid,

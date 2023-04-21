@@ -224,7 +224,7 @@ struct AccountReducer: ReducerProtocol {
         return .none
 
       case let .contactsResponse(.success(contacts)):
-        state.contacts = contacts
+        state.contacts = contacts.contactsGroupedByJid()
         return .none
 
       case let .avatarResponse(.success(avatar)):
@@ -248,7 +248,8 @@ struct AccountReducer: ReducerProtocol {
           for message in messages where message.from != account.jid {
             try await self.notifications.scheduleLocalNotification(
               message,
-              account.userInfo(for: message.from)
+              account.contacts[message.from].map(UserInfo.init) ??
+                UserInfo(jid: message.from, name: message.from.rawValue)
             )
           }
         }
@@ -280,14 +281,5 @@ private extension AccountReducer {
         })
       }.cancellable(id: EffectToken.loadAvatar(account))
     )
-  }
-}
-
-private extension Account {
-  func userInfo(for jid: BareJid) -> UserInfo {
-    guard let profile = self.contacts.first(where: { $0.jid == jid }) else {
-      return UserInfo(jid: jid, name: jid.rawValue)
-    }
-    return UserInfo(jid: profile.jid, name: profile.name, avatar: profile.avatar)
   }
 }

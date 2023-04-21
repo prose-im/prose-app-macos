@@ -10,7 +10,7 @@ import Foundation
 public struct ChatSessionState<ChildState: Equatable>: Equatable {
   public let currentUser: BareJid
   public let chatId: BareJid
-  public let userInfos: [BareJid: UserInfo]
+  public let userInfos: [BareJid: Contact]
   public let composingUsers: [BareJid]
 
   public var childState: ChildState
@@ -18,7 +18,7 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
   public init(
     currentUser: BareJid,
     chatId: BareJid,
-    userInfos: [BareJid: UserInfo],
+    userInfos: [BareJid: Contact],
     composingUsers: [BareJid],
     childState: ChildState
   ) {

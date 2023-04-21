@@ -40,7 +40,7 @@ struct MessageBar: View {
       }
       .overlay(alignment: .typingIndicator) {
         WithViewStore(self.store.scope(state: \.composingUserInfos)) { composingUserInfos in
-          TypingIndicator(typingUsers: composingUserInfos.state)
+          TypingIndicator(typingUsers: composingUserInfos.state.map(UserInfo.init))
         }
       }
 
