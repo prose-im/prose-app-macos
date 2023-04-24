@@ -68,7 +68,6 @@ public struct SidebarReducer: ReducerProtocol {
           Reduce(joinGroupReducer, environment: .init(mainQueue: self.mainQueue))
         }
     }
-    // RosterReducer()
 
     self.core
   }

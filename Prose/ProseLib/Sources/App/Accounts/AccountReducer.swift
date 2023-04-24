@@ -117,7 +117,6 @@ struct AccountReducer: ReducerProtocol {
         return self.loadAccountData(account: state.jid, cachePolicy: .default)
 
       case .contactDidChange:
-        let id = UUID()
         return .task { [jid = state.jid] in
           await withTaskCancellation(id: EffectToken.loadContacts(jid), cancelInFlight: true) {
             await .contactsResponse(TaskResult {
