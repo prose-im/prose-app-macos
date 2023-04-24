@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "c7e1c4e6b566bf5c50ddc64122df5c43cdab7a5b",
-        "version" : "0.51.6"
+        "revision" : "fee7e1a1ac9518cfe3c4673382368641ccbdc62c",
+        "version" : "0.51.7"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/thii/xcbeautify",
       "state" : {
-        "revision" : "e3bc4e04618efa7aaf8fac4727f7fe7ffd951e08",
-        "version" : "0.19.0"
+        "revision" : "2850da9d0e1fa28cfb17709ec66bc87bb07f83eb",
+        "version" : "0.20.0"
       }
     },
     {
