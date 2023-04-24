@@ -84,12 +84,14 @@ let package = Package(
         "ConversationInfoFeature",
         "PasteboardClient",
         "ProseCoreViews",
+        "ProseCore",
+        .product(name: "TCAUtils", package: "swift-common-utils"),
       ],
       exclude: ["README.md"]
     ),
     .testTarget(
       name: "ConversationFeatureTests",
-      dependencies: ["ConversationFeature", "TestHelpers"]
+      dependencies: ["ConversationFeature", "TestHelpers", "Mocks"]
     ),
     .featureTarget(name: "ConversationInfoFeature"),
     .featureTarget(name: "EditProfileFeature", dependencies: ["ProseCore"]),

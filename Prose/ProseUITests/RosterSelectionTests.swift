@@ -14,19 +14,19 @@ final class RosterSelectionTests: XCTestCase {
   func testSwitchesConversationWhenSelectingRosterItem() {
     let app = XCUIApplication.launching(testCase: "roster-selection")
 
-    app.sidebar.outlineRows
-      .containing(.staticText, identifier: "oya.karabocek@example.com").element.tap()
+    app.sidebar.cells
+      .containing(.staticText, identifier: "Oya Karaböcek").element.tap()
 
     XCTAssertTrue(
       app.chatWebView.staticTexts["Hello from oya.karabocek"]
         .waitForExistence(timeout: 5)
     )
 
-    app.sidebar.outlineRows
-      .containing(.staticText, identifier: "donna.reed@example.com").element.tap()
+    app.sidebar.cells
+      .containing(.staticText, identifier: "Donna Reed").element.tap()
 
     XCTAssertTrue(
-      app.chatWebView.staticTexts["donna.reed@example.com"]
+      app.chatWebView.staticTexts["Donna Reed"]
         .waitForExistence(timeout: 5)
     )
   }

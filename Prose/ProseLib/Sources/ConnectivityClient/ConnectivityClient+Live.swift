@@ -35,4 +35,10 @@ extension ConnectivityClient {
 
 extension ConnectivityClient: DependencyKey {
   public static var liveValue = ConnectivityClient.live
+
+  public static var previewValue = ConnectivityClient(
+    connectivity: {
+      AsyncStream(unfolding: { .online })
+    }
+  )
 }

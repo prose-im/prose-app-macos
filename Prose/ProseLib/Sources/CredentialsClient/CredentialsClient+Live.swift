@@ -13,13 +13,11 @@ private enum KeychainError: Error {
 }
 
 public extension CredentialsClient {
-  static var placeholder: CredentialsClient {
-    CredentialsClient(
-      loadCredentials: { _ in nil },
-      save: { _ in () },
-      deleteCredentials: { _ in () }
-    )
-  }
+  static let noop = CredentialsClient(
+    loadCredentials: { _ in nil },
+    save: { _ in () },
+    deleteCredentials: { _ in () }
+  )
 }
 
 extension CredentialsClient: DependencyKey {

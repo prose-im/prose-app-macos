@@ -3,14 +3,49 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
-import App
+@testable import App
+import AppDomain
 import Foundation
+import Mocks
 
-extension AppState {
+extension AppReducer.State {
   /// Returns an `AppState` with jane.doe@prose.org logged in.
-  static var authenticated = AppState(
-    hasAppearedAtLeastOnce: true,
-    main: .init(currentUser: .init(jid: "jane.doe@prose.org"), childState: .init()),
-    auth: nil
-  )
+  static let authenticated: AppReducer.State = {
+    var state = AppReducer.State()
+    state.initialized = true
+    state.currentUser = .janeDoe
+    state.availableAccounts = [
+      .init(
+        jid: .janeDoe,
+        status: .connected,
+        settings: .init(availability: .available),
+        contacts: {
+          let contacts = Contact.random()
+          return Dictionary(
+            zip(contacts.map(\.jid), contacts),
+            uniquingKeysWith: { _, last in last }
+          )
+        }()
+      ),
+    ]
+    state.mainState = .init()
+    return state
+  }()
+}
+
+extension Contact {
+  static func random(count: Int = 5) -> [Contact] {
+    RNDResult.all()
+      .prefix(count)
+      .map { user in
+        Contact(
+          jid: BareJid(stringLiteral: user.email),
+          name: "\(user.name.first) \(user.name.last)",
+          avatar: nil,
+          availability: .available,
+          status: nil,
+          groups: ["Contacts"]
+        )
+      }
+  }
 }

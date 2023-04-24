@@ -6,6 +6,7 @@
 import AppDomain
 import Combine
 import Foundation
+import Toolbox
 
 public extension CachePolicy {
   static let `default` = CachePolicy.returnCacheDataElseLoad
@@ -62,4 +63,31 @@ public struct ProseCoreClient {
 
   public var loadAccountSettings: () async throws -> AccountSettings
   public var saveAccountSettings: (AccountSettings) async throws -> Void
+}
+
+public extension ProseCoreClient {
+  static let noop = ProseCoreClient(
+    connectionStatus: { AsyncStream.empty() },
+    events: { AsyncStream.empty() },
+    connect: { _, _ in try await Task.never() },
+    disconnect: { try await Task.never() },
+    loadProfile: { _, _ in try await Task.never() },
+    loadContacts: { _ in try await Task.never() },
+    loadAvatar: { _, _ in try await Task.never() },
+    saveAvatar: { _ in try await Task.never() },
+    setAvailability: { _, _ in try await Task.never() },
+    sendMessage: { _, _ in try await Task.never() },
+    updateMessage: { _, _, _ in try await Task.never() },
+    toggleReactionToMessage: { _, _, _ in try await Task.never() },
+    retractMessage: { _, _ in try await Task.never() },
+    setUserIsComposing: { _, _ in try await Task.never() },
+    loadComposingUsersInConversation: { _ in try await Task.never() },
+    loadLatestMessages: { _, _, _ in try await Task.never() },
+    loadMessagesBefore: { _, _ in try await Task.never() },
+    loadMessagesWithIds: { _, _ in try await Task.never() },
+    saveDraft: { _, _ in try await Task.never() },
+    loadDraft: { _ in try await Task.never() },
+    loadAccountSettings: { try await Task.never() },
+    saveAccountSettings: { _ in try await Task.never() }
+  )
 }

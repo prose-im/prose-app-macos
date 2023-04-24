@@ -70,17 +70,3 @@ public extension ChatSessionState {
     self.childState[keyPath: keyPath] = newValue?.childState
   }
 }
-
-#if DEBUG
-  public extension ChatSessionState {
-    static func mock(_ childState: ChildState) -> Self {
-      ChatSessionState(
-        currentUser: "hello@prose.org",
-        chatId: "chat@prose.org",
-        userInfos: [:],
-        composingUsers: [],
-        childState: childState
-      )
-    }
-  }
-#endif

@@ -23,7 +23,7 @@ public struct MessageBarReducer: ReducerProtocol {
     public init() {}
   }
 
-  public enum Action: Equatable, BindableAction {
+  public enum Action: Equatable {
     case onAppear
     case onDisappear
 
@@ -32,7 +32,6 @@ public struct MessageBarReducer: ReducerProtocol {
 
     case messageSendResult(TaskResult<None>)
     case loadDraftResult(TaskResult<String?>)
-    case binding(BindingAction<ChatSessionState<MessageBarState>>)
 
     case messageField(MessageFieldReducer.Action)
     case emojiPicker(ReactionPickerReducer.Action)
@@ -50,7 +49,6 @@ public struct MessageBarReducer: ReducerProtocol {
   @Dependency(\.accountsClient) var accounts
 
   public var body: some ReducerProtocol<State, Action> {
-    BindingReducer()
     Scope(state: \.messageField, action: /Action.messageField) {
       MessageFieldReducer()
         .onChange(of: \.isComposing) { isComposing, state, _ in
@@ -136,7 +134,7 @@ public struct MessageBarReducer: ReducerProtocol {
         state.emojiPicker = .init()
         return .none
 
-      case .messageField, .binding, .emojiPicker:
+      case .messageField, .emojiPicker:
         return .none
       }
     }

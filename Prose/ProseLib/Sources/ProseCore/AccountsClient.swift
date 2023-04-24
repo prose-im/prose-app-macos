@@ -45,3 +45,14 @@ extension AccountsClient: TestDependencyKey {
     client: unimplemented("\(Self.self).client")
   )
 }
+
+public extension AccountsClient {
+  static let noop = AccountsClient(
+    availableAccounts: { AsyncStream.empty() },
+    tryConnectAccount: { _ in try await Task.never() },
+    connectAccounts: { _ in },
+    reconnectAccount: { _, _ in },
+    disconnectAccount: { _ in try await Task.never() },
+    client: { _ in throw NoSuchAccountError() }
+  )
+}

@@ -23,3 +23,9 @@ public extension AsyncStream {
     }
   }
 }
+
+public extension AsyncStream {
+  static func empty() -> Self {
+    .init(unfolding: { nil })
+  }
+}

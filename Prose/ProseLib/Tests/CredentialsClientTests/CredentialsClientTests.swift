@@ -3,6 +3,7 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
+import AppDomain
 @testable import CredentialsClient
 import XCTest
 
@@ -10,7 +11,7 @@ final class CredentialsStoreTests: XCTestCase {
   func testSavesUpdatesAndDeletesCredentials() throws {
     let store = CredentialsClient.live(service: "org.prose.app.tests")
 
-    let jid: JID = "tests@prose.org"
+    let jid: BareJid = "tests@prose.org"
 
     try XCTAssertNil(store.loadCredentials(jid))
 

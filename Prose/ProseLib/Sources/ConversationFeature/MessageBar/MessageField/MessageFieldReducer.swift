@@ -15,8 +15,8 @@ public struct MessageFieldReducer: ReducerProtocol {
   public typealias State = ChatSessionState<MessageFieldState>
 
   public struct MessageFieldState: Equatable {
-    @BindingState var isFocused = false
-    @BindingState var message = ""
+    var isFocused = false
+    var message = ""
 
     var isComposing = false
 
@@ -31,11 +31,12 @@ public struct MessageFieldReducer: ReducerProtocol {
     public init() {}
   }
 
-  public enum Action: Equatable, BindableAction {
+  public enum Action: Equatable {
     case onAppear
     case onDisappear
 
-    case binding(BindingAction<State>)
+    case messageChanged(String)
+    case focusChanged(Bool)
     case composeDelayExpired
 
     case sendButtonTapped
@@ -45,10 +46,11 @@ public struct MessageFieldReducer: ReducerProtocol {
     case composeDelay
   }
 
+  @Dependency(\.continuousClock) var clock
+
   public init() {}
 
   public var body: some ReducerProtocol<State, Action> {
-    BindingReducer()
     Reduce { state, action in
       func updateComposingState() -> EffectTask<Action> {
         state.isComposing = state.isFocused && !state.message.isEmpty
@@ -58,16 +60,23 @@ public struct MessageFieldReducer: ReducerProtocol {
         }
 
         return .task {
-          try await Task.sleep(for: .composeDelay)
-          return .composeDelayExpired
-        }.cancellable(id: EffectToken.composeDelay, cancelInFlight: true)
+          try await withTaskCancellation(id: EffectToken.composeDelay, cancelInFlight: true) {
+            try await self.clock.sleep(for: .composeDelay)
+            return .composeDelayExpired
+          }
+        }
       }
 
       switch action {
       case .onDisappear:
         return .cancel(token: EffectToken.self)
 
-      case .binding:
+      case let .focusChanged(isFocused):
+        state.isFocused = isFocused
+        return updateComposingState()
+
+      case let .messageChanged(message):
+        state.message = message
         return updateComposingState()
 
       case .sendButtonTapped:

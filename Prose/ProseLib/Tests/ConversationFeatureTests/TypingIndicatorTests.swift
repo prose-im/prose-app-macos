@@ -3,197 +3,210 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
+import AppDomain
 import AppLocalization
-import Combine
 import ComposableArchitecture
 @testable import ConversationFeature
-import TestHelpers
+import ProseCore
 import Toolbox
 import XCTest
 
+@MainActor
 final class TypingIndicatorTests: XCTestCase {
-  let scheduler = DispatchQueue.test
+  func testSendsComposeStateOnlyOnce() async {
+    var composingValues = [Bool]()
 
-  let ownId: JID = "test.user@prose.org"
-  let chatId: JID = "test.chat@prose.org"
-  let recipientId: JID = "test.recipient@prose.org"
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
 
-  let date: Date = .ymd(2022, 08, 16)
-
-  let chats = CurrentValueSubject<[JID: ProseCoreTCA.Chat], Never>([:])
-
-  lazy var environment: ConversationEnvironment = {
-    var environment = ConversationEnvironment(
-      proseClient: .noop,
-      pasteboard: .noop,
-      mainQueue: self.scheduler.eraseToAnyScheduler()
-    )
-    environment.proseClient.sendChatState = { chatId, kind in
-      XCTAssertEqual(chatId, self.chatId)
-      self.participants[self.ownId] = .init(kind: kind, timestamp: self.date)
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
-    }
-    environment.proseClient.activeChats = {
-      self.chats.setFailureType(to: EquatableError.self).eraseToEffect()
-    }
-    return environment
-  }()
-
-  var participants: [JID: ProseCoreTCA.ChatState] {
-    get { self.chats.value[self.chatId]!.participantStates }
-    set { self.chats.value[self.chatId]!.participantStates = newValue }
-  }
-
-  override func setUp() {
-    super.setUp()
-    // Cleanup the state
-    self.chats.value = [self.chatId: ProseCoreTCA.Chat(jid: self.chatId)]
-  }
-
-  func testOwnTypingIndicatorDebounced() throws {
-    let store = self.makeTestStore()
-
-    // Open the chat
-    store.send(.onAppear)
-    store.receive(.typingUsersChanged([]))
-    XCTAssertEqual(self.participants, [:])
-
-    // Focus the text field
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
+    await store.send(.messageField(.focusChanged(true))) {
       $0.messageField.isFocused = true
     }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .active, timestamp: self.date),
-    ])
+    XCTAssertEqual(composingValues, [])
 
-    // Write text
-    store.send(.messageField(.field(.binding(.set(\.$message, "I write"))))) {
-      $0.messageField.message = "I write"
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
     }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .composing, timestamp: self.date),
-    ])
+    XCTAssertEqual(composingValues, [true])
 
-    // Wait for typing timeout
-    self.scheduler.advance(by: .pauseTypingDebounceDuration)
-    store.receive(.messageField(.setChatState(.paused)))
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .paused, timestamp: self.date),
-    ])
-
-    // Write text again
-    store.send(.messageField(.field(.binding(.set(\.$message, "I write and I continue"))))) {
-      $0.messageField.message = "I write and I continue"
+    await store.send(.messageField(.messageChanged("Hello World"))) {
+      $0.messageField.message = "Hello World"
     }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .composing, timestamp: self.date),
-    ])
 
-    // Send the message
-    store.send(.messageField(.field(.sendButtonTapped)))
-    store.receive(.messageField(.field(.send(message: "I write and I continue"))))
-    store.receive(.messageSendResult(.success(.none))) {
+    await store.send(.onDisappear)
+  }
+
+  func testResetsComposeStateAfterClearingTextField() async {
+    var composingValues = [Bool]()
+
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
+
+    await store.send(.messageField(.focusChanged(true))) {
+      $0.messageField.isFocused = true
+    }
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
+    }
+
+    await store.send(.messageField(.messageChanged(""))) {
       $0.messageField.message = ""
+      $0.messageField.isComposing = false
     }
+    XCTAssertEqual(composingValues, [true, false])
 
-    // Focus the text field while it has some text
-    store.send(.messageField(.field(.binding(.set(\.$message, "A new message"))))) {
-      $0.messageField.message = "A new message"
-    }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .composing, timestamp: self.date),
-    ])
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, false))))) {
-      $0.messageField.isFocused = false
-    }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .active, timestamp: self.date),
-    ])
-    store.send(.messageField(.field(.binding(.set(\.$isFocused, true))))) {
+    await store.send(.onDisappear)
+  }
+
+  func testResetsComposeStateAfterLosingFocus() async {
+    var composingValues = [Bool]()
+
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
+
+    await store.send(.messageField(.focusChanged(true))) {
       $0.messageField.isFocused = true
     }
-    XCTAssertEqual(self.participants, [
-      self.ownId: .init(kind: .composing, timestamp: self.date),
-    ])
-
-    // Close the chat
-    store.send(.messageField(.onDisappear))
-    store.send(.onDisappear)
-  }
-
-  func testOwnTypingIndicatorFromOtherApp() throws {
-    let store = self.makeTestStore()
-
-    // We log into another app
-    self.participants[self.ownId] = .init(kind: .active, timestamp: self.date)
-
-    // We start typing in another app
-    self.participants[self.ownId] = .init(kind: .composing, timestamp: self.date)
-
-    // We open the chat in this Prose instance
-    store.send(.onAppear)
-    store.receive(.typingUsersChanged([]))
-
-    // We stop typing in another app
-    self.participants[self.ownId] = .init(kind: .paused, timestamp: self.date)
-    // No action received `.typingUsersChanged([])` is deduplicated
-
-    // We close the chat in this Prose instance
-    store.send(.messageField(.onDisappear))
-    store.send(.onDisappear)
-  }
-
-  func testRecipientTypingIndicator() throws {
-    let store = self.makeTestStore()
-
-    // The recipient logs in
-    self.participants[self.recipientId] = .init(kind: .active, timestamp: self.date)
-
-    // The recipient starts typing
-    self.participants[self.recipientId] = .init(kind: .composing, timestamp: self.date)
-
-    // Open the chat
-    store.send(.onAppear)
-    store.receive(.typingUsersChanged([self.recipientId])) {
-      $0.typingUsers = [.init(jid: self.recipientId)]
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
     }
 
-    // The recipient stops typing
-    self.participants[self.recipientId] = .init(kind: .paused, timestamp: self.date)
-    store.receive(.typingUsersChanged([])) {
-      $0.typingUsers = []
+    await store.send(.messageField(.focusChanged(false))) {
+      $0.messageField.isFocused = false
+      $0.messageField.isComposing = false
+    }
+    XCTAssertEqual(composingValues, [true, false])
+
+    await store.send(.onDisappear)
+  }
+
+  func testSetsComposeStateAfterReceivingFocusWithNonEmptyMessage() async {
+    var composingValues = [Bool]()
+
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
+
+    await store.send(.messageField(.focusChanged(true))) {
+      $0.messageField.isFocused = true
+    }
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
+    }
+    await store.send(.messageField(.focusChanged(false))) {
+      $0.messageField.isFocused = false
+      $0.messageField.isComposing = false
     }
 
-    // Close the chat
-    store.send(.messageField(.onDisappear))
-    store.send(.onDisappear)
+    await store.send(.messageField(.focusChanged(true))) {
+      $0.messageField.isFocused = true
+      $0.messageField.isComposing = true
+    }
+    XCTAssertEqual(composingValues, [true, false, true])
+
+    await store.send(.onDisappear)
+  }
+
+  func testResetsComposeStateAfterInactivity() async {
+    var composingValues = [Bool]()
+    let clock = TestClock()
+
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
+    store.dependencies.continuousClock = clock
+
+    await store.send(.messageField(.focusChanged(true))) {
+      $0.messageField.isFocused = true
+    }
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
+    }
+    XCTAssertEqual(composingValues, [true])
+
+    await clock.advance(by: .composeDelay)
+
+    await store.receive(.messageField(.composeDelayExpired)) {
+      $0.messageField.isComposing = false
+    }
+    XCTAssertEqual(composingValues, [true, false])
+
+    await store.send(.onDisappear)
+  }
+
+  func testTypingResetsInactivityDelay() async {
+    var composingValues = [Bool]()
+    let clock = TestClock()
+
+    let store = Self.makeTestStore(setUserIsComposing: { isComposing in
+      composingValues.append(isComposing)
+    })
+    store.dependencies.continuousClock = clock
+
+    await store.send(.messageField(.focusChanged(true))) {
+      $0.messageField.isFocused = true
+    }
+    await store.send(.messageField(.messageChanged("Hello"))) {
+      $0.messageField.message = "Hello"
+      $0.messageField.isComposing = true
+    }
+    XCTAssertEqual(composingValues, [true])
+
+    await clock.advance(by: .composeDelay / 3 * 2)
+
+    await store.send(.messageField(.messageChanged("Hello World"))) {
+      $0.messageField.message = "Hello World"
+    }
+
+    // Since 2/3 + 1/2 > 1 this is proof that the delay is interrupted
+    await clock.advance(by: .composeDelay / 2)
+
+    XCTAssertEqual(composingValues, [true])
+
+    await store.send(.onDisappear)
   }
 }
 
 private extension TypingIndicatorTests {
-  func makeTestStore() -> TestStore<
-    ChatSessionState<MessageBarState>,
-    MessageBarAction,
-    ChatSessionState<MessageBarState>,
-    MessageBarAction,
-    ConversationEnvironment
+  static func makeTestStore(setUserIsComposing: @escaping (Bool) -> Void) -> some TestStore<
+    MessageBarReducer.State,
+    MessageBarReducer.Action,
+    MessageBarReducer.State,
+    MessageBarReducer.Action,
+    Void
   > {
-    var state = ChatSessionState(
-      currentUser: .init(jid: self.ownId),
-      chatId: self.chatId,
-      userInfos: [:],
-      childState: MessageBarState()
-    )
+    var coreClient = ProseCoreClient.noop
+    coreClient.setUserIsComposing = { conversation, isComposing in
+      XCTAssertEqual(conversation, .johnDoe)
+      setUserIsComposing(isComposing)
+    }
 
-    // We're setting the placeholder here manually. Otherwise this would happen later and be
-    // detected as a change by the TestStore.
-    state.messageField.placeholder =
-      L10n.Content.MessageBar.fieldPlaceholder(self.chatId.jidString)
+    var accountsClient = AccountsClient.testValue
+    accountsClient.client = { jid in
+      XCTAssertEqual(jid, .janeDoe)
+      return coreClient
+    }
 
     return TestStore(
-      initialState: state,
-      reducer: messageBarReducer,
-      environment: self.environment
+      initialState: .mock(
+        currentUser: .janeDoe,
+        chatId: .johnDoe,
+        userInfos: [.johnDoe: .johnDoe],
+        .init()
+      ),
+      reducer: MessageBarReducer(),
+      prepareDependencies: {
+        $0.accountsClient = accountsClient
+        $0.continuousClock = ContinuousClock()
+      }
     )
   }
 }

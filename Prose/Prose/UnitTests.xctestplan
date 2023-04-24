@@ -24,13 +24,6 @@
     {
       "target" : {
         "containerPath" : "container:ProseLib",
-        "identifier" : "ProseCoreTCATests",
-        "name" : "ProseCoreTCATests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:ProseLib",
         "identifier" : "ProseCoreViewsTests",
         "name" : "ProseCoreViewsTests"
       }

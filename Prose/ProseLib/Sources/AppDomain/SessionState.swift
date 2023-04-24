@@ -97,14 +97,3 @@ private extension SessionState {
     self.selectedAccount = newValue.selectedAccount
   }
 }
-
-#if DEBUG
-  public extension SessionState {
-    static func mock(
-      _ childState: ChildState,
-      currentUser: BareJid = "hello@prose.org"
-    ) -> Self {
-      SessionState(currentUser: currentUser, accounts: [], childState: childState)
-    }
-  }
-#endif

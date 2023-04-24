@@ -3,26 +3,30 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
+import AppDomain
 import Foundation
 
 public extension Message {
   static func mock(
-    from: JID = "jane.doe@prose.org",
     id: String = UUID().uuidString,
-    kind: MessageKind? = .chat,
+    from: BareJid = "jane.doe@prose.org",
     body: String = "Hello World!",
     timestamp: Date = Date(),
     isRead: Bool = false,
-    isEdited: Bool = false
+    isEdited: Bool = false,
+    isDelivered: Bool = false,
+    reactions: [Reaction] = []
   ) -> Self {
     .init(
-      from: from,
       id: .init(rawValue: id),
-      kind: kind,
+      stanzaId: "stanza-id",
+      from: from,
       body: body,
       timestamp: timestamp,
       isRead: isRead,
-      isEdited: isEdited
+      isEdited: isEdited,
+      isDelivered: isDelivered,
+      reactions: reactions
     )
   }
 }

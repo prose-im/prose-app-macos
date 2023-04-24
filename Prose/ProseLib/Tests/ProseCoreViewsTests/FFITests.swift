@@ -3,8 +3,8 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
+import AppDomain
 import Foundation
-import ProseCoreTCA
 @testable import ProseCoreViews
 import TestHelpers
 import XCTest
@@ -94,7 +94,7 @@ final class FFITests: XCTestCase {
   func testJIDEncoding() throws {
     let eval = TestEvaluator()
     let cls = JSClass(name: "MyClass", evaluator: eval.evaluateJS)
-    let f: JSFunc1<JID, Void> = cls.my_func
+    let f: JSFunc1<BareJid, Void> = cls.my_func
     f("test@prose.org")
     try XCTAssertEqual(XCTUnwrap(eval.scripts.first), #"MyClass.my_func("test@prose.org")"#)
   }

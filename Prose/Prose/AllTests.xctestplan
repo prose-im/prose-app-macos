@@ -26,13 +26,6 @@
     },
     {
       "target" : {
-        "containerPath" : "container:ProseLib",
-        "identifier" : "ProseCoreTCATests",
-        "name" : "ProseCoreTCATests"
-      }
-    },
-    {
-      "target" : {
         "containerPath" : "container:Prose.xcodeproj",
         "identifier" : "2CBFFE66287D7B0B00A53992",
         "name" : "ProseUITests"
