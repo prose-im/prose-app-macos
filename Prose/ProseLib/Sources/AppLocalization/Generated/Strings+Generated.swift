@@ -412,6 +412,29 @@ public enum L10n {
     )
   }
 
+  public enum Banner {
+    public enum Offline {
+      /// Reconnect
+      public static let action = L10n.tr(
+        "Localizable",
+        "banner.offline.action",
+        fallback: "Reconnect"
+      )
+      /// New messages will not appear, drafts will be saved for later.
+      public static let info = L10n.tr(
+        "Localizable",
+        "banner.offline.info",
+        fallback: "New messages will not appear, drafts will be saved for later."
+      )
+      /// You are offline
+      public static let title = L10n.tr(
+        "Localizable",
+        "banner.offline.title",
+        fallback: "You are offline"
+      )
+    }
+  }
+
   public enum Chat {
     public enum OfflineBanner {
       /// New messages will not appear, drafts will be saved for later.

@@ -342,3 +342,7 @@
 "availability.unavailable" = "Unavailable";
 "availability.doNotDisturb" = "Do not disturb";
 "availability.away" = "Away";
+
+"banner.offline.title" = "You are offline";
+"banner.offline.info" = "New messages will not appear, drafts will be saved for later.";
+"banner.offline.action" = "Reconnect";

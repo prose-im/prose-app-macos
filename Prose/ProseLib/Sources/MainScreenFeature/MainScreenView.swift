@@ -5,6 +5,7 @@
 
 import AddressBookFeature
 import AppDomain
+import AppLocalization
 import Assets
 import ComposableArchitecture
 import ConversationFeature
@@ -63,13 +64,13 @@ struct OfflineBanner: View {
   var body: some View {
     HStack {
       Image(systemName: "hazardsign.fill")
-      Text("You are offline")
-      Text("New messages will not appear, drafts will be saved for later.")
+      Text(L10n.Banner.Offline.title)
+      Text(L10n.Banner.Offline.info)
         .opacity(0.55)
         .font(.callout)
       Spacer()
       Button(action: {}) {
-        Text("Reconnect")
+        Text(L10n.Banner.Offline.action)
         if self.status == .connecting {
           ProgressView().controlSize(.mini)
         }
