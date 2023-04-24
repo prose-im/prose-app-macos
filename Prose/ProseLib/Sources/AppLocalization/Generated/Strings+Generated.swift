@@ -60,23 +60,23 @@ public enum L10n {
 
     public enum State {
       public enum Existing {
-        /// A contact request will be sent to **%s**.
-        public static func label(_ p1: UnsafePointer<CChar>) -> String {
+        /// A contact request will be sent to **%@**.
+        public static func label(_ p1: Any) -> String {
           L10n.tr(
             "Localizable",
             "add_member.state.existing.label",
-            p1,
-            fallback: "A contact request will be sent to **%s**."
+            String(describing: p1),
+            fallback: "A contact request will be sent to **%@**."
           )
         }
 
-        /// Once **%s** accepts your request, you will be able to chat and call.
-        public static func sublabel(_ p1: UnsafePointer<CChar>) -> String {
+        /// Once **%@** accepts your request, you will be able to chat and call.
+        public static func sublabel(_ p1: Any) -> String {
           L10n.tr(
             "Localizable",
             "add_member.state.existing.sublabel",
-            p1,
-            fallback: "Once **%s** accepts your request, you will be able to chat and call."
+            String(describing: p1),
+            fallback: "Once **%@** accepts your request, you will be able to chat and call."
           )
         }
       }
@@ -563,13 +563,13 @@ public enum L10n {
       }
 
       public enum Security {
-        /// Encrypted (%s)
-        public static func encrypted(_ p1: UnsafePointer<CChar>) -> String {
+        /// Encrypted (%@)
+        public static func encrypted(_ p1: Any) -> String {
           L10n.tr(
             "Localizable",
             "content.message_details.security.encrypted",
-            p1,
-            fallback: "Encrypted (%s)"
+            String(describing: p1),
+            fallback: "Encrypted (%@)"
           )
         }
 
@@ -1282,17 +1282,14 @@ public enum L10n {
         }
 
         public enum ProfileDetails {
-          /// Profile: %s, %s
-          public static func axLabel(
-            _ p1: UnsafePointer<CChar>,
-            _ p2: UnsafePointer<CChar>
-          ) -> String {
+          /// Profile: %@, %@
+          public static func axLabel(_ p1: Any, _ p2: Any) -> String {
             L10n.tr(
               "Localizable",
               "edit_profile.sidebar.header.profile_details.ax_label",
-              p1,
-              p2,
-              fallback: "Profile: %s, %s"
+              String(describing: p1),
+              String(describing: p2),
+              fallback: "Profile: %@, %@"
             )
           }
         }
@@ -1329,12 +1326,15 @@ public enum L10n {
       }
 
       public enum Row {
-        /// %s (%s)
-        public static func axLabel(
-          _ p1: UnsafePointer<CChar>,
-          _ p2: UnsafePointer<CChar>
-        ) -> String {
-          L10n.tr("Localizable", "edit_profile.sidebar.row.ax_label", p1, p2, fallback: "%s (%s)")
+        /// %@ (%@)
+        public static func axLabel(_ p1: Any, _ p2: Any) -> String {
+          L10n.tr(
+            "Localizable",
+            "edit_profile.sidebar.row.ax_label",
+            String(describing: p1),
+            String(describing: p2),
+            fallback: "%@ (%@)"
+          )
         }
       }
     }
@@ -1354,13 +1354,13 @@ public enum L10n {
           }
 
           public enum StateVerified {
-            /// Email verified: %s
-            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+            /// Email verified: %@
+            public static func label(_ p1: Any) -> String {
               L10n.tr(
                 "Localizable",
                 "info.identity.popover.email.state_verified.label",
-                p1,
-                fallback: "Email verified: %s"
+                String(describing: p1),
+                fallback: "Email verified: %@"
               )
             }
           }
@@ -1377,26 +1377,26 @@ public enum L10n {
           }
 
           public enum StateVerified {
-            /// User signature fingerprint verified: %s
-            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+            /// User signature fingerprint verified: %@
+            public static func label(_ p1: Any) -> String {
               L10n.tr(
                 "Localizable",
                 "info.identity.popover.fingerprint.state_verified.label",
-                p1,
-                fallback: "User signature fingerprint verified: %s"
+                String(describing: p1),
+                fallback: "User signature fingerprint verified: %@"
               )
             }
           }
         }
 
         public enum Footer {
-          /// User data is verified on your configured identity server, which is %s.
-          public static func label(_ p1: UnsafePointer<CChar>) -> String {
+          /// User data is verified on your configured identity server, which is %@.
+          public static func label(_ p1: Any) -> String {
             L10n.tr(
               "Localizable",
               "info.identity.popover.footer.label",
-              p1,
-              fallback: "User data is verified on your configured identity server, which is %s."
+              String(describing: p1),
+              fallback: "User data is verified on your configured identity server, which is %@."
             )
           }
         }
@@ -1428,13 +1428,13 @@ public enum L10n {
             "info.identity.popover.header.subtitle",
             fallback: "Prose checked on the identity server for matches. It could verify this user."
           )
-          /// Looks like this is the real %s
-          public static func title(_ p1: UnsafePointer<CChar>) -> String {
+          /// Looks like this is the real %@
+          public static func title(_ p1: Any) -> String {
             L10n.tr(
               "Localizable",
               "info.identity.popover.header.title",
-              p1,
-              fallback: "Looks like this is the real %s"
+              String(describing: p1),
+              fallback: "Looks like this is the real %@"
             )
           }
         }
@@ -1450,13 +1450,13 @@ public enum L10n {
           }
 
           public enum StateVerified {
-            /// Phone verified: %s
-            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+            /// Phone verified: %@
+            public static func label(_ p1: Any) -> String {
               L10n.tr(
                 "Localizable",
                 "info.identity.popover.phone.state_verified.label",
-                p1,
-                fallback: "Phone verified: %s"
+                String(describing: p1),
+                fallback: "Phone verified: %@"
               )
             }
           }
@@ -1561,9 +1561,14 @@ public enum L10n {
 
   public enum Server {
     public enum ConnectedTo {
-      /// Connected to %s
-      public static func label(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr("Localizable", "server.connected_to.label", p1, fallback: "Connected to %s")
+      /// Connected to %@
+      public static func label(_ p1: Any) -> String {
+        L10n.tr(
+          "Localizable",
+          "server.connected_to.label",
+          String(describing: p1),
+          fallback: "Connected to %@"
+        )
       }
     }
   }
@@ -2150,17 +2155,14 @@ public enum L10n {
           }
 
           public enum Header {
-            /// %s (%s)
-            public static func label(
-              _ p1: UnsafePointer<CChar>,
-              _ p2: UnsafePointer<CChar>
-            ) -> String {
+            /// %@ (%@)
+            public static func label(_ p1: Any, _ p2: Any) -> String {
               L10n.tr(
                 "Localizable",
                 "sidebar.footer.actions.account.header.label",
-                p1,
-                p2,
-                fallback: "%s (%s)"
+                String(describing: p1),
+                String(describing: p2),
+                fallback: "%@ (%@)"
               )
             }
           }
@@ -2227,13 +2229,13 @@ public enum L10n {
           }
 
           public enum SwitchAccount {
-            /// Switch to %s
-            public static func label(_ p1: UnsafePointer<CChar>) -> String {
+            /// Switch to %@
+            public static func label(_ p1: Any) -> String {
               L10n.tr(
                 "Localizable",
                 "sidebar.footer.actions.server.switch_account.label",
-                p1,
-                fallback: "Switch to %s"
+                String(describing: p1),
+                fallback: "Switch to %@"
               )
             }
 

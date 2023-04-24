@@ -14,8 +14,8 @@
 "add_member.send_request_action.label" = "Send Request";
 "add_member.state.unknown.label" = "This chat address doesn't exist yet.";
 "add_member.state.unknown.sublabel" = "You can invite this person to join your team.";
-"add_member.state.existing.label" = "A contact request will be sent to **%s**.";
-"add_member.state.existing.sublabel" = "Once **%s** accepts your request, you will be able to chat and call.";
+"add_member.state.existing.label" = "A contact request will be sent to **%@**.";
+"add_member.state.existing.sublabel" = "Once **%@** accepts your request, you will be able to chat and call.";
 
 "join_group.header.title" = "Create or join a group";
 "join_group.header.subtitle" = "Create a new group and invite people, or join an existing group.";
@@ -65,10 +65,10 @@
 "authentication.account_error_alert.go_to_account_settings_action.title" = "Account settings";
 "authentication.account_error_alert.work_offline_action.title" = "Work offline";
 
-"edit_profile.sidebar.header.profile_details.ax_label" = "Profile: %s, %s";
+"edit_profile.sidebar.header.profile_details.ax_label" = "Profile: %@, %@";
 "edit_profile.sidebar.header.change_avatar_action.ax_label" = "Edit your profile picture";
 "edit_profile.sidebar.header.change_avatar_action.ax_hint" = "Opens a file selector to choose for a new profile picture";
-"edit_profile.sidebar.row.ax_label" = "%s (%s)";
+"edit_profile.sidebar.row.ax_label" = "%@ (%@)";
 "edit_profile.sidebar.identity.label" = "Identity";
 "edit_profile.sidebar.identity.sublabel" = "Name, Phone, Email";
 "edit_profile.sidebar.authentication.label" = "Authentication";
@@ -156,17 +156,17 @@
 "edit_profile.encryption.device_id.column.label" = "Device ID";
 "edit_profile.encryption.device_security_hash.column.label" = "Security Hash";
 
-"info.identity.popover.header.title" = "Looks like this is the real %s";
+"info.identity.popover.header.title" = "Looks like this is the real %@";
 "info.identity.popover.header.subtitle" = "Prose checked on the identity server for matches. It could verify this user.";
-"info.identity.popover.fingerprint.state_verified.label" = "User signature fingerprint verified: %s";
+"info.identity.popover.fingerprint.state_verified.label" = "User signature fingerprint verified: %@";
 "info.identity.popover.fingerprint.state_not_verified.label" = "User signature fingerprint not verified";
-"info.identity.popover.email.state_verified.label" = "Email verified: %s";
+"info.identity.popover.email.state_verified.label" = "Email verified: %@";
 "info.identity.popover.email.state_not_verified.label" = "Email not verified";
-"info.identity.popover.phone.state_verified.label" = "Phone verified: %s";
+"info.identity.popover.phone.state_verified.label" = "Phone verified: %@";
 "info.identity.popover.phone.state_not_verified.label" = "Phone not verified";
 "info.identity.popover.government_id.state_verified.label" = "Government ID verified";
 "info.identity.popover.government_id.state_not_provided.label" = "Government ID not verified (not provided yet)";
-"info.identity.popover.footer.label" = "User data is verified on your configured identity server, which is %s.";
+"info.identity.popover.footer.label" = "User data is verified on your configured identity server, which is %@.";
 
 "sidebar.spotlight.title" = "Spotlight";
 "sidebar.spotlight.unread_stack" = "Unread stack";
@@ -192,7 +192,7 @@
 "sidebar.footer.actions.account.account_settings.title" = "Account settings";
 "sidebar.footer.actions.account.change_availability.title" = "Change availability";
 "sidebar.footer.actions.account.edit_profile.title" = "Edit profile";
-"sidebar.footer.actions.account.header.label" = "%s (%s)";
+"sidebar.footer.actions.account.header.label" = "%@ (%@)";
 "sidebar.footer.actions.account.offline_mode.title" = "Offline mode";
 "sidebar.footer.actions.account.pause_notifications.title" = "Pause notifications";
 "sidebar.footer.actions.account.sign_out.title" = "Sign me out";
@@ -201,7 +201,7 @@
 "sidebar.footer.actions.server.label" = "Server actions";
 
 "sidebar.footer.actions.server.switch_account.title" = "Switch account";
-"sidebar.footer.actions.server.switch_account.label" = "Switch to %s";
+"sidebar.footer.actions.server.switch_account.label" = "Switch to %@";
 "sidebar.footer.actions.server.switch_account.new.label" = "Connect account";
 
 "sidebar.footer.actions.server.server_settings.title" = "Server settings";
@@ -212,7 +212,7 @@
 "sidebar.toolbar.actions.write_message.label" = "Write a message";
 "sidebar.toolbar.actions.write_message.hint" = "Asks for recipients then starts composing a message.";
 
-"server.connected_to.label" = "Connected to %s";
+"server.connected_to.label" = "Connected to %@";
 
 "chat.offline_banner.title" = "You are offline";
 "chat.offline_banner.content" = "New messages will not appear, drafts will be saved for later.";
@@ -226,7 +226,7 @@
 
 "content.message_details.security.title" = "Security";
 "content.message_details.security.identity_verified" = "Identity verified";
-"content.message_details.security.encrypted" = "Encrypted (%s)";
+"content.message_details.security.encrypted" = "Encrypted (%@)";
 
 "content.message_details.actions.title" = "Actions";
 "content.message_details.actions.shared_files" = "View shared files";
