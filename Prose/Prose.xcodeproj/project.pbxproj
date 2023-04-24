@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2C4F3D1927F72FFB004B79F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */; };
+		2C6EADFD29F71BB5004188DC /* ConversationFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 2C6EADFC29F71BB5004188DC /* ConversationFeature */; };
+		2C6EADFF29F71BB5004188DC /* Mocks in Frameworks */ = {isa = PBXBuildFile; productRef = 2C6EADFE29F71BB5004188DC /* Mocks */; };
 		2CBFFE55287D6DFF00A53992 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CBFFE54287D6DFF00A53992 /* Assets.xcassets */; };
 		2CBFFE58287D6DFF00A53992 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CBFFE57287D6DFF00A53992 /* Preview Assets.xcassets */; };
 		2CBFFE62287D775800A53992 /* TestHostApp in Frameworks */ = {isa = PBXBuildFile; productRef = 2CBFFE61287D775800A53992 /* TestHostApp */; };
@@ -19,7 +21,6 @@
 		46A46C7628635B8E00F27E40 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A46C7528635B8E00F27E40 /* ContentView.swift */; };
 		46A46C7828635B9000F27E40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7728635B9000F27E40 /* Assets.xcassets */; };
 		46A46C7B28635B9000F27E40 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46A46C7A28635B9000F27E40 /* Preview Assets.xcassets */; };
-		46A46C81286362B300F27E40 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 46A46C80286362B300F27E40 /* App */; };
 		46D1758D2851D3A500C72BC0 /* ProseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D1758C2851D3A500C72BC0 /* ProseApp.swift */; };
 		46D306EB287C249200CCA25F /* EditProfileFeaturePreviewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D306EA287C249200CCA25F /* EditProfileFeaturePreviewApp.swift */; };
 		46D306EF287C249300CCA25F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46D306EE287C249300CCA25F /* Assets.xcassets */; };
@@ -93,7 +94,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				46A46C81286362B300F27E40 /* App in Frameworks */,
+				2C6EADFF29F71BB5004188DC /* Mocks in Frameworks */,
+				2C6EADFD29F71BB5004188DC /* ConversationFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,7 +304,8 @@
 			);
 			name = ConversationFeaturePreview;
 			packageProductDependencies = (
-				46A46C80286362B300F27E40 /* App */,
+				2C6EADFC29F71BB5004188DC /* ConversationFeature */,
+				2C6EADFE29F71BB5004188DC /* Mocks */,
 			);
 			productName = ConversationFeaturePreview;
 			productReference = 46A46C7128635B8E00F27E40 /* ConversationFeaturePreview.app */;
@@ -927,15 +930,19 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2C6EADFC29F71BB5004188DC /* ConversationFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ConversationFeature;
+		};
+		2C6EADFE29F71BB5004188DC /* Mocks */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Mocks;
+		};
 		2CBFFE61287D775800A53992 /* TestHostApp */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TestHostApp;
 		};
 		2CF8F62C299F88A6002D5A11 /* App */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = App;
-		};
-		46A46C80286362B300F27E40 /* App */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = App;
 		};

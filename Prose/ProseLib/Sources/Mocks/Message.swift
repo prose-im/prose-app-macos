@@ -8,7 +8,7 @@ import Foundation
 
 public extension Message {
   static func mock(
-    id: String = UUID().uuidString,
+    id: MessageId = .init(UUID().uuidString),
     from: BareJid = "jane.doe@prose.org",
     body: String = "Hello World!",
     timestamp: Date = Date(),
@@ -18,7 +18,7 @@ public extension Message {
     reactions: [Reaction] = []
   ) -> Self {
     .init(
-      id: .init(rawValue: id),
+      id: id,
       stanzaId: "stanza-id",
       from: from,
       body: body,

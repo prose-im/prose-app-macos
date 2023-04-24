@@ -3,115 +3,124 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
+import AppDomain
 import Combine
 import ComposableArchitecture
 import ConversationFeature
 import IdentifiedCollections
+import Mocks
+import ProseCore
 import SwiftUI
 import Toolbox
 
 struct ContentView: View {
-  let store: Store<SessionState<ConversationState>, ConversationAction>
+  let store: StoreOf<ConversationScreenReducer>
 
   init() {
-    let jid: JID = "preview@prose.org"
-    let chatId: JID = "valerian@prose.org"
-    var client = ProseClient.noop
+    let eventsSubject = PassthroughSubject<ClientEvent, Never>()
 
-    let messageSubject = CurrentValueSubject<IdentifiedArrayOf<Message>, Never>([
-      Message(
-        from: chatId,
-        id: .init(rawValue: UUID().uuidString),
-        kind: .normal,
+    var messages: [Message] = [
+      .mock(
+        id: .init(UUID().uuidString),
+        from: .johnDoe,
         body: "Hello preview 👋",
         timestamp: .now - 200,
         isRead: true,
         isEdited: true,
-        reactions: ["👋": [jid]]
+        reactions: [.init(emoji: "👋", from: [.janeDoe])]
       ),
-      Message(
-        from: jid,
-        id: .init(rawValue: UUID().uuidString),
-        kind: .normal,
+      .mock(
+        id: .init(UUID().uuidString),
+        from: .janeDoe,
         body: "Hi!",
         timestamp: .now - 12,
         isRead: true,
         isEdited: false,
-        reactions: ["😃": [chatId]]
+        reactions: [.init(emoji: "😃", from: [.johnDoe])]
       ),
-      Message(
-        from: jid,
-        id: .init(rawValue: UUID().uuidString),
-        kind: .normal,
+      .mock(
+        id: .init(UUID().uuidString),
+        from: .johnDoe,
         body: "How are you?",
         timestamp: .now - 10,
         isRead: true,
         isEdited: false
       ),
-    ])
+    ]
 
-    let chats = CurrentValueSubject<[JID: ProseCoreTCA.Chat], Never>([
-      chatId: Chat(
-        jid: chatId,
-        numberOfUnreadMessages: 0,
-        participantStates: [chatId: .init(kind: .composing, timestamp: .now)]
-      ),
-    ])
-    var participants: [JID: ProseCoreTCA.ChatState] {
-      get { chats.value[chatId]!.participantStates }
-      set { chats.value[chatId]!.participantStates = newValue }
+    var coreClient = ProseCoreClient.noop
+    coreClient.events = {
+      AsyncStream(eventsSubject.values)
     }
-
-    client.sendMessage = { _, body in
-      messageSubject.value.append(
-        .init(
-          from: jid,
-          id: .init(rawValue: UUID().uuidString),
-          kind: .chat,
-          body: body,
+    coreClient.sendMessage = { conversation, text in
+      let id = MessageId(UUID().uuidString)
+      messages.append(
+        .mock(
+          id: id,
+          from: .janeDoe,
+          body: text,
           timestamp: Date(),
-          isRead: true,
-          isEdited: false
+          isRead: true
         )
       )
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+      eventsSubject.send(.messagesAppended(conversation: conversation, messageIds: [id]))
     }
-    client.addReaction = { _, messageId, reaction in
-      messageSubject.value[id: messageId]?.reactions.addReaction(reaction, for: jid)
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    coreClient.toggleReactionToMessage = { conversation, messageId, emoji in
+      guard let messageIdx = messages.firstIndex(where: { $0.id == messageId }) else {
+        return
+      }
+
+      defer {
+        eventsSubject.send(.messagesUpdated(conversation: conversation, messageIds: [messageId]))
+      }
+
+      guard let reactionIdx = messages[messageIdx].reactions
+        .firstIndex(where: { $0.emoji == emoji })
+      else {
+        messages[messageIdx].reactions.append(.init(emoji: emoji, from: [.janeDoe]))
+        return
+      }
+
+      guard let userIdx = messages[messageIdx].reactions[reactionIdx].from
+        .firstIndex(where: { $0 == .janeDoe })
+      else {
+        messages[messageIdx].reactions[reactionIdx].from.append(.janeDoe)
+        return
+      }
+
+      messages[messageIdx].reactions[reactionIdx].from.remove(at: userIdx)
+      messages[messageIdx].reactions.removeAll(where: { $0.from.isEmpty })
     }
-    client.toggleReaction = { _, messageId, reaction in
-      messageSubject.value[id: messageId]?.reactions.toggleReaction(reaction, for: jid)
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    coreClient.retractMessage = { conversation, messageId in
+      messages.removeAll(where: { $0.id == messageId })
+      eventsSubject.send(.messagesDeleted(conversation: conversation, messageIds: [messageId]))
     }
-    client.retractMessage = { _, messageId in
-      // TODO: Send an error if message is not found?
-      messageSubject.value.remove(id: messageId)
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    coreClient.loadLatestMessages = { _, sinceMessageId, _ in
+      guard let sinceMessageId else {
+        return messages
+      }
+      return Array(messages.drop(while: { $0.id != sinceMessageId }))
     }
-    client.messagesInChat = { _ in
-      messageSubject.setFailureType(to: EquatableError.self).eraseToEffect()
+    coreClient.loadMessagesWithIds = { _, ids in
+      messages.filter { ids.contains($0.id) }
     }
-    client.sendChatState = { (_, kind: ChatState.Kind) in
-      participants[jid] = .init(kind: kind, timestamp: .now)
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
-    }
-    client.activeChats = {
-      chats.setFailureType(to: EquatableError.self).eraseToEffect()
-    }
-    client.updateMessage = { _, messageId, body in
-      messageSubject.value[id: messageId]?.body = body
-      return Just(.none).setFailureType(to: EquatableError.self).eraseToEffect()
+    coreClient.updateMessage = { conversation, messageId, text in
+      guard let idx = messages.firstIndex(where: { $0.id == messageId }) else {
+        return
+      }
+      messages[idx].body = text
+      eventsSubject.send(.messagesUpdated(conversation: conversation, messageIds: [messageId]))
     }
 
+    var accountsClient = AccountsClient.noop
+    accountsClient.client = { _ in coreClient }
+
     self.store = Store(
-      initialState: .mock(ConversationState(chatId: chatId), currentUser: .init(jid: jid)),
-      reducer: conversationReducer,
-      environment: ConversationEnvironment(
-        proseClient: client,
-        pasteboard: .live(),
-        mainQueue: .main
-      )
+      initialState: .mock(.init(chatId: .johnDoe)),
+      reducer: ConversationScreenReducer(),
+      prepareDependencies: {
+        $0.accountsClient = accountsClient
+      }
     )
   }
 

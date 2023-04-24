@@ -9,6 +9,8 @@ let package = Package(
   platforms: [.macOS(.v13)],
   products: [
     .library(name: "App", targets: ["App"]),
+    .library(name: "ConversationFeature", targets: ["ConversationFeature"]),
+    .library(name: "Mocks", targets: ["Mocks"]),
     .library(name: "TestHostApp", targets: ["TestHostApp"]),
     // For efficiency, Xcode doesn't build all targets when building for previews. This library does
     // it.
