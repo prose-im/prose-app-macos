@@ -9,8 +9,11 @@ struct Counter: View {
   var count = 0
 
   var body: some View {
-    if count > 0 {
-      Text(count, format: .number)
+    // We're enabling the isEmpty rule due to a bug in Swiftformat where it thinks that we're
+    // accessing the count property of a Collection.
+    // swiftformat:disable isEmpty
+    if self.count > 0 {
+      Text(self.count, format: .number)
         .font(.system(size: 11, weight: .semibold))
         .padding(.vertical, 2)
         .padding(.horizontal, 5)
@@ -19,6 +22,7 @@ struct Counter: View {
           Capsule()
             .fill(.quaternary)
         }
+      // swiftformat:enable isEmpty
     }
   }
 }
