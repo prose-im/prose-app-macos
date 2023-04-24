@@ -22,6 +22,9 @@ final class RosterSelectionTests: XCTestCase {
         .waitForExistence(timeout: 5)
     )
 
+    // Check that the MessageField placeholder is displayed correctly
+    XCTAssertTrue(app.mainContent.staticTexts["Message Oya Karaböcek"].exists)
+
     app.sidebar.cells
       .containing(.staticText, identifier: "Donna Reed").element.tap()
 

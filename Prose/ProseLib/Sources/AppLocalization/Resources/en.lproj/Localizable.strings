@@ -234,7 +234,7 @@
 "content.message_details.actions.remove_contact" = "Remove from contacts";
 "content.message_details.actions.block" = "Block contact";
 
-"content.message_bar.field_placeholder" = "Message %s";
+"content.message_bar.field_placeholder" = "Message %@";
 
 "settings.tabs.general" = "General";
 "settings.tabs.accounts" = "Accounts";

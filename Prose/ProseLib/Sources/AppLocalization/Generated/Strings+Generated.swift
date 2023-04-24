@@ -488,9 +488,14 @@ public enum L10n {
     }
 
     public enum MessageBar {
-      /// Message %s
-      public static func fieldPlaceholder(_ p1: UnsafePointer<CChar>) -> String {
-        L10n.tr("Localizable", "content.message_bar.field_placeholder", p1, fallback: "Message %s")
+      /// Message %@
+      public static func fieldPlaceholder(_ p1: Any) -> String {
+        L10n.tr(
+          "Localizable",
+          "content.message_bar.field_placeholder",
+          String(describing: p1),
+          fallback: "Message %@"
+        )
       }
 
       /// Plural format key: "%#@others@"
