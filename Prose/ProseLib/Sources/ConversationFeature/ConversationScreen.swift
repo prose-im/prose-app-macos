@@ -55,8 +55,13 @@ public struct ConversationScreen: View {
         }
       }
       .toolbar {
-        #warning("FIXME")
-        // Toolbar(store: self.store.scope(state: \.toolbar, action: ConversationScreenReducer.Action.toolbar))
+        Toolbar(
+          store: self.store
+            .scope(state: \.toolbar, action: ConversationScreenReducer.Action.toolbar)
+        )
       }
+      // Hide the navigation title so that our contact's name and availability indicator can act
+      // as the title instead.
+      .navigationTitle("")
   }
 }

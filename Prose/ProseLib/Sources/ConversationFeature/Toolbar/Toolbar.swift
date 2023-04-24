@@ -3,88 +3,64 @@
 // Copyright (c) 2023 Prose Foundation
 //
 
-#warning("FIXME")
+import AppDomain
+import ComposableArchitecture
+import ProseUI
+import SwiftUI
 
-// import ComposableArchitecture
-// import ProseUI
-// import SwiftUI
-//
-// struct Toolbar: ToolbarContent {
-//  @Environment(\.redactionReasons) private var redactionReasons
-//
-//  let store: StoreOf<ToolbarReducer>
-//
-//  var body: some ToolbarContent {
-//    ToolbarItemGroup(placement: .navigation) {
-//      Self.navigationButtons(store: self.store)
-//    }
-//
-//    ToolbarItemGroup {
-//      Self.otherButtons(
-//        store: self.store,
-//        redactionReasons: redactionReasons
-//      )
-//    }
-//  }
-//
-//  @ViewBuilder
-//  static func navigationButtons(store: Store<State, Action>) -> some View {
-//    CommonToolbarNavigation()
-//
-//    IfLetStore(store.scope(state: { $0.userInfos[$0.chatId] })) { store in
-//      ToolbarDivider()
-//
-//      WithViewStore(store) { viewStore in
-//        ToolbarTitle(
-//          name: viewStore.name,
-//          // TODO: Make this dynamic
-//          status: .available
-//        )
-//      }
-//    }
-//  }
-//
-//  @ViewBuilder
-//  static func otherButtons(
-//    store: Store<State, Action>,
-//    redactionReasons: RedactionReasons
-//  ) -> some View {
-//    IfLetStore(store.scope(state: { $0.userInfos[$0.chatId] })) { store in
-//      WithViewStore(store) { viewStore in
-//        ToolbarSecurity(
-//          jid: viewStore.jid,
-//          // TODO: Make this dynamic
-//          isVerified: false
-//        )
-//
-//        ToolbarDivider()
-//      }
-//    }
-//
-//    Self.actionItems(store: store, redactionReasons: redactionReasons)
-//
-//    ToolbarDivider()
-//
-//    CommonToolbarActions()
-//  }
-//
-//  static func actionItems(
-//    store: Store<State, Action>,
-//    redactionReasons: RedactionReasons
-//  ) -> some View {
-//    WithViewStore(store) { viewStore in
-//      Button { viewStore.send(.startVideoCallTapped) } label: {
-//        Label("Video", systemImage: "video")
-//      }
-//      // https://github.com/prose-im/prose-app-macos/issues/48
-//      .disabled(true)
-//
-//      Toggle(isOn: viewStore.binding(\State.$isShowingInfo).animation()) {
-//        Label("Info", systemImage: "info.circle")
-//      }
-//      .disabled(viewStore.childState.user == nil)
-//    }
-//    .unredacted()
-//    .disabled(redactionReasons.contains(.placeholder))
-//  }
-// }
+struct Toolbar: ToolbarContent {
+  struct ViewState: Equatable {
+    var contact: Contact
+    var isShowingInfo: Bool
+  }
+
+  @ObservedObject var viewStore: ViewStore<ViewState, ToolbarReducer.Action>
+
+  init(store: StoreOf<ToolbarReducer>) {
+    self.viewStore = ViewStore(store.scope(state: ViewState.init))
+  }
+
+  var body: some ToolbarContent {
+    ToolbarItemGroup(placement: .navigation) {
+      CommonToolbarNavigation()
+
+      ContentCommonNameStatusComponent(
+        name: self.viewStore.contact.name,
+        status: self.viewStore.contact.availability
+      )
+      .padding(.horizontal, 8)
+    }
+
+    ToolbarItemGroup {
+      ToolbarSecurity(
+        jid: self.viewStore.contact.jid,
+        isVerified: false
+      )
+
+      ToolbarDivider()
+
+      Button { self.viewStore.send(.startVideoCallTapped) } label: {
+        Label("Video", systemImage: "video")
+      }
+      .disabled(true)
+
+      Toggle(isOn: self.viewStore.binding(
+        get: \.isShowingInfo,
+        send: ToolbarReducer.Action.toggleInfoButtonTapped
+      ).animation()) {
+        Label("Info", systemImage: "info.circle")
+      }
+
+      ToolbarDivider()
+
+      CommonToolbarActions()
+    }
+  }
+}
+
+extension Toolbar.ViewState {
+  init(_ state: ToolbarReducer.State) {
+    self.contact = state.contact
+    self.isShowingInfo = state.isShowingInfo
+  }
+}

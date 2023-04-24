@@ -159,7 +159,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
         )
         return .none
 
-      case .toolbar(.binding(\.$isShowingInfo)):
+      case .toolbar(.toggleInfoButtonTapped):
         if state.toolbar.isShowingInfo, state.info == nil {
           state.info = .init()
         }

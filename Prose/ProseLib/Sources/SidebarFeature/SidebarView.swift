@@ -17,8 +17,6 @@ public struct SidebarView: View {
     let route: SidebarReducer.Route.Tag?
   }
 
-  @Environment(\.redactionReasons) private var redactionReasons
-
   private let store: StoreOf<SidebarReducer>
   @ObservedObject private var viewStore: ViewStore<ViewState, SidebarReducer.Action>
 
@@ -126,17 +124,15 @@ public struct SidebarView: View {
   }
 
   private var toolbar: some ToolbarContent {
-    ToolbarItemGroup(placement: ToolbarItemPlacement.primaryAction) {
+    ToolbarItemGroup(placement: .primaryAction) {
       Button {} label: {
         Label(L10n.Sidebar.Toolbar.Actions.StartCall.label, systemImage: "phone.bubble.left")
       }
-      .unredacted()
       .accessibilityHint(L10n.Sidebar.Toolbar.Actions.StartCall.hint)
       Toggle(isOn: .constant(false)) {
         Label(L10n.Sidebar.Toolbar.Actions.WriteMessage.label, systemImage: "square.and.pencil")
       }
       .toggleStyle(.button)
-      .unredacted()
       .accessibilityHint(L10n.Sidebar.Toolbar.Actions.WriteMessage.hint)
     }
   }

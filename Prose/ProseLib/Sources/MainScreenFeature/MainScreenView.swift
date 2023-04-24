@@ -57,7 +57,6 @@ public struct MainScreenView: View {
   }
 }
 
-#warning("Localize me")
 struct OfflineBanner: View {
   var status: ConnectionStatus
 
