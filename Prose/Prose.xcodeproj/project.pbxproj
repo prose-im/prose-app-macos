@@ -10,6 +10,7 @@
 		2C4F3D1927F72FFB004B79F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C4F3D1827F72FFB004B79F3 /* Assets.xcassets */; };
 		2C6EADFD29F71BB5004188DC /* ConversationFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 2C6EADFC29F71BB5004188DC /* ConversationFeature */; };
 		2C6EADFF29F71BB5004188DC /* Mocks in Frameworks */ = {isa = PBXBuildFile; productRef = 2C6EADFE29F71BB5004188DC /* Mocks */; };
+		2C6EAE0129F72091004188DC /* Mocks in Frameworks */ = {isa = PBXBuildFile; productRef = 2C6EAE0029F72091004188DC /* Mocks */; };
 		2CBFFE55287D6DFF00A53992 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CBFFE54287D6DFF00A53992 /* Assets.xcassets */; };
 		2CBFFE58287D6DFF00A53992 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CBFFE57287D6DFF00A53992 /* Preview Assets.xcassets */; };
 		2CBFFE62287D775800A53992 /* TestHostApp in Frameworks */ = {isa = PBXBuildFile; productRef = 2CBFFE61287D775800A53992 /* TestHostApp */; };
@@ -103,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C6EAE0129F72091004188DC /* Mocks in Frameworks */,
 				46D306FA287C24E200CCA25F /* Previews in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -326,6 +328,7 @@
 			name = EditProfileFeaturePreview;
 			packageProductDependencies = (
 				46D306F9287C24E200CCA25F /* Previews */,
+				2C6EAE0029F72091004188DC /* Mocks */,
 			);
 			productName = EditProfileFeaturePreview;
 			productReference = 46D306E8287C249100CCA25F /* EditProfileFeaturePreview.app */;
@@ -935,6 +938,10 @@
 			productName = ConversationFeature;
 		};
 		2C6EADFE29F71BB5004188DC /* Mocks */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Mocks;
+		};
+		2C6EAE0029F72091004188DC /* Mocks */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Mocks;
 		};
