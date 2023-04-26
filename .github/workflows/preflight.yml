@@ -15,6 +15,9 @@ jobs:
     name: Preflight
     runs-on: macos-13
     steps:
+      - name: Select Xcode version
+        run: sudo xcode-select -s '/Applications/Xcode_14.3.app'
+
       - name: Checkout
         uses: actions/checkout@v3
 
