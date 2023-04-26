@@ -405,11 +405,11 @@ public enum L10n {
           "authentication.profile.form.cancel",
           fallback: "Cancel"
         )
-        /// Save & continue
+        /// Start using Prose
         public static let save = L10n.tr(
           "Localizable",
           "authentication.profile.form.save",
-          fallback: "Save & continue"
+          fallback: "Start using Prose"
         )
         public enum FullName {
           /// John Doe
@@ -431,11 +431,11 @@ public enum L10n {
       }
 
       public enum Header {
-        /// Introduce yourself to your team
+        /// Introduce yourself to the team
         public static let subtitle = L10n.tr(
           "Localizable",
           "authentication.profile.header.subtitle",
-          fallback: "Introduce yourself to your team"
+          fallback: "Introduce yourself to the team"
         )
         /// We're thrilled to have you!
         public static let title = L10n.tr(
