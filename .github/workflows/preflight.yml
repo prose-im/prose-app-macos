@@ -13,8 +13,14 @@ on:
 jobs:
   test:
     name: Preflight
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
+      - name: Select Xcode version
+        run: sudo xcode-select -s '/Applications/Xcode_14.3.app'
+
+      - name: Enable Automation mode
+        run: sudo automationmodetool enable-automationmode-without-authentication
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -30,7 +36,7 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -42,7 +48,7 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
 
       - name: Cache BuildTools
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: BuildTools/.build
           key: ${{ runner.os }}-buildtools-${{ hashFiles('BuildTools/Package.resolved') }}

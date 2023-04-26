@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "fee6933f37fde9a5e12a1e4aeaa93fe60116ff2a",
-        "version" : "1.2.2"
+        "revision" : "df9ee6676cd5b3bf5b330ec7568a5644f547201b",
+        "version" : "1.1.3"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "fee7e1a1ac9518cfe3c4673382368641ccbdc62c",
-        "version" : "0.51.7"
+        "revision" : "9a2fb9a9431e0ddea19dd6cb4395615129cf44cb",
+        "version" : "0.49.14"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftGen/SwiftGen",
       "state" : {
-        "revision" : "1cf6d7eebd70c2157f69d5a991bc57c1ef182ed1",
-        "version" : "6.6.2"
+        "revision" : "1db1ca768cdda4a2a1aef785f55167a1812fa9a0",
+        "version" : "6.6.1"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/thii/xcbeautify",
       "state" : {
-        "revision" : "2850da9d0e1fa28cfb17709ec66bc87bb07f83eb",
-        "version" : "0.20.0"
+        "revision" : "a3f5db18e7218a3817031b1b8227b1cb5704cb93",
+        "version" : "0.13.0"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MaxDesiatov/XMLCoder.git",
       "state" : {
-        "revision" : "666227de3b4cf4adcce7c70b8b89f98c7df02754",
-        "version" : "0.16.0"
+        "revision" : "ca932442d7481700f5434a7b138c47dd42d9902b",
+        "version" : "0.14.0"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "f47ba4838c30dbd59998a4e4c87ab620ff959e8a",
-        "version" : "5.0.5"
+        "revision" : "9ff1cc9327586db4e0c8f46f064b6a82ec1566fa",
+        "version" : "4.0.6"
       }
     }
   ],
