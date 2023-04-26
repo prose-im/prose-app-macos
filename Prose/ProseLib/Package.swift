@@ -127,7 +127,7 @@ let package = Package(
       name: "ProseUI",
       dependencies: [
         "Assets",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        "AppDomain",
         .product(name: "SwiftUINavigation", package: "swiftui-navigation"),
       ]
       .appendingDebugDependencies(["PreviewAssets"])
@@ -138,10 +138,7 @@ let package = Package(
 
     .target(
       name: "ProseCoreViews",
-      dependencies: [
-        "AppDomain",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ],
+      dependencies: ["AppDomain"],
       resources: [.process("Resources")]
     ),
     .testTarget(
@@ -166,6 +163,7 @@ let package = Package(
         //         .product(name: "ProseCoreFFI", package: "ProseCoreFFI"),
         .product(name: "ProseCoreFFI", package: "prose-wrapper-swift"),
         .product(name: "BareMinimum", package: "swift-common-utils"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(
@@ -173,7 +171,6 @@ let package = Package(
       dependencies: [
         "AppDomain",
         "Toolbox",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
   ]
@@ -212,7 +209,6 @@ extension PackageDescription.Target {
         "AppLocalization",
         "Assets",
         "ProseUI",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ],
       exclude: exclude
     )
@@ -226,10 +222,7 @@ extension PackageDescription.Target {
   ) -> PackageDescription.Target {
     self.target(
       name: name,
-      dependencies: dependencies + [
-        "AppDomain",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ],
+      dependencies: dependencies + ["AppDomain"],
       exclude: exclude
     )
   }
