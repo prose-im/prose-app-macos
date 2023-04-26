@@ -19,7 +19,7 @@ jobs:
         run: sudo xcode-select -s '/Applications/Xcode_14.3.app'
 
       - name: Enable Automation mode
-        run: automationmodetool enable-automationmode-without-authentication
+        run: sudo automationmodetool enable-automationmode-without-authentication
 
       - name: Checkout
         uses: actions/checkout@v3
