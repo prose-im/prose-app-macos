@@ -76,9 +76,9 @@ public struct SidebarHeaderReducer: ReducerProtocol {
           logger.info("The dropped file wasn't an image.")
           return .none
         }
-        return .task { [currentUser = state.currentUser] in
+        return .task { [accountId = state.selectedAccountId] in
           await .uploadAvatarImageResult(TaskResult {
-            try await self.accounts.client(currentUser).saveAvatar(url)
+            try await self.accounts.client(accountId).saveAvatar(url)
           })
         }
 

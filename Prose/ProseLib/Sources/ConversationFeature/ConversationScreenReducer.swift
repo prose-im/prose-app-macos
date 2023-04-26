@@ -73,24 +73,25 @@ public struct ConversationScreenReducer: ReducerProtocol {
       switch action {
       case .onAppear where !state.isVisible:
         state.isVisible = true
-        let currentUser = state.currentUser
+        let selectedAccountId = state.selectedAccountId
         let chatId = state.childState.chatId
 
         return .merge(
           .task {
             await .messagesResult(TaskResult {
-              let messages = try await self.accounts.client(currentUser)
+              let messages = try await self.accounts.client(selectedAccountId)
                 .loadLatestMessages(chatId, nil, true)
               return IdentifiedArray(uniqueElements: messages)
             })
           }.cancellable(id: EffectToken.loadMessages),
           .task {
             await .composingUsersResult(TaskResult {
-              try await self.accounts.client(currentUser).loadComposingUsersInConversation(chatId)
+              try await self.accounts.client(selectedAccountId)
+                .loadComposingUsersInConversation(chatId)
             })
           }.cancellable(id: EffectToken.loadComposingUsers),
           .run { send in
-            let events = try self.accounts.client(currentUser).events()
+            let events = try self.accounts.client(selectedAccountId).events()
             for try await event in events {
               switch event {
               case let .composingUsersChanged(jid) where jid == chatId:
@@ -163,26 +164,26 @@ public struct ConversationScreenReducer: ReducerProtocol {
         return .none
 
       case .event(.composingUsersChanged):
-        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+        return .task { [accountId = state.selectedAccountId, chatId = state.childState.chatId] in
           await .composingUsersResult(TaskResult {
-            try await self.accounts.client(currentUser).loadComposingUsersInConversation(chatId)
+            try await self.accounts.client(accountId).loadComposingUsersInConversation(chatId)
           })
         }.cancellable(id: EffectToken.loadComposingUsers, cancelInFlight: true)
 
       case .event(.messagesAppended):
         let lastMessageId = state.chat.messages.last?.id
 
-        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+        return .task { [accountId = state.selectedAccountId, chatId = state.childState.chatId] in
           await .latestMessagesResult(TaskResult {
-            try await self.accounts.client(currentUser)
+            try await self.accounts.client(accountId)
               .loadLatestMessages(chatId, lastMessageId, false)
           })
         }
 
       case let .event(.messagesUpdated(_, messageIds)):
-        return .task { [currentUser = state.currentUser, chatId = state.childState.chatId] in
+        return .task { [accountId = state.selectedAccountId, chatId = state.childState.chatId] in
           await .updateMessageResult(TaskResult {
-            try await self.accounts.client(currentUser).loadMessagesWithIds(chatId, messageIds)
+            try await self.accounts.client(accountId).loadMessagesWithIds(chatId, messageIds)
           })
         }
 
@@ -216,8 +217,8 @@ extension ConversationScreenReducer.State {
 
   func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {
     var userInfos = self.selectedAccount.contacts
-    userInfos[self.currentUser] = Contact(
-      jid: self.currentUser,
+    userInfos[self.selectedAccountId] = Contact(
+      jid: self.selectedAccountId,
       name: self.selectedAccount.username,
       avatar: self.selectedAccount.avatar,
       availability: self.selectedAccount.availability,
@@ -225,7 +226,7 @@ extension ConversationScreenReducer.State {
       groups: []
     )
     return ChatSessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       chatId: self.childState.chatId,
       userInfos: userInfos,
       composingUsers: self.childState.composingUsers,

@@ -129,7 +129,7 @@ private extension View {
 
 extension AccountSettingsMenuView.ViewState {
   init(state: AccountSettingsMenuReducer.State) {
-    jid = state.currentUser
+    jid = state.selectedAccountId
     username = state.selectedAccount.username
     availability = state.selectedAccount.availability
     avatar = state.selectedAccount.avatar

@@ -64,7 +64,7 @@ public struct ChatReducer: ReducerProtocol {
       func showReactionPicker(for messageId: MessageId, origin: CGRect) {
         let message = state.messages[id: messageId]
         let selectedReactions = message?.reactions.compactMap { reaction in
-          reaction.from.contains(where: { $0 == state.currentUser }) ? reaction.emoji : nil
+          reaction.from.contains(where: { $0 == state.selectedAccountId }) ? reaction.emoji : nil
         }
         let pickerState = ReactionPickerReducer.State(selected: Set(selectedReactions ?? []))
         state.reactionPicker = MessageReactionPickerState(
@@ -146,8 +146,8 @@ public struct ChatReducer: ReducerProtocol {
 
       case let .messageMenuItemTapped(.remove(messageId)):
         logger.trace("Retracting \(messageId)…")
-        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-          try await self.accounts.client(currentUser).retractMessage(chatId, messageId)
+        return .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
+          try await self.accounts.client(accountId).retractMessage(chatId, messageId)
         }
 
       case let .message(.showMenu(payload)):
@@ -169,7 +169,7 @@ public struct ChatReducer: ReducerProtocol {
         }
         var menu = MessageMenuState(origin: payload.origin.anchor.cgPoint, items: items)
 
-        let loggedInUserJID = state.currentUser
+        let loggedInUserJID = state.selectedAccountId
 
         if let messageId = payload.id,
            let message = state.messages[id: messageId],
@@ -200,8 +200,8 @@ public struct ChatReducer: ReducerProtocol {
       case let .message(.toggleReaction(payload)):
         logger.trace("Toggling reaction \(payload.reaction) on \(String(describing: payload.id))…")
         let messageId = payload.id.expect("Missing message id in payload")
-        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-          try await self.accounts.client(currentUser)
+        return .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
+          try await self.accounts.client(accountId)
             .toggleReactionToMessage(chatId, messageId, payload.reaction)
         }
 
@@ -222,8 +222,8 @@ public struct ChatReducer: ReducerProtocol {
         guard let messageId = state.reactionPicker?.messageId else {
           preconditionFailure("We should have stored the message ID")
         }
-        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-          try await self.accounts.client(currentUser)
+        return .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
+          try await self.accounts.client(accountId)
             .toggleReactionToMessage(chatId, messageId, emoji)
         }
 
@@ -234,8 +234,8 @@ public struct ChatReducer: ReducerProtocol {
       case .messageEditor(.confirmTapped):
         let messageEditor = state.messageEditor.expect("Missing messageEditor state")
         state.messageEditor = nil
-        return .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-          try await self.accounts.client(currentUser).updateMessage(
+        return .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
+          try await self.accounts.client(accountId).updateMessage(
             chatId,
             messageEditor.childState.messageId,
             messageEditor.messageField.message

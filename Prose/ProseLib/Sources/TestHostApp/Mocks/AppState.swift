@@ -13,7 +13,7 @@ extension AppReducer.State {
   static let authenticated: AppReducer.State = {
     var state = AppReducer.State()
     state.initialized = true
-    state.currentUser = .janeDoe
+    state.selectedAccountId = .janeDoe
     state.availableAccounts = [
       .init(
         jid: .janeDoe,

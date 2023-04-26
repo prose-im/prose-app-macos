@@ -9,14 +9,14 @@ import Mocks
 
 public extension ChatSessionState {
   static func mock(
-    currentUser: BareJid = .janeDoe,
+    selectedAccountId: BareJid = .janeDoe,
     chatId: BareJid = .johnDoe,
     userInfos: [BareJid: Contact] = [.johnDoe: .johnDoe],
     composingUsers: [BareJid] = [],
     _ childState: ChildState
   ) -> Self {
     .init(
-      currentUser: currentUser,
+      selectedAccountId: selectedAccountId,
       chatId: chatId,
       userInfos: userInfos,
       composingUsers: composingUsers,

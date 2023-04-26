@@ -52,14 +52,14 @@ public struct MessageBarReducer: ReducerProtocol {
     Scope(state: \.messageField, action: /Action.messageField) {
       MessageFieldReducer()
         .onChange(of: \.isComposing) { isComposing, state, _ in
-          .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
-            try await self.accounts.client(currentUser).setUserIsComposing(chatId, isComposing)
+          .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
+            try await self.accounts.client(accountId).setUserIsComposing(chatId, isComposing)
           }
         }
         .onChange(of: \.message) { message, state, _ in
-          .fireAndForget { [currentUser = state.currentUser, chatId = state.chatId] in
+          .fireAndForget { [accountId = state.selectedAccountId, chatId = state.chatId] in
             try await Task.sleep(for: .saveDraftDelay)
-            try await self.accounts.client(currentUser).saveDraft(chatId, message)
+            try await self.accounts.client(accountId).saveDraft(chatId, message)
           }.cancellable(id: EffectToken.saveDraft, cancelInFlight: true)
         }
     }
@@ -75,9 +75,9 @@ public struct MessageBarReducer: ReducerProtocol {
       switch action {
       case .onAppear:
         return .merge(
-          .task { [currentUser = state.currentUser, chatId = state.chatId] in
+          .task { [accountId = state.selectedAccountId, chatId = state.chatId] in
             await .loadDraftResult(TaskResult {
-              try await self.accounts.client(currentUser).loadDraft(chatId)
+              try await self.accounts.client(accountId).loadDraft(chatId)
             })
           }.cancellable(id: EffectToken.loadDraft),
           MessageFieldReducer().reduce(into: &state.messageField, action: .onAppear)
@@ -106,9 +106,9 @@ public struct MessageBarReducer: ReducerProtocol {
           return .none
         }
 
-        return .task { [currentUser = state.currentUser, to = state.chatId] in
+        return .task { [accountId = state.selectedAccountId, to = state.chatId] in
           await .messageSendResult(TaskResult {
-            try await self.accounts.client(currentUser).sendMessage(to, message)
+            try await self.accounts.client(accountId).sendMessage(to, message)
           })
         }.cancellable(id: EffectToken.sendMessage)
 

@@ -44,12 +44,12 @@ private struct AccountsReducer<
         AccountReducer()
       }
       // Save the selected account when it changes…
-      .onChange(of: \.currentUser) { currentUser, _, _ in
-        guard let currentUser else {
+      .onChange(of: \.selectedAccountId) { selectedAccountId, _, _ in
+        guard let selectedAccountId else {
           return .none
         }
         return .fireAndForget {
-          try await self.accountBookmarks.selectBookmark(currentUser)
+          try await self.accountBookmarks.selectBookmark(selectedAccountId)
         }
       }
 
@@ -111,7 +111,7 @@ private struct AccountsReducer<
         return .none
 
       case let .restoreAccountsResult(.success(accounts)) where !accounts.accounts.isEmpty:
-        state.currentUser = accounts.selectedAccount ?? accounts.accounts[0].jid
+        state.selectedAccountId = accounts.selectedAccount ?? accounts.accounts[0].jid
         state.availableAccounts = accounts.accounts
         state.mainState = .init()
 
@@ -138,13 +138,13 @@ private struct AccountsReducer<
         return self.observeAccounts()
 
       case let .availableAccountsChanged(accounts):
-        // If we haven't set currentUser or it isn't available in accounts anymore, let's select
-        // the first available account.
+        // If we haven't set selectedAccountId or it isn't available in accounts anymore, let's
+        // select the first available account.
         if
-          state.currentUser.map({ jid in accounts.contains(jid) }) != true,
+          state.selectedAccountId.map({ jid in accounts.contains(jid) }) != true,
           let account = accounts.first
         {
-          state.currentUser = account
+          state.selectedAccountId = account
         }
 
         var effects = [EffectTask<Action>]()
@@ -192,7 +192,7 @@ private struct AccountsReducer<
           state.auth = nil
         }
 
-        state.currentUser = account.id
+        state.selectedAccountId = account.id
 
         return effect
 

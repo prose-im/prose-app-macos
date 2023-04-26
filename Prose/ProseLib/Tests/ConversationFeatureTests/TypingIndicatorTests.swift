@@ -197,7 +197,7 @@ private extension TypingIndicatorTests {
 
     return TestStore(
       initialState: .mock(
-        currentUser: .janeDoe,
+        selectedAccountId: .janeDoe,
         chatId: .johnDoe,
         userInfos: [.johnDoe: .johnDoe],
         .init()

@@ -12,11 +12,15 @@ import IdentifiedCollections
 public struct SessionState<ChildState: Equatable>: Equatable {
   public private(set) var accounts: IdentifiedArrayOf<Account>
 
-  public var currentUser: BareJid
+  public var selectedAccountId: BareJid
   public var childState: ChildState
 
-  public init(currentUser: BareJid, accounts: IdentifiedArrayOf<Account>, childState: ChildState) {
-    self.currentUser = currentUser
+  public init(
+    selectedAccountId: BareJid,
+    accounts: IdentifiedArrayOf<Account>,
+    childState: ChildState
+  ) {
+    self.selectedAccountId = selectedAccountId
     self.accounts = accounts
     self.childState = childState
   }
@@ -30,14 +34,14 @@ public struct SessionState<ChildState: Equatable>: Equatable {
 public extension SessionState {
   var selectedAccount: Account {
     get {
-      self.accounts[id: self.currentUser]
+      self.accounts[id: self.selectedAccountId]
         .expect(
-          "Selected account \(self.currentUser.rawValue) could not be found in available accounts"
+          "Selected account \(self.selectedAccountId.rawValue) could not be found in available accounts"
         )
     }
     set {
       // This is the limited set of properties that can be changed by child reducers…
-      self.accounts[id: self.currentUser]?.availability = newValue.availability
+      self.accounts[id: self.selectedAccountId]?.availability = newValue.availability
     }
   }
 }
@@ -45,7 +49,7 @@ public extension SessionState {
 public extension SessionState {
   func get<T>(_ toLocalState: (ChildState) -> T) -> SessionState<T> {
     SessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       accounts: self.accounts,
       childState: toLocalState(self.childState)
     )
@@ -61,7 +65,7 @@ public extension SessionState {
       return nil
     }
     return SessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       accounts: self.accounts,
       childState: localState
     )
@@ -78,7 +82,7 @@ public extension SessionState {
       return nil
     }
     return SessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       accounts: self.accounts,
       childState: localState
     )
@@ -93,7 +97,7 @@ public extension SessionState {
 
 private extension SessionState {
   mutating func merge<T>(newValue: SessionState<T>) {
-    self.currentUser = newValue.currentUser
+    self.selectedAccountId = newValue.selectedAccountId
     self.selectedAccount = newValue.selectedAccount
   }
 }

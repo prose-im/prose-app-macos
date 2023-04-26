@@ -15,7 +15,7 @@ public extension SessionState {
     _ childState: ChildState
   ) -> Self {
     .init(
-      currentUser: account.jid,
+      selectedAccountId: account.jid,
       accounts: [account],
       childState: childState
     )

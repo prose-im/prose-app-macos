@@ -153,7 +153,7 @@ extension FooterView.ViewState {
   init(_ state: FooterReducer.State) {
     self.availability = state.selectedAccount.availability
     self.avatar = state.selectedAccount.avatar
-    self.jid = state.currentUser
+    self.jid = state.selectedAccountId
     self.route = state.route?.tag
     self.statusIcon = state.statusIcon
     self.statusMessage = state.statusMessage

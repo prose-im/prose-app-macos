@@ -8,7 +8,7 @@ import Foundation
 
 @dynamicMemberLookup
 public struct ChatSessionState<ChildState: Equatable>: Equatable {
-  public let currentUser: BareJid
+  public let selectedAccountId: BareJid
   public let chatId: BareJid
   public let userInfos: [BareJid: Contact]
   public let composingUsers: [BareJid]
@@ -16,13 +16,13 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
   public var childState: ChildState
 
   public init(
-    currentUser: BareJid,
+    selectedAccountId: BareJid,
     chatId: BareJid,
     userInfos: [BareJid: Contact],
     composingUsers: [BareJid],
     childState: ChildState
   ) {
-    self.currentUser = currentUser
+    self.selectedAccountId = selectedAccountId
     self.chatId = chatId
     self.userInfos = userInfos
     self.composingUsers = composingUsers
@@ -38,7 +38,7 @@ public struct ChatSessionState<ChildState: Equatable>: Equatable {
 public extension ChatSessionState {
   func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {
     ChatSessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       chatId: self.chatId,
       userInfos: self.userInfos,
       composingUsers: self.composingUsers,
@@ -51,7 +51,7 @@ public extension ChatSessionState {
       return nil
     }
     return ChatSessionState<T>(
-      currentUser: self.currentUser,
+      selectedAccountId: self.selectedAccountId,
       chatId: self.chatId,
       userInfos: self.userInfos,
       composingUsers: self.composingUsers,

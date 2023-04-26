@@ -34,7 +34,7 @@ public struct AccountSettingsMenuReducer: ReducerProtocol {
     Reduce { state, action in
       switch action {
       case .signOutTapped:
-        return .fireAndForget { [jid = state.currentUser] in
+        return .fireAndForget { [jid = state.selectedAccountId] in
           try? await self.accountBookmarks.removeBookmark(jid)
           try? self.credentials.deleteCredentials(jid)
           self.accounts.removeAccount(jid)

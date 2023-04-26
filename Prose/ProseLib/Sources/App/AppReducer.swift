@@ -19,7 +19,7 @@ struct AppReducer: ReducerProtocol {
     var initialized = false
     var connectivity = Connectivity.online
 
-    var currentUser: BareJid?
+    var selectedAccountId: BareJid?
     var availableAccounts = IdentifiedArrayOf<Account>()
 
     var mainState: MainScreenReducer.MainScreenState?
@@ -114,17 +114,17 @@ extension AppReducer.State {
       }
 
       guard
-        let currentUser = self.currentUser,
-        self.availableAccounts[id: currentUser] != nil
+        let selectedAccountId = self.selectedAccountId,
+        self.availableAccounts[id: selectedAccountId] != nil
       else {
         fatalError("""
-          We do have MainState set however there's either no currentUser or a mismatch between
-          currentUser and availableAccounts.
+          We do have MainState set however there's either no selectedAccountId or a mismatch between
+          selectedAccountId and availableAccounts.
         """)
       }
 
       return .init(
-        currentUser: currentUser,
+        selectedAccountId: selectedAccountId,
         accounts: self.availableAccounts,
         childState: mainState
       )
@@ -135,8 +135,8 @@ extension AppReducer.State {
         return
       }
       self.mainState = newValue.childState
-      self.currentUser = newValue.currentUser
-      self.availableAccounts[id: newValue.currentUser] = newValue.selectedAccount
+      self.selectedAccountId = newValue.selectedAccountId
+      self.availableAccounts[id: newValue.selectedAccountId] = newValue.selectedAccount
     }
   }
 }

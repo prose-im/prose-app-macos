@@ -8,7 +8,7 @@ import ProseCore
 
 private extension AppReducer.State {
   var selectedAccount: Account? {
-    self.currentUser.flatMap {
+    self.selectedAccountId.flatMap {
       self.availableAccounts[id: $0]
     }
   }

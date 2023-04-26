@@ -104,7 +104,7 @@ public struct FooterReducer: ReducerProtocol {
 
       case let .accountSwitcherMenu(.accountSelected(jid)):
         state.route = nil
-        state.currentUser = jid
+        state.selectedAccountId = jid
         return .none
 
       case .auth(.delegate(.didLogIn)):
