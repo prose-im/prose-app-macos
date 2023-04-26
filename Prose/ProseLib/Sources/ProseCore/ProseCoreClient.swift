@@ -17,10 +17,17 @@ public struct ProseCoreClient {
 
   public var events: () -> AsyncStream<ClientEvent>
 
-  public var connect: (Credentials, _ retry: Bool) async throws -> Void
+  public var connect: (
+    Credentials,
+    Availability,
+    _ status: String?,
+    _ retry: Bool
+  ) async throws -> Void
   public var disconnect: () async throws -> Void
 
-  public var loadProfile: (BareJid, CachePolicy) async throws -> UserProfile
+  public var loadProfile: (BareJid, CachePolicy) async throws -> UserProfile?
+  public var saveProfile: (UserProfile) async throws -> Void
+  public var deleteProfile: () async throws -> Void
   public var loadContacts: (CachePolicy) async throws -> [Contact]
   public var loadAvatar: (BareJid, CachePolicy) async throws -> URL?
   public var saveAvatar: (URL) async throws -> Void
@@ -69,9 +76,11 @@ public extension ProseCoreClient {
   static let noop = ProseCoreClient(
     connectionStatus: { AsyncStream.empty() },
     events: { AsyncStream.empty() },
-    connect: { _, _ in try await Task.never() },
+    connect: { _, _, _, _ in try await Task.never() },
     disconnect: { try await Task.never() },
     loadProfile: { _, _ in try await Task.never() },
+    saveProfile: { _ in try await Task.never() },
+    deleteProfile: { try await Task.never() },
     loadContacts: { _ in try await Task.never() },
     loadAvatar: { _, _ in try await Task.never() },
     saveAvatar: { _ in try await Task.never() },

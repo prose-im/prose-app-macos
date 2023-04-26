@@ -120,10 +120,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
 
       case let .messagesResult(.success(messages)):
         state.chat.messages = messages
-        #warning("FIXME")
         return .none
-//        return environment.proseClient.markMessagesReadInChat(state.childState.chatId)
-//          .fireAndForget()
 
       case let .messagesResult(.failure(error)):
         logger.error(

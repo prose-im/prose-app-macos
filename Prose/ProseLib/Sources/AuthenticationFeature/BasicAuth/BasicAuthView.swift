@@ -12,111 +12,70 @@ import SwiftUINavigation
 private let l10n = L10n.Authentication.BasicAuth.self
 
 struct BasicAuthView: View {
-  typealias State = BasicAuthReducer.State
-  typealias Action = BasicAuthReducer.Action
+  let store: StoreOf<BasicAuthReducer>
 
-  @Environment(\.redactionReasons) private var redactionReasons
+  @ObservedObject var viewStore: ViewStoreOf<BasicAuthReducer>
+  @FocusState private var focusedField: BasicAuthReducer.State.Field?
 
-  let store: Store<State, Action>
-  private var actions: ViewStore<Void, Action> { ViewStore(self.store.stateless) }
-
-  @FocusState private var focusedField: State.Field?
+  init(store: StoreOf<BasicAuthReducer>) {
+    self.store = store
+    self.viewStore = ViewStore(store)
+  }
 
   var body: some View {
-    WithViewStore(self.store) { viewStore in
-      VStack(spacing: 32) {
-        Self.header()
-        self.fields(viewStore: viewStore)
-        self.logInButton(viewStore: viewStore)
-        self.footer(viewStore: viewStore)
+    VStack(spacing: 32) {
+      VStack {
+        TextField(l10n.Form.ChatAddress.placeholder, text: self.viewStore.binding(\.$jid))
+          .onSubmit { self.viewStore.send(.fieldSubmitted(.address)) }
+          .textContentType(.username)
+          .disableAutocorrection(true)
+          .focused(self.$focusedField, equals: .address)
+          .overlay(alignment: .trailing) {
+            HelpButton(content: Self.chatAddressPopover)
+              .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
+          }
+        SecureField(l10n.Form.Password.placeholder, text: self.viewStore.binding(\.$password))
+          .onSubmit { self.viewStore.send(.fieldSubmitted(.password)) }
+          .textContentType(.password)
+          .disableAutocorrection(true)
+          .focused(self.$focusedField, equals: .password)
       }
-      .multilineTextAlignment(.center)
-      .controlSize(.large)
-      .textFieldStyle(.roundedBorder)
-      .buttonBorderShape(.roundedRectangle)
-      .padding(.horizontal, 48)
-      .padding(.vertical, 24)
-      .synchronize(viewStore.binding(\.$focusedField), self.$focusedField)
-      .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
-    }
-  }
+      .disabled(self.viewStore.isLoading)
 
-  static func header() -> some View {
-    VStack(spacing: 4) {
-      Text("👋")
-        .font(.system(size: 64))
-        .padding(.bottom, 20)
-      Text(l10n.Header.title)
-        .font(.system(size: 24, weight: .bold))
-      Text(l10n.Header.subtitle)
-        .foregroundColor(.secondary)
-        .font(.system(size: 16))
-    }
-    .unredacted()
-    .accessibilityElement()
-    .accessibilityLabel(l10n.Header.subtitle)
-  }
-
-  func fields(viewStore: ViewStore<State, Action>) -> some View {
-    VStack {
-      TextField(l10n.Form.ChatAddress.placeholder, text: viewStore.binding(\.$jid))
-        .onSubmit { self.actions.send(.submitTapped(.address)) }
-        .textContentType(.username)
-        .disableAutocorrection(true)
-        .focused(self.$focusedField, equals: .address)
-        .overlay(alignment: .trailing) {
-          HelpButton(content: Self.chatAddressPopover)
-            .alignmentGuide(.trailing) { d in d[.trailing] - 24 }
+      Button(action: { self.viewStore.send(.submitButtonTapped) }) {
+        Text(self.viewStore.isLoading ? l10n.Cancel.Action.title : l10n.LogIn.Action.title)
+          .frame(minWidth: 196)
+      }
+      .overlay(alignment: .leading) {
+        if self.viewStore.isLoading {
+          ProgressView()
+            .scaleEffect(0.5, anchor: .center)
         }
-      SecureField(l10n.Form.Password.placeholder, text: viewStore.binding(\.$password))
-        .onSubmit { self.actions.send(.submitTapped(.password)) }
-        .textContentType(.password)
-        .disableAutocorrection(true)
-        .focused(self.$focusedField, equals: .password)
-    }
-    .disabled(viewStore.isLoading || self.redactionReasons.contains(.placeholder))
-    .unredacted()
-  }
-
-  func logInButton(viewStore: ViewStore<State, Action>) -> some View {
-    Button {
-      self.actions.send(viewStore.isLoading ? .cancelLogInTapped : .loginButtonTapped)
-    } label: {
-      Text(viewStore.isLoading ? l10n.Cancel.Action.title : l10n.LogIn.Action.title)
-        .frame(minWidth: 196)
-    }
-    .overlay(alignment: .leading) {
-      if viewStore.isLoading {
-        ProgressView()
-          .scaleEffect(0.5, anchor: .center)
       }
-    }
-    .disabled(!viewStore.isActionButtonEnabled || self.redactionReasons.contains(.placeholder))
-    .unredacted()
-  }
 
-  func footer(viewStore: ViewStore<State, Action>) -> some View {
-    HStack(spacing: 16) {
-      Button(l10n.PasswordLost.Action.title) {
-        self.actions.send(.showPopoverTapped(.passwordLost))
-      }
-      .popover(
-        unwrapping: viewStore.binding(\.$popover),
-        case: CasePath(State.Popover.passwordLost),
-        content: { _ in Self.passwordLostPopover() }
-      )
-      Divider().frame(height: 18)
-      Button(l10n.NoAccount.Action.title) { self.actions.send(.showPopoverTapped(.noAccount)) }
+      HStack(spacing: 16) {
+        Button(l10n.PasswordLost.Action.title) {
+          self.viewStore.send(.showPopoverTapped(.passwordLost))
+        }
         .popover(
-          unwrapping: viewStore.binding(\.$popover),
-          case: CasePath(State.Popover.noAccount),
+          unwrapping: self.viewStore.binding(\.$popover),
+          case: /BasicAuthReducer.State.Popover.passwordLost,
+          content: { _ in Self.passwordLostPopover() }
+        )
+        Divider().frame(height: 18)
+        Button(l10n.NoAccount.Action.title) { self.viewStore.send(.showPopoverTapped(.noAccount))
+        }
+        .popover(
+          unwrapping: self.viewStore.binding(\.$popover),
+          case: /BasicAuthReducer.State.Popover.noAccount,
           content: { _ in Self.noAccountPopover() }
         )
+      }
+      .buttonStyle(.link)
+      .foregroundColor(.accentColor)
     }
-    .buttonStyle(.link)
-    .foregroundColor(.accentColor)
-    .unredacted()
-    .disabled(self.redactionReasons.contains(.placeholder))
+    .synchronize(self.viewStore.binding(\.$focusedField), self.$focusedField)
+    .alert(self.store.scope(state: \.alert), dismiss: .alertDismissed)
   }
 
   static func chatAddressPopover() -> some View {
@@ -124,7 +83,6 @@ struct BasicAuthView: View {
       Text(l10n.ChatAddress.Popover.content.asMarkdown)
     }
     .groupBoxStyle(PopoverGroupBoxStyle())
-    .unredacted()
   }
 
   static func passwordLostPopover() -> some View {
@@ -132,7 +90,6 @@ struct BasicAuthView: View {
       Text(l10n.PasswordLost.Popover.content.asMarkdown)
     }
     .groupBoxStyle(PopoverGroupBoxStyle())
-    .unredacted()
   }
 
   static func noAccountPopover() -> some View {
@@ -140,7 +97,6 @@ struct BasicAuthView: View {
       Text(l10n.NoAccount.Popover.content.asMarkdown)
     }
     .groupBoxStyle(PopoverGroupBoxStyle())
-    .unredacted()
   }
 }
 
@@ -157,35 +113,3 @@ struct PopoverGroupBoxStyle: GroupBoxStyle {
     .padding(16)
   }
 }
-
-// #if DEBUG
-//  struct BasicAuthView_Previews: PreviewProvider {
-//    private struct Preview: View {
-//      let state: BasicAuthView.State
-//
-//      var body: some View {
-//        BasicAuthView(store: Store(
-//          initialState: state,
-//          reducer: basicAuthReducer,
-//          environment: AuthenticationEnvironment(
-//            proseClient: .noop,
-//            credentials: .live(service: "org.prose.app.preview.\(Self.self)"),
-//            mainQueue: .main
-//          )
-//        ))
-//        .previewLayout(.sizeThatFits)
-//      }
-//    }
-//
-//    static var previews: some View {
-//      Preview(state: .init())
-//      Preview(state: .init(jid: "remi@prose.org", password: "password"))
-//      Preview(state: .init(jid: "remi@prose.org", password: "password"))
-//        .preferredColorScheme(.dark)
-//        .previewDisplayName("Dark mode")
-//      Preview(state: .init())
-//        .redacted(reason: .placeholder)
-//        .previewDisplayName("Placeholder")
-//    }
-//  }
-// #endif

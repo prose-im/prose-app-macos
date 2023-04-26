@@ -12,8 +12,6 @@ import Foundation
 import ProseCore
 import Toolbox
 
-private let l10n = L10n.Authentication.BasicAuth.self
-
 struct InvalidJIDError: Error {}
 
 public struct BasicAuthReducer: ReducerProtocol {
@@ -26,57 +24,43 @@ public struct BasicAuthReducer: ReducerProtocol {
       case chatAddress, noAccount, passwordLost
     }
 
-    @BindingState var jid: String
-    @BindingState var password: String
+    @BindingState var jid = ""
+    @BindingState var password = ""
     @BindingState var focusedField: Field?
     @BindingState var popover: Popover?
 
-    var isLoading: Bool
+    var isLoading = false
     var alert: AlertState<Action>?
 
-    var isFormValid: Bool { self.isAddressValid && self.isPasswordValid }
-    var isAddressValid: Bool { !self.jid.isEmpty }
-    var isPasswordValid: Bool { !self.password.isEmpty }
-    var isLogInButtonEnabled: Bool { self.isFormValid }
-    /// The action button is shown either when the form is valid or when the login request is in
-    /// flight
-    /// (for cancellation).
-    var isActionButtonEnabled: Bool { self.isLogInButtonEnabled || self.isLoading }
-
-    public init(
-      jid: String = "",
-      password: String = "",
-      focusedField: Field? = nil,
-      popover: Popover? = nil,
-      isLoading: Bool = false,
-      alert: AlertState<Action>? = nil
-    ) {
-      self.jid = jid
-      self.password = password
-      self.focusedField = focusedField
-      self.popover = popover
-      self.isLoading = isLoading
-      self.alert = alert
+    var isFormValid: Bool {
+      !self.jid.isEmpty && !self.password.isEmpty
     }
+
+    var isSubmitButtonEnabled: Bool {
+      self.isLoading || self.isFormValid
+    }
+
+    public init() {}
   }
 
   public enum Action: Equatable, BindableAction {
+    case submitButtonTapped
     case alertDismissed
-    case loginButtonTapped, showPopoverTapped(State.Popover)
-    case submitTapped(State.Field), cancelLogInTapped
-    case loginResult(TaskResult<BareJid>)
+    case showPopoverTapped(State.Popover)
+    case fieldSubmitted(State.Field)
+    case loginResult(TaskResult<UserData>)
     case binding(BindingAction<State>)
   }
 
-  @Dependency(\.accountBookmarksClient) var accountBookmarks
-  @Dependency(\.credentialsClient) var credentials
+  private enum EffectToken: Hashable, CaseIterable {
+    case login
+  }
+
   @Dependency(\.accountsClient) var accounts
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
     Reduce<State, Action> { state, action in
-      struct CancelId: Hashable {}
-
       func performLogin() -> EffectTask<Action> {
         guard state.isFormValid else {
           return .none
@@ -86,42 +70,63 @@ public struct BasicAuthReducer: ReducerProtocol {
         state.isLoading = true
 
         return .task { [jidString = state.jid, password = state.password] in
-          await .loginResult(TaskResult {
-            guard let jid = BareJid(rawValue: jidString) else {
-              throw InvalidJIDError()
-            }
+          await withTaskCancellation(id: EffectToken.login) {
+            await .loginResult(
+              TaskResult {
+                guard let jid = BareJid(rawValue: jidString) else {
+                  throw InvalidJIDError()
+                }
 
-            let credentials = Credentials(jid: jid, password: password)
+                do {
+                  let credentials = Credentials(jid: jid, password: password)
 
-            try await self.accounts.tryConnectAccount(credentials)
-            try? await self.accountBookmarks.addBookmark(jid)
-            try? self.credentials.save(credentials)
+                  try self.accounts.addEphemeralAccount(jid)
+                  let client = try self.accounts.ephemeralClient(jid)
 
-            return jid
-          })
-        }
+                  try await client.connect(credentials, .available, nil, false)
+                  let profile = try await client.loadProfile(jid, .reloadIgnoringCacheData)
+                  let avatar = try await client.loadAvatar(jid, .reloadIgnoringCacheData)
+
+                  if Task.isCancelled {
+                    throw CancellationError()
+                  }
+
+                  return UserData(
+                    credentials: credentials,
+                    avatar: avatar,
+                    profile: profile
+                  )
+                } catch {
+                  self.accounts.removeEphemeralAccount(jid)
+                  throw error
+                }
+              }
+            )
+          }
+        }.cancellable(id: EffectToken.login)
       }
 
       switch action {
       case .alertDismissed:
         state.alert = nil
 
-      case .loginButtonTapped:
-        return performLogin()
+      case .submitButtonTapped:
+        if state.isLoading {
+          state.isLoading = false
+          return EffectTask.cancel(id: EffectToken.login)
+        } else {
+          return performLogin()
+        }
 
       case let .showPopoverTapped(popover):
         state.focusedField = nil
         state.popover = popover
 
-      case .submitTapped(.address):
+      case .fieldSubmitted(.address):
         state.focusedField = .password
 
-      case .submitTapped(.password):
+      case .fieldSubmitted(.password):
         return performLogin()
-
-      case .cancelLogInTapped:
-        state.isLoading = false
-        return EffectTask.cancel(id: CancelId())
 
       case .loginResult(.success):
         state.isLoading = false
@@ -139,7 +144,7 @@ public struct BasicAuthReducer: ReducerProtocol {
         state.isLoading = false
 
         state.alert = .init(
-          title: TextState(l10n.Error.title),
+          title: TextState(L10n.Authentication.BasicAuth.Error.title),
           message: TextState(errorMessage)
         )
         return .none

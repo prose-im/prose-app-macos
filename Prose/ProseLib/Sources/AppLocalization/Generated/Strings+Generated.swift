@@ -387,6 +387,64 @@ public enum L10n {
         )
       }
     }
+
+    public enum Profile {
+      public enum Error {
+        /// Something went wrong
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.profile.error.title",
+          fallback: "Something went wrong"
+        )
+      }
+
+      public enum Form {
+        /// Cancel
+        public static let cancel = L10n.tr(
+          "Localizable",
+          "authentication.profile.form.cancel",
+          fallback: "Cancel"
+        )
+        /// Save & continue
+        public static let save = L10n.tr(
+          "Localizable",
+          "authentication.profile.form.save",
+          fallback: "Save & continue"
+        )
+        public enum FullName {
+          /// John Doe
+          public static let placeholder = L10n.tr(
+            "Localizable",
+            "authentication.profile.form.full_name.placeholder",
+            fallback: "John Doe"
+          )
+        }
+
+        public enum Title {
+          /// Engineering Manager
+          public static let placeholder = L10n.tr(
+            "Localizable",
+            "authentication.profile.form.title.placeholder",
+            fallback: "Engineering Manager"
+          )
+        }
+      }
+
+      public enum Header {
+        /// Introduce yourself to your team
+        public static let subtitle = L10n.tr(
+          "Localizable",
+          "authentication.profile.header.subtitle",
+          fallback: "Introduce yourself to your team"
+        )
+        /// We're thrilled to have you!
+        public static let title = L10n.tr(
+          "Localizable",
+          "authentication.profile.header.title",
+          fallback: "We're thrilled to have you!"
+        )
+      }
+    }
   }
 
   public enum Availability {

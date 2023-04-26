@@ -9,69 +9,79 @@ import Combine
 import ComposableArchitecture
 import Foundation
 
-struct NoSuchAccountError: Error {}
+enum AccountError: Error {
+  case unknownAccount
+  case alreadyLoggedIn
+}
 
 extension AccountsClient {
-  static func live(clientProvider: @escaping () -> ProseCoreClient = ProseCoreClient.live) -> Self {
+  static func live(
+    clientProvider: @escaping (BareJid) -> ProseCoreClient = ProseCoreClient.live
+  ) -> Self {
     let accounts = CurrentValueSubject<[BareJid: ProseCoreClient], Never>([:])
+    var ephemeralAccounts = [BareJid: ProseCoreClient]()
     let lock = UnfairLock()
 
-    func storeClient(client: ProseCoreClient, jid: BareJid) {
-      lock.synchronized {
-        accounts.value[jid] = client
-      }
-    }
-
     return .init(
-      availableAccounts: {
+      accounts: {
         AsyncStream(accounts.map { Set($0.keys) }.removeDuplicates().values)
       },
-      tryConnectAccount: { credentials in
-        if accounts.value[credentials.jid] != nil {
-          return
-        }
-        let client = clientProvider()
-        try await client.connect(credentials, false)
+      addAccount: { jid in
         lock.synchronized {
-          accounts.value[credentials.jid] = client
-        }
-      },
-      connectAccounts: { credentials in
-        let clients = Dictionary(
-          zip(credentials, credentials.map { _ in clientProvider() }),
-          uniquingKeysWith: { _, last in last }
-        )
-        lock.synchronized {
-          accounts.value.merge(
-            clients.map { ($0.key.jid, $0.value) },
-            uniquingKeysWith: { _, new in new }
-          )
-        }
-        for (credential, client) in clients {
-          Task {
-            try await client.connect(credential, true)
+          guard accounts.value[jid] == nil else {
+            return
           }
+          accounts.value[jid] = clientProvider(jid)
         }
       },
-      reconnectAccount: { credentials, retryAutomatically in
-        guard let client = lock.synchronized(body: { accounts.value[credentials.jid] }) else {
-          return
-        }
-        Task {
-          try await client.connect(credentials, retryAutomatically)
-        }
-      },
-      disconnectAccount: { jid in
+      removeAccount: { jid in
         guard let client = lock.synchronized(body: { accounts.value.removeValue(forKey: jid) })
-        else {
-          return
+        else { return }
+        Task {
+          try await client.disconnect()
         }
-        try await client.disconnect()
       },
       client: { jid in
         try lock.synchronized {
           guard let client = accounts.value[jid] else {
-            throw NoSuchAccountError()
+            throw AccountError.unknownAccount
+          }
+          return client
+        }
+      },
+      addEphemeralAccount: { jid in
+        try lock.synchronized {
+          guard accounts.value[jid] == nil else {
+            throw AccountError.alreadyLoggedIn
+          }
+          guard ephemeralAccounts[jid] == nil else {
+            return
+          }
+          ephemeralAccounts[jid] = clientProvider(jid)
+        }
+      },
+      removeEphemeralAccount: { jid in
+        guard let client = lock.synchronized(body: { ephemeralAccounts.removeValue(forKey: jid) })
+        else { return }
+        Task {
+          try await client.disconnect()
+        }
+      },
+      promoteEphemeralAccount: { jid in
+        try lock.synchronized {
+          guard let client = ephemeralAccounts.removeValue(forKey: jid) else {
+            return
+          }
+          guard accounts.value[jid] == nil else {
+            throw AccountError.alreadyLoggedIn
+          }
+          accounts.value[jid] = client
+        }
+      },
+      ephemeralClient: { jid in
+        try lock.synchronized {
+          guard let client = ephemeralAccounts[jid] else {
+            throw AccountError.unknownAccount
           }
           return client
         }

@@ -75,9 +75,10 @@ struct AccountReducer: ReducerProtocol {
         // changes to online. If the account's status is .disconnected our user has the chance to
         // click the "Reconnect" button in the offline banner.
         if status.isError, !state.status.isError {
-          return .fireAndForget { [jid = state.jid] in
+          return .fireAndForget { [jid = state.jid, settings = state.settings] in
             if let credentials = try self.credentials.loadCredentials(jid) {
-              self.accounts.reconnectAccount(credentials, true)
+              try await self.accounts.client(jid)
+                .connect(credentials, settings.availability, nil, true)
             }
           }
         }
@@ -154,7 +155,9 @@ struct AccountReducer: ReducerProtocol {
         return .none
 
       case let .contactsResponse(.failure(error)):
-        logger.error("Failed to load roster: \(error.localizedDescription)")
+        if !(error is CancellationError) {
+          logger.error("Failed to load roster: \(error.localizedDescription)")
+        }
         return .none
 
       case let .avatarResponse(.failure(error)):

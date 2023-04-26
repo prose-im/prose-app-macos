@@ -35,13 +35,14 @@ struct AppReducer: ReducerProtocol {
     case availableAccountsChanged(Set<BareJid>)
     case accountAdded(TaskResult<Account>)
     case connectivityChanged(Connectivity)
+    case restoreAccountsResult(TaskResult<RestoredAccounts>)
 
     case auth(AuthenticationReducer.Action)
     case main(MainScreenReducer.Action)
     case account(BareJid, AccountReducer.Action)
   }
 
-  private enum EffectToken: Hashable, CaseIterable {
+  enum EffectToken: Hashable, CaseIterable {
     case observeAvailableAccounts
     case observeConnectivity
   }
@@ -70,44 +71,16 @@ struct AppReducer: ReducerProtocol {
       case .onAppear where !state.initialized:
         state.initialized = true
 
-        var effects: [EffectTask<Action>] = [
+        return .merge(
           .fireAndForget {
             self.notifications.promptForPushNotifications()
           },
           .run { send in
-            for try await accounts in self.accounts.availableAccounts() {
-              await send(.availableAccountsChanged(accounts))
-            }
-          }.cancellable(id: EffectToken.observeAvailableAccounts),
-          .run { send in
             for try await connectivity in self.connectivityClient.connectivity() {
               await send(.connectivityChanged(connectivity))
             }
-          }.cancellable(id: EffectToken.observeConnectivity),
-        ]
-
-        do {
-          let bookmarks = try self.accountBookmarks.loadBookmarks()
-          let credentials = try bookmarks.lazy.map(\.jid)
-            .compactMap(self.credentials.loadCredentials)
-
-          state.currentUser = bookmarks.first(where: \.isSelected)?.jid
-
-          if credentials.isEmpty {
-            state.auth = .init()
-          } else {
-            effects.append(
-              .fireAndForget {
-                self.accounts.connectAccounts(credentials)
-              }
-            )
-          }
-        } catch {
-          logger.error("Error when loading credentials: \(error.localizedDescription)")
-          state.auth = .init()
-        }
-
-        return .merge(effects)
+          }.cancellable(id: EffectToken.observeConnectivity)
+        )
 
       case let .connectivityChanged(connectivity):
         state.connectivity = connectivity
@@ -121,12 +94,12 @@ struct AppReducer: ReducerProtocol {
         state.auth = nil
         return .none
 
-      case let .auth(.didLogIn(jid)):
+      case .auth(.delegate(.didLogIn)):
         state.auth = nil
-        state.currentUser = jid
         return .none
 
-      case .onAppear, .auth, .main, .availableAccountsChanged, .account, .accountAdded:
+      case .onAppear, .auth, .main, .availableAccountsChanged, .account, .accountAdded,
+           .restoreAccountsResult:
         return .none
       }
     }

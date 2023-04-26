@@ -69,15 +69,3 @@ struct UnreadSection: View {
     .disabled(self.redactionReasons.contains(.placeholder))
   }
 }
-
-#warning("FIXME")
-// private extension ChatID {
-//  var icon: Icon {
-//    switch self {
-//    case .person:
-//      return Icon.directMessage
-//    case .group:
-//      return Icon.group
-//    }
-//  }
-// }

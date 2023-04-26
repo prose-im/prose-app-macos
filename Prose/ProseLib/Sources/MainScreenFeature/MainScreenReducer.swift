@@ -100,7 +100,8 @@ public struct MainScreenReducer: ReducerProtocol {
       case .reconnectButtonTapped:
         return .fireAndForget { [account = state.selectedAccount] in
           if let credentials = try self.credentials.loadCredentials(account.jid) {
-            self.accounts.reconnectAccount(credentials, false)
+            try await self.accounts.client(credentials.jid)
+              .connect(credentials, account.settings.availability, nil, false)
           }
         }
 

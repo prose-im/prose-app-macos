@@ -49,6 +49,14 @@
 "authentication.basic_auth.password_lost.popover.content" = "Please open this link to our website\nto [recover your password](https://prose.org).";
 "authentication.basic_auth.password_lost.popover.title" = "Lost your password?";
 
+"authentication.profile.header.title" = "We're thrilled to have you!";
+"authentication.profile.header.subtitle" = "Introduce yourself to the team";
+"authentication.profile.form.full_name.placeholder" = "John Doe";
+"authentication.profile.form.title.placeholder" = "Engineering Manager";
+"authentication.profile.form.save" = "Start using Prose";
+"authentication.profile.form.cancel" = "Cancel";
+"authentication.profile.error.title" = "Something went wrong";
+
 "authentication.mfa.confirm_button.title" = "Confirm login code";
 "authentication.mfa.header.title" = "One more step…";
 "authentication.mfa.header.subtitle" = "Enter your 6-digit access code";

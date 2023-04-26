@@ -16,6 +16,11 @@ extension ReducerProtocol<AppReducer.State, AppReducer.Action> {
   }
 }
 
+struct RestoredAccounts: Equatable {
+  var accounts: IdentifiedArrayOf<Account>
+  var selectedAccount: BareJid?
+}
+
 private struct AccountsReducer<
   Base: ReducerProtocol<AppReducer.State, AppReducer.Action>
 >: ReducerProtocol {
@@ -26,6 +31,14 @@ private struct AccountsReducer<
   @Dependency(\.credentialsClient) var credentials
 
   public var body: some ReducerProtocol<AppReducer.State, AppReducer.Action> {
+    // We're getting in here before AppReducer sets `initialized`…
+    Reduce { state, action in
+      if action == .onAppear, !state.initialized {
+        return self.restoreAccounts()
+      }
+      return .none
+    }
+
     self.base
       .forEach(\.availableAccounts, action: /Action.account) {
         AccountReducer()
@@ -43,10 +56,87 @@ private struct AccountsReducer<
     self.core
   }
 
+  private func restoreAccounts() -> EffectTask<Action> {
+    .task {
+      await .restoreAccountsResult(
+        TaskResult {
+          // Load account bookmarks
+          let bookmarks = try self.accountBookmarks.loadBookmarks()
+          var accounts = IdentifiedArrayOf<Account>()
+          var selectedAccount: BareJid?
+
+          for bookmark in bookmarks {
+            guard let credentials = try self.credentials.loadCredentials(bookmark.jid) else {
+              logger.warning(
+                "Could not find credentials for bookmark with jid \(bookmark.jid.rawValue)"
+              )
+              continue
+            }
+
+            self.accounts.addAccount(bookmark.jid)
+
+            let client = try self.accounts.client(bookmark.jid)
+            let settings = try await client.loadAccountSettings()
+
+            accounts.append(Account(jid: bookmark.jid, status: .connecting, settings: settings))
+            if bookmark.isSelected {
+              selectedAccount = bookmark.jid
+            }
+
+            Task {
+              try await self.accounts.client(credentials.jid)
+                .connect(credentials, settings.availability, nil, true)
+            }
+          }
+
+          return RestoredAccounts(accounts: accounts, selectedAccount: selectedAccount)
+        }
+      )
+    }
+  }
+
+  private func observeAccounts() -> EffectTask<Action> {
+    .run { send in
+      for try await accounts in self.accounts.accounts() {
+        await send(.availableAccountsChanged(accounts))
+      }
+    }.cancellable(id: AppReducer.EffectToken.observeAvailableAccounts)
+  }
+
   @ReducerBuilder<State, Action>
   private var core: some ReducerProtocol<State, Action> {
     Reduce { state, action in
       switch action {
+      case .onAppear:
+        return .none
+
+      case let .restoreAccountsResult(.success(accounts)) where !accounts.accounts.isEmpty:
+        state.currentUser = accounts.selectedAccount ?? accounts.accounts[0].jid
+        state.availableAccounts = accounts.accounts
+        state.mainState = .init()
+
+        var effects = [EffectTask<Action>]()
+
+        for id in state.availableAccounts.ids {
+          effects.append(
+            AccountReducer().reduce(
+              into: &state.availableAccounts[id: id]!,
+              action: .onAccountAdded
+            ).map { Action.account(id, $0) }
+          )
+        }
+        effects.append(self.observeAccounts())
+        return .merge(effects)
+
+      case .restoreAccountsResult(.success):
+        state.auth = .init()
+        return self.observeAccounts()
+
+      case let .restoreAccountsResult(.failure(error)):
+        logger.error("Failed to restore accounts. \(error.localizedDescription)")
+        state.auth = .init()
+        return self.observeAccounts()
+
       case let .availableAccountsChanged(accounts):
         // If we haven't set currentUser or it isn't available in accounts anymore, let's select
         // the first available account.
@@ -97,10 +187,12 @@ private struct AccountsReducer<
           .map { Action.account(account.id, $0) }
         state.availableAccounts[id: account.id] = account
 
-        if state.mainState == nil, state.currentUser == account.id {
+        if state.mainState == nil {
           state.mainState = .init()
           state.auth = nil
         }
+
+        state.currentUser = account.id
 
         return effect
 
@@ -114,7 +206,8 @@ private struct AccountsReducer<
             guard let credentials = try self.credentials.loadCredentials(account.jid) else {
               continue
             }
-            self.accounts.reconnectAccount(credentials, true)
+            try await self.accounts.client(credentials.jid)
+              .connect(credentials, account.settings.availability, nil, true)
           }
         }
 

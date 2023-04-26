@@ -8,24 +8,37 @@ import Combine
 import ComposableArchitecture
 
 public struct AccountsClient {
-  public var availableAccounts: () -> AsyncStream<Set<BareJid>>
+  /// Returns all added accounts
+  public var accounts: () -> AsyncStream<Set<BareJid>>
 
-  /// Tries to connect to an account and adds it to `availableAccounts` if the connection
-  /// was successful.
-  public var tryConnectAccount: (Credentials) async throws -> Void
-
-  /// Tries to connect to all accounts identified by each credential and adds them to
-  /// `availableAccounts` regardless of the connection status.
-  public var connectAccounts: ([Credentials]) -> Void
-
-  /// Tries to reconnect an account with the given credentials. If the account wasn't connected
-  /// before this method does nothing.
-  public var reconnectAccount: (Credentials, _ retryAutomatically: Bool) -> Void
+  /// Instantiates a `ProseCoreClient` for each JID and adds the JIDs to `availableAccounts`.
+  public var addAccount: (BareJid) -> Void
 
   /// Disconnects the account with the given JID and removes it from `availableAccounts`.
-  public var disconnectAccount: (BareJid) async throws -> Void
+  public var removeAccount: (BareJid) -> Void
 
+  /// Returns a `ProseCoreClient` for the given JID or throws if the JID wasn't added
+  /// using `addAccount`.
   public var client: (BareJid) throws -> ProseCoreClient
+
+  /// Adds an ephemeral account for which a `ProseCoreClient` can be requested via
+  /// `ephemeralClient`. Ephemeral accounts are not included in `accounts` unless promoted
+  /// via `promoteEphemeralAccount`. Throws if a non-ephemeral account was added already.
+  ///
+  /// Ephemeral accounts are used for verifying and modifying an account before it can be displayed
+  /// and used as a regular account in the app.
+  public var addEphemeralAccount: (BareJid) throws -> Void
+
+  /// Disconnects and removes the ephemeral account with the given JID. Does nothing if no
+  /// ephemeral with the JID was added.
+  public var removeEphemeralAccount: (BareJid) -> Void
+
+  /// Promotes an ephemeral account to `accounts`.
+  public var promoteEphemeralAccount: (BareJid) throws -> Void
+
+  /// Returns a `ProseCoreClient` for the given JID or throws if the JID wasn't added
+  /// using `addEphemeralAccount`.
+  public var ephemeralClient: (BareJid) throws -> ProseCoreClient
 }
 
 public extension DependencyValues {
@@ -37,22 +50,26 @@ public extension DependencyValues {
 
 extension AccountsClient: TestDependencyKey {
   public static var testValue = AccountsClient(
-    availableAccounts: unimplemented("\(Self.self).availableAccounts"),
-    tryConnectAccount: unimplemented("\(Self.self).tryConnectAccount"),
-    connectAccounts: unimplemented("\(Self.self).connectAccounts"),
-    reconnectAccount: unimplemented("\(Self.self).reconnectAccount"),
-    disconnectAccount: unimplemented("\(Self.self).disconnectAccount"),
-    client: unimplemented("\(Self.self).client")
+    accounts: unimplemented("\(Self.self).accounts"),
+    addAccount: unimplemented("\(Self.self).addAccount"),
+    removeAccount: unimplemented("\(Self.self).removeAccount"),
+    client: unimplemented("\(Self.self).client"),
+    addEphemeralAccount: unimplemented("\(Self.self).addEphemeralAccount"),
+    removeEphemeralAccount: unimplemented("\(Self.self).removeEphemeralAccount"),
+    promoteEphemeralAccount: unimplemented("\(Self.self).promoteEphemeralAccount"),
+    ephemeralClient: unimplemented("\(Self.self).ephemeralClient")
   )
 }
 
 public extension AccountsClient {
   static let noop = AccountsClient(
-    availableAccounts: { AsyncStream.empty() },
-    tryConnectAccount: { _ in try await Task.never() },
-    connectAccounts: { _ in },
-    reconnectAccount: { _, _ in },
-    disconnectAccount: { _ in try await Task.never() },
-    client: { _ in throw NoSuchAccountError() }
+    accounts: { AsyncStream.empty() },
+    addAccount: { _ in },
+    removeAccount: { _ in },
+    client: { _ in throw AccountError.unknownAccount },
+    addEphemeralAccount: { _ in },
+    removeEphemeralAccount: { _ in },
+    promoteEphemeralAccount: { _ in },
+    ephemeralClient: { _ in throw AccountError.unknownAccount }
   )
 }
