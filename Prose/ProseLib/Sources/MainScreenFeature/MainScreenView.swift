@@ -62,11 +62,14 @@ struct OfflineBanner: View {
 
   var body: some View {
     HStack {
-      Image(systemName: "hazardsign.fill")
-      Text(L10n.Banner.Offline.title)
-      Text(L10n.Banner.Offline.info)
-        .opacity(0.55)
-        .font(.callout)
+      Group {
+        Image(systemName: "hazardsign.fill")
+        Text(L10n.Banner.Offline.title)
+        Text(L10n.Banner.Offline.info)
+          .opacity(0.55)
+          .font(.callout)
+      }
+      .foregroundColor(.white)
       Spacer()
       Button(action: {}) {
         Text(L10n.Banner.Offline.action)
