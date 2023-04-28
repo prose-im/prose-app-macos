@@ -9,14 +9,14 @@ import ComposableArchitecture
 import ProseUI
 import SwiftUI
 
-public struct ConversationInfoView: View {
+struct ConversationInfoView: View {
   private let store: StoreOf<ConversationInfoReducer>
 
-  public init(store: StoreOf<ConversationInfoReducer>) {
+  init(store: StoreOf<ConversationInfoReducer>) {
     self.store = store
   }
 
-  public var body: some View {
+  var body: some View {
     ScrollView(.vertical) {
       VStack(spacing: 24) {
         VStack(spacing: 12) {

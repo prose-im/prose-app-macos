@@ -18,7 +18,6 @@ let package = Package(
       "AddressBookFeature",
       "AuthenticationFeature",
       "ConversationFeature",
-      "ConversationInfoFeature",
       "EditProfileFeature",
       "JoinChatFeature",
       "MainScreenFeature",
@@ -83,7 +82,6 @@ let package = Package(
     .featureTarget(
       name: "ConversationFeature",
       dependencies: [
-        "ConversationInfoFeature",
         "PasteboardClient",
         "ProseCoreViews",
         "ProseCore",
@@ -95,7 +93,6 @@ let package = Package(
       name: "ConversationFeatureTests",
       dependencies: ["ConversationFeature", "TestHelpers", "Mocks"]
     ),
-    .featureTarget(name: "ConversationInfoFeature"),
     .featureTarget(name: "EditProfileFeature", dependencies: ["ProseCore"]),
     .featureTarget(
       name: "AuthenticationFeature",

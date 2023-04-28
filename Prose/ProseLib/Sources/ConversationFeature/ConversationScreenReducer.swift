@@ -4,7 +4,6 @@
 //
 
 import ComposableArchitecture
-import ConversationInfoFeature
 import ProseCore
 
 public struct ConversationScreenReducer: ReducerProtocol {
