@@ -6,34 +6,23 @@
 import AppDomain
 import ComposableArchitecture
 import Foundation
-import ProseUI
+import ProseCore
 
 public struct ConversationInfoReducer: ReducerProtocol {
-  public struct State: Equatable {
-    var identity = IdentitySectionState(
-      avatar: .placeholder,
-      fullName: "n/a",
-      status: .away,
-      jobTitle: "n/a",
-      company: "n/a"
-    )
-    var information = InformationSectionState(
-      emailAddress: "n/a",
-      phoneNumber: "n/a",
-      lastSeenDate: .distantPast,
-      timeZone: .current,
-      location: "n/a",
-      statusIcon: "🪲",
-      statusMessage: "n/a"
-    )
-    var security = SecuritySectionState(isIdentityVerified: false, encryptionFingerprint: nil)
+  public typealias State = ChatSessionState<ConversationInfoState>
 
+  public struct ConversationInfoState: Equatable {
     @BindingState var identityPopover: IdentityPopoverState?
+
+    var userProfile: UserProfile?
 
     public init() {}
   }
 
   public enum Action: Equatable, BindableAction {
+    case onAppear
+    case onDisappear
+
     case startCallButtonTapped
     case sendEmailButtonTapped
 
@@ -46,21 +35,50 @@ public struct ConversationInfoReducer: ReducerProtocol {
     case encryptionSettingsTapped
     case removeContactTapped
     case blockContactTapped
+
+    case userProfileResult(TaskResult<UserProfile?>)
+  }
+
+  private enum EffectToken: Hashable, CaseIterable {
+    case loadUserProfile
   }
 
   public init() {}
+
+  @Dependency(\.openURL) var openURL
+  @Dependency(\.accountsClient) var accounts
 
   public var body: some ReducerProtocol<State, Action> {
     BindingReducer()
     Reduce { state, action in
       switch action {
+      case .onAppear:
+        return .task { [accountId = state.selectedAccountId, userId = state.chatId] in
+          await .userProfileResult(
+            TaskResult {
+              try await self.accounts.client(accountId).loadProfile(userId, .default)
+            }
+          )
+        }.cancellable(id: EffectToken.loadUserProfile)
+
+      case .onDisappear:
+        return .cancel(token: EffectToken.self)
+
       case .startCallButtonTapped:
-        logger.info("Start call button tapped")
-        return .none
+        guard let tel = state.userProfile?.email, let url = URL(string: "tel:\(tel)") else {
+          return .none
+        }
+        return .fireAndForget {
+          await self.openURL(url)
+        }
 
       case .sendEmailButtonTapped:
-        logger.info("Send email button tapped")
-        return .none
+        guard let email = state.userProfile?.email, let url = URL(string: "mailto:\(email)") else {
+          return .none
+        }
+        return .fireAndForget {
+          await self.openURL(url)
+        }
 
       case .showIdVerificationInfoTapped:
         state.identityPopover = IdentityPopoverState()
@@ -88,37 +106,15 @@ public struct ConversationInfoReducer: ReducerProtocol {
       case .blockContactTapped:
         logger.info("Block tapped")
         return .none
+
+      case let .userProfileResult(.success(profile)):
+        state.userProfile = profile
+        return .none
+
+      case let .userProfileResult(.failure(error)):
+        logger.error("Failed to load user profile. \(error.localizedDescription)")
+        return .none
       }
     }
   }
-}
-
-struct IdentitySectionState: Equatable {
-  let avatar: AvatarImage
-  let fullName: String
-  let status: Availability
-  let jobTitle: String
-  let company: String
-}
-
-struct InformationSectionState: Equatable {
-  let emailAddress: String
-  let phoneNumber: String
-  let lastSeenDate: Date
-  let timeZone: TimeZone
-  let location: String
-  let statusIcon: Character
-  let statusMessage: String
-
-  var localDateString: String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.timeZone = self.timeZone
-    dateFormatter.timeStyle = .long
-    return dateFormatter.string(from: Date.now)
-  }
-}
-
-struct SecuritySectionState: Equatable {
-  let isIdentityVerified: Bool
-  let encryptionFingerprint: String?
 }

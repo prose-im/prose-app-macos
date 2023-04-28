@@ -12,7 +12,7 @@ public struct ConversationScreenReducer: ReducerProtocol {
   public struct ConversationState: Equatable {
     let chatId: BareJid
     var composingUsers = [BareJid]()
-    var info: ConversationInfoReducer.State?
+    var info = ConversationInfoReducer.ConversationInfoState()
     var toolbar = ToolbarReducer.ToolbarState()
     var messageBar = MessageBarReducer.MessageBarState()
     var chat = ChatReducer.ChatState()
@@ -53,10 +53,9 @@ public struct ConversationScreenReducer: ReducerProtocol {
     Scope(state: \.messageBar, action: /Action.messageBar) {
       MessageBarReducer()
     }
-    EmptyReducer()
-      .ifLet(\.info, action: /Action.info) {
-        ConversationInfoReducer()
-      }
+    Scope(state: \.info, action: /Action.info) {
+      ConversationInfoReducer()
+    }
     Scope(state: \.toolbar, action: /Action.toolbar) {
       ToolbarReducer()
     }
@@ -107,16 +106,25 @@ public struct ConversationScreenReducer: ReducerProtocol {
             }
           }.cancellable(id: EffectToken.observeEvents),
           MessageBarReducer().reduce(into: &state.messageBar, action: .onAppear)
-            .map(Action.messageBar)
+            .map(Action.messageBar),
+          ConversationInfoReducer().reduce(into: &state.info, action: .onAppear)
+            .map(Action.info)
         )
 
       case .onDisappear:
-        state.isVisible = false
-        return .merge(
+        let effects: [EffectTask<Action>] = [
           MessageBarReducer().reduce(into: &state.messageBar, action: .onDisappear)
             .map(Action.messageBar),
-          .cancel(token: EffectToken.self)
-        )
+          ConversationInfoReducer().reduce(into: &state.info, action: .onDisappear)
+            .map(Action.info),
+          .cancel(token: EffectToken.self),
+        ]
+
+        state.isVisible = false
+        state.info = .init()
+        state.toolbar.isShowingInfo = false
+
+        return .merge(effects)
 
       case let .messagesResult(.success(messages)):
         state.chat.messages = messages
@@ -212,6 +220,11 @@ extension ConversationScreenReducer.State {
   var toolbar: ToolbarReducer.State {
     get { self.get(\.toolbar) }
     set { self.set(\.toolbar, newValue) }
+  }
+
+  var info: ConversationInfoReducer.State {
+    get { self.get(\.info) }
+    set { self.set(\.info, newValue) }
   }
 
   func get<T>(_ toLocalState: (ChildState) -> T) -> ChatSessionState<T> {

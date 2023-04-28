@@ -16,7 +16,7 @@ struct EntryRowLabelStyle: LabelStyle {
         .frame(width: Self.iconFrameMinWidth, alignment: .center)
 
       configuration.title
-        .foregroundColor(Colors.Text.primaryLight.color)
+        .foregroundColor(Colors.Text.primary.color)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }

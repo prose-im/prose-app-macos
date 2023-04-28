@@ -33,21 +33,11 @@ public struct ConversationScreen: View {
       .onAppear { self.actions.send(.onAppear) }
       .onDisappear { self.actions.send(.onDisappear) }
       .safeAreaInset(edge: .trailing, spacing: 0) {
-        WithViewStore(
-          self.store
-            .scope(state: \.toolbar.childState.isShowingInfo)
-        ) { showingInfo in
+        WithViewStore(self.store.scope(state: \.toolbar.childState.isShowingInfo)) { showingInfo in
           HStack(spacing: 0) {
-            Divider()
-            IfLetStore(
-              self.store
-                .scope(state: \.info, action: ConversationScreenReducer.Action.info)
-            ) { store in
-              ConversationInfoView(store: store)
-            } else: {
-              ProgressView()
-            }
-            .frame(width: 256)
+            ConversationInfoView(
+              store: self.store.scope(state: \.info, action: ConversationScreenReducer.Action.info)
+            ).frame(width: 256)
           }
           .frame(width: showingInfo.state ? 256 : 0, alignment: .leading)
           .clipped()
