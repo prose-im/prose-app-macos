@@ -42,4 +42,8 @@ extension XCUIApplication {
   var chatWebView: XCUIElement {
     self.groups["ChatWebView"].webViews.firstMatch
   }
+
+  var conversationInfo: XCUIElement {
+    self.scrollViews["ConversationInfo"]
+  }
 }
