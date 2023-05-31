@@ -108,6 +108,7 @@ struct PopoverGroupBoxStyle: GroupBoxStyle {
       configuration.content
     }
     .font(.body)
+    .foregroundColor(.primary)
     .scaledToFit()
     .multilineTextAlignment(.leading)
     .padding(16)
