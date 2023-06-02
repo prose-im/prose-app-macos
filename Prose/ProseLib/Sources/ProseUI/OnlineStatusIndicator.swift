@@ -17,5 +17,9 @@ public struct OnlineStatusIndicator: View {
   public var body: some View {
     LEDIndicator(isOn: self.availability != .unavailable)
       .fillColor(self.availability == .available ? Colors.State.green.color : Color.orange)
+      // Override `LEDIndicator` accessibility label as it says "on"/"off"
+      .accessibilityElement(children: .ignore)
+      // FIXME: Localize ProseCoreFFI.Availability
+      .accessibilityLabel(String(describing: self.availability))
   }
 }

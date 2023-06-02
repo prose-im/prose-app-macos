@@ -164,12 +164,6 @@ public struct ConversationScreenReducer: ReducerProtocol {
         )
         return .none
 
-      case .toolbar(.toggleInfoButtonTapped):
-        if state.toolbar.isShowingInfo, state.info == nil {
-          state.info = .init()
-        }
-        return .none
-
       case .event(.composingUsersChanged):
         return .task { [accountId = state.selectedAccountId, chatId = state.childState.chatId] in
           await .composingUsersResult(TaskResult {

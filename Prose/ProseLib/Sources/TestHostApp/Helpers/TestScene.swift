@@ -20,6 +20,9 @@ public struct TestScene: Scene {
         case "roster-selection":
           RosterSelection()
 
+        case "conversation-info":
+          RosterSelection()
+
         default:
           Text("""
           Missing or unknown test case.

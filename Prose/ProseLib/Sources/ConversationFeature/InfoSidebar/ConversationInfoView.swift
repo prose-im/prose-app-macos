@@ -59,6 +59,7 @@ struct ConversationInfoView: View {
     .background(.background)
     .onAppear { self.viewStore.send(.onAppear) }
     .onDisappear { self.viewStore.send(.onDisappear) }
+    .accessibilityIdentifier("ConversationInfo")
   }
 
   var identitySection: some View {
