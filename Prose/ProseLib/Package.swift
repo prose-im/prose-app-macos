@@ -12,20 +12,6 @@ let package = Package(
     .library(name: "ConversationFeature", targets: ["ConversationFeature"]),
     .library(name: "Mocks", targets: ["Mocks"]),
     .library(name: "TestHostApp", targets: ["TestHostApp"]),
-    // For efficiency, Xcode doesn't build all targets when building for previews. This library does
-    // it.
-    .library(name: "Previews", targets: [
-      "AddressBookFeature",
-      "AuthenticationFeature",
-      "ConversationFeature",
-      "EditProfileFeature",
-      "JoinChatFeature",
-      "MainScreenFeature",
-      "ProseUI",
-      "SettingsFeature",
-      "SidebarFeature",
-      "UnreadFeature",
-    ]),
   ],
   dependencies: [
     .package(
@@ -199,7 +185,8 @@ extension PackageDescription.Target {
     dependencies: [Dependency] = [],
     exclude: [String] = []
   ) -> PackageDescription.Target {
-    self.target(
+    assert(name.hasSuffix("Feature"))
+    return self.target(
       name: name,
       dependencies: dependencies + [
         "AppDomain",
@@ -233,3 +220,23 @@ extension Array where Element == Target.Dependency {
     return self
   }
 }
+
+func addPreviewLibrary() {
+  var allFeatureTargets = Set<String>()
+
+  for target in package.targets {
+    if target.name.hasSuffix("Feature") {
+      allFeatureTargets.insert(target.name)
+    }
+  }
+
+  // For efficiency, Xcode doesn't build all targets when building for previews. This library does it.
+  package.products.append(.library(
+    name: "Previews",
+    targets: Array(allFeatureTargets) + [
+      "ProseUI",
+    ]
+  ))
+}
+
+addPreviewLibrary()
