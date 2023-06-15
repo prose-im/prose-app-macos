@@ -25,7 +25,7 @@ let package = Package(
     .package(url: "https://github.com/nesium/swift-common-utils", .upToNextMajor(from: "1.2.0")),
 
 //     .package(name: "ProseCoreFFI", path: "../../../../prose-wrapper-swift/Build/spm/ProseCoreFFI"),
-    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.12.0"),
+    .package(url: "https://github.com/prose-im/prose-wrapper-swift", exact: "0.13.0"),
   ],
   targets: [
     .target(
