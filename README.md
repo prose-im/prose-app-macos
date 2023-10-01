@@ -1,5 +1,7 @@
 # prose-app-macos
 
+![Prose logo, animated](https://github.com/prose-im/prose-app-macos/assets/1451907/15585d71-b496-4ecc-b25e-902d1fb1f079)
+
 **Prose macOS application. Built in Swift / SwiftUI.**
 
 Copyright 2022, Prose Foundation - Released under the [Mozilla Public License 2.0](./LICENSE.md).
