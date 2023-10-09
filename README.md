@@ -1,4 +1,4 @@
-# <img src="https://github.com/prose-im/prose-app-macos/assets/1451907/15585d71-b496-4ecc-b25e-902d1fb1f079" alt="Prose logo, animated" width="150" height="60" />
+# <picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/prose-im/prose-app-macos/assets/1451907/56f003ff-e435-4168-8970-225bcc9e84f8" /><img src="https://github.com/prose-im/prose-app-macos/assets/1451907/15585d71-b496-4ecc-b25e-902d1fb1f079" alt="prose-app-macos" width="150" height="60" /></picture>
 
 **Prose macOS application. Built in Swift / SwiftUI.**
 
