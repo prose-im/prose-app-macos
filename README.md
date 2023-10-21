@@ -2,6 +2,8 @@
 
 **Prose macOS application. Built in Swift / SwiftUI.**
 
+The Prose project was originally announced in a blog post: [Introducing Prose, Decentralized Team Messaging in an Era of Centralized SaaS](https://prose.org/blog/introducing-prose/). This project is the macOS implementation of the Prose app.
+
 Copyright 2022, Prose Foundation - Released under the [Mozilla Public License 2.0](./LICENSE.md).
 
 _Tested at Swift version: `5.5.2` and Xcode version: `13.2`._
