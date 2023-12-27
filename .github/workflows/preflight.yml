@@ -22,7 +22,7 @@ jobs:
         run: sudo automationmodetool enable-automationmode-without-authentication
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install developer certificate
         env:
@@ -56,7 +56,7 @@ jobs:
             ${{ runner.os }}-buildtools-
 
       - name: Cache SPM packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /Users/runner/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
           key: ${{ runner.os }}-spm-${{ hashFiles('Prose/Prose.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
