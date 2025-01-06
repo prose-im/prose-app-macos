@@ -48,7 +48,7 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
 
       - name: Cache BuildTools
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: BuildTools/.build
           key: ${{ runner.os }}-buildtools-${{ hashFiles('BuildTools/Package.resolved') }}
@@ -56,7 +56,7 @@ jobs:
             ${{ runner.os }}-buildtools-
 
       - name: Cache SPM packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /Users/runner/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
           key: ${{ runner.os }}-spm-${{ hashFiles('Prose/Prose.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
